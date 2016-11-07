@@ -1,7 +1,7 @@
 package org.ff4j.test.strategy;
 
 import org.ff4j.FF4j;
-import org.ff4j.core.Feature;
+import org.ff4j.feature.Feature;
 import org.ff4j.strategy.DarkLaunchStrategy;
 import org.ff4j.strategy.PonderationStrategy;
 import org.ff4j.test.AbstractFf4jTest;
@@ -37,15 +37,15 @@ public class PonderationStrategyTest extends AbstractFf4jTest {
     @Test
     public void testDefaultisHalf() {
         Feature f = ff4j.getFeature("pond_Null");
-        Assert.assertEquals(1, f.getFlippingStrategy().getInitParams().size());
+        Assert.assertEquals(1, f.getFlippingStrategy().get().getInitParams().size());
     }
 
     @Test
     public void testExpressionTo0AlwaysFalse() {
         Feature f = ff4j.getFeature("pond_0");
         Assert.assertEquals(new Double(0.0),
-                Double.valueOf(((PonderationStrategy) f.getFlippingStrategy()).getInitParams().get("weight")));
-        Assert.assertEquals(1, f.getFlippingStrategy().getInitParams().size());
+                Double.valueOf(((PonderationStrategy) f.getFlippingStrategy().get()).getInitParams().get("weight")));
+        Assert.assertEquals(1, f.getFlippingStrategy().get().getInitParams().size());
         for (int i = 0; i < 10; i++) {
             assertFf4j.assertThatFeatureNotFlipped(f.getUid());
         }
@@ -55,9 +55,9 @@ public class PonderationStrategyTest extends AbstractFf4jTest {
     public void testExpressionTo1AlwaysTrue() {
         Feature f = ff4j.getFeature("pond_1");
         Assert.assertEquals(new Double(1.0),
-                Double.valueOf(((PonderationStrategy) f.getFlippingStrategy()).getInitParams().get("weight")));
-        Assert.assertEquals(1, f.getFlippingStrategy().getInitParams().size());
-        Assert.assertEquals("1.0", f.getFlippingStrategy().getInitParams().get("weight"));
+                Double.valueOf(((PonderationStrategy) f.getFlippingStrategy().get()).getInitParams().get("weight")));
+        Assert.assertEquals(1, f.getFlippingStrategy().get().getInitParams().size());
+        Assert.assertEquals("1.0", f.getFlippingStrategy().get().getInitParams().get("weight"));
 
         for (int i = 0; i < 10; i++) {
             assertFf4j.assertThatFeatureFlipped(f.getUid());
@@ -68,7 +68,7 @@ public class PonderationStrategyTest extends AbstractFf4jTest {
     public void testExpressionCustom() {
         Feature f = ff4j.getFeature("pond_6");
         Assert.assertEquals(new Double(0.6),
-                Double.valueOf(((PonderationStrategy) f.getFlippingStrategy()).getInitParams().get("weight")));
+                Double.valueOf(((PonderationStrategy) f.getFlippingStrategy().get()).getInitParams().get("weight")));
         int nbOK = 0;
         int nbKO = 0;
         for (int i = 0; i < 1000; i++) {

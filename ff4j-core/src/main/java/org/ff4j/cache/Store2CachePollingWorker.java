@@ -22,10 +22,10 @@ package org.ff4j.cache;
 
 import java.io.Serializable;
 
-import org.ff4j.core.Feature;
-import org.ff4j.core.FeatureStore;
+import org.ff4j.feature.Feature;
 import org.ff4j.property.Property;
-import org.ff4j.property.store.PropertyStore;
+import org.ff4j.store.FeatureStore;
+import org.ff4j.store.PropertyStore;
 
 /**
  * Working thread to poll and fetch data from store and copy to local cache.

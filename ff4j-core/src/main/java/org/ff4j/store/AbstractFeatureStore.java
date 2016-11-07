@@ -27,11 +27,10 @@ import java.util.Set;
 
 import org.ff4j.conf.XmlConfig;
 import org.ff4j.conf.XmlParser;
-import org.ff4j.core.Feature;
-import org.ff4j.core.FeatureStore;
 import org.ff4j.exception.FeatureAlreadyExistException;
 import org.ff4j.exception.FeatureNotFoundException;
 import org.ff4j.exception.GroupNotFoundException;
+import org.ff4j.feature.Feature;
 import org.ff4j.utils.JsonUtils;
 import org.ff4j.utils.Util;
 

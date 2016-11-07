@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.ff4j.cache.FF4jCacheProxy;
-import org.ff4j.core.FlippingStrategy;
+import org.ff4j.feature.FlippingStrategy;
 import org.ff4j.property.Property;
 
 /**

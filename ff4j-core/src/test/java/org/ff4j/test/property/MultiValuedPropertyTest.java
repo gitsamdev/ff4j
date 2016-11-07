@@ -28,10 +28,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.ff4j.property.multi.AbstractPropertyList;
-import org.ff4j.property.multi.AbstractPropertyMap;
-import org.ff4j.property.multi.AbstractPropertySet;
-import org.ff4j.utils.Util;
+import org.ff4j.property.AbstractPropertyList;
+import org.ff4j.property.AbstractPropertyMap;
+import org.ff4j.property.AbstractPropertySet;
+import org.ff4j.utils.FF4jUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -41,7 +41,6 @@ public class MultiValuedPropertyTest {
     
     public static final class DemoSet extends AbstractPropertySet<String> {
         private static final long serialVersionUID = -5669727417887213794L;
-        public DemoSet() { super(); }
         public DemoSet(String name) {super(name);}
         public DemoSet(String name, String value) { super(name, value); }
         public DemoSet(String name, Set<String> value) { super(name, value); }
@@ -49,7 +48,6 @@ public class MultiValuedPropertyTest {
     
     public static final class DemoList extends AbstractPropertyList<String> {
         private static final long serialVersionUID = -5669727417887213794L;
-        public DemoList() { super(); }
         public DemoList(String name) {super(name);}
         public DemoList(String name, String value) { super(name, value); }
         public DemoList(String name, List<String> value) { super(name, value); }
@@ -58,7 +56,6 @@ public class MultiValuedPropertyTest {
     
     public static final class DemoMap extends AbstractPropertyMap<String , Map<String,String>> {
         private static final long serialVersionUID = -5669727417887213794L;
-        public DemoMap() { super(); }
         public DemoMap(String name) {super(name);}
         public DemoMap(String name, Map<String,String> maps) {super(name, maps);}
         public String put(String key, String value) {  return value().put(key, value); }
@@ -77,10 +74,9 @@ public class MultiValuedPropertyTest {
     
     @Test
     public void testMultiSet() {
-        DemoSet ds = new DemoSet();
-        new DemoSet("P1");
+        DemoSet ds = new DemoSet("P1");
         new DemoSet("P2", "val1,val2");
-        new DemoSet("P3", Util.set("val1", "val2"));
+        new DemoSet("P3", FF4jUtils.setOf("val1", "val2"));
         String vals = "val1,val2,val3";
         ds.setListDelimiter(",");
         ds.fromString(vals);
@@ -88,11 +84,10 @@ public class MultiValuedPropertyTest {
     
     @Test
     public void testMultiList() {
-        DemoList ds = new DemoList();
-        new DemoList("P1");
+        DemoList ds = new DemoList("p1");
         new DemoList("P2", "val1,val2");
         new DemoList("P3", "val1", "val2");
-        new DemoList("P3", Util.list("val1", "val2"));
+        new DemoList("P3", FF4jUtils.listOf("val1", "val2"));
         String vals = "val1,val2,val3";
         ds.setListDelimiter(",");
         ds.fromString(vals);
@@ -100,12 +95,12 @@ public class MultiValuedPropertyTest {
         // Enhance coverage, do not assert on existing JDK methods through
         ds.add("val");
         ds.add(0, "val2");
-        ds.addAll(0, Util.list("val3", "val4"));
+        ds.addAll(0, FF4jUtils.listOf("val3", "val4"));
         ds.addAll("val3", "val4");
         ds.addAll((String[]) null);
         ds.addAll("");
         
-        ds.addAll(Util.list("val3", "val4"));
+        ds.addAll(FF4jUtils.listOf("val3", "val4"));
         ds.set(1, "val2");
         ds.subList(1, 1);
         ds.get(0);
@@ -129,7 +124,7 @@ public class MultiValuedPropertyTest {
         ds.setValue(null);
         ds.add(0, "");
         ds.setValue(null);
-        ds.addAll(0, Util.list("val3", "val4"));
+        ds.addAll(0, FF4jUtils.listOf("val3", "val4"));
         ds.listIterator();
         ds.listIterator(0);
         ds.clear();
@@ -138,37 +133,36 @@ public class MultiValuedPropertyTest {
         ds.fromString(null);
         ds.setValue(null);
         ds.remove("val3");
-        ds.addAll(0, Util.list("val3", "val4"));
+        ds.addAll(0, FF4jUtils.listOf("val3", "val4"));
         ds.remove("val3");
         ds.clear();
         ds.setValue(null);
-        ds.containsAll(Util.list("val3", "val4"));
+        ds.containsAll(FF4jUtils.listOf("val3", "val4"));
         ds.remove("val3");
-        ds.retainAll(Util.list("val3", "val4"));
+        ds.retainAll(FF4jUtils.listOf("val3", "val4"));
         ds.size();
         ds.iterator();
         ds.toArray();
-        ds.addAll(Util.list("val3", "val4"));
-        ds.removeAll(Util.list("val3"));
-        ds.containsAll(Util.list("val3", "val4"));
+        ds.addAll(FF4jUtils.listOf("val3", "val4"));
+        ds.removeAll(FF4jUtils.listOf("val3"));
+        ds.containsAll(FF4jUtils.listOf("val3", "val4"));
         ds.toArray();
         ds.setValue(null);
-        ds.removeAll(Util.list("val3"));
+        ds.removeAll(FF4jUtils.listOf("val3"));
         ds.contains("val");
-        ds.addAll(Util.list("val3", "val4"));
+        ds.addAll(FF4jUtils.listOf("val3", "val4"));
         ds.remove("val3");
         ds.clear();
     }
     
     @Test
     public void testMultiMap() {
-        DemoMap dm = new DemoMap();
         DemoMap dm2 = new DemoMap("P1");
         dm2.put("A", "v");
         Map < String, String > map = new HashMap<String, String >();
         map.put("A", "v");
         new DemoMap("P3",map);
-        dm.fromString("{ \"key\":\"value\"}");
+        dm2.fromString("{ \"key\":\"value\"}");
     }
     
     @Test(expected = IllegalStateException.class)
@@ -202,9 +196,9 @@ public class MultiValuedPropertyTest {
         DemoSet ds =  new DemoSet("P2", "val1,val2");
         Assert.assertNotNull(ds.iterator());
         ds.removeAll(new ArrayList<String>());
-        ds.retainAll(Util.set("val1"));
+        ds.retainAll(FF4jUtils.listOf("val1"));
         ds.add("val2");
-        ds.addAll(Util.set("val3", "val4"));
+        ds.addAll(FF4jUtils.listOf("val3", "val4"));
         ds.toArray(new String[0]);
         ds.size();
         ds.isEmpty();

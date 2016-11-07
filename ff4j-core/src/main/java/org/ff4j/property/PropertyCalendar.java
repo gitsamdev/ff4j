@@ -35,12 +35,6 @@ public class PropertyCalendar extends Property< Calendar > {
     
     /** expected expression. */
     public  static final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-
-    /**
-     * Default constructor.
-     */
-    public PropertyCalendar() {
-    }
     
     /**
      * Constructor by property name.

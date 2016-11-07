@@ -25,8 +25,8 @@ import static org.ff4j.utils.JdbcUtils.isTableExist;
 
 import javax.sql.DataSource;
 
-import org.ff4j.property.store.JdbcPropertyStore;
-import org.ff4j.store.JdbcQueryBuilder;
+import org.ff4j.jdbc.JdbcQueryBuilder;
+import org.ff4j.jdbc.PropertyStoreJdbc;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -49,7 +49,7 @@ public class JdbcPropertyStoreSchemaTest {
     private EmbeddedDatabaseBuilder builder = null;
     
     /** Tested Store. */
-    protected JdbcPropertyStore testedStore;
+    protected PropertyStoreJdbc testedStore;
 
     /** {@inheritDoc} */
     @Before
@@ -61,7 +61,7 @@ public class JdbcPropertyStoreSchemaTest {
     public void initStore() {
         builder = new EmbeddedDatabaseBuilder();
         db = builder.setType(EmbeddedDatabaseType.HSQL).build();
-        testedStore = new JdbcPropertyStore();
+        testedStore = new PropertyStoreJdbc();
         testedStore.setDataSource(db);
     }
    

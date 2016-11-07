@@ -29,4 +29,4 @@ import org.ff4j.audit.Event;
  *
  * @param <STORE_OBJ>
  */
-public interface EventMapper < STORE_OBJ > extends Mapper<Event, STORE_OBJ> {}
+public interface EventMapper < REQ, RES > extends Mapper<Event, REQ, RES> {}

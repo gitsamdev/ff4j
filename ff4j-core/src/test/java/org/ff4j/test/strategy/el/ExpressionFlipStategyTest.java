@@ -12,7 +12,7 @@ package org.ff4j.test.strategy.el;
  */
 
 import org.ff4j.FF4j;
-import org.ff4j.core.FlippingExecutionContext;
+import org.ff4j.feature.FlippingExecutionContext;
 import org.ff4j.strategy.el.ExpressionFlipStrategy;
 import org.ff4j.test.AssertFf4j;
 import org.junit.Assert;
@@ -35,7 +35,7 @@ public class ExpressionFlipStategyTest {
     public void testExpression() throws Exception {
         Assert.assertNotNull(ff4j.getFeature("D"));
         Assert.assertNotNull(ff4j.getFeature("D").getFlippingStrategy());
-        Assert.assertNotNull(ff4j.getFeature("D").getFlippingStrategy().getInitParams());
+        Assert.assertNotNull(ff4j.getFeature("D").getFlippingStrategy().get().getInitParams());
         boolean dFlipped = ff4j.check("D");
         Assert.assertTrue(dFlipped);
     }

@@ -25,8 +25,8 @@ import java.text.ParseException;
 import org.junit.Assert;
 
 import org.ff4j.FF4j;
-import org.ff4j.core.Feature;
-import org.ff4j.core.FlippingExecutionContext;
+import org.ff4j.feature.Feature;
+import org.ff4j.feature.FlippingExecutionContext;
 import org.ff4j.strategy.ServerFilterStrategy;
 import org.ff4j.test.AbstractFf4jTest;
 import org.junit.Test;
@@ -44,7 +44,7 @@ public class ServerFilterStrategyTest extends AbstractFf4jTest {
         // Given
         Feature f1 = ff4j.getFeature(F1);
         Assert.assertNotNull(f1.getFlippingStrategy());
-        ServerFilterStrategy cStra = (ServerFilterStrategy) f1.getFlippingStrategy();
+        ServerFilterStrategy cStra = (ServerFilterStrategy) f1.getFlippingStrategy().get();
         Assert.assertNotNull(cStra.getInitParams());
         Assert.assertEquals(1, cStra.getInitParams().size());
         Assert.assertTrue(f1.isEnable());
@@ -62,7 +62,7 @@ public class ServerFilterStrategyTest extends AbstractFf4jTest {
         // Given
         Feature f1 = ff4j.getFeature(F1);
         Assert.assertNotNull(f1.getFlippingStrategy());
-        ServerFilterStrategy cStra = (ServerFilterStrategy) f1.getFlippingStrategy();
+        ServerFilterStrategy cStra = (ServerFilterStrategy) f1.getFlippingStrategy().get();
         Assert.assertNotNull(cStra.getInitParams());
         Assert.assertEquals(1, cStra.getInitParams().size());
         Assert.assertTrue(f1.isEnable());

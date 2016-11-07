@@ -26,8 +26,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.ff4j.FF4j;
-import org.ff4j.core.FlippingExecutionContext;
-import org.ff4j.store.InMemoryFeatureStore;
+import org.ff4j.feature.FlippingExecutionContext;
+import org.ff4j.inmemory.FeatureStoreInMemory;
 import org.ff4j.strategy.time.HourInterval;
 import org.ff4j.strategy.time.OfficeHourStrategy;
 import org.ff4j.test.AbstractFf4jTest;
@@ -218,8 +218,8 @@ public class OfficeHourStrategyTest extends AbstractFf4jTest {
          ohs.parseIntervalsExpression(null);
          ohs.parseIntervalsExpression("");
          ohs.matches(Calendar.getInstance(), null);
-         ohs.evaluate("f1", new InMemoryFeatureStore(), null);
-         ohs.evaluate("f1", new InMemoryFeatureStore(), new FlippingExecutionContext());
+         ohs.evaluate("f1", new FeatureStoreInMemory(), null);
+         ohs.evaluate("f1", new FeatureStoreInMemory(), new FlippingExecutionContext());
      }
      
      

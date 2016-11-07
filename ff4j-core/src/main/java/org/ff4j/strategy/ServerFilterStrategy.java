@@ -5,8 +5,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.ff4j.core.FeatureStore;
-import org.ff4j.core.FlippingExecutionContext;
+import org.ff4j.feature.FlippingExecutionContext;
+import org.ff4j.store.FeatureStore;
 import org.ff4j.utils.IOUtil;
 
 /*

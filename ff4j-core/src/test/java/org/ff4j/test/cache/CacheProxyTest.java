@@ -7,13 +7,13 @@ import org.ff4j.FF4j;
 import org.ff4j.cache.FF4JCacheManager;
 import org.ff4j.cache.FF4jCacheProxy;
 import org.ff4j.cache.InMemoryCacheManager;
-import org.ff4j.core.Feature;
+import org.ff4j.feature.Feature;
+import org.ff4j.inmemory.FeatureStoreInMemory;
+import org.ff4j.inmemory.PropertyStoreInMemory;
 import org.ff4j.property.Property;
 import org.ff4j.property.PropertyLogLevel;
 import org.ff4j.property.PropertyLogLevel.LogLevel;
 import org.ff4j.property.PropertyString;
-import org.ff4j.property.store.InMemoryPropertyStore;
-import org.ff4j.store.InMemoryFeatureStore;
 import org.junit.Assert;
 
 /*
@@ -61,13 +61,13 @@ public class CacheProxyTest {
         proxy.setCacheManager(cm);
         proxy.isCached();
         Assert.assertNotNull(proxy.getCacheProvider());
-        proxy.setTargetPropertyStore(new InMemoryPropertyStore());
+        proxy.setTargetPropertyStore(new PropertyStoreInMemory());
         Assert.assertEquals(0, proxy.readAllProperties().size());
         proxy.createProperty(new PropertyString("p1", "v1"));
         Assert.assertTrue(proxy.existProperty("p1"));
         Assert.assertFalse(proxy.existProperty("p2"));
         
-        proxy.setTargetFeatureStore(new InMemoryFeatureStore());
+        proxy.setTargetFeatureStore(new FeatureStoreInMemory());
         Set < Feature> setOfFeatures = new HashSet<Feature>();
         setOfFeatures.add(new Feature("f1"));
         setOfFeatures.add(new Feature("f2"));
@@ -77,8 +77,8 @@ public class CacheProxyTest {
     @Test
     public void testCacheProxyManagerProperty() {
         FF4jCacheProxy proxy = new FF4jCacheProxy();
-        proxy.setTargetPropertyStore(new InMemoryPropertyStore());
-        proxy.setTargetFeatureStore(new InMemoryFeatureStore());
+        proxy.setTargetPropertyStore(new PropertyStoreInMemory());
+        proxy.setTargetFeatureStore(new FeatureStoreInMemory());
         proxy.setCacheManager(new InMemoryCacheManager());
         Assert.assertTrue(proxy.isEmpty());
         

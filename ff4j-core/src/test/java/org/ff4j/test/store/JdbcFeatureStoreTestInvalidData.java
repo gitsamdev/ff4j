@@ -24,8 +24,8 @@ import java.util.HashMap;
 
 
 import org.ff4j.exception.FeatureAccessException;
-import org.ff4j.store.JdbcFeatureStore;
-import org.ff4j.utils.MappingUtil;
+import org.ff4j.feature.FlippingStrategy;
+import org.ff4j.jdbc.FeatureStoreJdbc;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,7 +44,7 @@ public class JdbcFeatureStoreTestInvalidData {
     private EmbeddedDatabase db;
 
     /** Target Store. */
-    private JdbcFeatureStore jdbcStore;
+    private FeatureStoreJdbc jdbcStore;
    
     /** {@inheritDoc} */
     @Before
@@ -55,7 +55,7 @@ public class JdbcFeatureStoreTestInvalidData {
                 addScript("classpath:schema-ddl.sql").//
                 addScript("classpath:ff-invalidstore.sql").build();
 
-        jdbcStore = new JdbcFeatureStore();
+        jdbcStore = new FeatureStoreJdbc();
         jdbcStore.setDataSource(db);
     }
 
@@ -66,7 +66,7 @@ public class JdbcFeatureStoreTestInvalidData {
     
     @Test(expected = FeatureAccessException.class)
     public void testInvalidStrategy() {
-        MappingUtil.instanceFlippingStrategy("ID", "com.KO", new HashMap<String, String>());
+        FlippingStrategy.instanciate("ID", "com.KO", new HashMap<String, String>());
     }
     
     /** {@inheritDoc} */

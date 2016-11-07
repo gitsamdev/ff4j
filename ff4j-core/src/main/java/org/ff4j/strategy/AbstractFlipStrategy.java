@@ -23,7 +23,7 @@ package org.ff4j.strategy;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.ff4j.core.FlippingStrategy;
+import org.ff4j.feature.FlippingStrategy;
 import org.ff4j.utils.JsonUtils;
 import org.ff4j.utils.MappingUtil;
 

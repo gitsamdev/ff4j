@@ -28,12 +28,12 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
-import org.ff4j.core.Feature;
 import org.ff4j.exception.FeatureAccessException;
+import org.ff4j.feature.Feature;
+import org.ff4j.jdbc.FeatureStoreJdbc;
+import org.ff4j.jdbc.JdbcStoreConstants;
 import org.ff4j.property.Property;
 import org.ff4j.property.PropertyString;
-import org.ff4j.store.JdbcFeatureStore;
-import org.ff4j.store.JdbcStoreConstants;
 import org.ff4j.utils.JdbcUtils;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -67,7 +67,7 @@ public class JdbcFeatureStoreErrorTest {
     public void testgetExistKO()  throws SQLException {
         DataSource mockDS = Mockito.mock(DataSource.class);
         doThrow(new SQLException()).when(mockDS).getConnection();
-        JdbcFeatureStore jrepo = new JdbcFeatureStore(mockDS);
+        FeatureStoreJdbc jrepo = new FeatureStoreJdbc(mockDS);
         jrepo.setDataSource(mockDS);
         jrepo.exist("xx");
     }
@@ -77,7 +77,7 @@ public class JdbcFeatureStoreErrorTest {
         DataSource mockDS = Mockito.mock(DataSource.class);
         doThrow(new SQLException()).when(mockDS).getConnection();
         // Exist goes before
-        JdbcFeatureStore jrepo = new JdbcFeatureStore(mockDS);
+        FeatureStoreJdbc jrepo = new FeatureStoreJdbc(mockDS);
         jrepo.setDataSource(mockDS);
         jrepo.read("xx");
     }
@@ -86,7 +86,7 @@ public class JdbcFeatureStoreErrorTest {
     public void testgetReadGroupKO()  throws SQLException {
         DataSource mockDS = Mockito.mock(DataSource.class);
         doThrow(new SQLException()).when(mockDS).getConnection();
-        JdbcFeatureStore jrepo = new JdbcFeatureStore(mockDS);
+        FeatureStoreJdbc jrepo = new FeatureStoreJdbc(mockDS);
         jrepo.setDataSource(mockDS);
         jrepo.readGroup("xx");
     }
@@ -95,16 +95,16 @@ public class JdbcFeatureStoreErrorTest {
     public void testCreateKO()  throws SQLException {
         DataSource mockDS = Mockito.mock(DataSource.class);
         doThrow(new SQLException()).when(mockDS).getConnection();
-        JdbcFeatureStore jrepo = new JdbcFeatureStore(mockDS);
+        FeatureStoreJdbc jrepo = new FeatureStoreJdbc(mockDS);
         jrepo.setDataSource(mockDS);
-        jrepo.create(new Feature("U1", true));
+        jrepo.create(new Feature("U1").toggleOn());
     }
     
     @Test(expected = FeatureAccessException.class)
     public void tesDeleteKO()  throws SQLException {
         DataSource mockDS = Mockito.mock(DataSource.class);
         doThrow(new SQLException()).when(mockDS).getConnection();
-        JdbcFeatureStore jrepo = new JdbcFeatureStore(mockDS);
+        FeatureStoreJdbc jrepo = new FeatureStoreJdbc(mockDS);
         jrepo.setDataSource(mockDS);
         jrepo.delete("p1");
     }
@@ -113,7 +113,7 @@ public class JdbcFeatureStoreErrorTest {
     public void testreadAllKO()  throws SQLException {
         DataSource mockDS = Mockito.mock(DataSource.class);
         doThrow(new SQLException()).when(mockDS).getConnection();
-        JdbcFeatureStore jrepo = new JdbcFeatureStore(mockDS);
+        FeatureStoreJdbc jrepo = new FeatureStoreJdbc(mockDS);
         jrepo.setDataSource(mockDS);
         jrepo.readAll();
     }
@@ -122,7 +122,7 @@ public class JdbcFeatureStoreErrorTest {
     public void testClearKO()  throws SQLException {
         DataSource mockDS = Mockito.mock(DataSource.class);
         doThrow(new SQLException()).when(mockDS).getConnection();
-        JdbcFeatureStore jrepo = new JdbcFeatureStore(mockDS);
+        FeatureStoreJdbc jrepo = new FeatureStoreJdbc(mockDS);
         jrepo.setDataSource(mockDS);
         jrepo.clear();
     }
@@ -131,16 +131,16 @@ public class JdbcFeatureStoreErrorTest {
     public void testUpdateKO()  throws SQLException {
         DataSource mockDS = Mockito.mock(DataSource.class);
         doThrow(new SQLException()).when(mockDS).getConnection();
-        JdbcFeatureStore jrepo = new JdbcFeatureStore(mockDS);
+        FeatureStoreJdbc jrepo = new FeatureStoreJdbc(mockDS);
         jrepo.setDataSource(mockDS);
-        jrepo.update(new Feature("f1", true));
+        jrepo.update(new Feature("f1").toggleOn());
     }
     
     @Test(expected = FeatureAccessException.class)
     public void testReadAllGroupKO()  throws SQLException {
         DataSource mockDS = Mockito.mock(DataSource.class);
         doThrow(new SQLException()).when(mockDS).getConnection();
-        JdbcFeatureStore jrepo = new JdbcFeatureStore(mockDS);
+        FeatureStoreJdbc jrepo = new FeatureStoreJdbc(mockDS);
         jrepo.setDataSource(mockDS);
         jrepo.readAllGroups();
     }
@@ -149,7 +149,7 @@ public class JdbcFeatureStoreErrorTest {
     public void testReadGroupKO()  throws SQLException {
         DataSource mockDS = Mockito.mock(DataSource.class);
         doThrow(new SQLException()).when(mockDS).getConnection();
-        JdbcFeatureStore jrepo = new JdbcFeatureStore(mockDS);
+        FeatureStoreJdbc jrepo = new FeatureStoreJdbc(mockDS);
         jrepo.setDataSource(mockDS);
         jrepo.readGroup("invalid");
     }
@@ -158,7 +158,7 @@ public class JdbcFeatureStoreErrorTest {
     public void testexistGroupKO()  throws SQLException {
         DataSource mockDS = Mockito.mock(DataSource.class);
         doThrow(new SQLException()).when(mockDS).getConnection();
-        JdbcFeatureStore jrepo = new JdbcFeatureStore(mockDS);
+        FeatureStoreJdbc jrepo = new FeatureStoreJdbc(mockDS);
         jrepo.setDataSource(mockDS);
         jrepo.existGroup("invalid");
     }
@@ -167,7 +167,7 @@ public class JdbcFeatureStoreErrorTest {
     public void testcreateCustomKO()  throws SQLException {
         DataSource mockDS = Mockito.mock(DataSource.class);
         doThrow(new SQLException()).when(mockDS).getConnection();
-        JdbcFeatureStore jrepo = new JdbcFeatureStore(mockDS);
+        FeatureStoreJdbc jrepo = new FeatureStoreJdbc(mockDS);
         jrepo.setDataSource(mockDS);
         List < Property<?>> lp = new ArrayList<Property<?>>();
         lp.add(new PropertyString("p1", "v1"));
@@ -177,7 +177,7 @@ public class JdbcFeatureStoreErrorTest {
     
     @Test(expected = IllegalStateException.class)
     public void testJetDataSourceKO()  throws SQLException {
-        JdbcFeatureStore jrepo = new JdbcFeatureStore(null);
+        FeatureStoreJdbc jrepo = new FeatureStoreJdbc(null);
         jrepo.getDataSource();
     }
     
@@ -185,7 +185,7 @@ public class JdbcFeatureStoreErrorTest {
     public void testUpdate2O()  throws SQLException {
         DataSource mockDS = Mockito.mock(DataSource.class);
         doThrow(new SQLException()).when(mockDS).getConnection();
-        JdbcFeatureStore jrepo = new JdbcFeatureStore(mockDS);
+        FeatureStoreJdbc jrepo = new FeatureStoreJdbc(mockDS);
         jrepo.setDataSource(mockDS);
         jrepo.update(JdbcStoreConstants.SQL_DISABLE, "F4");
     }

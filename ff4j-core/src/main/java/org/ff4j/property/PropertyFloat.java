@@ -31,12 +31,6 @@ public class PropertyFloat extends Property< Float > {
 
     /** serial. */
     private static final long serialVersionUID = -134543098672660987L;
-
-    /**
-     * Default constructor.
-     */
-    public PropertyFloat() {
-    }
     
     /**
      * Constructor by property name.

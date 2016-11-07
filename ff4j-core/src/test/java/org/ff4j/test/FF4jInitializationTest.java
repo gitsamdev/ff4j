@@ -24,8 +24,8 @@ import static org.mockito.Mockito.mock;
 import org.junit.Assert;
 
 import org.ff4j.FF4j;
+import org.ff4j.inmemory.FeatureStoreInMemory;
 import org.ff4j.security.AuthorizationsManager;
-import org.ff4j.store.InMemoryFeatureStore;
 import org.junit.Test;
 
 /**
@@ -42,7 +42,7 @@ public class FF4jInitializationTest {
      */
     private void testingGeneratedFF4j(FF4j f) {
         Assert.assertNotNull(f.getFeatureStore());
-        Assert.assertTrue(f.getFeatureStore() instanceof InMemoryFeatureStore);
+        Assert.assertTrue(f.getFeatureStore() instanceof FeatureStoreInMemory);
         Assert.assertFalse(f.check("new"));
     }
 

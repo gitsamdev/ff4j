@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.ff4j.FF4j;
-import org.ff4j.core.Feature;
+import org.ff4j.feature.Feature;
 import org.ff4j.strategy.time.ReleaseDateFlipStrategy;
 import org.ff4j.test.AbstractFf4jTest;
 import org.junit.Assert;
@@ -48,14 +48,14 @@ public class ReleaseDateFlipStrategyTest extends AbstractFf4jTest {
     @Test
     public void testPastDayOK() throws ParseException {
         Feature f = ff4j.getFeature("past1");
-        ReleaseDateFlipStrategy rds = (ReleaseDateFlipStrategy) f.getFlippingStrategy();
+        ReleaseDateFlipStrategy rds = (ReleaseDateFlipStrategy) f.getFlippingStrategy().get();
         Assert.assertTrue(rds.evaluate("past1", null, null));
     }
 
     @Test
     public void testFutureOK() throws ParseException {
         Feature f = ff4j.getFeature("future1");
-        ReleaseDateFlipStrategy rds = (ReleaseDateFlipStrategy) f.getFlippingStrategy();
+        ReleaseDateFlipStrategy rds = (ReleaseDateFlipStrategy) f.getFlippingStrategy().get();
         Assert.assertFalse(rds.evaluate("future1", null, null));
     }
     

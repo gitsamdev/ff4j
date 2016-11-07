@@ -33,17 +33,6 @@ public class PropertyBigDecimal extends Property< BigDecimal > {
 
     /** serial. */
     private static final long serialVersionUID = -134543098672660987L;
-
-    /**
-     * Constructor by string expression.
-     *
-     * @param uid
-     *      unique name
-     * @param lvl
-     *      current log level
-     */
-    public PropertyBigDecimal() {
-    }
     
     /**
      * Constructor by string expression.

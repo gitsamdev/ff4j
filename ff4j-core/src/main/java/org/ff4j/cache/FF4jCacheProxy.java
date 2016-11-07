@@ -16,10 +16,10 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-import org.ff4j.core.Feature;
-import org.ff4j.core.FeatureStore;
+import org.ff4j.feature.Feature;
 import org.ff4j.property.Property;
-import org.ff4j.property.store.PropertyStore;
+import org.ff4j.store.FeatureStore;
+import org.ff4j.store.PropertyStore;
 
 /**
  * Access to {@link FeatureStore} could generate some overhead and decrease performances. This is the reason why cache is provided
@@ -352,7 +352,7 @@ public class FF4jCacheProxy implements FeatureStore, PropertyStore {
         // Update value in target store
         getTargetPropertyStore().updateProperty(fp);
         // Remove from cache old value
-        getCacheManager().evictProperty(fp.getName());
+        getCacheManager().evictProperty(fp.getUid());
         // Add new value in the cache
         getCacheManager().putProperty(fp);
     }
@@ -363,7 +363,7 @@ public class FF4jCacheProxy implements FeatureStore, PropertyStore {
         // Update the property
         getTargetPropertyStore().updateProperty(propertyValue);
         // Update the cache accordirly
-        getCacheManager().evictProperty(propertyValue.getName());
+        getCacheManager().evictProperty(propertyValue.getUid());
         // Update the property in cache
         getCacheManager().putProperty(propertyValue);
     }

@@ -26,8 +26,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
-import org.ff4j.core.FeatureStore;
-import org.ff4j.property.store.PropertyStore;
+import org.ff4j.store.FeatureStore;
+import org.ff4j.store.PropertyStore;
 
 /**
  * Poll target stores on a fixed delay basis and fill cache to avoid reaching TTL of key.

@@ -31,10 +31,10 @@ import java.util.HashSet;
 import org.junit.Assert;
 
 import org.ff4j.FF4j;
-import org.ff4j.core.FeatureStore;
-import org.ff4j.core.FlippingExecutionContext;
-import org.ff4j.core.FlippingStrategy;
+import org.ff4j.feature.FlippingExecutionContext;
+import org.ff4j.feature.FlippingStrategy;
 import org.ff4j.security.AuthorizationsManager;
+import org.ff4j.store.FeatureStore;
 import org.junit.Before;
 import org.junit.Test;
 

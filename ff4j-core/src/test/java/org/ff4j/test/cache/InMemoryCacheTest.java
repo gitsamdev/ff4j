@@ -2,11 +2,11 @@ package org.ff4j.test.cache;
 
 import org.ff4j.cache.FF4jCacheProxy;
 import org.ff4j.cache.InMemoryCacheManager;
-import org.ff4j.core.Feature;
-import org.ff4j.core.FeatureStore;
+import org.ff4j.feature.Feature;
+import org.ff4j.inmemory.FeatureStoreInMemory;
+import org.ff4j.inmemory.PropertyStoreInMemory;
 import org.ff4j.property.PropertyString;
-import org.ff4j.property.store.InMemoryPropertyStore;
-import org.ff4j.store.InMemoryFeatureStore;
+import org.ff4j.store.FeatureStore;
 import org.ff4j.test.store.CoreFeatureStoreTestSupport;
 
 /*
@@ -43,8 +43,8 @@ public class InMemoryCacheTest extends CoreFeatureStoreTestSupport {
     @Override
     public FeatureStore initStore() {
         return new FF4jCacheProxy(
-                new InMemoryFeatureStore("ff4j.xml"), 
-                new InMemoryPropertyStore("ff4j.xml"),
+                new FeatureStoreInMemory("ff4j.xml"), 
+                new PropertyStoreInMemory("ff4j.xml"),
                 new InMemoryCacheManager());
     }
 
@@ -69,43 +69,7 @@ public class InMemoryCacheTest extends CoreFeatureStoreTestSupport {
     public void testPutNullPropertyisIlegal() {
         new InMemoryCacheManager().putProperty(null);
     }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testPutNullFeatureId() {
-        Feature f = new Feature("a");
-        f.setUid(null);
-        new InMemoryCacheManager().putFeature(f);
-    }
     
-    @Test(expected = IllegalArgumentException.class)
-    public void testPutNullFeatureId1() {
-        Feature f = new Feature("a");
-        f.setUid(null);
-        new InMemoryCacheManager().putFeature(f,1);
-    }
-    
-    @Test(expected = IllegalArgumentException.class)
-    public void testPutNullPropertyName() {
-        PropertyString p = new PropertyString();
-        p.setName(null);
-        new InMemoryCacheManager().putProperty(p);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testPutEmptyFeatureId() {
-        Feature f = new Feature("a");
-        f.setUid("");
-        new InMemoryCacheManager().putFeature(f);
-    }
-    
-    
-    @Test(expected = IllegalArgumentException.class)
-    public void testPutEmptyPropertyName() {
-        PropertyString p = new PropertyString();
-        p.setName("");
-        new InMemoryCacheManager().putProperty(p);
-    }
-
     @Test(expected = IllegalArgumentException.class)
     public void testRequiredArgumentCacheManager() {
         new FF4jCacheProxy().getCacheManager();
@@ -114,7 +78,7 @@ public class InMemoryCacheTest extends CoreFeatureStoreTestSupport {
     @Test
     public void testExistBis() {
         FF4jCacheProxy fscp = new FF4jCacheProxy(
-                new InMemoryFeatureStore("ff4j.xml"), null,  
+                new FeatureStoreInMemory("ff4j.xml"), null,  
                 new InMemoryCacheManager());
         Assert.assertFalse(fscp.exist("toto"));
         Assert.assertFalse(fscp.exist("toto"));
@@ -210,22 +174,6 @@ public class InMemoryCacheTest extends CoreFeatureStoreTestSupport {
     public void testGetProperty2()  {
         InMemoryCacheManager imcm = new InMemoryCacheManager();
         imcm.putProperty(null, 1);
-    }
-    
-    @Test(expected = IllegalArgumentException.class)
-    public void testGetProperty3()  {
-        InMemoryCacheManager imcm = new InMemoryCacheManager();
-        PropertyString p1 = new PropertyString("p1");
-        p1.setName(null);
-        imcm.putProperty(p1, 1);
-    }
-    
-    @Test(expected = IllegalArgumentException.class)
-    public void testGetProperty4()  {
-        InMemoryCacheManager imcm = new InMemoryCacheManager();
-        PropertyString p1 = new PropertyString("p1");
-        p1.setName("");
-        imcm.putProperty(p1, 1);
     }
    
 }

@@ -30,7 +30,8 @@ public class CardinalPoint extends Property<Point> {
     public static enum Point {NORTH, SOUTH, EAST, WEST};
     
     public CardinalPoint(String uid, Point lvl) {
-        super(uid, lvl, Point.values());
+        super(uid, lvl);
+        setFixedValues(Point.values());
     }
     
     /** {@inheritDoc} */

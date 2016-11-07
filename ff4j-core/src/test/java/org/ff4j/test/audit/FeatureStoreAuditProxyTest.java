@@ -21,12 +21,12 @@ package org.ff4j.test.audit;
  */
 
 import org.ff4j.FF4j;
-import org.ff4j.audit.proxy.FeatureStoreAuditProxy;
-import org.ff4j.core.Feature;
-import org.ff4j.core.FeatureStore;
-import org.ff4j.store.InMemoryFeatureStore;
+import org.ff4j.audit.FeatureStoreAuditProxy;
+import org.ff4j.feature.Feature;
+import org.ff4j.inmemory.FeatureStoreInMemory;
+import org.ff4j.store.FeatureStore;
 import org.ff4j.test.store.CoreFeatureStoreTestSupport;
-import org.ff4j.utils.Util;
+import org.ff4j.utils.FF4jUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -37,7 +37,7 @@ public class FeatureStoreAuditProxyTest extends CoreFeatureStoreTestSupport {
     @Override
     public FeatureStore initStore() {
         FF4j ff4j = new FF4j();
-        InMemoryFeatureStore imfs = new InMemoryFeatureStore();
+        FeatureStoreInMemory imfs = new FeatureStoreInMemory();
         imfs.setLocation("ff4j.xml");
         ff4j.setFeatureStore(imfs);
         return new FeatureStoreAuditProxy(ff4j, imfs);
@@ -52,11 +52,11 @@ public class FeatureStoreAuditProxyTest extends CoreFeatureStoreTestSupport {
     public void testImportFeatures() {
         testedStore.importFeatures(null);
         
-        Feature fx1 = new Feature("fx1", true);
-        Feature fx2 = new Feature("fx2", true);
-        testedStore.importFeatures(Util.list(fx1, fx2));
+        Feature fx1 = new Feature("fx1").toggleOn();
+        Feature fx2 = new Feature("fx2").toggleOn();
+        testedStore.importFeatures(FF4jUtils.listOf(fx1, fx2));
         Assert.assertTrue(testedStore.exist("fx1"));
-        testedStore.importFeatures(Util.list(fx1, fx2));
+        testedStore.importFeatures(FF4jUtils.listOf(fx1, fx2));
         
     }
 

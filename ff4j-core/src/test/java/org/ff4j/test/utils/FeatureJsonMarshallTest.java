@@ -25,10 +25,10 @@ import java.lang.reflect.Constructor;
 import java.util.Map;
 
 import org.ff4j.FF4j;
-import org.ff4j.core.Feature;
-import org.ff4j.core.FeatureStore;
-import org.ff4j.core.FlippingExecutionContext;
-import org.ff4j.core.FlippingStrategy;
+import org.ff4j.feature.Feature;
+import org.ff4j.feature.FlippingExecutionContext;
+import org.ff4j.feature.FlippingStrategy;
+import org.ff4j.store.FeatureStore;
 import org.ff4j.test.TestConstantsFF4j;
 import org.ff4j.utils.JdbcUtils;
 import org.ff4j.utils.JsonUtils;

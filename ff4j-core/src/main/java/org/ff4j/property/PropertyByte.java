@@ -36,12 +36,6 @@ public class PropertyByte extends Property< Byte > {
     private static final long serialVersionUID = -3108407128242804565L;
     
     /**
-     * Default constructor.
-     */
-    public PropertyByte() {
-    }
-    
-    /**
      * Constructor by property name.
      *
      * @param name
@@ -71,8 +65,8 @@ public class PropertyByte extends Property< Byte > {
      * @param value
      *      current value
      */    
-    public PropertyByte(String name, Byte value, Byte... fixed) {
-        super(name, value, fixed);
+    public PropertyByte(String name, Byte value) {
+        super(name, value);
     }
     
     /** {@inheritDoc} */

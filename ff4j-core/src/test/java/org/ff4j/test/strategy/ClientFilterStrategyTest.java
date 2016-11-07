@@ -24,10 +24,10 @@ import java.text.ParseException;
 import java.util.HashMap;
 
 import org.ff4j.FF4j;
-import org.ff4j.core.Feature;
-import org.ff4j.core.FlippingExecutionContext;
-import org.ff4j.core.FlippingStrategy;
-import org.ff4j.store.InMemoryFeatureStore;
+import org.ff4j.feature.Feature;
+import org.ff4j.feature.FlippingExecutionContext;
+import org.ff4j.feature.FlippingStrategy;
+import org.ff4j.inmemory.FeatureStoreInMemory;
 import org.ff4j.strategy.BlackListStrategy;
 import org.ff4j.strategy.ClientFilterStrategy;
 import org.ff4j.strategy.ServerFilterStrategy;
@@ -53,7 +53,7 @@ public class ClientFilterStrategyTest extends AbstractFf4jTest {
         // Given
         Feature f1 = ff4j.getFeature(F1);
         Assert.assertNotNull(f1.getFlippingStrategy());
-        org.ff4j.strategy.ClientFilterStrategy cStra = (ClientFilterStrategy) f1.getFlippingStrategy();
+        org.ff4j.strategy.ClientFilterStrategy cStra = (ClientFilterStrategy) f1.getFlippingStrategy().get();
         Assert.assertNotNull(cStra.getInitParams());
         Assert.assertEquals(1, cStra.getInitParams().size());
         Assert.assertTrue(f1.isEnable());
@@ -72,7 +72,7 @@ public class ClientFilterStrategyTest extends AbstractFf4jTest {
         // Given
         Feature f1 = ff4j.getFeature(F1);
         Assert.assertNotNull(f1.getFlippingStrategy());
-        org.ff4j.strategy.ClientFilterStrategy cStra = (ClientFilterStrategy) f1.getFlippingStrategy();
+        org.ff4j.strategy.ClientFilterStrategy cStra = (ClientFilterStrategy) f1.getFlippingStrategy().get();
         Assert.assertNotNull(cStra.getInitParams());
         Assert.assertEquals(1, cStra.getInitParams().size());
         Assert.assertTrue(f1.isEnable());
@@ -92,7 +92,7 @@ public class ClientFilterStrategyTest extends AbstractFf4jTest {
         // Given
         Feature f1 = ff4j.getFeature(F1);
         Assert.assertNotNull(f1.getFlippingStrategy());
-        org.ff4j.strategy.ClientFilterStrategy cStra = (ClientFilterStrategy) f1.getFlippingStrategy();
+        org.ff4j.strategy.ClientFilterStrategy cStra = (ClientFilterStrategy) f1.getFlippingStrategy().get();
         Assert.assertNotNull(cStra.getInitParams());
         Assert.assertEquals(1, cStra.getInitParams().size());
         Assert.assertTrue(f1.isEnable());
@@ -107,7 +107,7 @@ public class ClientFilterStrategyTest extends AbstractFf4jTest {
         // Given
         Feature f1 = ff4j.getFeature(F1);
         Assert.assertNotNull(f1.getFlippingStrategy());
-        org.ff4j.strategy.ClientFilterStrategy cStra = (ClientFilterStrategy) f1.getFlippingStrategy();
+        org.ff4j.strategy.ClientFilterStrategy cStra = (ClientFilterStrategy) f1.getFlippingStrategy().get();
         Assert.assertNotNull(cStra.getInitParams());
         Assert.assertEquals(1, cStra.getInitParams().size());
         Assert.assertTrue(f1.isEnable());
@@ -142,10 +142,10 @@ public class ClientFilterStrategyTest extends AbstractFf4jTest {
         FlippingStrategy bl2 = new BlackListStrategy("Pierre");
         FlippingExecutionContext context = new FlippingExecutionContext();
         context.putString("clientHostName", "localhost");
-        Assert.assertTrue(bl2.evaluate("f1", new InMemoryFeatureStore(), context));
+        Assert.assertTrue(bl2.evaluate("f1", new FeatureStoreInMemory(), context));
         
         context.putString("clientHostName", "Pierre");
-        Assert.assertFalse(bl2.evaluate("f1", new InMemoryFeatureStore(), context));
+        Assert.assertFalse(bl2.evaluate("f1", new FeatureStoreInMemory(), context));
     }
     
     @Test
@@ -154,7 +154,7 @@ public class ClientFilterStrategyTest extends AbstractFf4jTest {
         fs.init("f1", null);
         fs.init("f1", new HashMap<String, String>());
         FlippingExecutionContext context = new FlippingExecutionContext();
-        fs.evaluate("f1", new InMemoryFeatureStore(), context);
+        fs.evaluate("f1", new FeatureStoreInMemory(), context);
     }
 
 }

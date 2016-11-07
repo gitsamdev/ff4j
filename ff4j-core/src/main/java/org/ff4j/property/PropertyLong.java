@@ -40,17 +40,6 @@ public class PropertyLong extends Property< Long > {
      * @param lvl
      *      current log level
      */
-    public PropertyLong() {
-    }
-    
-    /**
-     * Constructor by string expression.
-     *
-     * @param uid
-     *      unique name
-     * @param lvl
-     *      current log level
-     */
     public PropertyLong(String uid) {
        super(uid);
     }

@@ -30,6 +30,10 @@ public abstract class ConditionalProperty<T> extends Property<T> {
     /** Leverage on strategy to evaluate a property. */
     protected PropertyEvaluationStrategy < T > strategy;
     
+    public ConditionalProperty(String uid) {
+        super(uid);
+    }
+    
     /** {@inheritDoc} */
     @Override
     public T getValue() {

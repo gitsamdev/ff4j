@@ -23,9 +23,9 @@ package org.ff4j.lab;
 import java.util.Map;
 import java.util.Set;
 
-import org.ff4j.core.Feature;
-import org.ff4j.property.store.PropertyStore;
+import org.ff4j.feature.Feature;
 import org.ff4j.store.AbstractFeatureStore;
+import org.ff4j.store.PropertyStore;
 
 /**
  * Leverage on {@link PropertyStore} to handle features. Feature will
@@ -81,7 +81,7 @@ public class FeatureStoreOverPropertyStore extends  AbstractFeatureStore {
     public void enable(String uid) {
         assertFeatureExist(uid);
         PropertyFeature prop = (PropertyFeature) propertyStore.readProperty(uid);
-        prop.getValue().enable();
+        prop.getValue().toggleOn();
         propertyStore.updateProperty(uid, prop.getValue().toJson());
     }
 
@@ -90,7 +90,7 @@ public class FeatureStoreOverPropertyStore extends  AbstractFeatureStore {
     public void disable(String uid) {
         assertFeatureExist(uid);
         PropertyFeature prop = (PropertyFeature) propertyStore.readProperty(uid);
-        prop.getValue().disable();
+        prop.getValue().toggleOff();
         propertyStore.updateProperty(uid, prop.getValue().toJson());
     }
 

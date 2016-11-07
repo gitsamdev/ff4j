@@ -31,12 +31,6 @@ public class PropertyDouble extends Property < Double > {
 
     /** serial. */
     private static final long serialVersionUID = -134543098672660987L;
-
-    /**
-     * Default constructor.
-     */
-    public PropertyDouble() {
-    }
     
     /**
      * Constructor by property name.

@@ -28,28 +28,27 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 
 import org.ff4j.audit.EventBuilder;
 import org.ff4j.audit.EventPublisher;
-import org.ff4j.audit.proxy.FeatureStoreAuditProxy;
-import org.ff4j.audit.proxy.PropertyStoreAuditProxy;
-import org.ff4j.audit.repository.EventRepository;
-import org.ff4j.audit.repository.InMemoryEventRepository;
+import org.ff4j.audit.FeatureStoreAuditProxy;
+import org.ff4j.audit.PropertyStoreAuditProxy;
 import org.ff4j.cache.FF4JCacheManager;
 import org.ff4j.cache.FF4jCacheProxy;
 import org.ff4j.conf.XmlConfig;
 import org.ff4j.conf.XmlParser;
-import org.ff4j.core.Feature;
-import org.ff4j.core.FeatureStore;
-import org.ff4j.core.FlippingExecutionContext;
-import org.ff4j.core.FlippingStrategy;
 import org.ff4j.exception.FeatureNotFoundException;
+import org.ff4j.feature.Feature;
+import org.ff4j.feature.FlippingExecutionContext;
+import org.ff4j.feature.FlippingStrategy;
+import org.ff4j.inmemory.EventRepositoryInMemory;
+import org.ff4j.inmemory.FeatureStoreInMemory;
+import org.ff4j.inmemory.PropertyStoreInMemory;
 import org.ff4j.property.Property;
-import org.ff4j.property.store.InMemoryPropertyStore;
-import org.ff4j.property.store.PropertyStore;
 import org.ff4j.security.AuthorizationsManager;
-import org.ff4j.store.InMemoryFeatureStore;
+import org.ff4j.store.PropertyStore;
+import org.ff4j.store.EventRepository;
+import org.ff4j.store.FeatureStore;
 
 /**
  * Principal class stands as public api to work with FF4J.
@@ -88,14 +87,14 @@ public class FF4j {
     
     // -- Stores --
 
-    /** Storage to persist feature within {@link FeatureStore}. */
-    private FeatureStore fstore = new InMemoryFeatureStore();
-    
-    /** Storage to persist properties within {@link PropertyStore}. */
-    private PropertyStore pStore = new InMemoryPropertyStore();
-    
     /** Do not through {@link FeatureNotFoundException} exception and but feature is required. */
     private boolean autocreate = false;
+    
+    /** Storage to persist feature within {@link FeatureStore}. */
+    private FeatureStore fstore = new FeatureStoreInMemory();
+    
+    /** Storage to persist properties within {@link PropertyStore}. */
+    private PropertyStore pStore = new PropertyStoreInMemory();
    
     /** Security policy to limit access through ACL with {@link AuthorizationsManager}. */
     private AuthorizationsManager authorizationsManager = null;
@@ -106,7 +105,7 @@ public class FF4j {
     private boolean enableAudit = false;
    
     /** Repository for audit event. */
-    private EventRepository eventRepository = new InMemoryEventRepository();
+    private EventRepository eventRepository = new EventRepositoryInMemory();
 
     /** Event Publisher (threadpool, executor) to send data into {@link EventRepository} */
     private EventPublisher eventPublisher = null;
@@ -123,7 +122,7 @@ public class FF4j {
     private ThreadLocal<FlippingExecutionContext> currentExecutionContext = new ThreadLocal<FlippingExecutionContext>();
     
     /**
-     * Default constructor to allows instantiation through IoC. The created store is an empty {@link InMemoryFeatureStore}.
+     * Default constructor to allows instantiation through IoC. The created store is an empty {@link FeatureStoreInMemory}.
      */
     public FF4j() {
     }
@@ -132,8 +131,8 @@ public class FF4j {
      * Constructor initializing ff4j with an InMemoryStore
      */
     public FF4j(String xmlFile) {
-        this.fstore = new InMemoryFeatureStore(xmlFile);
-        this.pStore = new InMemoryPropertyStore(xmlFile);
+        this.fstore = new FeatureStoreInMemory(xmlFile);
+        this.pStore = new PropertyStoreInMemory(xmlFile);
     }
 
     /**
@@ -141,20 +140,20 @@ public class FF4j {
      * <code>Asset</code>
      */
     public FF4j(InputStream xmlFileResourceAsStream) {
-        this.fstore = new InMemoryFeatureStore(xmlFileResourceAsStream);
+        this.fstore = new FeatureStoreInMemory(xmlFileResourceAsStream);
     }
 
     /**
      * Ask if flipped.
      * 
-     * @param featureID
+     * @param uid
      *            feature unique identifier.
      * @param executionContext
      *            current execution context
      * @return current feature status
      */
-    public boolean check(String featureID) {
-        return check(featureID, null);
+    public boolean check(String uid) {
+        return isFeatureToggled(uid, null, null);
     }
 
     /**
@@ -166,78 +165,77 @@ public class FF4j {
      *            current execution context
      * @return current feature status
      */
-    public boolean check(String featureID, FlippingExecutionContext executionContext) {
-        Feature fp = getFeature(featureID);
-        boolean flipped = fp.isEnable();
+    public boolean check(String uid, FlippingExecutionContext executionContext) {
+        return isFeatureToggled(uid, null, executionContext);
+    }
 
-        // If authorization manager provided, apply security filter
-        if (flipped && getAuthorizationsManager() != null) {
-            flipped = isAllowed(fp);
-        }
+    /**
+     * Overriding strategy on feature.
+     * 
+     * @param featureID
+     *            feature unique identifier.
+     * @param executionContext
+     *            current execution context
+     * @return
+     */
+    public boolean checkOveridingStrategy(String uid, FlippingStrategy strats) {
+        return isFeatureToggled(uid, strats, currentExecutionContext.get());
+    }
 
-        // If custom strategy has been defined, delegate flipping to
-        if (flipped && fp.getFlippingStrategy() != null) {
-            flipped = fp.getFlippingStrategy().evaluate(featureID, getFeatureStore(), executionContext);
+    /**
+     * Overriding strategy on feature.
+     * 
+     * @param featureID
+     *            feature unique identifier.
+     * @param executionContext
+     *            current execution context
+     * @return
+     */
+    public boolean checkOveridingStrategy(String uid, FlippingStrategy strats, FlippingExecutionContext executionContext) {
+        return isFeatureToggled(uid, strats, executionContext);
+    }
+
+    /**
+     * Feature toggle.
+     *
+     * @param uid
+     *      feature identifier
+     * @param strats
+     *      flipping strategy
+     * @param executionContext
+     *      execution context
+     * @return
+     */
+    protected boolean isFeatureToggled(String uid, FlippingStrategy strats, FlippingExecutionContext executionContext) {
+        
+        // Read from store
+        Feature feature = getFeature(uid);
+        
+        // First level check (status = ON and permission OK)
+        boolean featureToggled = feature.isEnable() && isAllowed(feature);
+        if (featureToggled) {
+            if (strats != null) {
+                featureToggled = strats.evaluate(uid, getFeatureStore(), executionContext);
+            } else if (feature.getFlippingStrategy().isPresent()) {
+                featureToggled = feature.getFlippingStrategy().get().evaluate(uid, getFeatureStore(), executionContext);
+            }
         }
         
         // Update current context
-        currentExecutionContext.set(executionContext);
+        if (null != executionContext) {
+            currentExecutionContext.set(executionContext);
+        }
         
-        // Any access is logged into audit system
-        publishCheck(featureID, flipped);
-
-        return flipped;
-    }
-    
-    /**
-     * Send target event to audit if expected.
-     *
-     * @param uid
-     *      feature unique identifier
-     * @param checked
-     *      if the feature is checked or not
-     */
-    private void publishCheck(String uid, boolean checked) {
+        // Publish audit
         if (isEnableAudit()) {
             getEventPublisher().publish(new EventBuilder(this)
                         .feature(uid)
-                        .action(checked ? ACTION_CHECK_OK : ACTION_CHECK_OFF)
+                        .action(featureToggled ? ACTION_CHECK_OK : ACTION_CHECK_OFF)
                         .build());
         }
+        return featureToggled;
     }
-
-    /**
-     * Overriding strategy on feature.
-     * 
-     * @param featureID
-     *            feature unique identifier.
-     * @param executionContext
-     *            current execution context
-     * @return
-     */
-    public boolean checkOveridingStrategy(String featureID, FlippingStrategy strats) {
-        return checkOveridingStrategy(featureID, strats, currentExecutionContext.get());
-    }
-
-    /**
-     * Overriding strategy on feature.
-     * 
-     * @param featureID
-     *            feature unique identifier.
-     * @param executionContext
-     *            current execution context
-     * @return
-     */
-    public boolean checkOveridingStrategy(String featureID, FlippingStrategy strats, FlippingExecutionContext executionContext) {
-        Feature fp = getFeature(featureID);
-        boolean flipped = fp.isEnable() && isAllowed(fp);
-        if (strats != null) {
-            flipped = flipped && strats.evaluate(featureID, getFeatureStore(), executionContext);
-        }
-        publishCheck(featureID, flipped);
-        return flipped;
-    }
-
+    
     /**
      * Load SecurityProvider roles (e.g : SpringSecurity GrantedAuthorities)
      * 
@@ -245,22 +243,11 @@ public class FF4j {
      *            target name of the feature
      * @return if the feature is allowed
      */
-    public boolean isAllowed(Feature featureName) {
-        // No authorization manager, returning always true
-        if (getAuthorizationsManager() == null) {
-            return true;
-        }
-        // if no permissions, the feature is public
-        if (featureName.getPermissions().isEmpty()) {
-            return true;
-        }
-        Set<String> userRoles = getAuthorizationsManager().getCurrentUserPermissions();
-        for (String expectedRole : featureName.getPermissions()) {
-            if (userRoles.contains(expectedRole)) {
-                return true;
-            }
-        }
-        return false;
+    public boolean isAllowed(Feature feature) {
+        return getAuthorizationsManager() == null || 
+               !feature.getPermissions().isPresent() ||
+               feature.getPermissions().get().isEmpty() ||
+               feature.getPermissions().get().stream().anyMatch(getAuthorizationsManager().getCurrentUserPermissions()::contains);
     }
 
     /**
@@ -281,6 +268,16 @@ public class FF4j {
     public Map < String, Property<?>> getProperties() {
     	return getPropertiesStore().readAllProperties();
     }
+    
+    /**
+     * Enable Feature.
+     * 
+     * @param featureID
+     *            unique feature identifier.
+     */
+    public FF4j toggleOn(String uid) {
+        return enable(uid);
+    }
 
     /**
      * Enable Feature.
@@ -293,35 +290,11 @@ public class FF4j {
             getFeatureStore().enable(featureID);
         } catch (FeatureNotFoundException fnfe) {
             if (this.autocreate) {
-                getFeatureStore().create(new Feature(featureID, true));
+                getFeatureStore().create(new Feature(featureID).toggleOn());
             } else {
             	throw fnfe;
             }
         }
-        return this;
-    }
-
-    /**
-     * Enable group.
-     * 
-     * @param groupName
-     *            target groupeName
-     * @return current instance
-     */
-    public FF4j enableGroup(String groupName) {
-        getFeatureStore().enableGroup(groupName);
-        return this;
-    }
-
-    /**
-     * Disable group.
-     * 
-     * @param groupName
-     *            target groupeName
-     * @return current instance
-     */
-    public FF4j disableGroup(String groupName) {
-        getFeatureStore().disableGroup(groupName);
         return this;
     }
     
@@ -349,35 +322,15 @@ public class FF4j {
     }
     
     /**
-     * Create new Feature.
+     * Disable Feature.
      * 
      * @param featureID
      *            unique feature identifier.
      */
-    public FF4j createFeature(String featureName, boolean enable, String description) {
-        return createFeature(new Feature(featureName, enable, description));
+    public FF4j toggleOff(String uid) {
+        return disable(uid);
     }
     
-    /**
-     * Create new Feature.
-     * 
-     * @param featureID
-     *            unique feature identifier.
-     */
-    public FF4j createFeature(String featureName, boolean enable) {
-        return createFeature(featureName, enable, "");
-    }
-    
-    /**
-     * Create new Feature.
-     * 
-     * @param featureID
-     *            unique feature identifier.
-     */
-    public FF4j createFeature(String featureName) {
-        return createFeature(featureName, false, "");
-    }
-
     /**
      * Disable Feature.
      * 
@@ -389,7 +342,7 @@ public class FF4j {
             getFeatureStore().disable(featureID);
         } catch (FeatureNotFoundException fnfe) {
         	 if (this.autocreate) {
-                 getFeatureStore().create(new Feature(featureID, false));
+                 getFeatureStore().create(new Feature(featureID).toggleOff());
              } else {
              	throw fnfe;
              }
@@ -421,7 +374,7 @@ public class FF4j {
             fp = getFeatureStore().read(featureID);
         } catch (FeatureNotFoundException fnfe) {
             if (this.autocreate) {
-                fp = new Feature(featureID, false);
+                fp = new Feature(featureID).toggleOff();
                 getFeatureStore().create(fp);
             } else {
                 throw fnfe;
@@ -506,28 +459,6 @@ public class FF4j {
     public FF4j autoCreate(boolean flag) {
         setAutocreate(flag);
         return this;
-    }
-    
-    /**
-     * Enable autocreation of features when not found.
-     * 
-     * @param flag
-     *            target value for autocreate flag
-     * @return current instance
-     */
-    public FF4j autoCreate() {
-        return autoCreate(true);
-    }
-    
-    /**
-     * Enable auditing of features when not found.
-     * 
-     * @param flag
-     *            target value for autocreate flag
-     * @return current instance
-     */
-    public FF4j audit() {
-        return audit(true);
     }
             
     /**

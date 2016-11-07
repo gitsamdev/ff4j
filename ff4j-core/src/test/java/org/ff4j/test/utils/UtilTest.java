@@ -32,7 +32,8 @@ import java.util.Set;
 import javax.lang.model.type.NullType;
 
 import org.ff4j.audit.EventConstants;
-import org.ff4j.store.JdbcStoreConstants;
+import org.ff4j.jdbc.JdbcStoreConstants;
+import org.ff4j.utils.FF4jUtils;
 import org.ff4j.utils.TimeUtils;
 import org.ff4j.utils.Util;
 import org.ff4j.web.FF4jWebConstants;
@@ -78,7 +79,7 @@ public class UtilTest {
     @Test(expected = IllegalArgumentException.class)
     public void testAssertsNotEmptyOK() {
         // OK
-        Util.assertNotEmpty(Util.set("1","2"));
+        Util.assertNotEmpty(FF4jUtils.setOf("1","2"));
         Util.assertParamHasNotNull(null, "sample");
     }
     
@@ -86,8 +87,8 @@ public class UtilTest {
     public void testAssertsParams() {
         // OK
         Util.assertParamHasNotNull("x", "sample");
-        Assert.assertNull(Util.set((Object[]) null));
-        Assert.assertNull(Util.list((Object[])null));
+        Assert.assertNull(FF4jUtils.setOf((Object[]) null));
+        Assert.assertNull(FF4jUtils.listOf((Object[])null));
         Assert.assertNull(Util.join(null,","));
     }
     
@@ -103,11 +104,11 @@ public class UtilTest {
         
         Assert.assertTrue(Util.isEmpty(null));
         Assert.assertTrue(Util.isEmpty(new ArrayList<String>()));
-        Assert.assertFalse(Util.isEmpty(Util.set("1")));
+        Assert.assertFalse(Util.isEmpty(FF4jUtils.setOf("1")));
         
         Assert.assertNull(Util.asCollection(null));
         Assert.assertNotNull(Util.asCollection(new String[] {"a"}));
-        Assert.assertNotNull(Util.asCollection(Util.set("1")));
+        Assert.assertNotNull(Util.asCollection(FF4jUtils.setOf("1")));
     }
     
     @Test(expected = IllegalArgumentException.class)

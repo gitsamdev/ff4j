@@ -23,7 +23,7 @@ package org.ff4j.conf;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.ff4j.core.Feature;
+import org.ff4j.feature.Feature;
 import org.ff4j.property.Property;
 
 /**

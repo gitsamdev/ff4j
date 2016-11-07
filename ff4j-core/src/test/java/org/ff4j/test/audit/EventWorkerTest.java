@@ -33,8 +33,8 @@ import org.ff4j.audit.Event;
 import org.ff4j.audit.EventPublisher;
 import org.ff4j.audit.EventRejectedExecutionHandler;
 import org.ff4j.audit.EventWorker;
-import org.ff4j.audit.repository.EventRepository;
-import org.ff4j.audit.repository.InMemoryEventRepository;
+import org.ff4j.inmemory.EventRepositoryInMemory;
+import org.ff4j.store.EventRepository;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -43,7 +43,7 @@ public class EventWorkerTest {
     @Test
     public void testEventWorker() {
         // Given
-        EventRepository er = new InMemoryEventRepository();
+        EventRepository er = new EventRepositoryInMemory();
         Event evt = new Event(SOURCE_JAVA, TARGET_FEATURE, "F1", ACTION_CHECK_OFF);
         EventWorker ew = new EventWorker(evt, er);
         // When

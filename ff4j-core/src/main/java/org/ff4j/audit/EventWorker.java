@@ -22,7 +22,7 @@ package org.ff4j.audit;
 
 import java.util.concurrent.Callable;
 
-import org.ff4j.audit.repository.EventRepository;
+import org.ff4j.store.EventRepository;
 
 /**
  * Worker to save {@link Event} into {@link EventRepository} asynchronously.

@@ -32,19 +32,20 @@ import static org.ff4j.audit.EventConstants.TARGET_FEATURE;
 
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
+import org.ff4j.audit.BarChart;
 import org.ff4j.audit.Event;
 import org.ff4j.audit.EventConstants;
 import org.ff4j.audit.EventPublisher;
 import org.ff4j.audit.EventQueryDefinition;
 import org.ff4j.audit.EventSeries;
 import org.ff4j.audit.MutableHitCount;
-import org.ff4j.audit.chart.BarChart;
-import org.ff4j.audit.chart.TimeSeriesChart;
-import org.ff4j.audit.repository.EventRepository;
-import org.ff4j.core.Feature;
-import org.ff4j.store.InMemoryFeatureStore;
+import org.ff4j.audit.TimeSeriesChart;
+import org.ff4j.feature.Feature;
+import org.ff4j.inmemory.FeatureStoreInMemory;
+import org.ff4j.store.EventRepository;
 import org.ff4j.utils.Util;
 import org.junit.Assert;
 import org.junit.Before;
@@ -71,7 +72,7 @@ public abstract class AbstractEventRepositoryTest {
     public void setUp() throws Exception {
         repo      = initRepository();
         publisher = new EventPublisher(repo);
-        features  = new ArrayList<Feature>(new InMemoryFeatureStore("ff4j.xml").readAll().values());
+        features  = new ArrayList<Feature>(new FeatureStoreInMemory("ff4j.xml").readAll().values());
     }
    
     // Utility to generate event
@@ -339,8 +340,8 @@ public abstract class AbstractEventRepositoryTest {
         // Let the store to be updated
         Thread.sleep(100);
         // Then
-        Event evt = repo.getEventByUUID(dummyId, System.currentTimeMillis());
-        Assert.assertNotNull(evt);
+        Optional< Event > evt = repo.getEventByUUID(dummyId, System.currentTimeMillis());
+        Assert.assertTrue(evt.isPresent());
     }
     
     /** TDD. */
@@ -355,8 +356,8 @@ public abstract class AbstractEventRepositoryTest {
         // Let the store to be updated
         Thread.sleep(100);
         // Then
-        Event evt = repo.getEventByUUID(dummyId, null);
-        Assert.assertNotNull(evt);
+        Optional< Event > evt = repo.getEventByUUID(dummyId, null);
+        Assert.assertTrue(evt.isPresent());
     }
     
     /** TDD. */
@@ -376,13 +377,13 @@ public abstract class AbstractEventRepositoryTest {
         // When
         EventQueryDefinition testQuery = new EventQueryDefinition(topStart-100, System.currentTimeMillis());
         repo.purgeFeatureUsage(testQuery);
-        Assert.assertNull(repo.getEventByUUID(evtFeatureUsage.getUuid(), System.currentTimeMillis()));
+        Assert.assertFalse(repo.getEventByUUID(evtFeatureUsage.getUuid(), System.currentTimeMillis()).isPresent());
         Assert.assertTrue(repo.searchFeatureUsageEvents(testQuery).isEmpty());
         
         // Then
         EventQueryDefinition testQuery2 = new EventQueryDefinition(topStart-100, System.currentTimeMillis());
         repo.purgeAuditTrail(testQuery2);
-        Assert.assertNull(repo.getEventByUUID(evtAudit.getUuid(), System.currentTimeMillis()));
+        Assert.assertFalse(repo.getEventByUUID(evtAudit.getUuid(), System.currentTimeMillis()).isPresent());
 
     }
 

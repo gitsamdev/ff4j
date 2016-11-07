@@ -31,12 +31,6 @@ public class PropertyString extends Property<String> {
     
     /** serial. */
     private static final long serialVersionUID = -7894832435341748278L;
-
-    /**
-     * Default constructor.
-     */
-    public PropertyString() {
-    }
     
     /**
      * Constructor by property name.
@@ -57,7 +51,8 @@ public class PropertyString extends Property<String> {
      *      current value
      */
     public PropertyString(String name, String value) {
-        super(name, value);
+        super(name);
+        this.value = value;
     }
     
     /**
@@ -71,7 +66,11 @@ public class PropertyString extends Property<String> {
      *      fixed values available for this property
      */
     public PropertyString(String name, String value, Set < String> fixed) {
-        super(name, value, fixed.toArray(new String[0]));
+        this(name, value);
+        setFixedValues(fixed);
+        if (fixedValues.isPresent() && !fixedValues.get().contains(value)) {
+            throw new IllegalArgumentException("Invalid value corrects are " + fixedValues);
+        }
     }
 
     /** {@inheritDoc} */

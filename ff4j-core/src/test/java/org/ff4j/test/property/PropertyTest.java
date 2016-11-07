@@ -41,8 +41,7 @@ import org.ff4j.property.PropertyLogLevel;
 import org.ff4j.property.PropertyLong;
 import org.ff4j.property.PropertyShort;
 import org.ff4j.property.PropertyString;
-import org.ff4j.property.util.PropertyJsonBean;
-import org.ff4j.utils.Util;
+import org.ff4j.utils.FF4jUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -55,23 +54,21 @@ public class PropertyTest {
     
     @Test
     public void tesInitPropertyString() {
-        new PropertyString();
         PropertyString p1 = new PropertyString("p1");
         p1.setReadOnly(p1.isReadOnly());
-        PropertyString p2 = new PropertyString("p2", "EAST", Util.set("EAST","WEST","SOUTH","NORTH"));
-        Assert.assertNotNull(p1.getName());
+        PropertyString p2 = new PropertyString("p2", "EAST", FF4jUtils.setOf("EAST","WEST","SOUTH","NORTH"));
+        Assert.assertNotNull(p1.getUid());
         Assert.assertNotNull(p2.getFixedValues());
     }
     
     @Test
     public void tesInitPropertyDouble() {
-        new PropertyDouble();
         PropertyDouble d1 = new PropertyDouble("d1");
         PropertyDouble d2 = new PropertyDouble("d2", 1.2);
         PropertyDouble d3 = new PropertyDouble("d3", "1.3");
-        Assert.assertNotNull(d1.getName());
+        Assert.assertNotNull(d1.getUid());
         Assert.assertNotNull(d2.getFixedValues());
-        Assert.assertNotNull(d3.getName());
+        Assert.assertNotNull(d3.getUid());
     }
     
     @Test(expected = InvalidPropertyTypeException.class)
@@ -116,86 +113,79 @@ public class PropertyTest {
     
     @Test
     public void tesInitPropertyInt() {
-        new PropertyInt();
         PropertyInt d1 = new PropertyInt("d1");
         PropertyInt d2 = new PropertyInt("d2", 1);
         PropertyInt d3 = new PropertyInt("d3", "2");
-        PropertyInt d4 = new PropertyInt("d4", 2, Util.set(0,1,2));
-        Assert.assertNotNull(d1.getName());
+        PropertyInt d4 = new PropertyInt("d4", 2, FF4jUtils.setOf(0,1,2));
+        Assert.assertNotNull(d1.getUid());
         Assert.assertNotNull(d2.getFixedValues());
-        Assert.assertNotNull(d3.getName());
-        Assert.assertNotNull(d4.getName());
+        Assert.assertNotNull(d3.getUid());
+        Assert.assertNotNull(d4.getUid());
         d4.toString();
     }
     
     @Test
     public void tesInitPropertyBoolean() {
-        new PropertyBoolean();
         PropertyBoolean d1 = new PropertyBoolean("d1");
         PropertyBoolean d2 = new PropertyBoolean("d2", true);
         PropertyBoolean d3 = new PropertyBoolean("d3", "false");
-        Assert.assertNotNull(d1.getName());
+        Assert.assertNotNull(d1.getUid());
         Assert.assertNotNull(d2.getFixedValues());
-        Assert.assertNotNull(d3.getName());
+        Assert.assertNotNull(d3.getUid());
     }
     
     @Test
     public void tesInitPropertyFloat() {
-        new PropertyFloat();
         PropertyFloat d1 = new PropertyFloat("d1");
         PropertyFloat d2 = new PropertyFloat("d2", 1.1F);
         PropertyFloat d3 = new PropertyFloat("d3", "1.0");
-        Assert.assertNotNull(d1.getName());
-        Assert.assertNotNull(d2.getName());
-        Assert.assertNotNull(d3.getName());
+        Assert.assertNotNull(d1.getUid());
+        Assert.assertNotNull(d2.getUid());
+        Assert.assertNotNull(d3.getUid());
         d1.fromString("1.1");
     }
     
     @Test
     public void tesInitPropertyLong() {
-        new PropertyLong();
         PropertyLong d1 = new PropertyLong("d1");
         PropertyLong d2 = new PropertyLong("d2", 1L);
         PropertyLong d3 = new PropertyLong("d3", "1");
-        Assert.assertNotNull(d1.getName());
-        Assert.assertNotNull(d2.getName());
-        Assert.assertNotNull(d3.getName());
+        Assert.assertNotNull(d1.getUid());
+        Assert.assertNotNull(d2.getUid());
+        Assert.assertNotNull(d3.getUid());
         d1.fromString("1");
     }
     
     @Test
     public void tesInitPropertyShort() {
-        new PropertyShort();
         PropertyShort d1 = new PropertyShort("d1");
         PropertyShort d2 = new PropertyShort("d2", new Short("1"));
         PropertyShort d3 = new PropertyShort("d3", "2");
-        Assert.assertNotNull(d1.getName());
+        Assert.assertNotNull(d1.getUid());
         Assert.assertNotNull(d2.getFixedValues());
-        Assert.assertNotNull(d3.getName());
+        Assert.assertNotNull(d3.getUid());
         d1.fromString("1");
     }
     
     @Test
     public void tesInitPropertyBigInteger() {
-        new PropertyBigInteger();
         PropertyBigInteger d1 = new PropertyBigInteger("d1");
         PropertyBigInteger d2 = new PropertyBigInteger("d2", new BigInteger("1"));
         PropertyBigInteger d3 = new PropertyBigInteger("d3", "2");
-        Assert.assertNotNull(d1.getName());
+        Assert.assertNotNull(d1.getUid());
         Assert.assertNotNull(d2.getFixedValues());
-        Assert.assertNotNull(d3.getName());
+        Assert.assertNotNull(d3.getUid());
         d1.fromString("1");
     }
     
     @Test
     public void tesInitPropertyByte() {
-        new PropertyByte();
         PropertyByte d1 = new PropertyByte("d1");
         PropertyByte d2 = new PropertyByte("d2", "1");
         PropertyByte d3 = new PropertyByte("d3", new Byte((byte) 100));
-        Assert.assertNotNull(d1.getName());
-        Assert.assertNotNull(d2.getName());
-        Assert.assertNotNull(d3.getName());
+        Assert.assertNotNull(d1.getUid());
+        Assert.assertNotNull(d2.getUid());
+        Assert.assertNotNull(d3.getUid());
         d1.fromString("1");
         d1.fromString(null);
     }
@@ -208,7 +198,6 @@ public class PropertyTest {
     
     @Test
     public void tesInitPropertyLogLevel() {
-        new PropertyLogLevel();
         PropertyLogLevel d1 = new PropertyLogLevel("DEBUG");
         d1.error();d1.fatal();
         d1.warn();d1.debug();
@@ -217,19 +206,18 @@ public class PropertyTest {
     
     @Test
     public void tesInitPropertyBigDecimal() {
-        new PropertyBigDecimal();
         PropertyBigDecimal d1 = new PropertyBigDecimal("d1");
         PropertyBigDecimal d2 = new PropertyBigDecimal("d2", new BigDecimal("1"));
         PropertyBigDecimal d3 = new PropertyBigDecimal("d3", "2");
-        Assert.assertNotNull(d1.getName());
+        Assert.assertNotNull(d1.getUid());
         Assert.assertNotNull(d2.getFixedValues());
-        Assert.assertNotNull(d3.getName());
+        Assert.assertNotNull(d3.getUid());
         d1.fromString("1");
     }
     
     @Test
     public void tesInitNull() {
-        PropertyBigDecimal bd = new PropertyBigDecimal();
+        PropertyBigDecimal bd = new PropertyBigDecimal("b1");
         bd.setValue(null);
         bd.asString();
         Assert.assertNotNull(bd.parameterizedType());
@@ -237,17 +225,16 @@ public class PropertyTest {
     
     @Test(expected = IllegalArgumentException.class)
     public void testPropertyString() {
-        new PropertyString("p1", "v1", Util.set("v0", "v2"));
+        new PropertyString("p1", "v1", FF4jUtils.setOf("v0", "v2"));
     }
     
     @Test
     public void tesInitPropertyDate() {
-        PropertyDate d0 = new PropertyDate();
-        d0.fromString("2015-01-02 13:00:00");
         PropertyDate d1 = new PropertyDate("d1");
-        Assert.assertNotNull(d1.getName());
+        d1.fromString("2015-01-02 13:00:00");
+        Assert.assertNotNull(d1.getUid());
         PropertyDate d2 = new PropertyDate("d2", "2015-01-02 13:00:00");
-        Assert.assertNotNull(d2.getName());
+        Assert.assertNotNull(d2.getUid());
         Date dd = null;
         PropertyDate d3 = new PropertyDate("d3", dd);
         Assert.assertNull(d3.asString());
@@ -255,7 +242,7 @@ public class PropertyTest {
     
     @Test
     public void tesInitPropertyClass() {
-        PropertyClass c0 = new PropertyClass();
+        PropertyClass c0 = new PropertyClass("c0");
         c0.fromString(String.class.getName());
         new PropertyClass("c1");
         new PropertyClass("c2", String.class.getName());
@@ -274,21 +261,20 @@ public class PropertyTest {
     
     @Test(expected = IllegalArgumentException.class)
     public void tesInitPropertyDate2() {
-        PropertyDate d0 = new PropertyDate();
+        PropertyDate d0 = new PropertyDate("d0");
         d0.fromString("invalid");
     }
     
     @Test
     public void tesInitPropertyCalendar() {
-        PropertyCalendar d0 = new PropertyCalendar();
+        PropertyCalendar d0 = new PropertyCalendar("d0");
         PropertyCalendar d1 = new PropertyCalendar("d1");
         PropertyCalendar d2 = new PropertyCalendar("d2", "2015-01-02 13:00");
         PropertyCalendar d3 = new PropertyCalendar("d3", Calendar.getInstance());
-        Assert.assertNotNull(d1.getName());
-        Assert.assertNotNull(d2.getName());
-        Assert.assertNotNull(d3.getName());
+        Assert.assertNotNull(d1.getUid());
+        Assert.assertNotNull(d2.getUid());
+        Assert.assertNotNull(d3.getUid());
         d3.asString();
-        d0.setName("d0");
         d0.fromString("2015-01-02 13:00");
         d0.setDescription("OK");
         d0.setType(PropertyCalendar.class.getName());
@@ -301,47 +287,9 @@ public class PropertyTest {
     
     @Test(expected = IllegalArgumentException.class)
     public void tesInitPropertyCalendar2() {
-        PropertyCalendar d0 = new PropertyCalendar();
+        PropertyCalendar d0 = new PropertyCalendar("d0");
         d0.fromString("invalid");
     }
-    
-    @Test
-    public void testPropertyJsonBean() {
-        PropertyString p2 = new PropertyString("p2", "EAST", Util.set("EAST","WEST","SOUTH","NORTH"));
-        PropertyJsonBean jb = new PropertyJsonBean(p2);
-        jb.setDescription("descs");
-        Assert.assertNotNull(jb);
-        Assert.assertNotNull(jb.getName());
-        Assert.assertNotNull(jb.getType());
-        Assert.assertNotNull(jb.getDescription());
-        Assert.assertNotNull(jb.getFixedValues());
-        Assert.assertNotNull(jb.getValue());
-        Assert.assertNotNull(jb.asProperty());
-    }
-    
-    @Test
-    public void testPropertyJsonBeanFromScratch() {
-        PropertyJsonBean jb = new PropertyJsonBean();
-        jb.setName("name");
-        jb.setType(PropertyString.class.getName());
-        jb.setFixedValues(Util.set("AMER", "EUROP"));
-        jb.setValue("AMER");
-        Assert.assertNotNull(jb.toString());
-    }
-    
-    
-    @Test
-    public void testPropertyJsonBeanFromScratchBis() {
-        PropertyJsonBean jb = new PropertyJsonBean();
-        jb.setName("name");
-        jb.setType(PropertyString.class.getName());
-        jb.setFixedValues(null);
-        jb.addFixedValue("AMER");
-        jb.addFixedValue("XRZ");
-        jb.setValue("AMER");
-        Assert.assertNotNull(jb.toString());
-    }
-        
     
 }
 

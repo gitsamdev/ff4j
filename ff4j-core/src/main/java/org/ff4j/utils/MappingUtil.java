@@ -26,9 +26,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.ff4j.core.FlippingStrategy;
-import org.ff4j.exception.FeatureAccessException;
-import org.ff4j.property.PropertyString;
 import org.ff4j.property.PropertyBigDecimal;
 import org.ff4j.property.PropertyBigInteger;
 import org.ff4j.property.PropertyBoolean;
@@ -41,6 +38,7 @@ import org.ff4j.property.PropertyInt;
 import org.ff4j.property.PropertyLogLevel;
 import org.ff4j.property.PropertyLong;
 import org.ff4j.property.PropertyShort;
+import org.ff4j.property.PropertyString;
 
 /**
  * Utility class to work with parameters.
@@ -166,22 +164,5 @@ public class MappingUtil {
         }
         return parameters;
     }
-    
-    /**
-     * Instanciate flipping strategy from its class name.
-     *
-     * @param className
-     *      current class name
-     * @return
-     *      the flipping strategy
-     */
-    public static FlippingStrategy instanceFlippingStrategy(String uid, String className,  Map<String, String> initparams) {
-        try {
-            FlippingStrategy flipStrategy = (FlippingStrategy) Class.forName(className).newInstance();
-            flipStrategy.init(uid, initparams);
-            return flipStrategy;
-        } catch (Exception ie) {
-            throw new FeatureAccessException("Cannot instantiate Strategy, no default constructor available", ie);
-        } 
-    }
+   
 }

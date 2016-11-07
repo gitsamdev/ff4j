@@ -29,8 +29,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.ff4j.core.FeatureStore;
-import org.ff4j.core.FlippingExecutionContext;
+import org.ff4j.feature.FlippingExecutionContext;
+import org.ff4j.store.FeatureStore;
 import org.ff4j.strategy.AbstractFlipStrategy;
 
 /**

@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Set;
 
 import org.ff4j.FF4j;
-import org.ff4j.utils.Util;
+import org.ff4j.utils.FF4jUtils;
 
 /*
  * #%L
@@ -40,7 +40,7 @@ public class ApiConfigTest {
         apc1.setVersion("1");apc1.getVersion();
         apc1.isAuthenticate();apc1.isAutorize();apc1.isDocumentation();apc1.isLog();
         apc1.setFF4j(new FF4j());apc1.getFF4j();
-        apc1.setApiKeys(Util.set("1", "2"));apc1.getApiKeys();
+        apc1.setApiKeys(FF4jUtils.setOf("1", "2"));apc1.getApiKeys();
         apc1.setAuthenticate(false);
         apc1.setAutorize(false);
         apc1.setHost("localhost");apc1.getHost();
@@ -52,8 +52,8 @@ public class ApiConfigTest {
         apc1.getUsers();
         apc1.getWebContext();
         apc1.getContextPath();
-        apc1.createApiKey("key", true, true, Util.set("USER", "ADMIN"));
-        apc1.createUser("john", "tiger", true, true, Util.set("USER", "ADMIN"));
+        apc1.createApiKey("key", true, true, FF4jUtils.setOf("USER", "ADMIN"));
+        apc1.createUser("john", "tiger", true, true, FF4jUtils.setOf("USER", "ADMIN"));
         apc1.setFF4j(new FF4j());
         new ApiConfigBuilder(apc1);
     }

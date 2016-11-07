@@ -25,6 +25,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
+ * Implementation of Property to work with Date.
  * 
  * @author Cedrick Lunven (@clunven)
  */
@@ -35,12 +36,6 @@ public class PropertyDate extends Property< Date > {
     
     /** expected expression. */
     public static final SimpleDateFormat SDF = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
-    /**
-     * Default constructor.
-     */
-    public PropertyDate() {
-    }
     
     /**
      * Constructor by property name.

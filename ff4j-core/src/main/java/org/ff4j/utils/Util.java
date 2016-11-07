@@ -192,29 +192,7 @@ public class Util {
         }
     }
 
-    /**
-     * Create an HashSet.
-     *
-     * @param els
-     *            enumeration of elements
-     * @return
-     */
-	public static <T> Set<T> set(T... els) {
-	    if (els == null) return null;
-        return new HashSet<T>(Arrays.asList(els));
-    }
-	
-	/**
-     * Create an HashSet.
-     *
-     * @param els
-     *            enumeration of elements
-     * @return
-     */
-    public static <T> List<T> list(T... els) {
-        if (els == null) return null;
-        return new ArrayList<T>(Arrays.asList(els));
-    }
+   
     
     /**
      * Serialize collection elements with a delimiter.

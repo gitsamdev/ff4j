@@ -26,8 +26,8 @@ import java.sql.SQLException;
 import javax.sql.DataSource;
 
 import org.ff4j.exception.PropertyAccessException;
+import org.ff4j.jdbc.PropertyStoreJdbc;
 import org.ff4j.property.PropertyString;
-import org.ff4j.property.store.JdbcPropertyStore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -37,7 +37,7 @@ public class JdbcPropertyStoreErrorTest {
     public void testgetExistKO()  throws SQLException {
         DataSource mockDS = Mockito.mock(DataSource.class);
         doThrow(new SQLException()).when(mockDS).getConnection();
-        JdbcPropertyStore jrepo = new JdbcPropertyStore(mockDS);
+        PropertyStoreJdbc jrepo = new PropertyStoreJdbc(mockDS);
         jrepo.setDataSource(mockDS);
         jrepo.existProperty("xx");
     }
@@ -46,7 +46,7 @@ public class JdbcPropertyStoreErrorTest {
     public void testgetReadAll()  throws SQLException {
         DataSource mockDS = Mockito.mock(DataSource.class);
         doThrow(new SQLException()).when(mockDS).getConnection();
-        JdbcPropertyStore jrepo = new JdbcPropertyStore(mockDS);
+        PropertyStoreJdbc jrepo = new PropertyStoreJdbc(mockDS);
         jrepo.setDataSource(mockDS);
         jrepo.readAllProperties();
     }
@@ -55,7 +55,7 @@ public class JdbcPropertyStoreErrorTest {
     public void testCreateKO()  throws SQLException {
         DataSource mockDS = Mockito.mock(DataSource.class);
         doThrow(new SQLException()).when(mockDS).getConnection();
-        JdbcPropertyStore jrepo = new JdbcPropertyStore(mockDS);
+        PropertyStoreJdbc jrepo = new PropertyStoreJdbc(mockDS);
         jrepo.setDataSource(mockDS);
         jrepo.createProperty(new PropertyString("p1","v1"));
     }
@@ -64,7 +64,7 @@ public class JdbcPropertyStoreErrorTest {
     public void testReadKO()  throws SQLException {
         DataSource mockDS = Mockito.mock(DataSource.class);
         doThrow(new SQLException()).when(mockDS).getConnection();
-        JdbcPropertyStore jrepo = new JdbcPropertyStore(mockDS);
+        PropertyStoreJdbc jrepo = new PropertyStoreJdbc(mockDS);
         jrepo.setDataSource(mockDS);
         jrepo.readProperty("p1");
     }
@@ -73,7 +73,7 @@ public class JdbcPropertyStoreErrorTest {
     public void testUpdateKO()  throws SQLException {
         DataSource mockDS = Mockito.mock(DataSource.class);
         doThrow(new SQLException()).when(mockDS).getConnection();
-        JdbcPropertyStore jrepo = new JdbcPropertyStore(mockDS);
+        PropertyStoreJdbc jrepo = new PropertyStoreJdbc(mockDS);
         jrepo.setDataSource(mockDS);
         jrepo.updateProperty(null);
     }
@@ -82,7 +82,7 @@ public class JdbcPropertyStoreErrorTest {
     public void testUpdateKO2()  throws SQLException {
         DataSource mockDS = Mockito.mock(DataSource.class);
         doThrow(new SQLException()).when(mockDS).getConnection();
-        JdbcPropertyStore jrepo = new JdbcPropertyStore(mockDS);
+        PropertyStoreJdbc jrepo = new PropertyStoreJdbc(mockDS);
         jrepo.setDataSource(mockDS);
         jrepo.updateProperty("p1", "v1");
     }
@@ -91,7 +91,7 @@ public class JdbcPropertyStoreErrorTest {
     public void tesDeleteKO()  throws SQLException {
         DataSource mockDS = Mockito.mock(DataSource.class);
         doThrow(new SQLException()).when(mockDS).getConnection();
-        JdbcPropertyStore jrepo = new JdbcPropertyStore(mockDS);
+        PropertyStoreJdbc jrepo = new PropertyStoreJdbc(mockDS);
         jrepo.setDataSource(mockDS);
         jrepo.deleteProperty("p1");
     }
@@ -100,7 +100,7 @@ public class JdbcPropertyStoreErrorTest {
     public void testListProperties()  throws SQLException {
         DataSource mockDS = Mockito.mock(DataSource.class);
         doThrow(new SQLException()).when(mockDS).getConnection();
-        JdbcPropertyStore jrepo = new JdbcPropertyStore(mockDS);
+        PropertyStoreJdbc jrepo = new PropertyStoreJdbc(mockDS);
         jrepo.setDataSource(mockDS);
         jrepo.listPropertyNames();
     }
@@ -109,7 +109,7 @@ public class JdbcPropertyStoreErrorTest {
     public void testClearKO()  throws SQLException {
         DataSource mockDS = Mockito.mock(DataSource.class);
         doThrow(new SQLException()).when(mockDS).getConnection();
-        JdbcPropertyStore jrepo = new JdbcPropertyStore(mockDS);
+        PropertyStoreJdbc jrepo = new PropertyStoreJdbc(mockDS);
         jrepo.setDataSource(mockDS);
         jrepo.clear();
     }

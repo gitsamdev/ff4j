@@ -5,36 +5,16 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-/*
- * #%L
- * ff4j-test
- * %%
- * Copyright (C) 2013 - 2015 Ff4J
- * %%
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *      http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * #L%
- */
-
-import org.ff4j.core.FeatureStore;
 import org.ff4j.exception.PropertyAlreadyExistException;
 import org.ff4j.exception.PropertyNotFoundException;
+import org.ff4j.inmemory.FeatureStoreInMemory;
 import org.ff4j.property.Property;
 import org.ff4j.property.PropertyDate;
 import org.ff4j.property.PropertyLogLevel;
 import org.ff4j.property.PropertyLogLevel.LogLevel;
 import org.ff4j.property.PropertyString;
-import org.ff4j.property.store.PropertyStore;
-import org.ff4j.store.InMemoryFeatureStore;
+import org.ff4j.store.FeatureStore;
+import org.ff4j.store.PropertyStore;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,7 +30,7 @@ public abstract class AbstractPropertyStoreJunitTest {
     protected PropertyStore testedStore;
 
     /** Default InMemoryStore for test purposes. */
-    protected FeatureStore defaultStore = new InMemoryFeatureStore();
+    protected FeatureStore defaultStore = new FeatureStoreInMemory();
     
     /** {@inheritDoc} */
     @Before
@@ -171,14 +151,6 @@ public abstract class AbstractPropertyStoreJunitTest {
     
     /** TDD. */
     @Test(expected = IllegalArgumentException.class)
-    public void addPropertyKONullValue() {
-        // Given
-        testedStore.createProperty(new PropertyString("hi", null));
-        // Then No error
-    }
-    
-    /** TDD. */
-    @Test(expected = IllegalArgumentException.class)
     public void addPropertyKOInvalidValue() {
         // Given
         testedStore.createProperty(new PropertyLogLevel("log", "TRUC"));
@@ -196,12 +168,11 @@ public abstract class AbstractPropertyStoreJunitTest {
         Property<?> ap = testedStore.readProperty("toto");
         // Then
         Assert.assertNotNull(ap);
-        Assert.assertNotNull(ap.getName());
-        Assert.assertEquals("toto", ap.getName());
+        Assert.assertNotNull(ap.getUid());
+        Assert.assertEquals("toto", ap.getUid());
         Assert.assertEquals("ff4j", ap.getValue());
         Assert.assertEquals("ff4j", ap.asString());
-        Assert.assertNull(ap.getFixedValues());
-        
+        Assert.assertFalse(ap.getFixedValues().isPresent());
     }
     
     @Test
@@ -212,8 +183,8 @@ public abstract class AbstractPropertyStoreJunitTest {
         Property<?> log = testedStore.readProperty("log");
         // Then
         Assert.assertNotNull(log);
-        Assert.assertNotNull(log.getName());
-        Assert.assertEquals("log", log.getName());
+        Assert.assertNotNull(log.getUid());
+        Assert.assertEquals("log", log.getUid());
         Assert.assertEquals(LogLevel.ERROR, log.getValue());
         Assert.assertEquals("ERROR", log.asString());
         Assert.assertNotNull(log.getFixedValues());

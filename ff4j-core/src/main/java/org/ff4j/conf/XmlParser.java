@@ -30,15 +30,15 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set; 
+import java.util.Set;
 import java.util.TreeSet;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.ff4j.core.Feature;
-import org.ff4j.core.FlippingStrategy;
+import org.ff4j.feature.Feature;
+import org.ff4j.feature.FlippingStrategy;
 import org.ff4j.property.Property;
 import org.ff4j.property.PropertyString;
 import org.ff4j.utils.MappingUtil;
@@ -141,7 +141,7 @@ public final class XmlParser {
             + ">\n\n";
 
     /** XML Generation constants. */
-    private static final String XML_FEATURE = "  <feature uid=\"{0}\" description=\"{1}\" enable=\"{2}\">\n";
+    private static final String XML_FEATURE = "  <feature uid=\"{0}\" enable=\"{1}\" ";
 
     /** XML Generation constants. */
     private static final String XML_AUTH = "      <role name=\"{0}\" />\n";
@@ -291,7 +291,7 @@ public final class XmlParser {
         boolean enable = Boolean.parseBoolean(nnm.getNamedItem(FEATURE_ATT_ENABLE).getNodeValue());
 
         // Create Feature with description
-        Feature f = new Feature(uid, enable, parseDescription(nnm));
+        Feature f = new Feature(uid).setEnable(enable).setDescription(parseDescription(nnm));
         
         // Strategy
         NodeList flipStrategies = featXmlTag.getElementsByTagName(FLIPSTRATEGY_TAG);
@@ -373,8 +373,8 @@ public final class XmlParser {
             }
             
             // Check fixed value
-            if (ap.getFixedValues() != null && !ap.getFixedValues().contains(ap.getValue())) {
-                throw new IllegalArgumentException("Cannot create property <" + ap.getName() + 
+            if (ap.getFixedValues().isPresent() &&  !ap.getFixedValues().get().contains(ap.getValue())) {
+                throw new IllegalArgumentException("Cannot create property <" + ap.getUid() + 
                         "> invalid value <" + ap.getValue() + 
                         "> expected one of " + ap.getFixedValues());
             }
@@ -572,68 +572,76 @@ public final class XmlParser {
      *      all XML
      */
     private String exportFeaturesPart(Map<String, Feature> mapOfFeatures) {
+        
+        // Split features
+        Map<String, List<Feature>> mapOfGroups = new HashMap<String, List<Feature>>();
+        List < Feature > noGroupFeatures = new ArrayList<>();
+        mapOfFeatures.values().stream().forEach(feature -> {
+            if (feature.getGroup().isPresent()) {
+                String groupName = feature.getGroup().get();
+                if (!mapOfGroups.containsKey(groupName)) {
+                    mapOfGroups.put(groupName, new ArrayList<Feature>());
+                }
+                mapOfGroups.get(groupName).add(feature);
+            } else {
+                noGroupFeatures.add(feature);
+            }
+        });
+            
         // Create <features>
         StringBuilder sb = new StringBuilder(BEGIN_FEATURES);
         
-        // Recreate Groups
-        Map<String, List<Feature>> featuresPerGroup = new HashMap<String, List<Feature>>();
-        if (mapOfFeatures != null && !mapOfFeatures.isEmpty()) {
-            for (Feature feat : mapOfFeatures.values()) {
-                String groupName = feat.getGroup();
-                if (!featuresPerGroup.containsKey(groupName)) {
-                    featuresPerGroup.put(groupName, new ArrayList<Feature>());
-                }
-                featuresPerGroup.get(groupName).add(feat);
-            }
-        }
-            
-        for (Map.Entry<String,List<Feature>> groupName : featuresPerGroup.entrySet()) {
-            /// Building featureGroup
-            if (null != groupName.getKey() && !groupName.getKey().isEmpty()) {
-                sb.append(" <" + FEATUREGROUP_TAG + " " + FEATUREGROUP_ATTNAME + "=\"" + groupName.getKey() + "\" >\n\n");
-            }
-            // Loop on feature
-            for (Feature feat : groupName.getValue()) {
-                sb.append(MessageFormat.format(XML_FEATURE, feat.getUid(), feat.getDescription(), feat.isEnable()));
-                // <security>
-                if (null != feat.getPermissions() && !feat.getPermissions().isEmpty()) {
-                    sb.append("   <" + SECURITY_TAG + ">\n");
-                    for (String auth : feat.getPermissions()) {
-                        sb.append(MessageFormat.format(XML_AUTH, auth));
-                    }
-                    sb.append("   </" + SECURITY_TAG + ">\n");
-                }
-                // <flipstrategy>
-                FlippingStrategy fs = feat.getFlippingStrategy();
-                if (null != fs) {
-                    sb.append("   <" + FLIPSTRATEGY_TAG + " class=\"" + fs.getClass().getCanonicalName() + "\" >\n");
-                    for (String p : fs.getInitParams().keySet()) {
-                        sb.append("     <" + FLIPSTRATEGY_PARAMTAG + " " + FLIPSTRATEGY_PARAMNAME + "=\"");
-                        sb.append(p);
-                        sb.append("\" " + FLIPSTRATEGY_PARAMVALUE + "=\"");
-                        // Escape special characters to build XML
-                        // https://github.com/clun/ff4j/issues/63
-                        String paramValue = fs.getInitParams().get(p);
-                        sb.append(escapeXML(paramValue));
-                        sb.append("\" />\n");
-                    }
-                    sb.append("   </" + FLIPSTRATEGY_TAG + ">\n");
-                }
-                // <custom-properties>
-                Map < String, Property<?>> props = feat.getCustomProperties();
-                if (props != null && !props.isEmpty()) {
-                    sb.append(BEGIN_CUSTOMPROPERTIES);
-                    sb.append(buildPropertiesPart(feat.getCustomProperties()));
-                    sb.append(END_CUSTOMPROPERTIES);
-                }
-                sb.append(END_FEATURE);
-            }
-            
-            if (null != groupName.getKey() && !groupName.getKey().isEmpty()) {
-                sb.append(" </" + FEATUREGROUP_TAG + ">\n\n");
-            }
-        }
+        mapOfGroups.entrySet().stream().forEach(g -> {
+            sb.append(" <" + FEATUREGROUP_TAG + " " + FEATUREGROUP_ATTNAME + "=\"" + g.getKey() + "\" >\n\n");
+            g.getValue().stream().forEach(feature -> sb.append(exportFeature(feature)));
+            sb.append(" </" + FEATUREGROUP_TAG + ">\n\n");
+        });
+        
+        noGroupFeatures.stream().forEach(feature -> sb.append(exportFeature(feature)));
+        
         sb.append(END_FEATURES);
+        return sb.toString();
+    }
+    
+    private String exportFeature(Feature feature) {
+        StringBuilder sb = new StringBuilder();
+        
+        // <feature uid=.. enable=... <description=...> 
+        sb.append(MessageFormat.format(XML_FEATURE, feature.getUid(), feature.isEnable()));
+        feature.getDescription().ifPresent(desc -> sb.append(" description=\"" + desc + "\""));
+        sb.append(" >\n");
+        
+        // <security>
+        feature.getPermissions().ifPresent(set -> {
+            sb.append("   <" + SECURITY_TAG + ">\n");
+            set.stream().forEach(auth -> sb.append(MessageFormat.format(XML_AUTH, auth)));
+            sb.append("   </" + SECURITY_TAG + ">\n");
+        });
+        
+        // <flipstrategy>
+        if (feature.getFlippingStrategy().isPresent()) {
+            FlippingStrategy fs = feature.getFlippingStrategy().get();
+            sb.append("   <" + FLIPSTRATEGY_TAG + " class=\"" + fs.getClass().getCanonicalName() + "\" >\n");
+            for (String p : fs.getInitParams().keySet()) {
+                sb.append("     <" + FLIPSTRATEGY_PARAMTAG + " " + FLIPSTRATEGY_PARAMNAME + "=\"");
+                sb.append(p);
+                sb.append("\" " + FLIPSTRATEGY_PARAMVALUE + "=\"");
+                // Escape special characters to build XML
+                // https://github.com/clun/ff4j/issues/63
+                String paramValue = fs.getInitParams().get(p);
+                sb.append(escapeXML(paramValue));
+                sb.append("\" />\n");
+            }
+            sb.append("   </" + FLIPSTRATEGY_TAG + ">\n");
+        }
+        
+        // <custom-properties>
+        if (feature.getCustomProperties().isPresent()) {
+            sb.append(BEGIN_CUSTOMPROPERTIES);
+            sb.append(buildPropertiesPart(feature.getCustomProperties().get()));
+            sb.append(END_CUSTOMPROPERTIES);
+        }
+        sb.append(END_FEATURE);
         return sb.toString();
     }
     
@@ -645,22 +653,21 @@ public final class XmlParser {
      * @return
      */
     private String buildPropertiesPart(Map < String, Property<?>> props) {
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
         if (props != null && !props.isEmpty()) {
             // Loop over property
             for (Property<?> property : props.values()) {
-                sb.append("    <" + PROPERTY_TAG + " " + PROPERTY_PARAMNAME + "=\"" + property.getName() + "\" ");
+                sb.append("    <" + PROPERTY_TAG + " " + PROPERTY_PARAMNAME + "=\"" + property.getUid() + "\" ");
                 sb.append(PROPERTY_PARAMVALUE + "=\"" + property.asString() + "\" ");
                 if (!(property instanceof PropertyString)) {
                     sb.append(PROPERTY_PARAMTYPE  + "=\"" + property.getClass().getCanonicalName()  + "\"");
                 }
                 // Processing fixedValue is present
-                if (property.getFixedValues() != null && !property.getFixedValues().isEmpty()) {
+                if (property.getFixedValues().isPresent()) {
                     sb.append(">\n");
                     sb.append("     <fixedValues>\n");
-                    for (Object o : property.getFixedValues()) {
-                        sb.append("      <value>" + o.toString() + "</value>\n");
-                    }
+                    property.getFixedValues().get().stream()
+                        .forEach(o -> sb.append("      <value>" + o.toString() + "</value>\n"));
                     sb.append("     </fixedValues>\n");
                     sb.append("    </property>\n");
                 } else {

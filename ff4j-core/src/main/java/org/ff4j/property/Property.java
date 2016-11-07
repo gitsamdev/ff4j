@@ -1,53 +1,24 @@
 package org.ff4j.property;
 
-/*
- * #%L
- * ff4j-core
- * %%
- * Copyright (C) 2013 - 2015 Ff4J
- * %%
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *      http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * #L%
- */
-
-import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
-import java.util.Arrays;
-import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
-import org.ff4j.property.util.PropertyJsonBean;
-import org.ff4j.utils.Util;
+import org.ff4j.FF4jBaseObject;
+import org.ff4j.utils.FF4jUtils;
 
 /**
  * Abstraction of Property.
  *
  * @author Cedrick Lunven (@clunven)
  */
-public abstract class Property < T > implements Serializable {
+public abstract class Property < T > extends FF4jBaseObject < Property< T > > implements Supplier < T > {
     
-    /** serial. */
-    private static final long serialVersionUID = 4987351300418126366L;
-    
-    /** Some store do not allow property edition. */
-    protected boolean readOnly = false;
+    /** serialVersionUID. */
+    private static final long serialVersionUID = -2484426537747694712L;
 
-    /** Unique name for property. */
-    protected String name;
-    
-    /** Short description of the property. */
-    protected String description = null;
-    
     /** Canonical name for JSON serialization. */
     protected String type = getClass().getCanonicalName();
     
@@ -55,25 +26,21 @@ public abstract class Property < T > implements Serializable {
     protected T value;
     
     /** If value have a limited set of values. */
-    protected Set < T > fixedValues;
-    
-    /**
-     * Default constructor.
-     */
-    protected Property() {
-    }
-            
+    protected Optional < Set < T > > fixedValues = Optional.empty();
+   
+    /** Some store do not allow property edition. */
+    protected boolean readOnly = false;
+   
     /**
      * Constructor by property name.
      *
      * @param name
      *         unique property name
      */
-    protected Property(String name) {
-        Util.assertHasLength(name);
-        this.name = name;
+    protected Property(String uid) {
+        super(uid);
     }
-   
+    
     /**
      * Constructor with name and value as String.
      *
@@ -87,56 +54,17 @@ public abstract class Property < T > implements Serializable {
         this.value = fromString(value);
     }
     
-	/**
-     * Constructor with name , value and target available values
+    /**
+     * Constructor with name and value as String.
      *
      * @param name
      *      current name
      * @param value
      *      current value
-     */    
-    protected Property(String name, T value, Set < T > fixed) {
+     */
+    protected Property(String name, T value) {
         this(name);
         this.value = value;
-        this.fixedValues = fixed;
-        if (fixedValues != null &&  !fixedValues.isEmpty() && !fixedValues.contains(value)) {
-            throw new IllegalArgumentException("Invalid value corrects are " + fixedValues);
-        }
-    }
-    
-    /**
-     * Constructor with name , value and target available values
-     *
-     * @param name
-     *      current name
-     * @param value
-     *      current value
-     */    
-    protected Property(String name, T value, T... fixed) {
-        this(name, value, new HashSet<T>(Arrays.asList(fixed)));
-    }
-    
-    /**
-     * Help XML parsing to realize downcastings.
-     *
-     * @param v
-     *      current value as String
-     */
-    public void add2FixedValueFromString(String v) {
-        add2FixedValue(fromString(v));
-    }
-    
-    /**
-     * Add element to fixed values.
-     * 
-     * @param value
-     *      current value
-     */
-    public void add2FixedValue(T value) {
-        if (fixedValues == null) {
-            fixedValues = new HashSet<T>();
-        }
-        fixedValues.add(value);
     }
     
     /**
@@ -148,6 +76,12 @@ public abstract class Property < T > implements Serializable {
      *      target value
      */
     public abstract T fromString(String v);
+
+    /** {@inheritDoc} */
+    @Override
+    public T get() {
+        return getValue();
+    }
     
     /**
      * Check dynamically the class of the parameter T.
@@ -170,10 +104,10 @@ public abstract class Property < T > implements Serializable {
      *      current value as a string or null
      */
     public String asString() {
-        if (value == null) {
+        if (get() == null) {
             return null;
         }
-        return value.toString();
+        return get().toString();
     }
     
     /**
@@ -221,8 +155,12 @@ public abstract class Property < T > implements Serializable {
      * @param value
      * 		new value for 'value '
      */
-    public void setValue(T value) {
+    public Property<T> setValue(T value) {
+        if (fixedValues.isPresent() && !fixedValues.get().contains(value)) {
+            throw new IllegalArgumentException("Invalid value corrects are " + fixedValues);
+        }
         this.value = value;
+        return this;
     }
     
     /**
@@ -231,27 +169,9 @@ public abstract class Property < T > implements Serializable {
      * @param value
      *      current string value
      */
-    public void setValueFromString(String value) {
+    public Property<T> setValueFromString(String value) {
         this.value = fromString(value);
-    }
-
-    /**
-     * Getter accessor for attribute 'name'.
-     *
-     * @return
-     *       current value of 'name'
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * Setter accessor for attribute 'name'.
-     * @param name
-     * 		new value for 'name '
-     */
-    public void setName(String name) {
-        this.name = name;
+        return this;
     }
 
     /**
@@ -260,17 +180,8 @@ public abstract class Property < T > implements Serializable {
      * @return
      *       current value of 'fixedValues'
      */
-    public Set<T> getFixedValues() {
+    public Optional < Set<T> > getFixedValues() {
         return fixedValues;
-    }
-
-    /**
-     * Setter accessor for attribute 'fixedValues'.
-     * @param fixedValues
-     * 		new value for 'fixedValues '
-     */
-    public void setFixedValues(Set<T> fixedValues) {
-        this.fixedValues = fixedValues;
     }
 
     /** {@inheritDoc} */
@@ -281,7 +192,49 @@ public abstract class Property < T > implements Serializable {
     
     /** {@inheritDoc} */
     public String toJson() {
-        return new PropertyJsonBean(this).asJson();
+        StringBuilder jsonExpression = new StringBuilder("{ ");
+        jsonExpression.append(super.baseJson());
+        jsonExpression.append(",\"type\":\"" + type + "\"");
+        jsonExpression.append(",\"readOnly\":\"" + readOnly + "\"");
+        jsonExpression.append(",\"value\":");
+        jsonExpression.append((null == value) ? "null" : "\"" + asString() + "\"");
+        fixedValues.ifPresent(fv -> {
+            jsonExpression.append(",\"fixedValues\":[" + fv.stream().map(Object::toString).collect(Collectors.joining(", ")) + "]");
+        });
+        jsonExpression.append("}");
+        return jsonExpression.toString();
+    }
+      
+    @SuppressWarnings("unchecked")
+    public Property<T> setFixedValues(T... perms) {
+        return setFixedValues(FF4jUtils.setOf(perms));
+    }
+    
+    public Property<T> setFixedValues(Set<T> perms) {
+        fixedValues = Optional.ofNullable(perms);
+        return this;
+    }
+    
+    public Property<T> add2FixedValueFromString(String v) {
+        return addFixedValue(fromString(v));
+    }
+
+    @SuppressWarnings("unchecked")
+    public Property<T> addFixedValue(T permission) {
+        return addFixedValues(permission);
+    }
+    
+    @SuppressWarnings("unchecked")
+    public Property<T> addFixedValues(T... fixed) {
+        if (fixed != null) {
+            Set<T> setFixedValues = FF4jUtils.setOf(fixed);
+            if (fixedValues.isPresent()) {
+                fixedValues.get().addAll(setFixedValues);
+            } else {
+                fixedValues = Optional.of(setFixedValues);
+            }
+        }
+        return this;
     }
 
     /**
@@ -299,29 +252,11 @@ public abstract class Property < T > implements Serializable {
      * @param type
      * 		new value for 'type '
      */
-    public void setType(String type) {
+    public Property<T> setType(String type) {
         this.type = type;
+        return this;
     }
-
-    /**
-     * Getter accessor for attribute 'description'.
-     *
-     * @return
-     *       current value of 'description'
-     */
-    public String getDescription() {
-        return description;
-    }
-
-    /**
-     * Setter accessor for attribute 'description'.
-     * @param description
-     * 		new value for 'description '
-     */
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
+    
     /**
      * Getter accessor for attribute 'readOnly'.
      *
@@ -337,8 +272,9 @@ public abstract class Property < T > implements Serializable {
      * @param readOnly
      * 		new value for 'readOnly '
      */
-    public void setReadOnly(boolean readOnly) {
+    public Property<T> setReadOnly(boolean readOnly) {
         this.readOnly = readOnly;
+        return this;
     }
 
 }

@@ -29,13 +29,13 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import org.ff4j.core.Feature;
+import org.ff4j.feature.Feature;
+import org.ff4j.jdbc.FeatureStoreJdbc;
+import org.ff4j.jdbc.JdbcQueryBuilder;
 import org.ff4j.property.Property;
 import org.ff4j.property.PropertyString;
-import org.ff4j.store.JdbcFeatureStore;
-import org.ff4j.store.JdbcQueryBuilder;
 import org.ff4j.strategy.PonderationStrategy;
-import org.ff4j.utils.Util;
+import org.ff4j.utils.FF4jUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -58,7 +58,7 @@ public class JdbcFeatureStoreSchemaTest {
     private EmbeddedDatabaseBuilder builder = null;
     
     /** Tested Store. */
-    protected JdbcFeatureStore testedStore;
+    protected FeatureStoreJdbc testedStore;
 
     /** {@inheritDoc} */
     @Before
@@ -70,7 +70,7 @@ public class JdbcFeatureStoreSchemaTest {
     public void initStore() {
         builder = new EmbeddedDatabaseBuilder();
         db = builder.setType(EmbeddedDatabaseType.HSQL).build();
-        testedStore = new JdbcFeatureStore();
+        testedStore = new FeatureStoreJdbc();
         testedStore.setDataSource(db);
     }
    
@@ -104,8 +104,8 @@ public class JdbcFeatureStoreSchemaTest {
         testedStore.createSchema();
         Assert.assertFalse(testedStore.exist("fx"));
         // When
-        Feature fullFeature = new Feature("fx", true);
-        fullFeature.setPermissions(Util.set("toto", "tata"));
+        Feature fullFeature = new Feature("fx").toggleOn();
+        fullFeature.setPermissions(FF4jUtils.setOf("toto", "tata"));
         fullFeature.setFlippingStrategy(new PonderationStrategy(0.5d));
         Map < String , Property<?>> customProperties = new HashMap< String , Property<?>>();
         fullFeature.setCustomProperties(customProperties);
@@ -114,14 +114,13 @@ public class JdbcFeatureStoreSchemaTest {
         Assert.assertTrue(testedStore.exist("fx"));
     }
     
-    @SuppressWarnings("unchecked")
     @Test
     public void testCreateCustomProperties() {
         testedStore.createSchema();
         
         // When
-        Feature fullFeature = new Feature("fx", true);
-        fullFeature.setPermissions(Util.set("toto", "tata"));
+        Feature fullFeature = new Feature("fx").toggleOn();
+        fullFeature.setPermissions(FF4jUtils.setOf("toto", "tata"));
         fullFeature.setFlippingStrategy(new PonderationStrategy(0.5d));
         Map < String , Property<?>> customProperties = new HashMap< String , Property<?>>();
         fullFeature.setCustomProperties(customProperties);
@@ -130,10 +129,9 @@ public class JdbcFeatureStoreSchemaTest {
         testedStore.createCustomProperties("fx", null);
         
         Property<?> p1 = new PropertyString("p1");
-        p1.setFixedValues(null);
         
         Property<String> p2 = new PropertyString("p2");
-        p2.setFixedValues(Util.set("v1","v3"));
+        p2.setFixedValues(FF4jUtils.setOf("v1","v3"));
         
         testedStore.createCustomProperties("fx", Arrays.asList(p2,p1));
         testedStore.createCustomProperties("fx", null);

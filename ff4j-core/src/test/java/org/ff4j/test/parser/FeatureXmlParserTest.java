@@ -30,7 +30,7 @@ import java.util.Map;
 import org.ff4j.conf.XmlConfig;
 import org.ff4j.conf.XmlParser;
 import org.ff4j.conf.XmlParserErrorHandler;
-import org.ff4j.core.Feature;
+import org.ff4j.feature.Feature;
 import org.ff4j.property.Property;
 import org.ff4j.property.PropertyLogLevel;
 import org.ff4j.property.PropertyLogLevel.LogLevel;
@@ -54,11 +54,11 @@ public class FeatureXmlParserTest {
         Assert.assertTrue(features.containsKey("f0"));
         Assert.assertNotNull(features.get("f0").getDescription());
         Assert.assertNotNull(features.get("f0").getPermissions());
-        Assert.assertEquals(2, features.get("f0").getPermissions().size());
+        Assert.assertEquals(2, features.get("f0").getPermissions().get().size());
         Assert.assertNotNull(features.get("f0").getFlippingStrategy());
-        Assert.assertEquals(1, features.get("f0").getFlippingStrategy().getInitParams().size());
+        Assert.assertEquals(1, features.get("f0").getFlippingStrategy().get().getInitParams().size());
         Assert.assertNotNull(features.get("f0").getGroup());
-        Assert.assertEquals("group3", features.get("f0").getGroup());
+        Assert.assertEquals("group3", features.get("f0").getGroup().get());
         Assert.assertTrue(features.containsKey("f1"));
         Assert.assertTrue(features.containsKey("f2"));
         Assert.assertTrue(features.containsKey("f3"));
@@ -159,15 +159,15 @@ public class FeatureXmlParserTest {
         Assert.assertNotNull(f);
         Assert.assertNotNull(f.getUid());
         Assert.assertNotNull(f.getCustomProperties());
-        Assert.assertNotNull(f.getCustomProperties().get("ppint"));
-        Assert.assertEquals(f.getCustomProperties().get("ppint").asInt(), 12);
-        Assert.assertEquals(f.getCustomProperties().get("ppdouble").asDouble(), 12.5,0);
-        Assert.assertEquals(f.getCustomProperties().get("ppboolean").asBoolean(),true);
-        Assert.assertEquals(f.getCustomProperties().get("ppstring").asString(), "hello");
-        Assert.assertEquals(f.getCustomProperties().get("regionIdentifier").asString(), "AMER");
-        Assert.assertNotNull(f.getCustomProperties().get("regionIdentifier").getFixedValues());
-        Assert.assertFalse(f.getCustomProperties().get("regionIdentifier").getFixedValues().isEmpty());
-        PropertyLogLevel pll = (PropertyLogLevel) f.getCustomProperties().get("myLogLevel");
+        Assert.assertNotNull(f.getCustomProperty("ppint").get());
+        Assert.assertEquals(f.getCustomProperty("ppint").get().asInt(), 12);
+        Assert.assertEquals(f.getCustomProperty("ppdouble").get().asDouble(), 12.5,0);
+        Assert.assertEquals(f.getCustomProperty("ppboolean").get().asBoolean(),true);
+        Assert.assertEquals(f.getCustomProperty("ppstring").get().asString(), "hello");
+        Assert.assertEquals(f.getCustomProperty("regionIdentifier").get().asString(), "AMER");
+        Assert.assertNotNull(f.getCustomProperty("regionIdentifier").get().getFixedValues());
+        Assert.assertTrue(f.getCustomProperty("regionIdentifier").get().getFixedValues().isPresent());
+        PropertyLogLevel pll = (PropertyLogLevel) f.getCustomProperty("myLogLevel").get();
         Assert.assertEquals(pll.getValue(), LogLevel.DEBUG);
         
         // Then

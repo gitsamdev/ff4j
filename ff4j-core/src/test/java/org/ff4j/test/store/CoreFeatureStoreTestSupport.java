@@ -17,18 +17,18 @@ import java.util.Map;
 import java.util.Set;
 
 import org.ff4j.FF4j;
-import org.ff4j.core.Feature;
-import org.ff4j.core.FeatureStore;
-import org.ff4j.core.FlippingStrategy;
 import org.ff4j.exception.FeatureAlreadyExistException;
 import org.ff4j.exception.FeatureNotFoundException;
 import org.ff4j.exception.GroupNotFoundException;
+import org.ff4j.feature.Feature;
+import org.ff4j.feature.FlippingStrategy;
 import org.ff4j.property.PropertyInt;
 import org.ff4j.property.PropertyString;
+import org.ff4j.store.FeatureStore;
 import org.ff4j.strategy.PonderationStrategy;
 import org.ff4j.test.AssertFf4j;
 import org.ff4j.test.TestConstantsFF4j;
-import org.ff4j.utils.Util;
+import org.ff4j.utils.FF4jUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -93,8 +93,8 @@ public abstract class CoreFeatureStoreTestSupport implements TestConstantsFF4j {
         // Then testing whole structure
         Feature f = features.get(F4);
         Assert.assertEquals(F4 + " does not exist", f.getUid(), F4);
-        Assert.assertTrue("no description", f.getDescription() != null && !"".equals(f.getDescription()));
-        Assert.assertTrue("no authorizations", f.getPermissions() != null && !f.getPermissions().isEmpty());
+        Assert.assertTrue("no description", f.getDescription().isPresent());
+        Assert.assertTrue("no authorizations", f.getPermissions().isPresent());
         assertFf4j.assertThatFeatureHasRole(F4, ROLE_ADMIN);
         assertFf4j.assertThatFeatureIsInGroup(F4, G1);
     }
@@ -132,8 +132,8 @@ public abstract class CoreFeatureStoreTestSupport implements TestConstantsFF4j {
         Feature f = testedStore.read(F4);
         // Then
         Assert.assertEquals(f.getUid(), F4);
-        Assert.assertTrue(f.getDescription() != null && !"".equals(f.getDescription()));
-        Assert.assertTrue(f.getPermissions() != null && !f.getPermissions().isEmpty());
+        Assert.assertTrue("no description", f.getDescription().isPresent());
+        Assert.assertTrue("no authorizations", f.getPermissions().isPresent());
         assertFf4j.assertThatFeatureHasRole(F4, ROLE_ADMIN);
         assertFf4j.assertThatFeatureIsInGroup(F4, G1);
     }
@@ -258,8 +258,10 @@ public abstract class CoreFeatureStoreTestSupport implements TestConstantsFF4j {
         // Given
         assertFf4j.assertThatFeatureDoesNotExist(FEATURE_NEW);
         // When
-        Set<String> rights = new HashSet<String>(Arrays.asList(new String[] {ROLE_USER}));
-        Feature fp = new Feature(FEATURE_NEW, true, "description", G1, rights);
+        Feature fp = new Feature(FEATURE_NEW).toggleOn()
+                .setDescription("description")
+                .setGroup(G1)
+                .addPermission(ROLE_USER);
         testedStore.create(fp);
         // Then
         assertFf4j.assertThatStoreHasSize(EXPECTED_FEATURES_NUMBERS + 1);
@@ -278,13 +280,12 @@ public abstract class CoreFeatureStoreTestSupport implements TestConstantsFF4j {
         // Given
         assertFf4j.assertThatFeatureDoesNotExist("GOLOGOLO");
         // When (first creation)
-        Feature fp = new Feature("GOLOGOLO", true, "description2");
+        Feature fp = new Feature("GOLOGOLO").toggleOn().setDescription("description2");
         testedStore.create(fp);
         // Then (first creation)
         assertFf4j.assertThatFeatureExist("GOLOGOLO");
         // When (second creation)
-        Set<String> rights = new HashSet<String>(Arrays.asList(new String[] {ROLE_USER}));
-        Feature fp2 = new Feature("GOLOGOLO", true, G1, "description3", rights);
+        Feature fp2 = new Feature("GOLOGOLO").toggleOn().setGroup(G1).setDescription("description3").addPermission(ROLE_USER);
         testedStore.create(fp2);
         // Then, expected exception
     }
@@ -500,9 +501,9 @@ public abstract class CoreFeatureStoreTestSupport implements TestConstantsFF4j {
         testedStore.update(fpBis);
         // Then
         Feature updatedFeature = testedStore.read(F1);
-        Assert.assertTrue(newDescription.equals(updatedFeature.getDescription()));
+        Assert.assertTrue(newDescription.equals(updatedFeature.getDescription().get()));
         Assert.assertNotNull(updatedFeature.getFlippingStrategy());
-        Assert.assertEquals(newStrategy.toString(), updatedFeature.getFlippingStrategy().toString());
+        Assert.assertEquals(newStrategy.toString(), updatedFeature.getFlippingStrategy().get().toString());
     }
 
     /**
@@ -533,12 +534,10 @@ public abstract class CoreFeatureStoreTestSupport implements TestConstantsFF4j {
         assertFf4j.assertThatFeatureExist(F2);
         assertFf4j.assertThatFeatureHasRole(F2, ROLE_USER);
         // When
-        testedStore.update(new Feature(F2, false, null));
+        testedStore.update(new Feature(F2));
         // Then
         assertFf4j.assertThatFeatureHasNotRole(F2, ROLE_USER);
     }
-    
-   
 
     /**
      * TDD.
@@ -547,8 +546,7 @@ public abstract class CoreFeatureStoreTestSupport implements TestConstantsFF4j {
     public void testUpdateFlipMoreAutorisationNotExist() {
         // Given
         assertFf4j.assertThatFeatureHasNotRole(F1, ROLE_NEW);
-        Set<String> rights2 = new HashSet<String>(Arrays.asList(new String[] {ROLE_USER,ROLE_NEW}));
-        Feature fpBis = new Feature(F1, false, G1, "desci2", rights2);
+        Feature fpBis = new Feature(F1).setGroup(G1).setDescription("desci2").addPermissions(ROLE_USER,ROLE_NEW);
         // When
         testedStore.update(fpBis);
         // Then
@@ -1057,7 +1055,7 @@ public abstract class CoreFeatureStoreTestSupport implements TestConstantsFF4j {
         // When
         Feature myFeature = ff4j.getFeatureStore().read(F2);
         PropertyString p1 = new PropertyString("p1", "v1");
-        myFeature.getCustomProperties().put(p1.getName(), p1);
+        myFeature.addCustomProperty(p1);
         testedStore.update(myFeature);
         // Then
         assertFf4j.assertThatFeatureHasProperty(F2, "p1");
@@ -1073,7 +1071,7 @@ public abstract class CoreFeatureStoreTestSupport implements TestConstantsFF4j {
         assertFf4j.assertThatFeatureHasProperty(F1, "ppint");
         // When
         Feature myFeature = ff4j.getFeatureStore().read(F1);
-        myFeature.getCustomProperties().remove("ppint");
+        myFeature.getCustomProperties().get().remove("ppint");
         testedStore.update(myFeature);
         // Then
         assertFf4j.assertThatFeatureHasNotProperty(F1, "p1");
@@ -1089,18 +1087,18 @@ public abstract class CoreFeatureStoreTestSupport implements TestConstantsFF4j {
         assertFf4j.assertThatFeatureHasProperty(F1, "ppstring");
         Assert.assertEquals("hello", 
                 ff4j.getFeatureStore().read(F1)//
-                    .getCustomProperties().get("ppstring")//
+                    .getCustomProperty("ppstring").get()
                     .asString());
         // When
         Feature myFeature = ff4j.getFeatureStore().read(F1);
         PropertyString p1 = new PropertyString("ppstring", "goodbye");
-        myFeature.getCustomProperties().put(p1.getName(), p1);
+        myFeature.addCustomProperty(p1);
         testedStore.update(myFeature);
         
         // Then
         Assert.assertEquals("goodbye", 
                 ff4j.getFeatureStore().read(F1)//
-                    .getCustomProperties().get("ppstring")//
+                    .getCustomProperty("ppstring").get()//
                     .asString());
     }
     
@@ -1115,23 +1113,23 @@ public abstract class CoreFeatureStoreTestSupport implements TestConstantsFF4j {
         assertFf4j.assertThatFeatureHasProperty(F1, "digitValue");
         Set < Integer > fixValues = (Set<Integer>) ff4j
                 .getFeatureStore().read(F1)//
-                .getCustomProperties().get("digitValue")
-                .getFixedValues();
+                .getCustomProperty("digitValue").get()
+                .getFixedValues().get();
         Assert.assertEquals(4, fixValues.size()); 
                 
         // When
         Feature myFeature = ff4j.getFeatureStore().read(F1);
         PropertyInt p1 = new PropertyInt("digitValue");
-        p1.setFixedValues(Util.set(0,1,2,3,4));
+        p1.setFixedValues(FF4jUtils.setOf(0,1,2,3,4));
         p1.setValue(4);
-        myFeature.getCustomProperties().put(p1.getName(), p1);
+        myFeature.addCustomProperty(p1);
         testedStore.update(myFeature);
         
         // Then
         Set < Integer > fixValues2 = (Set<Integer>) ff4j
                 .getFeatureStore().read(F1)//
-                .getCustomProperties().get("digitValue")
-                .getFixedValues();
+                .getCustomProperty("digitValue").get()
+                .getFixedValues().get();
         Assert.assertEquals(5, fixValues2.size());
     }
     
@@ -1146,25 +1144,24 @@ public abstract class CoreFeatureStoreTestSupport implements TestConstantsFF4j {
         assertFf4j.assertThatFeatureHasProperty(F1, "regionIdentifier");
         Set < String > fixValues = (Set<String>) ff4j
                 .getFeatureStore().read(F1)//
-                .getCustomProperties().get("regionIdentifier")
-                .getFixedValues();
+                .getCustomProperty("regionIdentifier").get()
+                .getFixedValues().get();
         Assert.assertEquals(3, fixValues.size()); 
                 
         // When
         Feature myFeature = ff4j.getFeatureStore().read(F1);
         PropertyString p1 = new PropertyString("regionIdentifier");
         p1.setValue("AMER");
-        p1.setFixedValues(Util.set("AMER", "SSSS"));
-        myFeature.getCustomProperties().put(p1.getName(), p1);
+        p1.setFixedValues(FF4jUtils.setOf("AMER", "SSSS"));
+        myFeature.addCustomProperty(p1);
         testedStore.update(myFeature);
         
         // Then
         Set < Integer > fixValues2 = (Set<Integer>) ff4j
                 .getFeatureStore().read(F1)//
-                .getCustomProperties().get("regionIdentifier")
-                .getFixedValues();
+                .getCustomProperty("regionIdentifier").get()
+                .getFixedValues().get();
         Assert.assertEquals(2, fixValues2.size());
     }
-    
 
 }

@@ -27,18 +27,18 @@ import java.util.concurrent.TimeUnit;
  */
 
 import org.ff4j.FF4j;
+import org.ff4j.audit.BarChart;
 import org.ff4j.audit.Event;
 import org.ff4j.audit.EventBuilder;
 import org.ff4j.audit.EventConstants;
 import org.ff4j.audit.EventQueryDefinition;
 import org.ff4j.audit.EventSeries;
 import org.ff4j.audit.MutableHitCount;
-import org.ff4j.audit.chart.BarChart;
-import org.ff4j.audit.chart.PieChart;
-import org.ff4j.audit.chart.Serie;
-import org.ff4j.audit.chart.TimeSeriesChart;
+import org.ff4j.audit.PieChart;
+import org.ff4j.audit.Serie;
+import org.ff4j.audit.TimeSeriesChart;
 import org.ff4j.test.DefinedPermissionSecurityManager;
-import org.ff4j.utils.Util;
+import org.ff4j.utils.FF4jUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -62,7 +62,7 @@ public class AuditBeanTest {
     public void testEventBuider() {
         FF4j ff4j = new FF4j();
         ff4j.setAuthorizationsManager(
-                new DefinedPermissionSecurityManager("a", Util.set("1", "2")));
+                new DefinedPermissionSecurityManager("a", FF4jUtils.setOf("1", "2")));
         EventBuilder eb = new EventBuilder(ff4j);
         eb.name("FeatureX");
         Assert.assertEquals("a", eb.build().getUser());
@@ -90,10 +90,10 @@ public class AuditBeanTest {
         EventQueryDefinition eqd = new EventQueryDefinition();
         eqd.setFrom(System.currentTimeMillis() - 100);
         eqd.setTo(System.currentTimeMillis() + 100);
-        eqd.setHostFilters(Util.set("localhost"));
-        eqd.setSourceFilters(Util.set("JAVA_API"));
-        eqd.setActionFilters(Util.set(EventConstants.ACTION_CHECK_OK));
-        eqd.setNamesFilter(Util.set("F1"));
+        eqd.setHostFilters(FF4jUtils.setOf("localhost"));
+        eqd.setSourceFilters(FF4jUtils.setOf("JAVA_API"));
+        eqd.setActionFilters(FF4jUtils.setOf(EventConstants.ACTION_CHECK_OK));
+        eqd.setNamesFilter(FF4jUtils.setOf("F1"));
         eqd.setFrom(new Long(eqd.getFrom()));
         eqd.setTo(new Long(eqd.getTo()));
         eqd.addFilterAction(EventConstants.ACTION_CLEAR);

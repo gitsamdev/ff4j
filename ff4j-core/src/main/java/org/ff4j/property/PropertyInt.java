@@ -42,17 +42,6 @@ public class PropertyInt extends Property< Integer > {
      * @param lvl
      *      current log level
      */
-    public PropertyInt() {
-    }
-    
-    /**
-     * Constructor by string expression.
-     *
-     * @param uid
-     *      unique name
-     * @param lvl
-     *      current log level
-     */
     public PropertyInt(String uid) {
        super(uid);
     }
@@ -90,7 +79,8 @@ public class PropertyInt extends Property< Integer > {
      *      current log level
      */
     public PropertyInt(String uid, Integer value, Set <Integer> fixValues) {
-       super(uid, value, fixValues);
+       super(uid, value);
+       setFixedValues(fixValues);
     }
     
     /** {@inheritDoc} */
@@ -102,6 +92,5 @@ public class PropertyInt extends Property< Integer > {
             throw new InvalidPropertyTypeException("Cannot cast " + v + "to expected " + Integer.class, nbe);
         }
     }
-    
 
 }

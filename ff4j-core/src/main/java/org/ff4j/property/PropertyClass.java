@@ -29,12 +29,6 @@ public class PropertyClass extends Property< Class<?> > {
 
     /** Serial. */
     private static final long serialVersionUID = 1215847831344778135L;
-
-    /**
-     * Default constructor.
-     */
-    public PropertyClass() {
-    }
     
     /**
      * Constructor by property name.

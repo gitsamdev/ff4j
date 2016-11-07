@@ -13,9 +13,9 @@ package org.ff4j.test.store;
 
 import java.util.LinkedHashMap;
 
-import org.ff4j.core.Feature;
-import org.ff4j.core.FeatureStore;
-import org.ff4j.store.InMemoryFeatureStore;
+import org.ff4j.feature.Feature;
+import org.ff4j.inmemory.FeatureStoreInMemory;
+import org.ff4j.store.FeatureStore;
 import org.ff4j.strategy.PonderationStrategy;
 import org.junit.Assert;
 import org.junit.Test;
@@ -30,46 +30,49 @@ public class InMemoryFeatureStoreTest extends CoreFeatureStoreTestSupport {
     /** {@inheritDoc} */
     @Override
     public FeatureStore initStore() {
-        InMemoryFeatureStore imfs = new InMemoryFeatureStore();
+        FeatureStoreInMemory imfs = new FeatureStoreInMemory();
         imfs.setLocation("ff4j.xml");
         return imfs;
     }
 
     @Test
     public void testUnitFeatureInitialization() {
-        InMemoryFeatureStore imfs = new InMemoryFeatureStore();
-        imfs.create(new Feature("default", true, "grp1", "desc", null, new PonderationStrategy()));
+        FeatureStoreInMemory imfs = new FeatureStoreInMemory();
+        imfs.create(new Feature("default")
+                .toggleOn().setGroup("grp1")
+                .setDescription("desc")
+                .setFlippingStrategy(new PonderationStrategy()));
         Assert.assertEquals(1, imfs.readAll().size());
     }
 
     @Test
     public void testUnitFeatureInitialization2() {
         LinkedHashMap<String, Feature> map1 = new LinkedHashMap<String, Feature>();
-        map1.put("new", new Feature("new", true, "description"));
-        map1.put("old", new Feature("old", true, "description"));
-        InMemoryFeatureStore imfs = new InMemoryFeatureStore(map1);
+        map1.put("new", new Feature("new").toggleOn().setDescription("description"));
+        map1.put("old", new Feature("old").toggleOn().setDescription("description"));
+        FeatureStoreInMemory imfs = new FeatureStoreInMemory(map1);
         Assert.assertEquals(2, imfs.readAll().size());
         Assert.assertNotNull(imfs.read("old"));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testUnitFeatureInitialization3() {
-        new InMemoryFeatureStore("invalid.xml");
+        new FeatureStoreInMemory("invalid.xml");
     }
     
     @Test(expected = IllegalArgumentException.class)
     public void testUnitFeatureInitialization5() {
-        new InMemoryFeatureStore((String) null);
+        new FeatureStoreInMemory((String) null);
     }
     
     @Test(expected = IllegalArgumentException.class)
     public void testUnitFeatureInitialization6() {
-        new InMemoryFeatureStore("");
+        new FeatureStoreInMemory("");
     }
     
     @Test
     public void testUnitFeatureInitialization4() {
-        InMemoryFeatureStore f = new InMemoryFeatureStore();
+        FeatureStoreInMemory f = new FeatureStoreInMemory();
         f.toJson();
         f.toString();
         f.getFileName();
@@ -77,26 +80,26 @@ public class InMemoryFeatureStoreTest extends CoreFeatureStoreTestSupport {
     
     @Test(expected = IllegalArgumentException.class)
     public void testDonotImportEmpty() {
-        InMemoryFeatureStore f = new InMemoryFeatureStore();
+        FeatureStoreInMemory f = new FeatureStoreInMemory();
         f.importFeaturesFromXmlFile("");
     }
     
     
     @Test(expected = IllegalArgumentException.class)
     public void testDonotImportNull() {
-        InMemoryFeatureStore f = new InMemoryFeatureStore();
+        FeatureStoreInMemory f = new FeatureStoreInMemory();
         f.importFeaturesFromXmlFile(null);
     }
     
     @Test(expected = IllegalArgumentException.class)
     public void testDonotImportInvalid() {
-        InMemoryFeatureStore f = new InMemoryFeatureStore();
+        FeatureStoreInMemory f = new FeatureStoreInMemory();
         f.importFeaturesFromXmlFile("invalid.xml");
     }
     
     @Test
     public void testImportTwice() {
-        InMemoryFeatureStore f = new InMemoryFeatureStore();
+        FeatureStoreInMemory f = new FeatureStoreInMemory();
         f.importFeaturesFromXmlFile("ff4j.xml");
         f.importFeaturesFromXmlFile("ff4j.xml");
         Assert.assertFalse(f.readAll().isEmpty());

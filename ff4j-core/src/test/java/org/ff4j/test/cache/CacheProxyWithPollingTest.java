@@ -24,10 +24,10 @@ import org.ff4j.cache.FF4JCacheManager;
 import org.ff4j.cache.FF4jCacheProxy;
 import org.ff4j.cache.InMemoryCacheManager;
 import org.ff4j.cache.Store2CachePollingScheduler;
-import org.ff4j.core.FeatureStore;
-import org.ff4j.property.store.InMemoryPropertyStore;
-import org.ff4j.property.store.PropertyStore;
-import org.ff4j.store.InMemoryFeatureStore;
+import org.ff4j.inmemory.FeatureStoreInMemory;
+import org.ff4j.inmemory.PropertyStoreInMemory;
+import org.ff4j.store.FeatureStore;
+import org.ff4j.store.PropertyStore;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -36,8 +36,8 @@ public class CacheProxyWithPollingTest {
     @Test
     public void testCacheProxyManagerProperty() throws InterruptedException {
         // When
-        FeatureStore  fs     = new InMemoryFeatureStore("ff4j.xml");
-        PropertyStore ps     = new InMemoryPropertyStore("ff4j.xml");
+        FeatureStore  fs     = new FeatureStoreInMemory("ff4j.xml");
+        PropertyStore ps     = new PropertyStoreInMemory("ff4j.xml");
         FF4JCacheManager cm  = new InMemoryCacheManager();
         FF4jCacheProxy proxy = new FF4jCacheProxy(fs, ps, cm);
 

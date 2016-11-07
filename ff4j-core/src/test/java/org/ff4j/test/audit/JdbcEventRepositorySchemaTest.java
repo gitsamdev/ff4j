@@ -25,8 +25,8 @@ import static org.ff4j.utils.JdbcUtils.isTableExist;
 
 import javax.sql.DataSource;
 
-import org.ff4j.audit.repository.JdbcEventRepository;
-import org.ff4j.store.JdbcQueryBuilder;
+import org.ff4j.jdbc.EventRepositoryJdbc;
+import org.ff4j.jdbc.JdbcQueryBuilder;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -49,7 +49,7 @@ public class JdbcEventRepositorySchemaTest {
     private EmbeddedDatabaseBuilder builder = null;
     
     /** Tested Store. */
-    protected JdbcEventRepository testedStore;
+    protected EventRepositoryJdbc testedStore;
 
     /** {@inheritDoc} */
     @Before
@@ -61,7 +61,7 @@ public class JdbcEventRepositorySchemaTest {
     public void initStore() {
         builder = new EmbeddedDatabaseBuilder();
         db = builder.setType(EmbeddedDatabaseType.HSQL).build();
-        testedStore = new JdbcEventRepository(db);
+        testedStore = new EventRepositoryJdbc(db);
     }
    
     /** {@inheritDoc} */

@@ -29,8 +29,8 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.ff4j.audit.repository.EventRepository;
-import org.ff4j.audit.repository.InMemoryEventRepository;
+import org.ff4j.inmemory.EventRepositoryInMemory;
+import org.ff4j.store.EventRepository;
 
 /**
  * Default implementation of repository.
@@ -64,7 +64,7 @@ public class EventPublisher {
      * Default constructor.
      */
     public EventPublisher() {
-        this(DEFAULT_QUEUE_CAPACITY, DEFAULT_POOL_SIZE, new InMemoryEventRepository());
+        this(DEFAULT_QUEUE_CAPACITY, DEFAULT_POOL_SIZE, new EventRepositoryInMemory());
     }
     
     /**

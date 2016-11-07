@@ -28,13 +28,15 @@ import java.util.Map;
 import java.util.Set;
 
 import org.ff4j.cache.FF4jCacheProxy;
-import org.ff4j.core.FeatureStore;
 import org.ff4j.exception.FeatureAccessException;
+import org.ff4j.feature.FlippingStrategy;
+import org.ff4j.inmemory.FeatureStoreInMemory;
 import org.ff4j.property.Property;
 import org.ff4j.property.PropertyInt;
 import org.ff4j.property.PropertyLong;
 import org.ff4j.property.PropertyString;
-import org.ff4j.store.InMemoryFeatureStore;
+import org.ff4j.store.FeatureStore;
+import org.ff4j.utils.FF4jUtils;
 import org.ff4j.utils.JdbcUtils;
 import org.ff4j.utils.JsonUtils;
 import org.ff4j.utils.MappingUtil;
@@ -63,7 +65,7 @@ public class MappingUtilsTest {
         JsonUtils.customPropertiesAsJson(null);
         JsonUtils.customPropertiesAsJson( new HashMap<String, Property<?>>());
         
-        FeatureStore store1 = new InMemoryFeatureStore();
+        FeatureStore store1 = new FeatureStoreInMemory();
         FF4jCacheProxy proxy = new FF4jCacheProxy(store1, null, null);
         JsonUtils.cacheJson(proxy);
     }
@@ -71,7 +73,7 @@ public class MappingUtilsTest {
     @Test
     public void testUtil() {
         Util.assertParamHasLength("toto", "tata");
-        Set < String> ss = Util.set("one", "two");
+        Set < String> ss = FF4jUtils.setOf("one", "two");
         Assert.assertNotNull(ss);
         Util.assertTrue(true);
         Util.assertNull(null);
@@ -79,7 +81,7 @@ public class MappingUtilsTest {
     
     @Test(expected = FeatureAccessException.class)
     public void testIntanciateInvalidFlippingStrategy() {
-       MappingUtil.instanceFlippingStrategy("f1", "com.class.invalid", new HashMap<String, String>());
+       FlippingStrategy.instanciate("f1", "com.class.invalid", new HashMap<String, String>());
     }
     
     @Test(expected = IllegalArgumentException.class)

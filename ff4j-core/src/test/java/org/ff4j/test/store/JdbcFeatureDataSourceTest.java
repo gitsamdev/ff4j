@@ -1,5 +1,6 @@
 package org.ff4j.test.store;
 
+import static org.ff4j.jdbc.JdbcStoreConstants.*;
 import static org.ff4j.utils.JdbcUtils.closeConnection;
 import static org.ff4j.utils.JdbcUtils.closeResultSet;
 import static org.ff4j.utils.JdbcUtils.closeStatement;
@@ -23,17 +24,15 @@ import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
-import org.ff4j.core.FeatureStore;
 import org.ff4j.exception.FeatureAccessException;
-import org.ff4j.store.JdbcFeatureStore;
+import org.ff4j.jdbc.FeatureStoreJdbc;
+import org.ff4j.store.FeatureStore;
 import org.ff4j.test.utils.JdbcTestHelper;
 import org.ff4j.utils.JdbcUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-
-import static org.ff4j.store.JdbcStoreConstants.*;
 
 /**
  * This test is meant to access a Jfeature store in 'pure' JDBC.
@@ -52,7 +51,7 @@ public class JdbcFeatureDataSourceTest extends CoreFeatureStoreTestSupport {
     @Override
     protected FeatureStore initStore() {
     	sqlDataSource = JdbcTestHelper.createInMemoryHQLDataSource();
-        return new JdbcFeatureStore(sqlDataSource);
+        return new FeatureStoreJdbc(sqlDataSource);
     }
     
     /** {@inheritDoc} */
