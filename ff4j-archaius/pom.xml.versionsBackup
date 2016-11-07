@@ -4,9 +4,9 @@
 	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 	<!-- ~         COORDINATES      ~ -->
 	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-	<artifactId>ff4j-store-cassandra</artifactId>
+	<artifactId>ff4j-archaius</artifactId>
 	<packaging>jar</packaging>
-	<name>ff4j-store-cassandra</name>
+	<name>ff4j-archaius</name>
 
 	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 	<!-- ~         PARENT           ~ -->
@@ -14,7 +14,7 @@
 	<parent>
 		<groupId>org.ff4j</groupId>
 		<artifactId>ff4j-parent</artifactId>
-		<version>2.0-SNAPSHOT</version>
+		<version>1.7-SNAPSHOT</version>
 	</parent>
 
 	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -22,7 +22,6 @@
 	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 	<properties>
 		<license.licenseResolver>${project.baseUri}/../src/license</license.licenseResolver>
-		<version.cassandra.unit>3.0.0.1</version.cassandra.unit>
 	</properties>
 
 	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -38,24 +37,34 @@
 		</dependency>
 		<dependency>
             <groupId>org.ff4j</groupId>
-            <artifactId>ff4j-utils-json</artifactId>
+            <artifactId>ff4j-test</artifactId>
             <version>${project.version}</version>
+            <scope>test</scope>
         </dependency>
-		
-		<!-- Driver Cassandra -->
-		<dependency>
-		    <groupId>com.datastax.cassandra</groupId>
-		    <artifactId>cassandra-driver-core</artifactId>
-		    <version>3.1.0</version><!--$NO-MVN-MAN-VER$-->
-		</dependency>
+	
+        <!-- Archaius -->
+        <dependency>
+            <groupId>commons-configuration</groupId>
+            <artifactId>commons-configuration</artifactId>
+            <version>1.10</version>
+        </dependency>
+        <dependency>
+            <groupId>com.netflix.archaius</groupId>
+            <artifactId>archaius-core</artifactId>
+            <version>0.7.3</version>
+        </dependency>
+        
+        <!-- Spring -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
 
 		<!-- Tests -->
-		<dependency>
-			<artifactId>ff4j-test</artifactId>
-			<groupId>org.ff4j</groupId>
-			<version>${project.version}</version>
-			<scope>test</scope>
-		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -72,36 +81,13 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-            <groupId>org.cassandraunit</groupId>
-            <artifactId>cassandra-unit</artifactId>
-            <version>${version.cassandra.unit}</version>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
             <scope>test</scope>
         </dependency>
 		
 
 	</dependencies>
-	
-	<!-- 	<build>
-	<plugins>
-        <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>cassandra-maven-plugin</artifactId>
-            <version>3.5</version>
-            <executions>
-                <execution>
-                    <goals>
-                        <goal>start</goal>
-                        <goal>flush</goal>
-                        <goal>cleanup</goal>
-                    </goals>
-                    <phase>compile</phase>
-                </execution>
-            </executions>
-        </plugin>
-     <plugins>
-     
-</build>
- -->
 
 
 </project>

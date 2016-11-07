@@ -4,9 +4,9 @@
 	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 	<!-- ~         COORDINATES      ~ -->
 	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-	<artifactId>ff4j-store-cassandra</artifactId>
+	<artifactId>ff4j-store-jcache</artifactId>
 	<packaging>jar</packaging>
-	<name>ff4j-store-cassandra</name>
+	<name>ff4j-store-jcache</name>
 
 	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 	<!-- ~         PARENT           ~ -->
@@ -14,7 +14,7 @@
 	<parent>
 		<groupId>org.ff4j</groupId>
 		<artifactId>ff4j-parent</artifactId>
-		<version>2.0-SNAPSHOT</version>
+		<version>1.7-SNAPSHOT</version>
 	</parent>
 
 	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -22,7 +22,10 @@
 	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 	<properties>
 		<license.licenseResolver>${project.baseUri}/../src/license</license.licenseResolver>
-		<version.cassandra.unit>3.0.0.1</version.cassandra.unit>
+		<ignite.version>1.4.0</ignite.version>
+		<ehcache.version>3.0.0.m3</ehcache.version>
+		<jsr107.version>1.0.0</jsr107.version>
+		<hazelcast.version>3.5.3</hazelcast.version>
 	</properties>
 
 	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -36,19 +39,45 @@
 			<artifactId>ff4j-core</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<dependency>
-            <groupId>org.ff4j</groupId>
-            <artifactId>ff4j-utils-json</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-		
-		<!-- Driver Cassandra -->
-		<dependency>
-		    <groupId>com.datastax.cassandra</groupId>
-		    <artifactId>cassandra-driver-core</artifactId>
-		    <version>3.1.0</version><!--$NO-MVN-MAN-VER$-->
-		</dependency>
 
+		<!-- JSR107 (JCache) -->
+		<dependency>
+			<groupId>javax.cache</groupId>
+			<artifactId>cache-api</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		
+		<!-- JSR Default implementation (Tests Purposes) -->	
+		<dependency>
+			<groupId>org.jsr107.ri</groupId>
+			<artifactId>cache-ri-impl</artifactId>
+			<version>${jsr107.version}</version>
+			<scope>test</scope>
+		</dependency>
+		
+		<!-- EhCache3-->
+		<dependency>
+			<groupId>org.ehcache</groupId>
+			<artifactId>ehcache</artifactId>
+			<version>${ehcache.version}</version>
+			<scope>test</scope>
+		</dependency>
+		
+		<!-- Hazelcast -->
+		<dependency>
+			<groupId>com.hazelcast</groupId>
+			<artifactId>hazelcast</artifactId>
+			<scope>test</scope>
+		</dependency>
+		
+		<!-- Apache Ignite -->
+		<dependency>
+	    <groupId>org.apache.ignite</groupId>
+	    <artifactId>ignite-core</artifactId>
+		    <version>${ignite.version}</version>
+		    <scope>test</scope>
+		</dependency>
+		
 		<!-- Tests -->
 		<dependency>
 			<artifactId>ff4j-test</artifactId>
@@ -71,37 +100,31 @@
 			<artifactId>logback-classic</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-            <groupId>org.cassandraunit</groupId>
-            <artifactId>cassandra-unit</artifactId>
-            <version>${version.cassandra.unit}</version>
-            <scope>test</scope>
-        </dependency>
+	<dependency>
+		<groupId>org.fusesource.jansi</groupId>
+		<artifactId>jansi</artifactId>
+		<version>1.11</version>
+	</dependency>
 		
 
 	</dependencies>
-	
-	<!-- 	<build>
-	<plugins>
-        <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>cassandra-maven-plugin</artifactId>
-            <version>3.5</version>
-            <executions>
-                <execution>
-                    <goals>
-                        <goal>start</goal>
-                        <goal>flush</goal>
-                        <goal>cleanup</goal>
-                    </goals>
-                    <phase>compile</phase>
-                </execution>
-            </executions>
-        </plugin>
-     <plugins>
-     
-</build>
- -->
 
+
+	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+	<!-- ~       BUILD              ~ -->
+	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+	<build>
+		<plugins>
+			
+			<plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+            
+		</plugins>
+	</build>
 
 </project>
