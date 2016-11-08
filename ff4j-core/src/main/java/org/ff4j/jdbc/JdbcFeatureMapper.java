@@ -18,6 +18,7 @@ import org.ff4j.exception.FeatureAccessException;
 import org.ff4j.feature.Feature;
 import org.ff4j.feature.FlippingStrategy;
 import org.ff4j.mapper.FeatureMapper;
+import org.ff4j.utils.MappingUtil;
 import org.ff4j.utils.Util;
 
 /**
@@ -38,8 +39,28 @@ public class JdbcFeatureMapper implements FeatureMapper< PreparedStatement, Resu
     
     /** {@inheritDoc} */
     @Override
-    public PreparedStatement toStore(Feature bean) {
-        return null;
+    public PreparedStatement toStore(Feature feature) {
+        // Create feature
+        PreparedStatement ps;
+        try {
+            ps = sqlConn.prepareStatement(queryBuilder.createFeature());
+            ps.setString(1, feature.getUid());
+            ps.setInt(2, feature.isEnable() ? 1 : 0);
+            ps.setString(3, feature.getDescription().orElse(null));
+            String strategyColumn = null;
+            String expressionColumn = null;
+            if (feature.getFlippingStrategy().isPresent()) {
+                FlippingStrategy fs = feature.getFlippingStrategy().get();
+                strategyColumn   = fs.getClass().getCanonicalName();
+                expressionColumn = MappingUtil.fromMap(fs.getInitParams());
+            }
+            ps.setString(4, strategyColumn);
+            ps.setString(5, expressionColumn);
+            ps.setString(6, feature.getGroup().orElse(null));
+        } catch (SQLException sqlEx) {
+            throw new FeatureAccessException("Cannot create statement to create feature", sqlEx);
+        }
+        return ps;
     }
 
     /**

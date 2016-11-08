@@ -215,38 +215,22 @@ public class FeatureStoreJdbc extends AbstractFeatureStore {
 
             // Create connection
             sqlConn = getDataSource().getConnection();
-            
-            // Begin TX
             sqlConn.setAutoCommit(false);
 
-            // Create feature
-            ps = sqlConn.prepareStatement(getQueryBuilder().createFeature());
-            ps.setString(1, feature.getUid());
-            ps.setInt(2, feature.isEnable() ? 1 : 0);
-            ps.setString(3, feature.getDescription().orElse(null));
-            String strategyColumn = null;
-            String expressionColumn = null;
-            if (feature.getFlippingStrategy().isPresent()) {
-                FlippingStrategy fs = feature.getFlippingStrategy().get();
-                strategyColumn   = fs.getClass().getCanonicalName();
-                expressionColumn = MappingUtil.fromMap(fs.getInitParams());
+            // Create core Feature
+            try (PreparedStatement ps1 = new JdbcFeatureMapper(sqlConn, getQueryBuilder()).toStore(feature)) {
+                ps1.executeUpdate();
             }
-            ps.setString(4, strategyColumn);
-            ps.setString(5, expressionColumn);
-            ps.setString(6, feature.getGroup().orElse(null));
-            ps.executeUpdate();
-            closeStatement(ps);
-            ps = null;
             
             // Create roles
             if (feature.getPermissions().isPresent()) {
                 // Do not use Lambda/Streams for exceptions
                 for(String role : feature.getPermissions().get()) {
                     // Preparestament is closable
-                    try(PreparedStatement ps1 = sqlConn.prepareStatement(getQueryBuilder().addRoleToFeature())) {
-                        ps1.setString(1, feature.getUid());
-                        ps1.setString(2, role);
-                        ps1.executeUpdate();
+                    try(PreparedStatement ps2 = sqlConn.prepareStatement(getQueryBuilder().addRoleToFeature())) {
+                        ps2.setString(1, feature.getUid());
+                        ps2.setString(2, role);
+                        ps2.executeUpdate();
                     }
                 }
             }

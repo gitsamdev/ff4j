@@ -11,8 +11,8 @@ package org.ff4j.test.store;
  * governing permissions and limitations under the License. #L%
  */
 
-import org.ff4j.core.FeatureStore;
-import org.ff4j.store.InMemoryFeatureStore;
+import org.ff4j.inmemory.FeatureStoreInMemory;
+import org.ff4j.store.FeatureStore;
 import org.junit.Test;
 
 /**
@@ -25,7 +25,7 @@ public class InMemoryFeatureStoreTest extends FeatureStoreTestSupport {
     /** {@inheritDoc} */
     @Override
     public FeatureStore initStore() {
-        return  new InMemoryFeatureStore("test-ff4j-features.xml");
+        return  new FeatureStoreInMemory("test-ff4j-features.xml");
     }
 
     /**
@@ -35,17 +35,17 @@ public class InMemoryFeatureStoreTest extends FeatureStoreTestSupport {
     public void testUnitFeatureInitialization3() {
         // Given
         // 'invalid.xml' file does not exist.
-        new InMemoryFeatureStore("invalid.xml");
+        new FeatureStoreInMemory("invalid.xml");
     }
     
     @Test(expected = IllegalArgumentException.class)
     public void testWithInvalidFileFailed() {
-        new InMemoryFeatureStore("");
+        new FeatureStoreInMemory("");
     }
     
     @Test(expected = IllegalArgumentException.class)
     public void testWithInvalidFileFailed2() {
-        new InMemoryFeatureStore((String) null);
+        new FeatureStoreInMemory((String) null);
     }
 
 }

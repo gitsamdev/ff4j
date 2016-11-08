@@ -10,6 +10,7 @@ import static org.ff4j.audit.EventConstants.TARGET_FEATURE;
 
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 /*
@@ -33,18 +34,18 @@ import java.util.concurrent.TimeUnit;
  */
 
 import org.ff4j.FF4j;
+import org.ff4j.audit.BarChart;
 import org.ff4j.audit.Event;
 import org.ff4j.audit.EventConstants;
 import org.ff4j.audit.EventPublisher;
 import org.ff4j.audit.EventQueryDefinition;
 import org.ff4j.audit.EventSeries;
 import org.ff4j.audit.MutableHitCount;
-import org.ff4j.audit.chart.BarChart;
-import org.ff4j.audit.chart.TimeSeriesChart;
-import org.ff4j.audit.repository.EventRepository;
-import org.ff4j.core.Feature;
-import org.ff4j.property.store.InMemoryPropertyStore;
-import org.ff4j.store.InMemoryFeatureStore;
+import org.ff4j.audit.TimeSeriesChart;
+import org.ff4j.feature.Feature;
+import org.ff4j.inmemory.FeatureStoreInMemory;
+import org.ff4j.inmemory.PropertyStoreInMemory;
+import org.ff4j.store.EventRepository;
 import org.ff4j.utils.Util;
 import org.junit.Assert;
 import org.junit.Before;
@@ -73,8 +74,8 @@ public abstract class EventRepositoryTestSupport {
 	@Before
 	public void setUp() throws Exception {
 		ff4j = new FF4j();
-		ff4j.setFeatureStore(new InMemoryFeatureStore("test-ff4j-features.xml"));
-		ff4j.setPropertiesStore(new InMemoryPropertyStore("test-ff4j-features.xml"));
+		ff4j.setFeatureStore(new FeatureStoreInMemory("test-ff4j-features.xml"));
+		ff4j.setPropertiesStore(new PropertyStoreInMemory("test-ff4j-features.xml"));
 		ff4j.setEventRepository(initRepository());
 		repo = ff4j.getEventRepository();
 	}
@@ -379,8 +380,8 @@ public abstract class EventRepositoryTestSupport {
 		// Let the store to be updated
 		Thread.sleep(100);
 		// Then
-		Event evt = repo.getEventByUUID(dummyId, System.currentTimeMillis());
-		Assert.assertNotNull(evt);
+		Optional<Event> evt = repo.getEventByUUID(dummyId, System.currentTimeMillis());
+		Assert.assertTrue(evt.isPresent());
 	}
 
 	/** TDD. */

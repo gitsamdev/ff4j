@@ -43,7 +43,6 @@ import org.ff4j.inmemory.FeatureStoreInMemory;
 import org.ff4j.property.Property;
 import org.ff4j.property.PropertyString;
 import org.ff4j.strategy.PonderationStrategy;
-import org.ff4j.strategy.el.ExpressionFlipStrategy;
 import org.ff4j.utils.FF4jUtils;
 import org.junit.Assert;
 import org.junit.Test;
@@ -283,7 +282,7 @@ public class FF4jTest extends AbstractFf4jTest {
                     .createFeature(new Feature("N2").toggleOff().setDescription("description NEWS"));
         
         Assert.assertTrue(ff4j.check("N1"));
-        Assert.assertFalse(ff4j.checkOveridingStrategy("N1", new ExpressionFlipStrategy("N1", "N1 & N2")));
+        //Assert.assertFalse(ff4j.checkOveridingStrategy("N1", new ExpressionFlipStrategy("N1", "N1 & N2")));
     }
         
     @Test

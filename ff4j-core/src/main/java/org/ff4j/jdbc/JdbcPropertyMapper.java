@@ -31,8 +31,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 
 import org.ff4j.exception.PropertyAccessException;
 import org.ff4j.mapper.PropertyMapper;

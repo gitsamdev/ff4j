@@ -22,8 +22,8 @@ package org.ff4j.test.store;
 
 import org.ff4j.cache.FF4JCacheManager;
 import org.ff4j.cache.InMemoryCacheManager;
-import org.ff4j.core.FeatureStore;
-import org.ff4j.property.store.PropertyStore;
+import org.ff4j.store.FeatureStore;
+import org.ff4j.store.PropertyStore;
 import org.ff4j.test.cache.AbstractCacheManagerJUnitTest;
 import org.ff4j.test.propertystore.PropertyStoreTestSupport;
 import org.junit.Assert;

@@ -24,11 +24,11 @@ import java.lang.reflect.Constructor;
 
 
 import org.ff4j.FF4j;
-import org.ff4j.property.store.InMemoryPropertyStore;
-import org.ff4j.store.InMemoryFeatureStore;
+import org.ff4j.inmemory.FeatureStoreInMemory;
+import org.ff4j.inmemory.PropertyStoreInMemory;
 import org.ff4j.test.AssertFf4j;
 import org.ff4j.test.TestsFf4jConstants;
-import org.ff4j.utils.Util;
+import org.ff4j.utils.FF4jUtils;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -42,9 +42,10 @@ public class AssertTest {
     public void initFF4J() {
         if (assertFF4j == null) {
             ff4j = new FF4j();
-            ff4j.setFeatureStore(new InMemoryFeatureStore("test-ff4j-features.xml"));
-            ff4j.setPropertiesStore(new InMemoryPropertyStore("test-ff4j-features.xml"));
-            ff4j.setAuthorizationsManager(new DefaultAuthorisationManager(Util.set("PERM1", "PERM2"), Util.set("PERM1", "PERM2", "PERM3")));
+            ff4j.setFeatureStore(new FeatureStoreInMemory("test-ff4j-features.xml"));
+            ff4j.setPropertiesStore(new PropertyStoreInMemory("test-ff4j-features.xml"));
+            ff4j.setAuthorizationsManager(
+                    new DefaultAuthorisationManager(FF4jUtils.setOf("PERM1", "PERM2"), FF4jUtils.setOf("PERM1", "PERM2", "PERM3")));
             assertFF4j = new AssertFf4j(ff4j);
         }
     }

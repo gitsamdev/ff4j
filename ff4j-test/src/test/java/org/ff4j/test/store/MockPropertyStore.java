@@ -29,7 +29,7 @@ import java.util.Set;
 
 import org.ff4j.property.Property;
 import org.ff4j.property.PropertyString;
-import org.ff4j.property.store.PropertyStore;
+import org.ff4j.store.PropertyStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -26,9 +26,8 @@ import java.util.HashMap;
 
 import java.util.Map;
 import java.util.Set;
-
-import org.ff4j.core.Feature;
-import org.ff4j.core.FeatureStore;
+import org.ff4j.feature.Feature;
+import org.ff4j.store.FeatureStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,7 +74,7 @@ public class MockFeatureStore implements FeatureStore {
     public Map<String, Feature> readAll() {
         Map < String, Feature> map = new HashMap<String, Feature>();
         if (!empty) {
-            map.put("a", new Feature("a", true));
+            map.put("a", new Feature("a").toggleOn());
         }
         return map;
     }

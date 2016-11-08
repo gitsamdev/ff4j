@@ -157,6 +157,8 @@
 		<module>ff4j-security-spring</module>
 		
 		<!-- Flipping Strategies -->
+		<module>ff4j-strategy-el</module>
+		<module>ff4j-strategy-time</module>
         <module>ff4j-strategy-drools</module>
 
 		<!-- API -->

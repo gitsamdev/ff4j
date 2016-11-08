@@ -20,8 +20,8 @@ package org.ff4j.test.store;
  * #L%
  */
 
-import org.ff4j.audit.repository.EventRepository;
-import org.ff4j.audit.repository.InMemoryEventRepository;
+import org.ff4j.inmemory.EventRepositoryInMemory;
+import org.ff4j.store.EventRepository;
 import org.ff4j.test.audit.EventRepositoryTestSupport;
 
 /**
@@ -33,7 +33,7 @@ public class InMemoryEventStoreTest extends EventRepositoryTestSupport {
     /** {@inheritDoc} */
     @Override
     protected EventRepository initRepository() {
-        return new InMemoryEventRepository(60);
+        return new EventRepositoryInMemory(60);
     }
 
 }

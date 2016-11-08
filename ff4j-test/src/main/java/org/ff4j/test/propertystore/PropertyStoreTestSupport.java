@@ -26,16 +26,16 @@ import org.ff4j.FF4j;
  * #L%
  */
 
-import org.ff4j.core.FeatureStore;
 import org.ff4j.exception.PropertyAlreadyExistException;
 import org.ff4j.exception.PropertyNotFoundException;
+import org.ff4j.inmemory.FeatureStoreInMemory;
 import org.ff4j.property.Property;
-import org.ff4j.property.PropertyString;
 import org.ff4j.property.PropertyDate;
 import org.ff4j.property.PropertyLogLevel;
 import org.ff4j.property.PropertyLogLevel.LogLevel;
-import org.ff4j.property.store.PropertyStore;
-import org.ff4j.store.InMemoryFeatureStore;
+import org.ff4j.property.PropertyString;
+import org.ff4j.store.FeatureStore;
+import org.ff4j.store.PropertyStore;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -60,7 +60,7 @@ public abstract class PropertyStoreTestSupport {
     protected PropertyStore testedStore;
 
     /** Default InMemoryStore for test purposes. */
-    protected FeatureStore defaultStore = new InMemoryFeatureStore();
+    protected FeatureStore defaultStore = new FeatureStoreInMemory();
     
     /** {@inheritDoc} */
     @Before
@@ -169,8 +169,8 @@ public abstract class PropertyStoreTestSupport {
         Property<?> ap = testedStore.readProperty("toto");
         // Then
         Assert.assertNotNull(ap);
-        Assert.assertNotNull(ap.getName());
-        Assert.assertEquals("toto", ap.getName());
+        Assert.assertNotNull(ap.getUid());
+        Assert.assertEquals("toto", ap.getUid());
         Assert.assertEquals("ff4j", ap.getValue());
         Assert.assertEquals("ff4j", ap.asString());
         Assert.assertNull(ap.getFixedValues());
@@ -185,8 +185,8 @@ public abstract class PropertyStoreTestSupport {
         Property<?> log = testedStore.readProperty(READ_OK_FIXED);
         // Then
         Assert.assertNotNull(log);
-        Assert.assertNotNull(log.getName());
-        Assert.assertEquals(READ_OK_FIXED, log.getName());
+        Assert.assertNotNull(log.getUid());
+        Assert.assertEquals(READ_OK_FIXED, log.getUid());
         Assert.assertEquals(LogLevel.ERROR, log.getValue());
         Assert.assertEquals("ERROR", log.asString());
         Assert.assertNotNull(log.getFixedValues());
