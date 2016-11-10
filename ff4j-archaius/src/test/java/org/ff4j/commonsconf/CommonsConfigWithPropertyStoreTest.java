@@ -23,7 +23,7 @@ package org.ff4j.commonsconf;
 
 import org.apache.commons.configuration.CompositeConfiguration;
 import org.apache.commons.configuration.ConfigurationException;
-import org.ff4j.property.store.InMemoryPropertyStore;
+import org.ff4j.inmemory.PropertyStoreInMemory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,7 +44,7 @@ public class CommonsConfigWithPropertyStoreTest {
     @Before
     public void initCommonsConfWithFF4j() throws ConfigurationException {
         // init configuration
-        ff4jConf = new FF4jConfiguration(new InMemoryPropertyStore("ff4j-properties.xml"));
+        ff4jConf = new FF4jConfiguration(new PropertyStoreInMemory("ff4j-properties.xml"));
         // composite
         config = new CompositeConfiguration();
         config.setThrowExceptionOnMissing(true);
@@ -58,7 +58,7 @@ public class CommonsConfigWithPropertyStoreTest {
         Assert.assertEquals("hello", config.getString("e"));
         
         // Retrieve whole property if required
-        Assert.assertEquals("comment", ff4jConf.getFf4jStore().readProperty("e").getDescription());
+        Assert.assertEquals("comment", ff4jConf.getFf4jStore().readProperty("e").getDescription().get());
     }
 
 }

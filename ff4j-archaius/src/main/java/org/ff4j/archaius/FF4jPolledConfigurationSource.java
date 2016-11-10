@@ -26,7 +26,7 @@ import java.util.Map;
 
 import org.apache.commons.configuration.Configuration;
 import org.ff4j.property.Property;
-import org.ff4j.property.store.PropertyStore;
+import org.ff4j.store.PropertyStore;
 
 import com.netflix.config.PollResult;
 import com.netflix.config.PolledConfigurationSource;

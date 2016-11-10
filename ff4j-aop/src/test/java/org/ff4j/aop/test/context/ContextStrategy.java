@@ -1,5 +1,8 @@
 package org.ff4j.aop.test.context;
 
+import org.ff4j.feature.FlippingExecutionContext;
+import org.ff4j.store.FeatureStore;
+
 /*
  * #%L
  * ff4j-aop
@@ -21,8 +24,6 @@ package org.ff4j.aop.test.context;
  */
 
 
-import org.ff4j.core.FeatureStore;
-import org.ff4j.core.FlippingExecutionContext;
 import org.ff4j.strategy.AbstractFlipStrategy;
 
 public class ContextStrategy extends AbstractFlipStrategy {

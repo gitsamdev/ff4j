@@ -21,16 +21,16 @@ package org.ff4j.store;
  */
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.ff4j.cache.FF4jJCacheManager;
-import org.ff4j.core.Feature;
-import org.ff4j.core.FeatureStore;
 import org.ff4j.exception.FeatureAlreadyExistException;
 import org.ff4j.exception.FeatureNotFoundException;
 import org.ff4j.exception.GroupNotFoundException;
+import org.ff4j.feature.Feature;
 import org.ff4j.utils.Util;
 
 /**
@@ -93,7 +93,7 @@ public class FeatureStoreJCache extends AbstractFeatureStore {
         // Read from redis, feature not found if no present
         Feature f = read(uid);
         // Update within Object
-        f.enable();
+        f.toggleOn();
         // Serialization and update key, update TTL
         update(f);
     }
@@ -104,7 +104,7 @@ public class FeatureStoreJCache extends AbstractFeatureStore {
         // Read from redis, feature not found if no present
         Feature f = read(uid);
         // Update within Object
-        f.disable();
+        f.toggleOff();
         // Serialization and update key, update TTL
         update(f);
     }
@@ -145,7 +145,7 @@ public class FeatureStoreJCache extends AbstractFeatureStore {
         // retrieve
         Feature f = read(flipId);
         // modify
-        f.getPermissions().add(roleName);
+        f.addPermission(roleName);
         // persist modification
         update(f);
     }
@@ -156,7 +156,7 @@ public class FeatureStoreJCache extends AbstractFeatureStore {
         Util.assertParamHasLength(roleName, "roleName (#2)");
         // retrieve
         Feature f = read(flipId);
-        f.getPermissions().remove(roleName);
+        f.removePermission(roleName);
         // persist modification
         update(f);
     }
@@ -197,7 +197,7 @@ public class FeatureStoreJCache extends AbstractFeatureStore {
     public void enableGroup(String groupName) {
         Map < String, Feature > features = readGroup(groupName);
         for (Map.Entry<String,Feature> uid : features.entrySet()) {
-            uid.getValue().enable();
+            uid.getValue().toggleOn();
             update(uid.getValue());
         }
     }
@@ -207,7 +207,7 @@ public class FeatureStoreJCache extends AbstractFeatureStore {
     public void disableGroup(String groupName) {
         Map < String, Feature > features = readGroup(groupName);
         for (Map.Entry<String,Feature> uid : features.entrySet()) {
-            uid.getValue().disable();
+            uid.getValue().toggleOff();
             update(uid.getValue());
         }
     }
@@ -240,13 +240,9 @@ public class FeatureStoreJCache extends AbstractFeatureStore {
     /** {@inheritDoc} */
     @Override
     public Set<String> readAllGroups() {
-        Map < String, Feature > features = readAll();
-        Set < String > groups = new HashSet<>();
-        for (Map.Entry<String,Feature> uid : features.entrySet()) {
-            groups.add(uid.getValue().getGroup());
-        }
-        groups.remove(null);
-        return groups;
+        return readAll().values().stream().map(f->f.getGroup())
+            .filter(Optional::isPresent).map(Optional::get)
+            .collect(Collectors.toSet());
     }
     
     /** {@inheritDoc} */

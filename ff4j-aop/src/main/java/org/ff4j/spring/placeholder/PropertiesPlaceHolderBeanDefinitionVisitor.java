@@ -27,9 +27,9 @@ import java.util.Map;
 import java.util.Set;
 
 import org.ff4j.FF4j;
-import org.ff4j.core.Feature;
 import org.ff4j.exception.FeatureNotFoundException;
 import org.ff4j.exception.PropertyNotFoundException;
+import org.ff4j.feature.Feature;
 import org.ff4j.property.Property;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

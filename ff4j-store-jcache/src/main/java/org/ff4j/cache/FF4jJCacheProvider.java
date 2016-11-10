@@ -26,7 +26,7 @@ import javax.cache.Caching;
 import javax.cache.configuration.MutableConfiguration;
 import javax.cache.spi.CachingProvider;
 
-import org.ff4j.core.Feature;
+import org.ff4j.feature.Feature;
 import org.ff4j.property.Property;
 
 public class FF4jJCacheProvider {

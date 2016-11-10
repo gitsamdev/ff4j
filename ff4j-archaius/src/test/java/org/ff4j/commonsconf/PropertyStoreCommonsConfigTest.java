@@ -26,7 +26,7 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.ff4j.property.Property;
 import org.ff4j.property.PropertyLogLevel;
 import org.ff4j.property.PropertyLogLevel.LogLevel;
-import org.ff4j.property.store.PropertyStore;
+import org.ff4j.store.PropertyStore;
 import org.ff4j.test.propertystore.PropertyStoreTestSupport;
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -89,8 +89,8 @@ public class PropertyStoreCommonsConfigTest extends PropertyStoreTestSupport {
         Property<?> log = testedStore.readProperty(READ_OK_FIXED);
         // Then
         Assert.assertNotNull(log);
-        Assert.assertNotNull(log.getName());
-        Assert.assertEquals(READ_OK_FIXED, log.getName());
+        Assert.assertNotNull(log.getUid());
+        Assert.assertEquals(READ_OK_FIXED, log.getUid());
         Assert.assertEquals(LogLevel.ERROR.name(), log.getValue());
     }
     

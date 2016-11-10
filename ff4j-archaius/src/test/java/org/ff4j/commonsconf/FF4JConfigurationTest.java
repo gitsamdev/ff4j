@@ -32,9 +32,9 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.ff4j.exception.InvalidPropertyTypeException;
 import org.ff4j.exception.PropertyNotFoundException;
-import org.ff4j.property.store.InMemoryPropertyStore;
-import org.ff4j.property.store.PropertyStore;
-import org.ff4j.utils.Util;
+import org.ff4j.inmemory.PropertyStoreInMemory;
+import org.ff4j.store.PropertyStore;
+import org.ff4j.utils.FF4jUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,7 +54,7 @@ public class FF4JConfigurationTest {
             
     @Before
     public void initCommonsConfWithFF4j() throws ConfigurationException {
-        pStore = new InMemoryPropertyStore("ff4j-configuration.xml");
+        pStore = new PropertyStoreInMemory("ff4j-configuration.xml");
         ff4jConf = new FF4jConfiguration();
         ff4jConf.setFf4jStore(pStore);
     }
@@ -182,7 +182,7 @@ public class FF4JConfigurationTest {
     @Test
     public void testgetKeysNull() {
         // Given
-        InMemoryPropertyStore tmpStore = new InMemoryPropertyStore();
+        PropertyStoreInMemory tmpStore = new PropertyStoreInMemory();
         Configuration tmpConf  = new FF4jConfiguration(tmpStore);
         Iterator<String> propsKeys = tmpConf.getKeys("z");
         Assert.assertFalse(propsKeys.hasNext());
@@ -477,7 +477,7 @@ public class FF4JConfigurationTest {
         // When
         List<Object> c = ff4jConf.getList("propList");
         // Then
-        Assert.assertTrue(Util.list("a","b","c").containsAll(c));
+        Assert.assertTrue(FF4jUtils.listOf("a","b","c").containsAll(c));
         Assert.assertNotNull(ff4jConf.getList("propEmptyList"));
     }
     
@@ -488,7 +488,7 @@ public class FF4JConfigurationTest {
         // When
         String[] c = ff4jConf.getStringArray("propList");
         // Then
-        Assert.assertTrue(Util.list("a","b","c").containsAll(Arrays.asList(c)));
+        Assert.assertTrue(FF4jUtils.listOf("a","b","c").containsAll(Arrays.asList(c)));
     }
     
     @Test
@@ -497,11 +497,11 @@ public class FF4JConfigurationTest {
         Assert.assertTrue(ff4jConf.containsKey("propList"));
         Assert.assertFalse(ff4jConf.containsKey("invalid"));
         // When
-        List<Object> c1 = ff4jConf.getList("propList", Util.list("d","e","f"));
-        List<Object> c2 = ff4jConf.getList("invalid",  Util.list("d","e","f"));
+        List<Object> c1 = ff4jConf.getList("propList", FF4jUtils.listOf("d","e","f"));
+        List<Object> c2 = ff4jConf.getList("invalid",  FF4jUtils.listOf("d","e","f"));
         // Then
-        Assert.assertTrue(Util.list("a","b","c").containsAll(c1));
-        Assert.assertTrue(Util.list("d","e","f").containsAll(c2));
+        Assert.assertTrue(FF4jUtils.listOf("a","b","c").containsAll(c1));
+        Assert.assertTrue(FF4jUtils.listOf("d","e","f").containsAll(c2));
     }
     
     

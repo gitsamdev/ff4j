@@ -27,11 +27,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.ff4j.cache.FF4jJCacheManager;
-import org.ff4j.exception.PropertyAlreadyExistException;
 import org.ff4j.exception.PropertyNotFoundException;
 import org.ff4j.property.Property;
-import org.ff4j.property.store.AbstractPropertyStore;
-import org.ff4j.property.store.PropertyStore;
 import org.ff4j.utils.Util;
 
 /**
@@ -70,22 +67,16 @@ public class PropertyStoreJCache extends AbstractPropertyStore {
     /** {@inheritDoc} */
     @Override
     public <T> void createProperty(Property<T> property) {
-        if (property == null) {
-            throw new IllegalArgumentException("Property cannot be null nor empty");
-        }
-        if (existProperty(property.getName())) {
-            throw new PropertyAlreadyExistException(property.getName());
-        }
+        assertPropertyNotNull(property);
+        assertPropertyNotExist(property.getUid());
         getCacheManager().putProperty(property);
     }
 
     /** {@inheritDoc} */
     @Override
-    public Property<?> readProperty(String name) {
-        if (!existProperty(name)) {
-            throw new PropertyNotFoundException(name);
-        }
-        return getCacheManager().getProperty(name);
+    public Property<?> readProperty(String uid) {
+        assertPropertyExist(uid);
+        return getCacheManager().getProperty(uid);
     }
 
     /** {@inheritDoc} */
@@ -99,12 +90,8 @@ public class PropertyStoreJCache extends AbstractPropertyStore {
     /** {@inheritDoc} */
     @Override
     public <T> void updateProperty(Property<T> property) {
-        if (property == null) {
-            throw new IllegalArgumentException("Property cannot be null");
-        }
-        if (!existProperty(property.getName())) {
-            throw new PropertyNotFoundException(property.getName());
-        }
+        assertPropertyNotNull(property);
+        assertPropertyExist(property.getUid());
         getCacheManager().putProperty(property);
     }
 

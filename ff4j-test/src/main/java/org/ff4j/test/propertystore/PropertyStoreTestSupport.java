@@ -173,8 +173,7 @@ public abstract class PropertyStoreTestSupport {
         Assert.assertEquals("toto", ap.getUid());
         Assert.assertEquals("ff4j", ap.getValue());
         Assert.assertEquals("ff4j", ap.asString());
-        Assert.assertNull(ap.getFixedValues());
-        
+        Assert.assertFalse(ap.getFixedValues().isPresent());
     }
     
     @Test

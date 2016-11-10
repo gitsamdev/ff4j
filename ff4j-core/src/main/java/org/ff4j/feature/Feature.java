@@ -155,6 +155,17 @@ public class Feature extends FF4jBaseObject < Feature > {
         return addPermissions(permission);
     }
     
+    public Feature removePermission(String permission) {
+        return removePermissions(permission);
+    }
+    
+    public Feature removePermissions(String... perms) {
+        if (perms != null && permissions.isPresent()) {
+            permissions.get().removeAll(FF4jUtils.setOf(perms));
+        }
+        return this;
+    }
+    
     public Feature addPermissions(String... perms) {
         if (perms != null) {
             Set<String> setPermission = FF4jUtils.setOf(perms);

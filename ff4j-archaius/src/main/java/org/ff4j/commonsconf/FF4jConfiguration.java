@@ -35,10 +35,10 @@ import java.util.Set;
 import org.apache.commons.configuration.AbstractConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.ff4j.exception.InvalidPropertyTypeException;
+import org.ff4j.inmemory.PropertyStoreInMemory;
 import org.ff4j.property.Property;
-import org.ff4j.property.store.InMemoryPropertyStore;
-import org.ff4j.property.store.PropertyStore;
-import org.ff4j.property.util.PropertyFactory;
+import org.ff4j.property.PropertyFactory;
+import org.ff4j.store.PropertyStore;
 import org.ff4j.utils.Util;
 
 /**
@@ -76,7 +76,7 @@ public class FF4jConfiguration extends AbstractConfiguration {
     @Override
     public Configuration subset(String prefix) {
         Map < String, Property<?>> myProps = ff4jStore().readAllProperties();
-        PropertyStore ps = new InMemoryPropertyStore();
+        PropertyStore ps = new PropertyStoreInMemory();
         for (Map.Entry< String, Property<?>>  prop : myProps.entrySet()) {
             if (prop.getKey().startsWith(prefix)) {
                 ps.createProperty(prop.getValue());

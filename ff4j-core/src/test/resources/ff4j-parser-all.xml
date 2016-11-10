@@ -61,8 +61,8 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		</feature-group>
 		<feature-group name="GRP1">
 			<feature uid="forth" enable="true" description="description">
-				<flipstrategy class="org.ff4j.strategy.el.ExpressionFlipStrategy">
-					<param name="expression" value="third | second"/>
+				<flipstrategy class="org.ff4j.strategy.PonderationStrategy">
+					<param name="weight" value="1"/>
 				</flipstrategy>
 				<security>
 					<role name="ADMINISTRATOR"/>

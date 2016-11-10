@@ -1,5 +1,9 @@
 package org.ff4j.spring.namespace;
 
+import static org.ff4j.spring.namespace.FF4jNameSpaceConstants.ATT_FF4J_AUTH_MANAGER;
+import static org.ff4j.spring.namespace.FF4jNameSpaceConstants.ATT_FF4J_AUTOCREATE;
+import static org.ff4j.spring.namespace.FF4jNameSpaceConstants.ATT_FF4J_FILENAME;
+
 /*
  * #%L
  * ff4j-aop
@@ -24,15 +28,13 @@ package org.ff4j.spring.namespace;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.ff4j.FF4j;
-import org.ff4j.property.store.InMemoryPropertyStore;
-import org.ff4j.store.InMemoryFeatureStore;
+import org.ff4j.inmemory.FeatureStoreInMemory;
+import org.ff4j.inmemory.PropertyStoreInMemory;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.AbstractSimpleBeanDefinitionParser;
 import org.springframework.util.StringUtils;
 import org.w3c.dom.Element;
-
-import static org.ff4j.spring.namespace.FF4jNameSpaceConstants.*;
 
 /**
  * Parser for tag <ff4j:ff4j>
@@ -56,8 +58,8 @@ public final class FF4jBeanDefinitionParser extends AbstractSimpleBeanDefinition
         // If filename is present ff4j will be initialized with both features and properties inmemory.
         if (StringUtils.hasLength(ff4jTag.getAttribute(ATT_FF4J_FILENAME))) {
             String fileName = ff4jTag.getAttribute(ATT_FF4J_FILENAME);
-            InMemoryFeatureStore  imfs = new InMemoryFeatureStore(fileName);
-            InMemoryPropertyStore imps = new InMemoryPropertyStore(fileName);
+            FeatureStoreInMemory  imfs = new FeatureStoreInMemory(fileName);
+            PropertyStoreInMemory imps = new PropertyStoreInMemory(fileName);
             definitionBuilder.getBeanDefinition().getPropertyValues().addPropertyValue("featureStore", imfs);
             definitionBuilder.getBeanDefinition().getPropertyValues().addPropertyValue("propertiesStore", imps);
             logger.debug("... Setting in-memory stores : " + imfs.readAll().size() + " feature(s), " + imps.readAllProperties().size() + " propertie(s)");

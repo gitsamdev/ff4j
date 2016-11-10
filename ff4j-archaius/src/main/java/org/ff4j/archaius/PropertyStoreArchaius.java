@@ -3,7 +3,7 @@ package org.ff4j.archaius;
 import org.apache.commons.configuration.AbstractConfiguration;
 import org.ff4j.commonsconf.FF4jConfiguration;
 import org.ff4j.commonsconf.PropertyStoreCommonsConfig;
-import org.ff4j.property.store.PropertyStore;
+import org.ff4j.store.PropertyStore;
 
 /*
  * #%L

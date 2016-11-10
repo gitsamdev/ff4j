@@ -379,8 +379,8 @@ public class AssertFf4j {
 	 * @return current object
 	 */
 	public final AssertFf4j assertThatFeatureDoesNotHaveFlippingStrategy(String featureName) {
-		Assert.assertNull(FEATURE + featureName + "' must not have a flipping strategy",
-				ff4j.getFeature(featureName).getFlippingStrategy());
+	    Assert.assertFalse(FEATURE + featureName + "' must not have a flipping strategy",
+	            ff4j.getFeature(featureName).getFlippingStrategy().isPresent());
 		waitSomeSeconds();
 		return this;
 	}

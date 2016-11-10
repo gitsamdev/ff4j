@@ -4,8 +4,8 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-import org.ff4j.core.Feature;
-import org.ff4j.core.FeatureStore;
+import org.ff4j.feature.Feature;
+import org.ff4j.store.FeatureStore;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedOperationParameter;
 import org.springframework.jmx.export.annotation.ManagedOperationParameters;

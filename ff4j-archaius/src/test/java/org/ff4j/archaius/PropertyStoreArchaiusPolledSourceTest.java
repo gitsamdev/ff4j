@@ -1,5 +1,7 @@
 package org.ff4j.archaius;
 
+import org.ff4j.inmemory.PropertyStoreInMemory;
+
 /*
  * #%L
  * ff4j-archaius
@@ -23,8 +25,7 @@ package org.ff4j.archaius;
 import org.ff4j.property.Property;
 import org.ff4j.property.PropertyLogLevel;
 import org.ff4j.property.PropertyLogLevel.LogLevel;
-import org.ff4j.property.store.InMemoryPropertyStore;
-import org.ff4j.property.store.PropertyStore;
+import org.ff4j.store.PropertyStore;
 import org.ff4j.test.propertystore.PropertyStoreTestSupport;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -48,7 +49,7 @@ public class PropertyStoreArchaiusPolledSourceTest extends PropertyStoreTestSupp
     @BeforeClass
     public static void initArchauis() throws InterruptedException {
      // Sample FF4J Store
-        PropertyStore ff4jStore = new InMemoryPropertyStore("ff4j-properties.xml");
+        PropertyStore ff4jStore = new PropertyStoreInMemory("ff4j-properties.xml");
         // FF4Store as polling Source for Archiaus
         PolledConfigurationSource ff4jSource = new FF4jPolledConfigurationSource(ff4jStore);
         // Working Thread (polling from ff4j => Archaius)
@@ -96,8 +97,8 @@ public class PropertyStoreArchaiusPolledSourceTest extends PropertyStoreTestSupp
         Property<?> log = testedStore.readProperty(READ_OK_FIXED);
         // Then
         Assert.assertNotNull(log);
-        Assert.assertNotNull(log.getName());
-        Assert.assertEquals(READ_OK_FIXED, log.getName());
+        Assert.assertNotNull(log.getUid());
+        Assert.assertEquals(READ_OK_FIXED, log.getUid());
         Assert.assertEquals(LogLevel.ERROR.name(), log.getValue());
     }
     

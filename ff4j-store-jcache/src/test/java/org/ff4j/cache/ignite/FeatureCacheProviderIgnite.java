@@ -30,7 +30,7 @@ import org.apache.ignite.Ignition;
 import org.apache.ignite.cache.CacheAtomicityMode;
 import org.apache.ignite.configuration.CacheConfiguration;
 import org.ff4j.cache.FF4jJCacheManager;
-import org.ff4j.core.Feature;
+import org.ff4j.feature.Feature;
 import org.ff4j.property.Property;
 
 /**

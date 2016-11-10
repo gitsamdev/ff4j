@@ -1,5 +1,7 @@
 package org.ff4j.propertystore;
 
+import org.ff4j.store.PropertyStore;
+
 /*
  * #%L
  * ff4j-store-jcache
@@ -21,7 +23,6 @@ package org.ff4j.propertystore;
  */
 
 
-import org.ff4j.property.store.PropertyStore;
 import org.ff4j.store.PropertyStoreJCache;
 import org.ff4j.test.propertystore.PropertyStoreTestSupport;
 import org.jsr107.ri.spi.RICachingProvider;

@@ -63,7 +63,9 @@ INSERT INTO T_FF4J_ROLES_01(FEAT_UID, ROLE_NAME)  VALUES('third', 'BETA-TESTER')
 
 -- Forth
 INSERT INTO T_FF4J_FEATURES_01(FEAT_UID, ENABLE, DESCRIPTION, STRATEGY, EXPRESSION, GROUPNAME) 
-VALUES('forth',  1, 'ForthJDBC', 'org.ff4j.strategy.el.ExpressionFlipStrategy', 'expression=third|second', 'GRP1');
+VALUES('forth',  1, 'ForthJDBC', 'org.ff4j.strategy.PonderationStrategy', 'weight=1', 'GRP1');
+
+
 INSERT INTO T_FF4J_ROLES_01(FEAT_UID, ROLE_NAME)  VALUES('forth', 'ADMINISTRATOR');
 INSERT INTO T_FF4J_ROLES_01(FEAT_UID, ROLE_NAME)  VALUES('forth', 'BETA-TESTER');
 

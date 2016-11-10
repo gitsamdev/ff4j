@@ -1,5 +1,7 @@
 package org.ff4j.spring.autowire;
 
+import java.lang.reflect.Field;
+
 /*
  * #%L
  * ff4j-aop
@@ -24,15 +26,13 @@ package org.ff4j.spring.autowire;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.ff4j.FF4j;
-import org.ff4j.core.Feature;
+import org.ff4j.feature.Feature;
 import org.ff4j.property.Property;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
-
-import java.lang.reflect.Field;
 
 /**
  * When Proxified, analyze bean to eventually invoke ANOTHER implementation (flip up).

@@ -22,11 +22,11 @@ package org.ff4j.archaius;
 
 import org.ff4j.commonsconf.FF4jConfiguration;
 import org.ff4j.commonsconf.PropertyStoreCommonsConfig;
+import org.ff4j.inmemory.PropertyStoreInMemory;
 import org.ff4j.property.Property;
 import org.ff4j.property.PropertyLogLevel;
 import org.ff4j.property.PropertyLogLevel.LogLevel;
-import org.ff4j.property.store.InMemoryPropertyStore;
-import org.ff4j.property.store.PropertyStore;
+import org.ff4j.store.PropertyStore;
 import org.ff4j.test.propertystore.PropertyStoreTestSupport;
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -42,14 +42,14 @@ public class PropertyStoreArchaiusCommonsConfTest extends PropertyStoreTestSuppo
     /** {@inheritDoc} */
     @Override
     protected PropertyStore initPropertyStore() {
-        PropertyStore ff4jStore = new InMemoryPropertyStore("ff4j-properties.xml");
+        PropertyStore ff4jStore = new PropertyStoreInMemory("ff4j-properties.xml");
         return new PropertyStoreArchaius(new FF4jConfiguration(ff4jStore));
     }
     
     /** {@inheritDoc} */
     @Test
     public void testInitPropertyStore2() {
-        PropertyStore sourceStore   = new InMemoryPropertyStore("ff4j-properties.xml");
+        PropertyStore sourceStore   = new PropertyStoreInMemory("ff4j-properties.xml");
         PropertyStore archaiusStore = new PropertyStoreArchaius(sourceStore);
         Assert.assertTrue(archaiusStore.existProperty("a"));
     }
@@ -87,8 +87,8 @@ public class PropertyStoreArchaiusCommonsConfTest extends PropertyStoreTestSuppo
         Property<?> log = testedStore.readProperty(READ_OK_FIXED);
         // Then
         Assert.assertNotNull(log);
-        Assert.assertNotNull(log.getName());
-        Assert.assertEquals(READ_OK_FIXED, log.getName());
+        Assert.assertNotNull(log.getUid());
+        Assert.assertEquals(READ_OK_FIXED, log.getUid());
         Assert.assertEquals(LogLevel.ERROR.name(), log.getValue());
     }
     

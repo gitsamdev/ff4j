@@ -1,6 +1,6 @@
 package org.ff4j.cache;
 
-import org.ff4j.core.Feature;
+import org.ff4j.feature.Feature;
 import org.ff4j.property.PropertyString;
 
 /*
@@ -71,7 +71,7 @@ public class FeatureCacheProviderJCacheRITest extends AbstractCacheManagerJUnitT
         FF4jJCacheManager fcm= new FF4jJCacheManager(RICachingProvider.class.getName());
         Assert.assertNotNull(fcm.getFeatureNativeCache());
         // When
-        fcm.putFeature(new Feature("f1", true));
+        fcm.putFeature(new Feature("f1").toggleOn());
         // Then
         Assert.assertNotNull(fcm.getFeature("f1"));
         Assert.assertTrue(fcm.listCachedFeatureNames().contains("f1"));

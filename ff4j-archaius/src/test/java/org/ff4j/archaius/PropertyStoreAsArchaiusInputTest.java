@@ -1,5 +1,8 @@
 package org.ff4j.archaius;
 
+import org.ff4j.inmemory.PropertyStoreInMemory;
+import org.ff4j.store.PropertyStore;
+
 /*
  * #%L
  * ff4j-archaius
@@ -20,8 +23,6 @@ package org.ff4j.archaius;
  * #L%
  */
 
-import org.ff4j.property.store.InMemoryPropertyStore;
-import org.ff4j.property.store.PropertyStore;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -44,7 +45,7 @@ public class PropertyStoreAsArchaiusInputTest {
     @BeforeClass
     public static void initArchauisWithFF4j() throws InterruptedException {
         // Sample FF4J Store
-        PropertyStore ff4jStore = new InMemoryPropertyStore("ff4j-properties.xml");
+        PropertyStore ff4jStore = new PropertyStoreInMemory("ff4j-properties.xml");
         // FF4Store as polling Source for Archiaus
         PolledConfigurationSource ff4jSource = new FF4jPolledConfigurationSource(ff4jStore);
         // Working Thread (polling from ff4j => Archaius)

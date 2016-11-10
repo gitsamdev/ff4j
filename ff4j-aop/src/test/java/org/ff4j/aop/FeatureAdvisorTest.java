@@ -26,6 +26,7 @@ import java.lang.reflect.InvocationTargetException;
 import org.ff4j.FF4j;
 import org.ff4j.aop.test.goodbye.GoodbyeService;
 import org.ff4j.aop.test.greeting.GreetingService;
+import org.ff4j.feature.Feature;
 import org.ff4j.spring.namespace.FF4jNameSpaceConstants;
 import org.junit.After;
 import org.junit.Assert;
@@ -56,10 +57,10 @@ public class FeatureAdvisorTest {
     @Before
     public void createFeatures() {
         if (!ff4j.exist("language-english")) {
-            ff4j.createFeature("language-english");
+            ff4j.createFeature(new Feature("language-english"));
         }
         if (!ff4j.exist("language-french")) {
-            ff4j.createFeature("language-french");
+            ff4j.createFeature(new Feature("language-french"));
         }
     }
 

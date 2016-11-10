@@ -2,6 +2,7 @@ package org.ff4j.aop.test.context;
 
 import org.ff4j.aop.ContextLocation;
 import org.ff4j.aop.Flip;
+import org.ff4j.feature.FlippingExecutionContext;
 
 /*
  * #%L
@@ -24,7 +25,6 @@ import org.ff4j.aop.Flip;
  */
 
 
-import org.ff4j.core.FlippingExecutionContext;
 
 public interface ContextService {
     

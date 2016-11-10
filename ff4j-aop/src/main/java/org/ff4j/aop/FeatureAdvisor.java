@@ -10,7 +10,6 @@ package org.ff4j.aop;
  * BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License. #L%
  */
-import static org.ff4j.utils.MappingUtil.instanceFlippingStrategy;
 import static org.ff4j.utils.MappingUtil.toMap;
 
 import java.lang.reflect.Method;
@@ -20,8 +19,8 @@ import javax.lang.model.type.NullType;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.ff4j.FF4j;
-import org.ff4j.core.FlippingExecutionContext;
-import org.ff4j.core.FlippingStrategy;
+import org.ff4j.feature.FlippingExecutionContext;
+import org.ff4j.feature.FlippingStrategy;
 import org.ff4j.utils.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,7 +98,7 @@ public class FeatureAdvisor implements MethodInterceptor {
         String featureId = ff.name();
         if (ff.flippingStrategy() != NullType.class) {
             String fsClassName  = ff.flippingStrategy().getName();
-            FlippingStrategy fs = instanceFlippingStrategy(featureId, fsClassName, toMap(ff.flippingInitParams()));
+            FlippingStrategy fs = FlippingStrategy.instanciate(featureId, fsClassName, toMap(ff.flippingInitParams()));
             return getFf4j().checkOveridingStrategy(featureId, fs, context);
         }
         return getFf4j().check(featureId, context);

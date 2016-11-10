@@ -1,5 +1,7 @@
 package org.ff4j.aop.test.context;
 
+import org.ff4j.feature.FlippingExecutionContext;
+
 /*
  * #%L
  * ff4j-aop
@@ -21,7 +23,6 @@ package org.ff4j.aop.test.context;
  */
 
 
-import org.ff4j.core.FlippingExecutionContext;
 import org.springframework.stereotype.Component;
 
 @Component("context.english")

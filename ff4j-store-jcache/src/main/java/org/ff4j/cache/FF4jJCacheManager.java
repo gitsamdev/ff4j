@@ -26,7 +26,7 @@ import java.util.Set;
 
 import javax.cache.Cache;
 
-import org.ff4j.core.Feature;
+import org.ff4j.feature.Feature;
 import org.ff4j.property.Property;
 
 /**
@@ -151,8 +151,8 @@ public class FF4jJCacheManager extends FF4jJCacheProvider implements FF4JCacheMa
 
     /** {@inheritDoc} */
     @Override
-    public void putProperty(Property<?> feat) {
-        getPropertiesCache().put(feat.getName(), feat);
+    public void putProperty(Property<?> prop) {
+        getPropertiesCache().put(prop.getUid(), prop);
     }
 
     /** {@inheritDoc} */

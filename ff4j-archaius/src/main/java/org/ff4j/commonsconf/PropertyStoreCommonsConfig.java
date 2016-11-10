@@ -32,8 +32,8 @@ import org.ff4j.exception.PropertyAlreadyExistException;
 import org.ff4j.exception.PropertyNotFoundException;
 import org.ff4j.property.Property;
 import org.ff4j.property.PropertyString;
-import org.ff4j.property.store.AbstractPropertyStore;
-import org.ff4j.property.store.PropertyStore;
+import org.ff4j.store.AbstractPropertyStore;
+import org.ff4j.store.PropertyStore;
 import org.ff4j.utils.Util;
 
 /**
@@ -106,11 +106,11 @@ public class PropertyStoreCommonsConfig extends AbstractPropertyStore {
     @Override
     public <T> void createProperty(Property<T> value) {
         Util.assertNotNull(value);
-        Util.hasLength(value.getName());
-        if (existProperty(value.getName())) {
-            throw new PropertyAlreadyExistException(value.getName());
+        Util.hasLength(value.getUid());
+        if (existProperty(value.getUid())) {
+            throw new PropertyAlreadyExistException(value.getUid());
         }
-        conf().addProperty(value.getName(), value.asString());
+        conf().addProperty(value.getUid(), value.asString());
     }
 
     /** {@inheritDoc} */

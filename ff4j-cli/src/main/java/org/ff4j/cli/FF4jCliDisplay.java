@@ -20,10 +20,10 @@ package org.ff4j.cli;
  * #L%
  */
 import static org.ff4j.cli.ansi.AnsiTerminal.cyan;
-import static org.ff4j.cli.ansi.AnsiTerminal.white;
-import static org.ff4j.cli.ansi.AnsiTerminal.yellow;
 import static org.ff4j.cli.ansi.AnsiTerminal.green;
 import static org.ff4j.cli.ansi.AnsiTerminal.red;
+import static org.ff4j.cli.ansi.AnsiTerminal.white;
+import static org.ff4j.cli.ansi.AnsiTerminal.yellow;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -35,8 +35,7 @@ import org.ff4j.FF4j;
 import org.ff4j.cli.ansi.AnsiForegroundColor;
 import org.ff4j.cli.ansi.AnsiTerminal;
 import org.ff4j.cli.ansi.AnsiTextAttribute;
-import org.ff4j.core.Feature;
-import org.ff4j.core.FeatureStore;
+import org.ff4j.feature.Feature;
 import org.ff4j.property.Property;
 import org.ff4j.property.PropertyBigDecimal;
 import org.ff4j.property.PropertyBigInteger;
@@ -49,7 +48,8 @@ import org.ff4j.property.PropertyLogLevel;
 import org.ff4j.property.PropertyLong;
 import org.ff4j.property.PropertyShort;
 import org.ff4j.property.PropertyString;
-import org.ff4j.property.store.PropertyStore;
+import org.ff4j.store.FeatureStore;
+import org.ff4j.store.PropertyStore;
 import org.ff4j.utils.Util;
 
 /**
@@ -290,7 +290,7 @@ public class FF4jCliDisplay {
 			yellow("| ");
 			AnsiTerminal.textAttribute(AnsiTextAttribute.BOLD);
 			AnsiTerminal.foreGroundColor(AnsiForegroundColor.GREEN);
-			System.out.print(StringUtils.rightPad(prop.getName(), 19));
+			System.out.print(StringUtils.rightPad(prop.getUid(), 19));
 			AnsiTerminal.textAttribute(AnsiTextAttribute.CLEAR);
 			yellow("| ");
 			white(StringUtils.rightPad(prop.asString(), 19));
@@ -303,8 +303,8 @@ public class FF4jCliDisplay {
 			white(StringUtils.rightPad(pType, 19));
 			yellow("| ");
 			String fixedValues = "---";
-			if (prop.getFixedValues() != null && !prop.getFixedValues().isEmpty()) {
-				fixedValues = prop.getFixedValues().toString();
+			if (prop.getFixedValues().isPresent()) {
+				fixedValues = prop.getFixedValues().get().toString();
 				if (fixedValues.length() > 31) {
 					fixedValues = fixedValues.substring(0, 28) + "...";
 				}
@@ -376,9 +376,7 @@ public class FF4jCliDisplay {
 			AnsiTerminal.textAttribute(AnsiTextAttribute.BOLD);
 			AnsiTerminal.foreGroundColor(AnsiForegroundColor.WHITE);
 			String groupName = "---";  
-			if (!StringUtils.isEmpty(feat.getGroup())) {
-				groupName = feat.getGroup();
-			}
+			feat.getGroup().ifPresent(g ->  groupName = g);
 			System.out.print(StringUtils.rightPad(groupName, 14));
 			
 			AnsiTerminal.textAttribute(AnsiTextAttribute.CLEAR);

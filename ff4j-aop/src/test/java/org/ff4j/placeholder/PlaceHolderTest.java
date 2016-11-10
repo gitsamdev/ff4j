@@ -22,7 +22,7 @@ package org.ff4j.placeholder;
 
 
 import org.ff4j.FF4j;
-import org.ff4j.core.Feature;
+import org.ff4j.feature.Feature;
 import org.ff4j.property.PropertyInt;
 import org.ff4j.spring.autowire.FF4JFeature;
 import org.ff4j.spring.autowire.FF4JProperty;

@@ -21,12 +21,13 @@ package org.ff4j.jmx;
  */
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
 import org.ff4j.FF4j;
-import org.ff4j.core.Feature;
+import org.ff4j.feature.Feature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jmx.export.annotation.ManagedAttribute;
 import org.springframework.jmx.export.annotation.ManagedOperation;
@@ -98,7 +99,7 @@ public class FF4JMBean {
     @ManagedOperation(description = "Returns feature authentication roles")
     @ManagedOperationParameters({@ManagedOperationParameter(name = "featureId", description = "Identifier of feature to get Roles")})
     public Set<String> getPermissions(String featureId) {
-        return getFf4j().getFeature(featureId).getPermissions();
+        return getFf4j().getFeature(featureId).getPermissions().orElse(new HashSet<>());
     }
 
     /**

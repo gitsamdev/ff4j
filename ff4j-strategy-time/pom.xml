@@ -22,7 +22,7 @@
 	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 	<dependencies>
 	
-	<!-- Support for tests -->
+		<!-- Support for tests -->
 		<dependency>
 			<groupId>org.ff4j</groupId>
 			<artifactId>ff4j-core</artifactId>

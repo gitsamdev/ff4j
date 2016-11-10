@@ -35,26 +35,23 @@
 
 	<feature-group name="group3">
 		<feature uid="f0" enable="true" description="description">
-			<flipstrategy class="org.ff4j.strategy.el.ExpressionFlipStrategy">
-				<param name="expression"><![CDATA[A | B]]></param>
-			</flipstrategy>
 			<security>
 				<role name="X" />
 				<role name="Y" />
 			</security>
+			<flipstrategy class="org.ff4j.strategy.PonderationStrategy">
+					<param name="weight" value="1"/>
+			</flipstrategy>
+			
 		</feature>
 	</feature-group>
 
 	<feature uid="f4" enable="true" description="description">
-		<flipstrategy class="org.ff4j.strategy.time.ReleaseDateFlipStrategy">
-			<param name="releaseDate" value="2013-07-14-14:00" />
-		</flipstrategy>
+		
 	</feature>
 	
 	<feature uid="f6" enable="true" description="description">
-		<flipstrategy class="org.ff4j.strategy.time.ReleaseDateFlipStrategy">
-			<param name="releaseDate">2013-07-14-14:00</param>
-		</flipstrategy>
+		
 	</feature>
 	
 	<feature uid="f5" enable="true" >

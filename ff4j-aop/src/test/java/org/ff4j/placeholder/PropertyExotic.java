@@ -30,11 +30,8 @@ public class PropertyExotic extends Property<String> {
     
     private String m;
     
-    public PropertyExotic() {
-    }
-    
     public PropertyExotic(String name, String mm) {
-        this.name = name;
+        super(name);
         this.m = mm;
     }
     
