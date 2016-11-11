@@ -48,6 +48,7 @@
 	<bean id="int" class="org.ff4j.FF4j" >
 		<property name="featureStore" ref="INT.STORE" />
 	</bean>
+	
 	<bean id="INT.STORE" class="org.ff4j.store.InMemoryFeatureStore" >
 		<constructor-arg index="0" value="ff4j-cli-features.xml" />
 	</bean>

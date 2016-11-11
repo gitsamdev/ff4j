@@ -30,7 +30,6 @@ import org.ff4j.feature.FlippingExecutionContext;
 import org.ff4j.inmemory.FeatureStoreInMemory;
 import org.ff4j.strategy.time.HourInterval;
 import org.ff4j.strategy.time.OfficeHourStrategy;
-import org.ff4j.test.AbstractFf4jTest;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,17 +38,14 @@ import org.junit.Test;
  * Test different behavior or office hour
  * @author <a href="mailto:cedrick.lunven@gmail.com">Cedrick LUNVEN</a>
  */
-public class OfficeHourStrategyTest extends AbstractFf4jTest {
+public class OfficeHourStrategyTest {
     
-    /** {@inheritDoc} */
-    @Override
-    public FF4j initFF4j() {
-        return new FF4j("test-strategy-officehour.xml");
-    }
+    /** current instance of FF4j */
+    private FF4j ff4j;
     
     @Before
     public void setUp() throws Exception {
-        super.setUp();
+        ff4j = new FF4j("test-strategy-officehour.xml");
     }
     
     private FlippingExecutionContext overrideDate(int year, int month, int day, int hour) {

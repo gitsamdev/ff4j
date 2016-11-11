@@ -42,6 +42,7 @@ import static org.ff4j.cli.ansi.AnsiTerminal.textAttribute;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.apache.commons.cli.CommandLine;
@@ -67,8 +68,10 @@ public class FF4jCliProcessor {
 
 	/** String constants */
 	private static final String FEATURE = "Feature ";
-	private static final String ERROR_DURING_CONNECT_COMMAND = "Error during connect command";
-
+	
+	/** String constants */
+    private static final String ERROR_DURING_CONNECT_COMMAND = "Error during connect command";
+	
 	/** Environnements. */
 	private Map<String, FF4j> envs = new LinkedHashMap<String, FF4j>();
 
@@ -254,14 +257,16 @@ public class FF4jCliProcessor {
 						currentFF4J.getFeatureStore().addToGroup(feature, group);
 						logInfo(FEATURE + feature + " has been added to group " + group);
 					} else if (cmd.getArgList().get(0).equals("removeFromGroup")) {
-						String currentGroup = currentFF4J.getFeatureStore().read(feature).getGroup();
-						if (group.equals(currentGroup)) {
-							currentFF4J.getFeatureStore().removeFromGroup(feature, group);
-							logInfo(FEATURE + feature + " has been removed from group: " + group);
-						} else if (currentGroup == null || currentGroup.isEmpty()){
-							logWarn("The groupName is invalid expected:" + currentGroup + " but was [" + group + "]");
+					    Optional<String> currentGroup = currentFF4J.getFeatureStore().read(feature).getGroup();
+						if (currentGroup.isPresent()) {
+						    if (group.equals(currentGroup)) {
+						        currentFF4J.getFeatureStore().removeFromGroup(feature, group);
+	                            logInfo(FEATURE + feature + " has been removed from group: " + group);
+						    } else {
+						        logWarn("The groupName is invalid expected:" + currentGroup + " but was [" + group + "]");
+						    }
 						} else {
-							logWarn("Cannot remove group: there are no group on this feature");
+						    logWarn("Cannot remove group: there are no group on this feature");
 						}
 					}
 				}
@@ -286,14 +291,17 @@ public class FF4jCliProcessor {
 						currentFF4J.getFeatureStore().grantRoleOnFeature(feature, role);
 						logInfo("Role " + role + " has been added to feature " + feature);
 					} else if (cmd.getArgList().get(0).equals("revoke")) {
-						Set< String > permissions = currentFF4J.getFeatureStore().read(feature).getPermissions();
-						if (permissions == null) {
-							logWarn("The role is invalidn there is no role on the feature " + feature);
-						} else if (permissions.contains(role)) {
-							currentFF4J.getFeatureStore().removeRoleFromFeature(feature, role);
-							logInfo(FEATURE + feature + " has not more role " + role);
+					    Optional < Set< String > > permissions = 
+						        currentFF4J.getFeatureStore().read(feature).getPermissions();
+						if (permissions.isPresent()) {
+						    if (permissions.get().contains(role)) {
+							 currentFF4J.getFeatureStore().removeRoleFromFeature(feature, role);
+							 logInfo(FEATURE + feature + " has not more role " + role);
+						    } else {
+	                            logWarn("The role is invalid expected one of " + permissions.toString());
+						    }
 						} else {
-							logWarn("The role is invalid expected one of " + permissions.toString());
+						    logWarn("The role is invalidn there is no role on the feature " + feature);
 						}
 					}
 				}

@@ -50,6 +50,17 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
+			<artifactId>ff4j-strategy-el</artifactId>
+			<groupId>org.ff4j</groupId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<artifactId>ff4j-strategy-time</artifactId>
+			<groupId>org.ff4j</groupId>
+			<version>${project.version}</version>
+		</dependency>
+		
+		<dependency>
 			<artifactId>ff4j-store-jcache</artifactId>
 			<groupId>org.ff4j</groupId>
 			<version>${project.version}</version>

@@ -546,9 +546,9 @@ public abstract class FeatureStoreTestSupport {
 		testedStore.update(fpBis);
 		// Then
 		Feature updatedFeature = testedStore.read(F1);
-		Assert.assertTrue(newDescription.equals(updatedFeature.getDescription()));
+		Assert.assertTrue(newDescription.equals(updatedFeature.getDescription().get()));
 		Assert.assertNotNull(updatedFeature.getFlippingStrategy());
-		Assert.assertEquals(newStrategy.toString(), updatedFeature.getFlippingStrategy().toString());
+		Assert.assertEquals(newStrategy.toString(), updatedFeature.getFlippingStrategy().get().toString());
 	}
 
 	/**

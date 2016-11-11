@@ -375,8 +375,7 @@ public class FF4jCliDisplay {
 			System.out.print("| ");
 			AnsiTerminal.textAttribute(AnsiTextAttribute.BOLD);
 			AnsiTerminal.foreGroundColor(AnsiForegroundColor.WHITE);
-			String groupName = "---";  
-			feat.getGroup().ifPresent(g ->  groupName = g);
+			String groupName = feat.getGroup().isPresent() ? feat.getGroup().get() : "---";
 			System.out.print(StringUtils.rightPad(groupName, 14));
 			
 			AnsiTerminal.textAttribute(AnsiTextAttribute.CLEAR);

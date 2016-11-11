@@ -8,8 +8,8 @@ import java.util.Map;
 import org.ff4j.FF4j;
 import org.ff4j.feature.Feature;
 import org.ff4j.strategy.time.ReleaseDateFlipStrategy;
-import org.ff4j.test.AbstractFf4jTest;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 /*
@@ -37,12 +37,14 @@ import org.junit.Test;
  * 
  * @author <a href="mailto:cedrick.lunven@gmail.com">Cedrick LUNVEN</a>
  */
-public class ReleaseDateFlipStrategyTest extends AbstractFf4jTest {
-
-    /** {@inheritDoc} */
-    @Override
-    public FF4j initFF4j() {
-        return new FF4j("test-releaseDateStrategyTest-ok.xml");
+public class ReleaseDateFlipStrategyTest {
+    
+    /** current instance of FF4j */
+    private FF4j ff4j;
+    
+    @Before
+    public void setUp() throws Exception {
+        ff4j = new FF4j("test-releaseDateStrategyTest-ok.xml");
     }
 
     @Test
