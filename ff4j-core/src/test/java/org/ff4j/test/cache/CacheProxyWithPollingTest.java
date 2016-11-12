@@ -22,7 +22,7 @@ package org.ff4j.test.cache;
 
 import org.ff4j.cache.FF4jCacheManager;
 import org.ff4j.cache.FF4jCacheProxy;
-import org.ff4j.cache.InMemoryCacheManager;
+import org.ff4j.cache.FF4jCacheManagerssss;
 import org.ff4j.cache.FF4jCachePollingScheduler;
 import org.ff4j.inmemory.FeatureStoreInMemory;
 import org.ff4j.inmemory.PropertyStoreInMemory;
@@ -38,7 +38,7 @@ public class CacheProxyWithPollingTest {
         // When
         FeatureStore  fs     = new FeatureStoreInMemory("ff4j.xml");
         PropertyStore ps     = new PropertyStoreInMemory("ff4j.xml");
-        FF4jCacheManager cm  = new InMemoryCacheManager();
+        FF4jCacheManager cm  = new FF4jCacheManagerssss();
         FF4jCacheProxy proxy = new FF4jCacheProxy(fs, ps, cm);
 
         // Start polling on 100ms basis

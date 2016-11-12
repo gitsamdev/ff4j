@@ -25,7 +25,7 @@ import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import org.ff4j.cache.FF4jCacheProxy;
-import org.ff4j.cache.InMemoryCacheManager;
+import org.ff4j.cache.FF4jCacheManagerssss;
 import org.ff4j.core.Feature;
 import org.ff4j.spring.boot.web.api.resources.AbstractStepDef;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -66,7 +66,7 @@ public class FeatureStoreStepDef extends AbstractStepDef {
 
     @Given("^the feature store is cached$")
     public void the_feature_store_is_cached() throws Throwable {
-        FF4jCacheProxy proxy = new FF4jCacheProxy(ff4j.getFeatureStore(), null, new InMemoryCacheManager());
+        FF4jCacheProxy proxy = new FF4jCacheProxy(ff4j.getFeatureStore(), null, new FF4jCacheManagerssss());
         ff4j.setFeatureStore(proxy);
     }
 

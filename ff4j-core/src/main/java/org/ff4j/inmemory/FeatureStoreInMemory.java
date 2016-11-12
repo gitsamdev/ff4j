@@ -14,12 +14,10 @@ import static org.ff4j.utils.Util.assertHasLength;
  */
 
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -82,8 +80,8 @@ public class FeatureStoreInMemory extends AbstractFeatureStore {
     public FeatureStoreInMemory(Collection<Feature> features) {
         createSchema();
         if (null != features) {
-            this.featuresMap = features.stream()
-                    .collect(Collectors.toMap(Feature::getUid, Function.identity()));
+            this.featuresMap = features.stream().collect(
+                    Collectors.toMap(Feature::getUid, Function.identity()));
             buildGroupsFromFeatures();
         }
     }
@@ -115,8 +113,8 @@ public class FeatureStoreInMemory extends AbstractFeatureStore {
     @Override
     public void update(Feature fp) {
         assertFeatureNotNull(fp);
-        assertFeatureExist(fp.getUid());
-        Feature fpExist = findById(fp.getUid()).get();
+        Feature fpExist = read(fp.getUid());
+        
         // Checking new roles
         Set<String> toBeAdded = new HashSet<String>();
         fp.getPermissions().ifPresent(perms -> toBeAdded.addAll(perms));
@@ -149,31 +147,7 @@ public class FeatureStoreInMemory extends AbstractFeatureStore {
     @Override
     public long count() {
         return findAll().count();
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void delete(Iterable<? extends Feature> entities) {
-        if (null != entities) {
-            entities.forEach(this::delete);
-        }
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void delete(Feature entity) {
-        assertFeatureExist(entity.getUid());
-        delete(entity.getUid());
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public Stream<Feature> findAll(Iterable<String> candidates) {
-        if (candidates == null) return null;
-        List < Feature > targets  = new ArrayList<>();
-        candidates.forEach(id -> targets.add(read(id)));
-        return targets.stream();
-    }
+    }    
     
     // --- FeatureStore Methods ---
     
@@ -192,20 +166,6 @@ public class FeatureStoreInMemory extends AbstractFeatureStore {
         assertHasLength(roleName);
         featuresMap.get(uid).getPermissions().get().remove(roleName);
     }    
-
-    /** {@inheritDoc} */
-    @Override
-    public void enable(String uid) {
-        assertFeatureExist(uid);
-        featuresMap.get(uid).toggleOn();
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void disable(String uid) {
-        assertFeatureExist(uid);
-        featuresMap.get(uid).toggleOff();
-    }
     
     /** {@inheritDoc} */
     @Override

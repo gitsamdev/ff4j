@@ -27,10 +27,13 @@ import static org.ff4j.utils.JsonUtils.collectionAsJson;
  */
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.ff4j.conf.XmlParser;
 import org.ff4j.exception.FeatureAlreadyExistException;
@@ -92,6 +95,30 @@ public abstract class AbstractFeatureStore implements FeatureStore {
                 create(feature);
             });
         }
+    }
+    
+    /** {@inheritDoc} */
+    @Override
+    public void delete(Iterable<? extends Feature> entities) {
+        if (null != entities) {
+            entities.forEach(this::delete);
+        }
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void delete(Feature entity) {
+        assertFeatureExist(entity.getUid());
+        delete(entity.getUid());
+    }
+    
+    /** {@inheritDoc} */
+    @Override
+    public Stream<Feature> findAll(Iterable<String> candidates) {
+        if (candidates == null) return null;
+        List < Feature > targets  = new ArrayList<>();
+        candidates.forEach(id -> targets.add(read(id)));
+        return targets.stream();
     }
     
     /** {@inheritDoc} */
@@ -171,6 +198,20 @@ public abstract class AbstractFeatureStore implements FeatureStore {
     public Feature read(String id) {
         assertFeatureExist(id);
         return findById(id).get();
+    }
+    
+    /** {@inheritDoc} */
+    @Override
+    public void enable(String uid) {
+        assertFeatureExist(uid);
+        update(read(uid).toggleOn());
+    }
+    
+    /** {@inheritDoc} */
+    @Override
+    public void disable(String uid) {
+        assertFeatureExist(uid);
+        update(read(uid).toggleOff());
     }
     
 }

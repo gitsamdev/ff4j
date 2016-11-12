@@ -1,6 +1,5 @@
 package org.ff4j.cache;
 
-import org.ff4j.feature.Feature;
 import org.ff4j.property.Property;
 import org.ff4j.store.PropertyStore;
 

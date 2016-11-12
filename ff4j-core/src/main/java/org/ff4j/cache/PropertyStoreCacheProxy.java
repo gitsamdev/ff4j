@@ -55,8 +55,8 @@ public class PropertyStoreCacheProxy extends CacheProxy< String, Property<?>> im
     @Override
     public boolean exists(String propertyName) {
         // not in cache but maybe created from last access
-        if (cacheManager.get(propertyName) == null) {
-            return getTargetPropertyStore().exists(propertyName);
+        if (getCacheManager().get(propertyName) == null) {
+            return targetPropertyStore.exists(propertyName);
         }
         return true;
     }
@@ -65,32 +65,32 @@ public class PropertyStoreCacheProxy extends CacheProxy< String, Property<?>> im
     @Override
     public void create(Property<?> property) {
         getTargetPropertyStore().create(property);
-        getCacheManager().putProperty(property);
+        getCacheManager().put(property.getUid(), property);
     }
 
     /** {@inheritDoc} */
     @Override
     public Property<?> read(String name) {
-        Property<?> fp = getCacheManager().getProperty(name);
+        Optional <Property<?>> fp = getCacheManager().get(name);
         // not in cache but may has been created from now
-        if (null == fp) {
-            fp = getTargetPropertyStore().read(name);
-            getCacheManager().putProperty(fp);
+        if (!fp.isPresent()) {
+            fp = Optional.of(getTargetPropertyStore().read(name));
+            getCacheManager().put(fp.get());
         }
-        return fp;
+        return fp.get();
     }
     
     /** {@inheritDoc} */
     @Override
     public Property<?> read(String name, Property<?> defaultValue) {
-        Property<?> fp = getCacheManager().getProperty(name);
+        Optional < Property<?> > fp = getCacheManager().get(name);
         // Not in cache but may has been created from now
         // Or in cache but with different value that default
-        if (null == fp) {
-            fp = getTargetPropertyStore().read(name, defaultValue);
-            getCacheManager().putProperty(fp);
+        if (!fp.isPresent()) {
+            fp = Optional.of(getTargetPropertyStore().read(name, defaultValue));
+            getCacheManager().put(fp.get());
         }
-        return fp;
+        return fp.get();
     }
 
     /** {@inheritDoc} */
@@ -102,9 +102,9 @@ public class PropertyStoreCacheProxy extends CacheProxy< String, Property<?>> im
         // Update value in target store
         getTargetPropertyStore().update(fp);
         // Remove from cache old value
-        getCacheManager().evictProperty(fp.getUid());
+        getCacheManager().evict(fp.getUid());
         // Add new value in the cache
-        getCacheManager().putProperty(fp);
+        getCacheManager().put(fp);
     }
 
     /** {@inheritDoc} */
@@ -113,9 +113,9 @@ public class PropertyStoreCacheProxy extends CacheProxy< String, Property<?>> im
         // Update the property
         getTargetPropertyStore().update(propertyValue);
         // Update the cache accordirly
-        getCacheManager().evictProperty(propertyValue.getUid());
+        getCacheManager().evict(propertyValue.getUid());
         // Update the property in cache
-        getCacheManager().putProperty(propertyValue);
+        getCacheManager().put(propertyValue);
     }
 
     /** {@inheritDoc} */
@@ -124,7 +124,7 @@ public class PropertyStoreCacheProxy extends CacheProxy< String, Property<?>> im
         // Access target store
         getTargetPropertyStore().delete(name);
         // even is not present, evict name failed
-        getCacheManager().evictProperty(name);
+        getCacheManager().evict(name);
     }
 
     /** {@inheritDoc} */
@@ -137,14 +137,14 @@ public class PropertyStoreCacheProxy extends CacheProxy< String, Property<?>> im
     @Override
     public void deleteAll() {
         // Cache Operations : As modification, flush cache for this
-        getCacheManager().clearProperties();
+        getCacheManager().clear();
         getTargetPropertyStore().deleteAll();
     }
     
     /** {@inheritDoc} */
     @Override
     public void save(Collection<Property<?>> properties) {
-        getCacheManager().clearProperties();
+        getCacheManager().clear();
         getTargetPropertyStore().save(properties);
     }
     
@@ -168,7 +168,7 @@ public class PropertyStoreCacheProxy extends CacheProxy< String, Property<?>> im
         // Access target store
         getTargetPropertyStore().delete(entity);
         // even is not present, evict name failed
-        getCacheManager().evictProperty(entity.getUid());
+        getCacheManager().evict(entity.getUid());
     }
 
     /** {@inheritDoc} */
@@ -182,16 +182,15 @@ public class PropertyStoreCacheProxy extends CacheProxy< String, Property<?>> im
     /** {@inheritDoc} */
     @Override
     public Optional<Property<?>> findById(String id) {
-        Property<?> fp = getCacheManager().getProperty(id);
+        Optional <Property<?>> fp = getCacheManager().get(id);
         // not in cache but may has been created from now
-        if (null == fp) {
-            Optional <Property<?> > op = getTargetPropertyStore().findById(id);
-            if (op.isPresent()) {
-                fp = op.get();
-                getCacheManager().putProperty(fp);
+        if (!fp.isPresent()) {
+            fp = getTargetPropertyStore().findById(id);
+            if (fp.isPresent()) {
+                getCacheManager().put(fp.get());
             }
         }
-        return Optional.of(fp);
+        return fp;
     }  
 
     /**
@@ -206,27 +205,7 @@ public class PropertyStoreCacheProxy extends CacheProxy< String, Property<?>> im
         return targetPropertyStore;
     }
 
-    /**
-     * Getter accessor for attribute 'cacheManager'.
-     * 
-     * @return current value of 'cacheManager'
-     */
-    public FF4jCacheManager getCacheManager() {
-        if (cacheManager == null) {
-            throw new IllegalArgumentException("ff4j-core: CacheManager for cache proxy has not been provided but it's required");
-        }
-        return cacheManager;
-    }
-
-    /**
-     * Setter accessor for attribute 'cacheManager'.
-     * 
-     * @param cacheManager
-     *            new value for 'cacheManager '
-     */
-    public void setCacheManager(FF4jCacheManager cacheManager) {
-        this.cacheManager = cacheManager;
-    }
+    
 
     // ------------ Cache related method --------------------
 
@@ -243,35 +222,6 @@ public class PropertyStoreCacheProxy extends CacheProxy< String, Property<?>> im
             return null;
         }
     } 
-
-    /**
-     * Setter accessor for attribute 'targetPropertyStore'.
-     * 
-     * @param targetPropertyStore
-     *            new value for 'targetPropertyStore '
-     */
-    public void setTargetPropertyStore(PropertyStore targetPropertyStore) {
-        this.targetPropertyStore = targetPropertyStore;
-    }
-
-    /**
-     * Getter accessor for attribute 'store2CachePoller'.
-     *
-     * @return
-     *       current value of 'store2CachePoller'
-     */
-    public FF4jCachePollingScheduler getStore2CachePoller() {
-        return store2CachePoller;
-    }
-
-    /**
-     * Setter accessor for attribute 'store2CachePoller'.
-     * @param store2CachePoller
-     * 		new value for 'store2CachePoller '
-     */
-    public void setStore2CachePoller(FF4jCachePollingScheduler store2CachePoller) {
-        this.store2CachePoller = store2CachePoller;
-    }
 
      
 }

@@ -1,7 +1,7 @@
 package org.ff4j.test.cache;
 
 import org.ff4j.cache.FF4jCacheProxy;
-import org.ff4j.cache.InMemoryCacheManager;
+import org.ff4j.cache.FF4jCacheManagerssss;
 import org.ff4j.feature.Feature;
 import org.ff4j.inmemory.FeatureStoreInMemory;
 import org.ff4j.inmemory.PropertyStoreInMemory;
@@ -33,7 +33,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Testing class of {@link InMemoryCacheManager} class.
+ * Testing class of {@link FF4jCacheManagerssss} class.
  * 
  * @author Cedrick Lunven (@clunven)
  */
@@ -45,29 +45,29 @@ public class InMemoryCacheTest extends CoreFeatureStoreTestSupport {
         return new FF4jCacheProxy(
                 new FeatureStoreInMemory("ff4j.xml"), 
                 new PropertyStoreInMemory("ff4j.xml"),
-                new InMemoryCacheManager());
+                new FF4jCacheManagerssss());
     }
 
     @Test
     public void testInitializations() {
-        InMemoryCacheManager fcm = new InMemoryCacheManager();        
+        FF4jCacheManagerssss fcm = new FF4jCacheManagerssss();        
         Assert.assertNotNull(fcm.getFeatureNativeCache());
         Assert.assertNotNull(fcm.getPropertyNativeCache());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testPutNullisIlegal() {
-        new InMemoryCacheManager().putFeature(null);
+        new FF4jCacheManagerssss().putFeature(null);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testPutNullisIlegal2() {
-        new InMemoryCacheManager().putFeature(null, 1);
+        new FF4jCacheManagerssss().putFeature(null, 1);
     }
     
     @Test(expected = IllegalArgumentException.class)
     public void testPutNullPropertyisIlegal() {
-        new InMemoryCacheManager().putProperty(null);
+        new FF4jCacheManagerssss().putProperty(null);
     }
     
     @Test(expected = IllegalArgumentException.class)
@@ -79,7 +79,7 @@ public class InMemoryCacheTest extends CoreFeatureStoreTestSupport {
     public void testExistBis() {
         FF4jCacheProxy fscp = new FF4jCacheProxy(
                 new FeatureStoreInMemory("ff4j.xml"), null,  
-                new InMemoryCacheManager());
+                new FF4jCacheManagerssss());
         Assert.assertFalse(fscp.exists("toto"));
         Assert.assertFalse(fscp.exists("toto"));
         Assert.assertTrue(fscp.exists("first"));
@@ -89,7 +89,7 @@ public class InMemoryCacheTest extends CoreFeatureStoreTestSupport {
     @Test
     public void testClear() {
         // Given
-        InMemoryCacheManager imcm = new InMemoryCacheManager();
+        FF4jCacheManagerssss imcm = new FF4jCacheManagerssss();
         imcm.putProperty(new PropertyString("p1"));
         Assert.assertFalse(imcm.listCachedPropertyNames().isEmpty());
         // When
@@ -101,7 +101,7 @@ public class InMemoryCacheTest extends CoreFeatureStoreTestSupport {
     @Test
     public void testEvictProperty1() {
         // Given
-        InMemoryCacheManager imcm = new InMemoryCacheManager();
+        FF4jCacheManagerssss imcm = new FF4jCacheManagerssss();
         imcm.putProperty(new PropertyString("p1"));
         Assert.assertFalse(imcm.listCachedPropertyNames().isEmpty());
         // When
@@ -113,7 +113,7 @@ public class InMemoryCacheTest extends CoreFeatureStoreTestSupport {
     @Test
     public void testEvictProperty2() {
         // Given
-        InMemoryCacheManager imcm = new InMemoryCacheManager();
+        FF4jCacheManagerssss imcm = new FF4jCacheManagerssss();
         imcm.putProperty(new PropertyString("p2"));
         Assert.assertFalse(imcm.listCachedPropertyNames().isEmpty());
         // When
@@ -125,7 +125,7 @@ public class InMemoryCacheTest extends CoreFeatureStoreTestSupport {
     @Test
     public void testReadFeature() {
         // Given
-        InMemoryCacheManager imcm = new InMemoryCacheManager();
+        FF4jCacheManagerssss imcm = new FF4jCacheManagerssss();
         imcm.putFeature(new Feature("f1"), 100);
         // When
         Feature f = imcm.getFeature("f1");
@@ -138,7 +138,7 @@ public class InMemoryCacheTest extends CoreFeatureStoreTestSupport {
     
     @Test
     public void testAccessors() {
-        InMemoryCacheManager imcm = new InMemoryCacheManager();
+        FF4jCacheManagerssss imcm = new FF4jCacheManagerssss();
         Assert.assertNotNull(imcm.getCacheProviderName());
         Assert.assertTrue(imcm.listCachedFeatureNames().isEmpty());
         Assert.assertTrue(imcm.listCachedPropertyNames().isEmpty());
@@ -146,7 +146,7 @@ public class InMemoryCacheTest extends CoreFeatureStoreTestSupport {
     
     @Test
     public void testGetProperty() throws InterruptedException {
-        InMemoryCacheManager imcm = new InMemoryCacheManager();
+        FF4jCacheManagerssss imcm = new FF4jCacheManagerssss();
         imcm.putProperty(new PropertyString("p1"));
         Assert.assertNull(imcm.getProperty("p2"));
         Assert.assertNotNull(imcm.getProperty("p1"));
@@ -154,7 +154,7 @@ public class InMemoryCacheTest extends CoreFeatureStoreTestSupport {
 
     @Test
     public void testGetFeatureTimeout() throws InterruptedException {
-        InMemoryCacheManager imcm = new InMemoryCacheManager();
+        FF4jCacheManagerssss imcm = new FF4jCacheManagerssss();
         imcm.putFeature(new Feature("f2"), 1);
         Thread.sleep(1100);
         Assert.assertNull(imcm.getFeature("f2"));
@@ -162,7 +162,7 @@ public class InMemoryCacheTest extends CoreFeatureStoreTestSupport {
     
     @Test
     public void testGetPropertyTimeout() throws InterruptedException {
-        InMemoryCacheManager imcm = new InMemoryCacheManager();
+        FF4jCacheManagerssss imcm = new FF4jCacheManagerssss();
         imcm.putProperty(new PropertyString("p1"), 1);
         imcm.putProperty(new PropertyString("p2"), 10);
         Thread.sleep(1100);
@@ -172,7 +172,7 @@ public class InMemoryCacheTest extends CoreFeatureStoreTestSupport {
     
     @Test(expected = IllegalArgumentException.class)
     public void testGetProperty2()  {
-        InMemoryCacheManager imcm = new InMemoryCacheManager();
+        FF4jCacheManagerssss imcm = new FF4jCacheManagerssss();
         imcm.putProperty(null, 1);
     }
    

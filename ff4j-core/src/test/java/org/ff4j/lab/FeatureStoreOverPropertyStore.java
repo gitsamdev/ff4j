@@ -1,27 +1,7 @@
 package org.ff4j.lab;
 
-/*
- * #%L
- * ff4j-core
- * %%
- * Copyright (C) 2013 - 2016 FF4J
- * %%
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *      http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * #L%
- */
-
-import java.util.Map;
-import java.util.Set;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.ff4j.feature.Feature;
 import org.ff4j.store.AbstractFeatureStore;
@@ -33,7 +13,7 @@ import org.ff4j.store.PropertyStore;
  *  
  * @author Cedrick LUNVEN (@clunven)
  */
-public class FeatureStoreOverPropertyStore extends  AbstractFeatureStore {
+public class FeatureStoreOverPropertyStore extends AbstractFeatureStore {
     
     /** Emebbeded property store. */
     private PropertyStore propertyStore = null;
@@ -78,25 +58,7 @@ public class FeatureStoreOverPropertyStore extends  AbstractFeatureStore {
 
     /** {@inheritDoc} */
     @Override
-    public void enable(String uid) {
-        assertFeatureExist(uid);
-        PropertyFeature prop = (PropertyFeature) propertyStore.findById(uid);
-        prop.getValue().toggleOn();
-        propertyStore.updateProperty(uid, prop.getValue().toJson());
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void disable(String uid) {
-        assertFeatureExist(uid);
-        PropertyFeature prop = (PropertyFeature) propertyStore.findById(uid);
-        prop.getValue().toggleOff();
-        propertyStore.updateProperty(uid, prop.getValue().toJson());
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public boolean exist(String uid) {
+    public boolean exists(String uid) {
         return propertyStore.exists(uid);
     }
 
@@ -108,39 +70,14 @@ public class FeatureStoreOverPropertyStore extends  AbstractFeatureStore {
         propertyStore.create(new PropertyFeature(feature));
     }
 
-    /** {@inheritDoc} */
     @Override
-    public Feature findById(String uid) {
-        
-        return null;
-    }
-
-    @Override
-    public Map<String, Feature> findAll() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public void delete(String fpId) {
+    public void grantRoleOnFeature(String uid, String roleName) {
         // TODO Auto-generated method stub
         
     }
 
     @Override
-    public void update(Feature fp) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public void grantRoleOnFeature(String flipId, String roleName) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public void removeRoleFromFeature(String flipId, String roleName) {
+    public void removeRoleFromFeature(String uid, String roleName) {
         // TODO Auto-generated method stub
         
     }
@@ -164,32 +101,63 @@ public class FeatureStoreOverPropertyStore extends  AbstractFeatureStore {
     }
 
     @Override
-    public Map<String, Feature> readGroup(String groupName) {
+    public Stream<Feature> readGroup(String groupName) {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public void addToGroup(String featureId, String groupName) {
+    public void addToGroup(String uid, String groupName) {
         // TODO Auto-generated method stub
         
     }
 
     @Override
-    public void removeFromGroup(String featureId, String groupName) {
+    public void removeFromGroup(String uid, String groupName) {
         // TODO Auto-generated method stub
         
     }
 
     @Override
-    public Set<String> readAllGroups() {
+    public Stream<String> readAllGroups() {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public void clear() {
+    public long count() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public void delete(String entityId) {
         // TODO Auto-generated method stub
         
     }
+
+    @Override
+    public void deleteAll() {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public Stream<Feature> findAll() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Optional<Feature> findById(String id) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void update(Feature entity) {
+        // TODO Auto-generated method stub
+        
+    }
+    
 }

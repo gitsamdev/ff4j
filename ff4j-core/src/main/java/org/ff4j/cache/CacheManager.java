@@ -1,12 +1,25 @@
+
 package org.ff4j.cache;
 
+import java.io.Serializable;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import org.ff4j.FF4jBaseObject;
 import org.ff4j.exception.FeatureNotFoundException;
 import org.ff4j.feature.Feature;
 
-interface CacheManager < K, V> {
+/**
+ * Proposition for caching of features and properties locally.
+ *
+ * @author Cedrick LUNVEN  (@clunven)
+ *
+ * @param <K>
+ *      key (String most of the time)
+ * @param <V>
+ *      value (getUid())
+ */
+public interface CacheManager < K extends Serializable , V extends FF4jBaseObject<?>> {
     
     /**
      * Get name of expected cache.
@@ -43,6 +56,14 @@ interface CacheManager < K, V> {
      *            target feature to be cached
      */
     void put(K key, V value);
+    
+    /**
+     * Add feature to cache.
+     * 
+     * @param feat
+     *            target feature to be cached
+     */
+    void put(V value);
 
     /**
      * Return {@link Feature} stored in cache.

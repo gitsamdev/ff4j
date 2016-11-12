@@ -4,10 +4,13 @@ import static org.ff4j.utils.JsonUtils.attributeAsJson;
 import static org.ff4j.utils.JsonUtils.collectionAsJson;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.ff4j.conf.XmlConfig;
 import org.ff4j.conf.XmlParser;
@@ -181,6 +184,31 @@ public abstract class AbstractPropertyStore implements PropertyStore {
     @Override
     public Property<?> read(String name, Property < ? > defaultValue) {
         return findById(name).orElse(defaultValue);
+    }
+    
+    /** {@inheritDoc} */
+    @Override
+    public void delete(Iterable<? extends Property<?>> entities) {
+        if (null != entities) {
+            entities.forEach(this::delete);
+        }
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void delete(Property<?> entity) {
+        assertPropertyExist(entity.getUid());
+        delete(entity.getUid());
+    }
+    
+
+    /** {@inheritDoc} */
+    @Override
+    public Stream<Property<?>> findAll(Iterable<String> candidates) {
+        if (candidates == null) return null;
+        List < Property<?> > targets  = new ArrayList<>();
+        candidates.forEach(id -> targets.add(read(id)));
+        return targets.stream();
     }
     
 }

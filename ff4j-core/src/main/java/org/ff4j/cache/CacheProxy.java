@@ -57,5 +57,16 @@ public class CacheProxy < K extends Serializable, V extends FF4jBaseObject<?> > 
         }
     }
     
+    /**
+     * Getter accessor for attribute 'cacheManager'.
+     * 
+     * @return current value of 'cacheManager'
+     */
+    public CacheManager< K, V> getCacheManager() {
+        if (cacheManager == null) {
+            throw new IllegalArgumentException("CacheManager for cache proxy has not been provided but it's required");
+        }
+        return cacheManager;
+    }
 
 }

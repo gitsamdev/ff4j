@@ -60,7 +60,7 @@ public class AssertFf4j {
 	 */
 	public final AssertFf4j assertThatFeatureExist(String featureName) {
 		waitSomeSeconds();
-		Assert.assertTrue("Feature '" + featureName + "' is mandatory", ff4j.exist(featureName));
+		Assert.assertTrue(ff4j.getFeatureStore().exists(featureName));
 		waitSomeSeconds();
 		return this;
 	}
@@ -73,8 +73,7 @@ public class AssertFf4j {
 	 * @return current object
 	 */
 	public final AssertFf4j assertThatPropertyExist(String propertyName) {
-		Assert.assertTrue("Property '" + propertyName + "' is mandatory",
-				ff4j.getPropertiesStore().exists(propertyName));
+		Assert.assertTrue(ff4j.getPropertiesStore().exists(propertyName));
 		waitSomeSeconds();
 		return this;
 	}
@@ -87,7 +86,7 @@ public class AssertFf4j {
 	 * @return current object
 	 */
 	public final AssertFf4j assertThatFeatureDoesNotExist(String featureName) {
-		Assert.assertFalse("Feature '" + featureName + "' must not exist", ff4j.exist(featureName));
+		Assert.assertFalse(ff4j.getFeatureStore().exists(featureName));
 		waitSomeSeconds();
 		return this;
 	}

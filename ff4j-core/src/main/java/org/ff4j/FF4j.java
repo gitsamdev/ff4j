@@ -13,8 +13,9 @@ import org.ff4j.audit.EventBuilder;
 import org.ff4j.audit.EventPublisher;
 import org.ff4j.audit.FeatureStoreAuditProxy;
 import org.ff4j.audit.PropertyStoreAuditProxy;
-import org.ff4j.cache.FF4jCacheManager;
-import org.ff4j.cache.FF4jCacheProxy;
+import org.ff4j.cache.CacheManager;
+import org.ff4j.cache.FeatureStoreCacheProxy;
+import org.ff4j.cache.PropertyStoreCacheProxy;
 import org.ff4j.conf.XmlConfig;
 import org.ff4j.conf.XmlParser;
 import org.ff4j.exception.FeatureNotFoundException;
@@ -402,10 +403,9 @@ public class FF4j {
      * @return
      *      current ff4j bean
      */
-    public FF4j cache(FF4jCacheManager cm) {
-        FF4jCacheProxy cp = new FF4jCacheProxy(getFeatureStore(), getPropertiesStore(), cm);
-        setFeatureStore(cp);
-        setPropertiesStore(cp);
+    public FF4j cache(CacheManager<String, Feature> cm, CacheManager<String, Property<?>> pm) {
+        setFeatureStore(new FeatureStoreCacheProxy(getFeatureStore(), cm));
+        setPropertiesStore(new PropertyStoreCacheProxy(getPropertiesStore(), pm));
         return this;
     }
     
@@ -758,14 +758,31 @@ public class FF4j {
      *
      * @return
      */
-    public FF4jCacheProxy getCacheProxy() {
+    public FeatureStoreCacheProxy getFeatureStoreCacheProxy() {
         FeatureStore fs = getFeatureStore();
         // Pass through audit proxy if exists
         if (fs instanceof FeatureStoreAuditProxy) {
             fs = ((FeatureStoreAuditProxy) fs).getTarget();
         }
-        if (fs instanceof FF4jCacheProxy) {
-            return (FF4jCacheProxy) fs;
+        if (fs instanceof FeatureStoreCacheProxy) {
+            return (FeatureStoreCacheProxy) fs;
+        }
+        return null;
+    }
+    
+    /**
+     * try to fetch CacheProxy (cannot handled proxy CGLIB, ASM or any bytecode manipulation).
+     *
+     * @return
+     */
+    public PropertyStoreCacheProxy getPropertyStoreCacheProxy() {
+        PropertyStore fs = getPropertiesStore();
+        // Pass through audit proxy if exists
+        if (fs instanceof PropertyStoreAuditProxy) {
+            fs = ((PropertyStoreAuditProxy) fs).getTarget();
+        }
+        if (fs instanceof PropertyStoreCacheProxy) {
+            return (PropertyStoreCacheProxy) fs;
         }
         return null;
     }
@@ -781,8 +798,8 @@ public class FF4j {
     private FeatureStore getConcreteFeatureStore(FeatureStore fs) {
         if (fs instanceof FeatureStoreAuditProxy) {
             return getConcreteFeatureStore(((FeatureStoreAuditProxy) fs).getTarget());
-        } else if (fs instanceof FF4jCacheProxy) {
-            return getConcreteFeatureStore(((FF4jCacheProxy) fs).getTargetFeatureStore());
+        } else if (fs instanceof FeatureStoreCacheProxy) {
+            return getConcreteFeatureStore(((FeatureStoreCacheProxy) fs).getTargetFeatureStore());
         }
         return fs;
     }
@@ -798,8 +815,8 @@ public class FF4j {
     private PropertyStore getConcretePropertyStore(PropertyStore ps) {
         if (ps instanceof PropertyStoreAuditProxy) {
             return getConcretePropertyStore(((PropertyStoreAuditProxy) ps).getTarget());
-        } else if (ps instanceof FF4jCacheProxy) {
-            return getConcretePropertyStore(((FF4jCacheProxy) ps).getTargetPropertyStore());
+        } else if (ps instanceof PropertyStoreCacheProxy) {
+            return getConcretePropertyStore(((PropertyStoreCacheProxy) ps).getTargetPropertyStore());
         }
         return ps;
     }

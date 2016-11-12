@@ -26,7 +26,7 @@ import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import org.apache.commons.lang3.StringUtils;
 import org.ff4j.cache.FF4jCacheProxy;
-import org.ff4j.cache.InMemoryCacheManager;
+import org.ff4j.cache.FF4jCacheManagerssss;
 import org.ff4j.property.Property;
 import org.ff4j.spring.boot.web.api.resources.AbstractStepDef;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -57,7 +57,7 @@ public class PropertyStoreStepDef extends AbstractStepDef {
 
     @Given("^the property store is cached$")
     public void the_property_store_is_cached() throws Throwable {
-        FF4jCacheProxy proxy = new FF4jCacheProxy(ff4j.getFeatureStore(), ff4j.getPropertiesStore(), new InMemoryCacheManager());
+        FF4jCacheProxy proxy = new FF4jCacheProxy(ff4j.getFeatureStore(), ff4j.getPropertiesStore(), new FF4jCacheManagerssss());
         ff4j.setPropertiesStore(proxy);
     }
 

@@ -34,7 +34,7 @@ import org.ff4j.audit.Event;
 import org.ff4j.audit.EventConstants;
 import org.ff4j.audit.EventPublisher;
 import org.ff4j.audit.PropertyStoreAuditProxy;
-import org.ff4j.cache.InMemoryCacheManager;
+import org.ff4j.cache.FF4jCacheManagerssss;
 import org.ff4j.exception.FeatureNotFoundException;
 import org.ff4j.feature.Feature;
 import org.ff4j.feature.FlippingExecutionContext;
@@ -380,7 +380,7 @@ public class FF4jTest extends AbstractFf4jTest {
     @Test
     public void testInitCache() {
         FF4j ff4j = new FF4j();
-        ff4j.cache(new InMemoryCacheManager());
+        ff4j.cache(new FF4jCacheManagerssss());
     }
 
     @Test
@@ -395,7 +395,7 @@ public class FF4jTest extends AbstractFf4jTest {
     @Test
     public void getConcreteFeatureStore() {
         FF4j ff4j = new FF4j();
-        ff4j.cache(new InMemoryCacheManager());
+        ff4j.cache(new FF4jCacheManagerssss());
         Assert.assertNotNull(ff4j.getCacheProxy());
         Assert.assertNotNull(ff4j.getConcreteFeatureStore());
         Assert.assertNotNull(ff4j.getConcretePropertyStore());

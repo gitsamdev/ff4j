@@ -6,7 +6,7 @@ import java.util.Set;
 import org.ff4j.FF4j;
 import org.ff4j.cache.FF4jCacheManager;
 import org.ff4j.cache.FF4jCacheProxy;
-import org.ff4j.cache.InMemoryCacheManager;
+import org.ff4j.cache.FF4jCacheManagerssss;
 import org.ff4j.feature.Feature;
 import org.ff4j.inmemory.FeatureStoreInMemory;
 import org.ff4j.inmemory.PropertyStoreInMemory;
@@ -57,7 +57,7 @@ public class CacheProxyTest {
     @Test
     public void testCacheProxyManager() {
         FF4jCacheProxy proxy = new FF4jCacheProxy();
-        FF4jCacheManager cm = new InMemoryCacheManager();
+        FF4jCacheManager cm = new FF4jCacheManagerssss();
         proxy.setCacheManager(cm);
         proxy.isCached();
         Assert.assertNotNull(proxy.getCacheProvider());
@@ -79,7 +79,7 @@ public class CacheProxyTest {
         FF4jCacheProxy proxy = new FF4jCacheProxy();
         proxy.setTargetPropertyStore(new PropertyStoreInMemory());
         proxy.setTargetFeatureStore(new FeatureStoreInMemory());
-        proxy.setCacheManager(new InMemoryCacheManager());
+        proxy.setCacheManager(new FF4jCacheManagerssss());
         Assert.assertTrue(proxy.isEmpty());
         
         proxy.create(new Feature("a"));

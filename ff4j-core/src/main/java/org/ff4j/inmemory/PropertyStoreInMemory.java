@@ -1,5 +1,7 @@
 package org.ff4j.inmemory;
 
+import static org.ff4j.utils.FF4jUtils.assertHasLength;
+
 /*
  * #%L
  * ff4j-core
@@ -23,14 +25,13 @@ package org.ff4j.inmemory;
 import java.io.InputStream;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.ff4j.conf.XmlParser;
 import org.ff4j.property.Property;
 import org.ff4j.store.AbstractPropertyStore;
 import org.ff4j.store.PropertyStore;
-import org.ff4j.utils.Util;
-
 /**
  * Implementation of {@link PropertyStore} to keep properties in memory.
  *
@@ -83,6 +84,60 @@ public class PropertyStoreInMemory extends AbstractPropertyStore {
         this.properties = maps;
     }
     
+    /** {@inheritDoc} */
+    @Override
+    public boolean exists(String name) {
+        assertHasLength(name);
+        return properties.containsKey(name);
+    }
+    
+    /** {@inheritDoc} */
+    @Override
+    public void create(Property<?> value) {
+        assertPropertyNotNull(value);
+        assertPropertyNotExist(value.getUid());
+        properties.put(value.getUid(), value);
+    }
+    
+    /** {@inheritDoc} */
+    @Override
+    public void delete(String name) {
+        assertPropertyExist(name);
+        properties.remove(name);
+    }
+    
+    /** {@inheritDoc} */
+    @Override
+    public Optional < Property<?> > findById(String uid) {
+        return Optional.ofNullable(properties.get(uid));
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public long count() {
+        return findAll().count();
+    }   
+
+    /** {@inheritDoc} */
+    @Override
+    public void deleteAll() {
+        properties.clear();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Stream<Property<?>> findAll() {
+        return properties.values().stream();
+    }
+    
+    /** {@inheritDoc} */
+    @Override
+    public Stream<String> listPropertyNames() {
+        if (properties == null) return null;
+        return properties.keySet().stream();
+    }
+    
+    
     /**
      * Load configuration through FF4J.vml file.
      * 
@@ -107,61 +162,6 @@ public class PropertyStoreInMemory extends AbstractPropertyStore {
         this.properties = new XmlParser().parseConfigurationFile(xmlIN).getProperties();
     }
     
-    /** {@inheritDoc} */
-    @Override
-    public boolean exists(String name) {
-        Util.assertHasLength(name);
-        return properties.containsKey(name);
-    }
-    
-    /** {@inheritDoc} */
-    @Override
-    public <T> void create(Property<T> value) {
-        // Check Params
-        assertPropertyNotNull(value);
-        assertPropertyNotExist(value.getUid());
-        // Create
-        properties.put(value.getUid(), value);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public Property<?> findById(String name) {
-        assertPropertyExist(name);
-        return properties.get(name);
-    }
-    
-    /** {@inheritDoc} */
-    @Override
-    public void delete(String name) {
-        assertPropertyExist(name);
-        // Delete
-        properties.remove(name);
-    }
-    
-    /** {@inheritDoc} */
-    @Override
-    public Set<String> listPropertyNames() {
-        if (properties == null) {
-             return null;
-        }
-        return properties.keySet();
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void clear() {
-        if (properties != null) {
-            properties.clear();
-        }
-    }
-    
-    /** {@inheritDoc} */
-    @Override
-    public Map<String, Property<?>> findAll() {
-       return properties;
-    }
-
     /**
      * Setter accessor for attribute 'properties'.
      * @param properties
