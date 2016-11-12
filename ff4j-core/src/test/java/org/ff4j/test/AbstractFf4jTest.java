@@ -55,7 +55,7 @@ public abstract class AbstractFf4jTest implements TestConstantsFF4j {
     protected FF4j ff4j = null;
 
     /** Test Values */
-    protected AssertFf4j assertFf4j = null;
+    protected AssertFF4j assertFf4j = null;
 
     /** {@inheritDoc} */
     @Before
@@ -76,7 +76,7 @@ public abstract class AbstractFf4jTest implements TestConstantsFF4j {
         this.ff4j = initFF4j();
 
         // Tester
-        this.assertFf4j = new AssertFf4j(ff4j);
+        this.assertFf4j = new AssertFF4j(ff4j);
     }
 
     /**

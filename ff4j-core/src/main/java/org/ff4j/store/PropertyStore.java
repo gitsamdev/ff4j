@@ -29,7 +29,7 @@ import org.ff4j.property.Property;
  *
  * @author Cedrick Lunven (@clunven)
  */
-public interface PropertyStore extends FF4jRepository < Property<?> , String> {
+public interface PropertyStore extends FF4jRepository < String, Property<?> > {
     
     /**
      * Read property value and if not found return the default value.

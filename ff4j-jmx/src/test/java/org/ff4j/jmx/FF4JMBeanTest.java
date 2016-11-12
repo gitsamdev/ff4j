@@ -25,7 +25,7 @@ import javax.management.remote.JMXConnectorServerFactory;
 import javax.management.remote.JMXServiceURL;
 
 import org.ff4j.FF4j;
-import org.ff4j.test.AssertFf4j;
+import org.ff4j.test.AssertFF4j;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -50,12 +50,12 @@ public class FF4JMBeanTest {
     @Autowired
     private FF4j ff4j;
 
-    private AssertFf4j assertFF4J = null;
+    private AssertFF4j assertFF4J = null;
 
     @Before
     public void setUp() throws Exception {
         openJmxConnection();
-        assertFF4J = new AssertFf4j(ff4j);
+        assertFF4J = new AssertFF4j(ff4j);
     }
 
     private void openJmxConnection() throws Exception {

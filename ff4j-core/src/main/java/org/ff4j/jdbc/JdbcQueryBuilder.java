@@ -234,6 +234,15 @@ public class JdbcQueryBuilder {
          return sb.toString();
     }
     
+    /**
+     * Count features.
+     *
+     * @return
+     *      number or features
+     */
+    public String sqlCountFeatures() {
+        return "SELECT COUNT(FEAT_UID) FROM " + getTableNameFeatures();
+    }
     
 	public String getAllFeatures() {
 		StringBuilder sb = new StringBuilder();

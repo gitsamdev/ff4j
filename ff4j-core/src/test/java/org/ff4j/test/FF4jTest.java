@@ -24,7 +24,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -34,7 +33,7 @@ import org.ff4j.audit.Event;
 import org.ff4j.audit.EventConstants;
 import org.ff4j.audit.EventPublisher;
 import org.ff4j.audit.PropertyStoreAuditProxy;
-import org.ff4j.cache.FF4jCacheManagerssss;
+import org.ff4j.cache.CacheManagerInMemory;
 import org.ff4j.exception.FeatureNotFoundException;
 import org.ff4j.feature.Feature;
 import org.ff4j.feature.FlippingExecutionContext;
@@ -73,9 +72,9 @@ public class FF4jTest extends AbstractFf4jTest {
     public void testDeleteFeature() {
         FF4j ff4j = new FF4j("ff4j.xml");
         ff4j.audit(true);
-        Assert.assertTrue(ff4j.exist(F1));
-        ff4j.delete(F1);
-        Assert.assertFalse(ff4j.exist(F1));
+        Assert.assertTrue(ff4j.getFeatureStore().exists(F1));
+        ff4j.getFeatureStore().delete(F1);
+        Assert.assertFalse(ff4j.getFeatureStore().exists(F1));
     }
     
     @Test
@@ -83,10 +82,10 @@ public class FF4jTest extends AbstractFf4jTest {
         // Given
         FF4j ff4j = new FF4j(getClass().getClassLoader().getResourceAsStream("ff4j.xml"));
         ff4j.audit(true);
-        Assert.assertTrue(ff4j.exist(F1));
+        Assert.assertTrue(ff4j.getFeatureStore().exists(F1));
         Assert.assertTrue(ff4j.getFeature(F1).isEnable());
         // When
-        ff4j.disable(F1);
+        ff4j.toggleOff(F1);
         // Then
         Assert.assertFalse(ff4j.getFeature(F1).isEnable());
     }
@@ -98,7 +97,7 @@ public class FF4jTest extends AbstractFf4jTest {
         ff4j.audit(true);
         ff4j.createProperty(new PropertyString("p2", "v2"));
         Assert.assertTrue(ff4j.getPropertiesStore().exists("p1"));
-        ff4j.deleteProperty("p1");
+        ff4j.getPropertiesStore().delete("p1");
         Assert.assertFalse(ff4j.getPropertiesStore().exists("p1"));
     }
     
@@ -143,7 +142,7 @@ public class FF4jTest extends AbstractFf4jTest {
         ff4j.getFeatureStore().addToGroup("f2", "g1");
        
         // When
-        ff4j.enable("f1");
+        ff4j.toggleOn("f1");
         ff4j.setFileName(null);
         // Then
         Assert.assertTrue(ff4j.getFeature("f1").isEnable());
@@ -156,7 +155,6 @@ public class FF4jTest extends AbstractFf4jTest {
         Assert.assertNotNull(ff4j.getStartTime());
         Assert.assertNotNull(ff4j.getPropertiesStore());
         Assert.assertNotNull(ff4j.getCurrentContext());
-        Assert.assertNotNull(ff4j.getProperties());
     }
     
     @Test
@@ -178,7 +176,7 @@ public class FF4jTest extends AbstractFf4jTest {
     @Test
     public void helloWorldTest() {
         // Default : store = inMemory, load features (5) from ff4j.xml file
-        assertEquals(5, ff4j.getFeatures().size());
+        assertEquals(5, ff4j.getFeatureStore().count());
 
         // Dynamically create feature and add it to the store (tests purpose)
         ff4j.createFeature(new Feature("sayHello"));
@@ -187,8 +185,8 @@ public class FF4jTest extends AbstractFf4jTest {
         ff4j.toggleOn("sayHello");
 
         // Assertion
-        assertTrue(ff4j.exist("sayHello"));
-        assertEquals(6, ff4j.getFeatures().size());
+        assertTrue(ff4j.getFeatureStore().exists("sayHello"));
+        assertEquals(6, ff4j.getFeatureStore().count());
         assertTrue(ff4j.check("sayHello"));
     }
 
@@ -197,13 +195,13 @@ public class FF4jTest extends AbstractFf4jTest {
 
         // Default : store = inMemory, load features from ff4j.xml file
         FF4j ff4j = new FF4j("ff4j.xml").autoCreate(true);
-        assertFalse(ff4j.exist("autoCreatedFeature"));
+        assertFalse(ff4j.getFeatureStore().exists("autoCreatedFeature"));
 
         // Auto creation by testing its value
         assertFalse(ff4j.check("autoCreatedFeature"));
 
         // Assertion
-        assertTrue(ff4j.exist("autoCreatedFeature"));
+        assertTrue(ff4j.getFeatureStore().exists("autoCreatedFeature"));
     }
 
     @Test
@@ -215,7 +213,7 @@ public class FF4jTest extends AbstractFf4jTest {
         ff4j.createFeature(new Feature("f1")).toggleOn("f1");
 
         // Assertions
-        assertTrue(ff4j.exist("f1"));
+        assertTrue(ff4j.getFeatureStore().exists("f1"));
         assertTrue(ff4j.check("f1"));
     }
   
@@ -225,14 +223,14 @@ public class FF4jTest extends AbstractFf4jTest {
     public void testEnableFeature() {
         FF4j ff4j = new FF4j();
         ff4j.autoCreate(true);
-        ff4j.enable("newffff");
-        Assert.assertTrue(ff4j.exist("newffff"));
+        ff4j.toggleOn("newffff");
+        Assert.assertTrue(ff4j.getFeatureStore().exists("newffff"));
         Assert.assertTrue(ff4j.check("newffff"));
     }
 
     @Test(expected = FeatureNotFoundException.class)
     public void testEnableFeatureNotExist() {
-        ff4j.enable("newffff");
+        ff4j.toggleOn("newffff");
     }
 
     // disabling...
@@ -241,27 +239,29 @@ public class FF4jTest extends AbstractFf4jTest {
     public void testDisableFeature() {
         FF4j ff4j = new FF4j();
         ff4j.autoCreate(true);
-        ff4j.disable("newffff");
-        Assert.assertTrue(ff4j.exist("newffff"));
+        ff4j.toggleOff("newffff");
+        Assert.assertTrue(ff4j.getFeatureStore().exists("newffff"));
         Assert.assertFalse(ff4j.check("newffff"));
     }
 
     @Test(expected = FeatureNotFoundException.class)
     public void testDisableFeatureNotExist() {
         FF4j ff4j = new FF4j();
-        ff4j.disable("newffff");
+        ff4j.toggleOff("newffff");
     }
 
     @Test
     public void testGetFeatures() {
         FF4j ff4j = new FF4j("ff4j.xml");
-        Assert.assertEquals(5, ff4j.getFeatures().size());
+        Assert.assertEquals(5, ff4j.getFeatureStore().count());
     }
 
     @Test
     public void testFlipped() {
         FF4j ff4j = new FF4j().autoCreate(true)
-                .createFeature(new Feature("coco").toggleOn().setGroup("grp2").setPermissions("ROLEA"));
+                .createFeature(new Feature("coco").toggleOn()
+                        .setGroup("grp2")
+                        .setPermissions("ROLEA"));
         Assert.assertTrue(ff4j.check("coco"));
         ff4j.setAuthorizationsManager(mockAuthManager);
         Assert.assertTrue(ff4j.check("coco"));
@@ -289,12 +289,7 @@ public class FF4jTest extends AbstractFf4jTest {
     public void testToString2() {
         Assert.assertTrue(ff4j.toString().contains(FeatureStoreInMemory.class.getCanonicalName()));
     }
-
-    @Test
-    public void testExportFeatures() throws IOException {
-        Assert.assertNotNull(ff4j.exportFeatures());
-    }
-
+    
     @Test
     public void authorisationManager() {
         FF4j ff4j = new FF4j();
@@ -326,7 +321,7 @@ public class FF4jTest extends AbstractFf4jTest {
         List < Feature > listOfFeatures = new ArrayList<Feature>();
         listOfFeatures.add(new Feature("f1").toggleOn().setPermissions("USER"));
         ff4j.importFeatures(listOfFeatures);
-        Assert.assertTrue(ff4j.exist("f1"));
+        Assert.assertTrue(ff4j.getFeatureStore().exists("f1"));
         
         // no Error
         ff4j.importFeatures(null);
@@ -363,8 +358,8 @@ public class FF4jTest extends AbstractFf4jTest {
         FF4j ff4j = new FF4j();
         ff4j.createProperty(new PropertyString("p1", "v1"));
         Assert.assertNotNull(ff4j.getProperty("p1"));
-        Assert.assertNotNull(ff4j.getPropertyAsString("p1"));
-        Assert.assertEquals("v1", ff4j.getPropertyAsString("p1"));
+        Assert.assertNotNull(ff4j.getProperty("p1").asString());
+        Assert.assertEquals("v1", ff4j.getProperty("p1").asString());
     }
     
     @Test
@@ -380,7 +375,7 @@ public class FF4jTest extends AbstractFf4jTest {
     @Test
     public void testInitCache() {
         FF4j ff4j = new FF4j();
-        ff4j.cache(new FF4jCacheManagerssss());
+        ff4j.cache(new CacheManagerInMemory<Feature>(), new CacheManagerInMemory<Property<?>>());;
     }
 
     @Test
@@ -395,8 +390,9 @@ public class FF4jTest extends AbstractFf4jTest {
     @Test
     public void getConcreteFeatureStore() {
         FF4j ff4j = new FF4j();
-        ff4j.cache(new FF4jCacheManagerssss());
-        Assert.assertNotNull(ff4j.getCacheProxy());
+        CacheManagerInMemory<Feature>     cmisF = new CacheManagerInMemory<Feature>();
+        CacheManagerInMemory<Property<?>> cmisP = new CacheManagerInMemory<Property<?>>();
+        ff4j.cache(cmisF, cmisP);
         Assert.assertNotNull(ff4j.getConcreteFeatureStore());
         Assert.assertNotNull(ff4j.getConcretePropertyStore());
         ff4j.setPropertiesStore(new PropertyStoreAuditProxy(ff4j, ff4j.getPropertiesStore()));

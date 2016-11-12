@@ -26,7 +26,7 @@ import java.lang.reflect.Constructor;
 import org.ff4j.FF4j;
 import org.ff4j.inmemory.FeatureStoreInMemory;
 import org.ff4j.inmemory.PropertyStoreInMemory;
-import org.ff4j.test.AssertFf4j;
+import org.ff4j.test.AssertFF4j;
 import org.ff4j.test.TestsFf4jConstants;
 import org.ff4j.utils.FF4jUtils;
 import org.junit.Before;
@@ -36,7 +36,7 @@ public class AssertTest {
     
     private FF4j ff4j = null;
     
-    private AssertFf4j assertFF4j = null;
+    private AssertFF4j assertFF4j = null;
     
     @Before
     public void initFF4J() {
@@ -46,7 +46,7 @@ public class AssertTest {
             ff4j.setPropertiesStore(new PropertyStoreInMemory("test-ff4j-features.xml"));
             ff4j.setAuthorizationsManager(
                     new DefaultAuthorisationManager(FF4jUtils.setOf("PERM1", "PERM2"), FF4jUtils.setOf("PERM1", "PERM2", "PERM3")));
-            assertFF4j = new AssertFf4j(ff4j);
+            assertFF4j = new AssertFF4j(ff4j);
         }
     }
     

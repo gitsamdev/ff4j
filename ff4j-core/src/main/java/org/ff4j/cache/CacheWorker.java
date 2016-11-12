@@ -24,7 +24,7 @@ public class CacheWorker< V extends FF4jBaseObject<?> > implements Runnable, Ser
     protected CacheManager< String, V > cacheManager;
     
     /** target ff4j repository (featureStore, propertyStore...). */
-    protected FF4jRepository < V, String > ff4jRepository;
+    protected FF4jRepository < String, V > ff4jRepository;
     
     /**
      * Default constructor.
@@ -34,7 +34,7 @@ public class CacheWorker< V extends FF4jBaseObject<?> > implements Runnable, Ser
      * @param cacheManager
      *      current cache manager
      */
-    public CacheWorker(FF4jRepository < V, String > repo, CacheManager< String, V > cacheManager) {
+    public CacheWorker(FF4jRepository < String, V > repo, CacheManager< String, V > cacheManager) {
         this.cacheManager   = cacheManager;
         this.ff4jRepository = repo; 
     }

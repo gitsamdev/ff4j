@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.ff4j.audit.BarChart;
 import org.ff4j.audit.Event;
@@ -72,7 +73,8 @@ public abstract class AbstractEventRepositoryTest {
     public void setUp() throws Exception {
         repo      = initRepository();
         publisher = new EventPublisher(repo);
-        features  = new ArrayList<Feature>(new FeatureStoreInMemory("ff4j.xml").findAll().values());
+        features  = new ArrayList<Feature>(
+                new FeatureStoreInMemory("ff4j.xml").findAll().collect(Collectors.toList()));
     }
    
     // Utility to generate event

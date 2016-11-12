@@ -40,8 +40,9 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import javax.sql.DataSource;
 
@@ -118,6 +119,26 @@ public class FeatureStoreJdbc extends AbstractFeatureStore {
             executeUpdate(ds, qb.sqlCreateTableRoles());
         }
     }
+    
+    @Override
+    public long count() {
+        Connection          sqlConn = null;
+        PreparedStatement   ps = null;
+        ResultSet           rs = null;
+        try {
+            sqlConn = getDataSource().getConnection();
+            ps = JdbcUtils.buildStatement(sqlConn, getQueryBuilder().sqlCountFeatures());
+            rs = ps.executeQuery();
+            rs.next();
+            return rs.getInt(1);
+        } catch (SQLException sqlEX) {
+            throw new FeatureAccessException(CANNOT_CHECK_FEATURE_EXISTENCE_ERROR_RELATED_TO_DATABASE, sqlEX);
+        } finally {
+            closeResultSet(rs);
+            closeStatement(ps);
+            closeConnection(sqlConn);
+        }
+    }
 
     /** {@inheritDoc} */
     @Override
@@ -135,7 +156,7 @@ public class FeatureStoreJdbc extends AbstractFeatureStore {
 
     /** {@inheritDoc} */
     @Override
-    public boolean exist(String uid) {
+    public boolean exists(String uid) {
     	assertHasLength(uid);
         Connection          sqlConn = null;
         PreparedStatement   ps = null;
@@ -157,8 +178,56 @@ public class FeatureStoreJdbc extends AbstractFeatureStore {
 
     /** {@inheritDoc} */
    @Override
-   public Feature findById(String uid) {
-    	assertFeatureExist(uid);
+   public Optional < Feature > findById(String uid) {
+    	Connection          sqlConn = null;
+        PreparedStatement   ps = null;
+        ResultSet           rs = null;
+        try {
+            sqlConn = getDataSource().getConnection();
+            ps = sqlConn.prepareStatement(getQueryBuilder().getFeature());
+            ps.setString(1, uid);
+            rs = ps.executeQuery();
+            if (!rs.next()) return Optional.empty();
+            
+            Feature f = new JdbcFeatureMapper(sqlConn, getQueryBuilder()).fromStore(rs);
+            closeResultSet(rs);
+            rs = null;
+            closeStatement(ps);
+            ps = null;
+
+            // Enrich to get roles 2nd request
+            ps = sqlConn.prepareStatement(getQueryBuilder().getRoles());
+            ps.setString(1, uid);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                f.addPermissions(rs.getString("ROLE_NAME"));
+            }
+            closeResultSet(rs);
+            rs = null;
+            closeStatement(ps);
+            ps = null;
+
+            // Enrich with properties 3d request to get custom properties by uid
+            ps = sqlConn.prepareStatement(getQueryBuilder().getFeatureProperties());
+            ps.setString(1, uid);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+               f.addCustomProperty(JDBC_PROPERTY_MAPPER.fromStore(rs));
+            }
+            return Optional.of(f);
+        } catch (SQLException sqlEX) {
+            throw new FeatureAccessException(CANNOT_CHECK_FEATURE_EXISTENCE_ERROR_RELATED_TO_DATABASE, sqlEX);
+        } finally {
+            closeResultSet(rs);
+            closeStatement(ps);
+            closeConnection(sqlConn);
+        }
+    }
+   
+    /** {@inheritDoc} */
+    @Override
+    public Feature read(String uid) {
+        assertFeatureExist(uid);
         Connection          sqlConn = null;
         PreparedStatement   ps = null;
         ResultSet           rs = null;
@@ -167,8 +236,8 @@ public class FeatureStoreJdbc extends AbstractFeatureStore {
             ps = sqlConn.prepareStatement(getQueryBuilder().getFeature());
             ps.setString(1, uid);
             rs = ps.executeQuery();
-            // Existence is tested before
             rs.next();
+            
             Feature f = new JdbcFeatureMapper(sqlConn, getQueryBuilder()).fromStore(rs);
             closeResultSet(rs);
             rs = null;
@@ -264,7 +333,7 @@ public class FeatureStoreJdbc extends AbstractFeatureStore {
             // Create connection
             sqlConn = getDataSource().getConnection();
             sqlConn.setAutoCommit(false);
-            Feature fp = findById(uid);
+            Feature fp = read(uid);
 
             // Delete Properties
             if (fp.getCustomProperties().isPresent()) {
@@ -324,7 +393,7 @@ public class FeatureStoreJdbc extends AbstractFeatureStore {
 
     /** {@inheritDoc} */
     @Override
-    public Map<String, Feature> findAll() {
+    public Stream < Feature > findAll() {
         LinkedHashMap<String, Feature> mapFP = new LinkedHashMap<String, Feature>();
         Connection sqlConn = null;
         PreparedStatement ps = null;
@@ -369,8 +438,7 @@ public class FeatureStoreJdbc extends AbstractFeatureStore {
                 closeStatement(ps);
                 ps = null;
             }
-
-            return mapFP;
+            return mapFP.values().stream();
 
         } catch (SQLException sqlEX) {
             throw new FeatureAccessException(CANNOT_CHECK_FEATURE_EXISTENCE_ERROR_RELATED_TO_DATABASE, sqlEX);
@@ -383,7 +451,7 @@ public class FeatureStoreJdbc extends AbstractFeatureStore {
 
     /** {@inheritDoc} */
     @Override
-    public Set<String> readAllGroups() {
+    public Stream<String> readAllGroups() {
         Set<String> setOFGroup = new HashSet<String>();
         Connection sqlConn = null;
         PreparedStatement ps = null;
@@ -399,7 +467,7 @@ public class FeatureStoreJdbc extends AbstractFeatureStore {
                     setOFGroup.add(groupName);
                 }
             }
-            return setOFGroup;
+            return setOFGroup.stream();
         } catch (SQLException sqlEX) {
             throw new FeatureAccessException("Cannot list groups, error related to database", sqlEX);
         } finally {
@@ -418,7 +486,7 @@ public class FeatureStoreJdbc extends AbstractFeatureStore {
 
         try {
             sqlConn = dataSource.getConnection();
-            Feature fpExist = findById(fp.getUid());
+            Feature fpExist = read(fp.getUid());
             String enable = "0";
             if (fp.isEnable()) {
                 enable = "1";
@@ -468,7 +536,7 @@ public class FeatureStoreJdbc extends AbstractFeatureStore {
 
     /** {@inheritDoc} */
     @Override
-    public void clear() {
+    public void deleteAll() {
         Connection sqlConn = null;
         PreparedStatement ps = null;
         try {
@@ -608,7 +676,7 @@ public class FeatureStoreJdbc extends AbstractFeatureStore {
 
     /** {@inheritDoc} */
     @Override
-    public Map<String, Feature> readGroup(String groupName) {
+    public Stream <Feature> readGroup(String groupName) {
     	assertGroupExist(groupName);
         LinkedHashMap<String, Feature> mapFP = new LinkedHashMap<String, Feature>();
         Connection sqlConn = null;
@@ -658,7 +726,7 @@ public class FeatureStoreJdbc extends AbstractFeatureStore {
                 ps = null;
             }
 
-            return mapFP;
+            return mapFP.values().stream();
 
         } catch (SQLException sqlEX) {
             throw new FeatureAccessException(CANNOT_CHECK_FEATURE_EXISTENCE_ERROR_RELATED_TO_DATABASE, sqlEX);
@@ -682,7 +750,7 @@ public class FeatureStoreJdbc extends AbstractFeatureStore {
     public void removeFromGroup(String uid, String groupName) {
     	assertFeatureExist(uid);
         assertGroupExist(groupName);
-        Feature feat = findById(uid);
+        Feature feat = read(uid);
         if (feat.getGroup().isPresent() && !feat.getGroup().get().equals(groupName)) {
             throw new IllegalArgumentException("'" + uid + "' is not in group '" + groupName + "'");
         }
@@ -750,5 +818,7 @@ public class FeatureStoreJdbc extends AbstractFeatureStore {
 	public void setQueryBuilder(JdbcQueryBuilder queryBuilder) {
 		this.queryBuilder = queryBuilder;
 	}
+
+    
 
 }

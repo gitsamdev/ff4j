@@ -25,7 +25,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-import org.ff4j.cache.FF4jCacheProxy;
+import org.ff4j.cache.CacheProxy;
 import org.ff4j.feature.FlippingStrategy;
 import org.ff4j.property.Property;
 
@@ -120,11 +120,11 @@ public class JsonUtils {
      */
     public static final String cacheJson(Object store) {
         StringBuilder sb = new StringBuilder();
-        if (store instanceof FF4jCacheProxy) {
-            FF4jCacheProxy cacheProxy = (FF4jCacheProxy) store;
+        if (store instanceof CacheProxy<?,?>) {
+            CacheProxy<?,?> cacheProxy = (CacheProxy<?,?>) store;
             sb.append(",\"cached\":true");
             sb.append(",\"cacheProvider\":\"" + cacheProxy.getCacheProvider() + "\"");
-            sb.append(",\"cacheStore\":\"" + cacheProxy.getCachedTargetStore() + "\"");
+            sb.append(",\"cacheStore\":\"" + cacheProxy.getTargetStore() + "\"");
         } else {
             sb.append(",\"cached\":false");
         }

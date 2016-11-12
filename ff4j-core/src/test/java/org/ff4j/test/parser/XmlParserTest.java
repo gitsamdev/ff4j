@@ -23,7 +23,7 @@ package org.ff4j.test.parser;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
+import java.util.Arrays;
 
 import org.ff4j.conf.XmlParser;
 import org.ff4j.property.Property;
@@ -103,7 +103,7 @@ public class XmlParserTest {
     @Test
     public void testNullValues() throws IOException {
         new XmlParser().escapeXML(null);
-        new XmlParser().exportProperties(new HashMap<String, Property<?>>());
+        new XmlParser().exportProperties(Arrays.stream(new Property<?>[0]));
     }
 
 }

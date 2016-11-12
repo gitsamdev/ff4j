@@ -42,7 +42,7 @@ import org.ff4j.property.PropertyInt;
 import org.ff4j.property.PropertyString;
 import org.ff4j.store.FeatureStore;
 import org.ff4j.strategy.PonderationStrategy;
-import org.ff4j.test.AssertFf4j;
+import org.ff4j.test.AssertFF4j;
 import org.ff4j.utils.FF4jUtils;
 import org.junit.Assert;
 import org.junit.Before;
@@ -68,7 +68,7 @@ public abstract class FeatureStoreTestSupport {
 	protected FeatureStore testedStore;
 
 	/** Test Values */
-	protected AssertFf4j assertFf4j;
+	protected AssertFF4j assertFf4j;
 
 	/** Default InMemoryStore for test purposes. */
 	protected FeatureStore defaultStore = new FeatureStoreInMemory(TEST_FEATURES_FILE);
@@ -79,7 +79,7 @@ public abstract class FeatureStoreTestSupport {
 		ff4j = new FF4j();
 		ff4j.setFeatureStore(initStore());
 		testedStore = ff4j.getFeatureStore();
-		assertFf4j = new AssertFf4j(ff4j);
+		assertFf4j = new AssertFF4j(ff4j);
 		assertFf4j.setPause(enablePause());
 	}
 

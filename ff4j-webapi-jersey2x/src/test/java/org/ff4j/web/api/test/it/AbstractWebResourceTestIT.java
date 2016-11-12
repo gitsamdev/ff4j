@@ -26,7 +26,7 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Application;
 
 import org.ff4j.FF4j;
-import org.ff4j.test.AssertFf4j;
+import org.ff4j.test.AssertFF4j;
 import org.ff4j.web.api.FF4jJacksonMapper;
 import org.ff4j.web.api.resources.FF4jResource;
 import org.ff4j.web.api.test.SampleFF4jJersey2Application;
@@ -56,7 +56,7 @@ public abstract class AbstractWebResourceTestIT extends JerseyTest {
     public final static String APIPATH = FF4jResource.class.getAnnotation(Path.class).value();
 
     /** Assert for this ff4j instance. */
-    protected static AssertFf4j assertFF4J;
+    protected static AssertFF4j assertFF4J;
 
     /** Current ff4j. */
     protected static FF4j ff4j = new FF4j(TEST_FEATURES_FILE);
@@ -75,7 +75,7 @@ public abstract class AbstractWebResourceTestIT extends JerseyTest {
     public void setUp() throws Exception {
         super.setUp();
         if (assertFF4J == null) {
-            assertFF4J = new AssertFf4j(ff4j);
+            assertFF4J = new AssertFF4j(ff4j);
         }
     }
     

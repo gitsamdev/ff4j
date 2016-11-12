@@ -104,7 +104,7 @@ public class FeatureXmlParserTest {
         Map<String, Feature> features = parser.parseConfigurationFile(in).getFeatures();
         Assert.assertNotNull(features);
         // When
-        InputStream in2 = parser.exportFeatures(features);
+        InputStream in2 = parser.exportFeatures(features.values().stream());
         // Then
         // output is OK
         Map<String, Feature> features2 = parser.parseConfigurationFile(in2).getFeatures();
@@ -120,7 +120,7 @@ public class FeatureXmlParserTest {
         Map<String, Feature> features = parser.parseConfigurationFile(in).getFeatures();
         Assert.assertNotNull(features);
         // When
-        InputStream in3 = parser.exportFeatures(features);
+        InputStream in3 = parser.exportFeatures(features.values().stream());
         // Then
         // output is OK
         Map<String, Feature> features2 = parser.parseConfigurationFile(in3).getFeatures();

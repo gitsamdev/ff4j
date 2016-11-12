@@ -26,7 +26,7 @@ import org.ff4j.property.PropertyInt;
 import org.ff4j.property.PropertyString;
 import org.ff4j.store.FeatureStore;
 import org.ff4j.strategy.PonderationStrategy;
-import org.ff4j.test.AssertFf4j;
+import org.ff4j.test.AssertFF4j;
 import org.ff4j.test.TestConstantsFF4j;
 import org.ff4j.utils.FF4jUtils;
 import org.junit.Assert;
@@ -47,7 +47,7 @@ public abstract class CoreFeatureStoreTestSupport implements TestConstantsFF4j {
     protected FeatureStore testedStore;
 
     /** Test Values */
-    protected AssertFf4j assertFf4j;
+    protected AssertFF4j assertFf4j;
     
     /** {@inheritDoc} */
     @Before
@@ -56,7 +56,7 @@ public abstract class CoreFeatureStoreTestSupport implements TestConstantsFF4j {
         FeatureStore fs = initStore();
         ff4j.setFeatureStore(fs);
         testedStore = fs;
-        assertFf4j = new AssertFf4j(ff4j);
+        assertFf4j = new AssertFF4j(ff4j);
     }
 
     /**

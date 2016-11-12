@@ -17,7 +17,7 @@ import java.util.stream.Stream;
  * @param <ID>
  *      unique identifier (String most of the case).
  */
-public interface FF4jRepository < ENTITY, ID extends Serializable > {
+public interface FF4jRepository < ID extends Serializable, ENTITY > {
     
     /**
      * Count number of elements in the repository

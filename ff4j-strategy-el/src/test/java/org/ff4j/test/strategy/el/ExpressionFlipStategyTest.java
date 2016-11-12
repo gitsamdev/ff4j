@@ -14,7 +14,7 @@ package org.ff4j.test.strategy.el;
 import org.ff4j.FF4j;
 import org.ff4j.feature.FlippingExecutionContext;
 import org.ff4j.strategy.el.ExpressionFlipStrategy;
-import org.ff4j.test.AssertFf4j;
+import org.ff4j.test.AssertFF4j;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -29,7 +29,7 @@ public class ExpressionFlipStategyTest {
     private final FF4j ff4j = new FF4j("test-expressionFlipStategy-ok.xml");
 
     /** Assertion. */
-    private final AssertFf4j assertFF4j = new AssertFf4j(ff4j);
+    private final AssertFF4j assertFF4j = new AssertFF4j(ff4j);
 
     @Test
     public void testExpression() throws Exception {

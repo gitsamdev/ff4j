@@ -10,7 +10,7 @@ import org.ff4j.feature.Feature;
  * 
  * @author Cedrick Lunven (@clunven)
  */
-public interface FeatureStore extends FF4jRepository < Feature, String > {
+public interface FeatureStore extends FF4jRepository < String, Feature > {
 
     /**
      * Toggle ON a feature by its identifier.
