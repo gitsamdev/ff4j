@@ -160,7 +160,7 @@ public class PropertyStoreHttp extends AbstractPropertyStore {
     public <T> void createProperty(Property<T> value) {
         Util.assertNotNull(value);
         Util.assertHasLength(value.getName());
-        if (existProperty(value.getName())) {
+        if (exists(value.getName())) {
             throw new PropertyAlreadyExistException("Property already exist");
         }
         // Now can process upsert through PUT HTTP method

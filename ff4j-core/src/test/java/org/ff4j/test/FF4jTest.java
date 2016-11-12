@@ -97,9 +97,9 @@ public class FF4jTest extends AbstractFf4jTest {
         ff4j.createProperty(new PropertyString("p1", "v1"));
         ff4j.audit(true);
         ff4j.createProperty(new PropertyString("p2", "v2"));
-        Assert.assertTrue(ff4j.getPropertiesStore().existProperty("p1"));
+        Assert.assertTrue(ff4j.getPropertiesStore().exists("p1"));
         ff4j.deleteProperty("p1");
-        Assert.assertFalse(ff4j.getPropertiesStore().existProperty("p1"));
+        Assert.assertFalse(ff4j.getPropertiesStore().exists("p1"));
     }
     
     @Test
@@ -338,7 +338,7 @@ public class FF4jTest extends AbstractFf4jTest {
         List < Property<?> > listOfProperties = new ArrayList<Property<?>>();
         listOfProperties.add(new PropertyString("p1", "v1"));
         ff4j.importProperties(listOfProperties);
-        Assert.assertTrue(ff4j.getPropertiesStore().existProperty("p1"));
+        Assert.assertTrue(ff4j.getPropertiesStore().exists("p1"));
         
         // no Error
         ff4j.importProperties(null);

@@ -129,7 +129,7 @@ public class FeatureStoreRedis extends AbstractFeatureStore {
     
     /** {@inheritDoc} */
     @Override
-    public Feature read(String uid) {
+    public Feature findById(String uid) {
         if (!exist(uid)) {
             throw new FeatureNotFoundException(uid);
         }
@@ -148,7 +148,7 @@ public class FeatureStoreRedis extends AbstractFeatureStore {
     @Override
     public void update(Feature fp) {
         Util.assertNotNull("Feature" , fp);
-        if (!exist(fp.getUid())) {
+        if (!exists(fp.getUid())) {
             throw new FeatureNotFoundException(fp.getUid());
         }
         Jedis jedis = null;
@@ -167,7 +167,7 @@ public class FeatureStoreRedis extends AbstractFeatureStore {
     @Override
     public void enable(String uid) {
         // Read from redis, feature not found if no present
-        Feature f = read(uid);
+        Feature f = findById(uid);
         // Update within Object
         f.enable();
         // Serialization and update key, update TTL
@@ -178,7 +178,7 @@ public class FeatureStoreRedis extends AbstractFeatureStore {
     @Override
     public void disable(String uid) {
         // Read from redis, feature not found if no present
-        Feature f = read(uid);
+        Feature f = findById(uid);
         // Update within Object
         f.disable();
         // Serialization and update key, update TTL
@@ -189,7 +189,7 @@ public class FeatureStoreRedis extends AbstractFeatureStore {
     @Override
     public void create(Feature fp) {
         Util.assertNotNull("Feature" , fp);
-        if (exist(fp.getUid())) {
+        if (exists(fp.getUid())) {
             throw new FeatureAlreadyExistException(fp.getUid());
         }
         Jedis jedis = null;
@@ -206,7 +206,7 @@ public class FeatureStoreRedis extends AbstractFeatureStore {
 
     /** {@inheritDoc} */
     @Override
-    public Map<String, Feature> readAll() {
+    public Map<String, Feature> findAll() {
         Jedis jedis = null;
         try {
             jedis = getJedis();
@@ -215,7 +215,7 @@ public class FeatureStoreRedis extends AbstractFeatureStore {
             if (myKeys != null) {
                 for (String key : myKeys) {
                     key = key.replaceAll(KEY_FEATURE, "");
-                    myMap.put(key, read(key));
+                    myMap.put(key, findById(key));
                 }
             }
             return myMap;
@@ -247,7 +247,7 @@ public class FeatureStoreRedis extends AbstractFeatureStore {
     public void grantRoleOnFeature(String flipId, String roleName) {
         Util.assertParamHasLength(roleName, "roleName (#2)");
         // retrieve
-        Feature f = read(flipId);
+        Feature f = findById(flipId);
         // modify
         f.getPermissions().add(roleName);
         // persist modification
@@ -259,7 +259,7 @@ public class FeatureStoreRedis extends AbstractFeatureStore {
     public void removeRoleFromFeature(String flipId, String roleName) {
         Util.assertParamHasLength(roleName, "roleName (#2)");
         // retrieve
-        Feature f = read(flipId);
+        Feature f = findById(flipId);
         f.getPermissions().remove(roleName);
         // persist modification
         update(f);
@@ -269,7 +269,7 @@ public class FeatureStoreRedis extends AbstractFeatureStore {
     @Override
     public Map<String, Feature> readGroup(String groupName) {
         Util.assertParamHasLength(groupName, "groupName");
-        Map < String, Feature > features = readAll();
+        Map < String, Feature > features = findAll();
         Map < String, Feature > group = new HashMap<String, Feature>();
         for (Map.Entry<String,Feature> uid : features.entrySet()) {
             if (groupName.equals(uid.getValue().getGroup())) {
@@ -286,7 +286,7 @@ public class FeatureStoreRedis extends AbstractFeatureStore {
     @Override
     public boolean existGroup(String groupName) {
         Util.assertParamHasLength(groupName, "groupName");
-        Map < String, Feature > features = readAll();
+        Map < String, Feature > features = findAll();
         Map < String, Feature > group = new HashMap<String, Feature>();
         for (Map.Entry<String,Feature> uid : features.entrySet()) {
             if (groupName.equals(uid.getValue().getGroup())) {
@@ -321,7 +321,7 @@ public class FeatureStoreRedis extends AbstractFeatureStore {
     public void addToGroup(String featureId, String groupName) {
         Util.assertParamHasLength(groupName, "groupName (#2)");
         // retrieve
-        Feature f = read(featureId);
+        Feature f = findById(featureId);
         f.setGroup(groupName);
         // persist modification
         update(f);
@@ -335,7 +335,7 @@ public class FeatureStoreRedis extends AbstractFeatureStore {
             throw new GroupNotFoundException(groupName);
         }
         // retrieve
-        Feature f = read(featureId);
+        Feature f = findById(featureId);
         f.setGroup(null);
         // persist modification
         update(f);
@@ -344,7 +344,7 @@ public class FeatureStoreRedis extends AbstractFeatureStore {
     /** {@inheritDoc} */
     @Override
     public Set<String> readAllGroups() {
-        Map < String, Feature > features = readAll();
+        Map < String, Feature > features = findAll();
         Set < String > groups = new HashSet<String>();
         for (Map.Entry<String,Feature> uid : features.entrySet()) {
             groups.add(uid.getValue().getGroup());

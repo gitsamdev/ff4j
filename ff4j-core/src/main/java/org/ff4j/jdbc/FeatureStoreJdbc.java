@@ -157,7 +157,7 @@ public class FeatureStoreJdbc extends AbstractFeatureStore {
 
     /** {@inheritDoc} */
    @Override
-   public Feature read(String uid) {
+   public Feature findById(String uid) {
     	assertFeatureExist(uid);
         Connection          sqlConn = null;
         PreparedStatement   ps = null;
@@ -264,7 +264,7 @@ public class FeatureStoreJdbc extends AbstractFeatureStore {
             // Create connection
             sqlConn = getDataSource().getConnection();
             sqlConn.setAutoCommit(false);
-            Feature fp = read(uid);
+            Feature fp = findById(uid);
 
             // Delete Properties
             if (fp.getCustomProperties().isPresent()) {
@@ -324,7 +324,7 @@ public class FeatureStoreJdbc extends AbstractFeatureStore {
 
     /** {@inheritDoc} */
     @Override
-    public Map<String, Feature> readAll() {
+    public Map<String, Feature> findAll() {
         LinkedHashMap<String, Feature> mapFP = new LinkedHashMap<String, Feature>();
         Connection sqlConn = null;
         PreparedStatement ps = null;
@@ -418,7 +418,7 @@ public class FeatureStoreJdbc extends AbstractFeatureStore {
 
         try {
             sqlConn = dataSource.getConnection();
-            Feature fpExist = read(fp.getUid());
+            Feature fpExist = findById(fp.getUid());
             String enable = "0";
             if (fp.isEnable()) {
                 enable = "1";
@@ -682,7 +682,7 @@ public class FeatureStoreJdbc extends AbstractFeatureStore {
     public void removeFromGroup(String uid, String groupName) {
     	assertFeatureExist(uid);
         assertGroupExist(groupName);
-        Feature feat = read(uid);
+        Feature feat = findById(uid);
         if (feat.getGroup().isPresent() && !feat.getGroup().get().equals(groupName)) {
             throw new IllegalArgumentException("'" + uid + "' is not in group '" + groupName + "'");
         }

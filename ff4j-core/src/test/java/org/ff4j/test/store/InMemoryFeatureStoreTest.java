@@ -42,7 +42,7 @@ public class InMemoryFeatureStoreTest extends CoreFeatureStoreTestSupport {
                 .toggleOn().setGroup("grp1")
                 .setDescription("desc")
                 .setFlippingStrategy(new PonderationStrategy()));
-        Assert.assertEquals(1, imfs.readAll().size());
+        Assert.assertEquals(1, imfs.findAll().size());
     }
 
     @Test
@@ -51,8 +51,8 @@ public class InMemoryFeatureStoreTest extends CoreFeatureStoreTestSupport {
         map1.put("new", new Feature("new").toggleOn().setDescription("description"));
         map1.put("old", new Feature("old").toggleOn().setDescription("description"));
         FeatureStoreInMemory imfs = new FeatureStoreInMemory(map1);
-        Assert.assertEquals(2, imfs.readAll().size());
-        Assert.assertNotNull(imfs.read("old"));
+        Assert.assertEquals(2, imfs.findAll().size());
+        Assert.assertNotNull(imfs.findById("old"));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -102,7 +102,7 @@ public class InMemoryFeatureStoreTest extends CoreFeatureStoreTestSupport {
         FeatureStoreInMemory f = new FeatureStoreInMemory();
         f.importFeaturesFromXmlFile("ff4j.xml");
         f.importFeaturesFromXmlFile("ff4j.xml");
-        Assert.assertFalse(f.readAll().isEmpty());
+        Assert.assertFalse(f.findAll().isEmpty());
     }
     
 }

@@ -166,7 +166,7 @@ public class AutowiredFF4JBeanPostProcessor implements BeanPostProcessor {
     }
 
     private Feature readFeature(Field field, String featureName, boolean required) {
-        if (!ff4j.getFeatureStore().exist(featureName)) {
+        if (!ff4j.getFeatureStore().exists(featureName)) {
             if (required) {
                 throw new IllegalArgumentException("Cannot autowiring field '" + field.getName() + "' with FF4J property as"
                         + " target feature has not been found");
@@ -175,11 +175,11 @@ public class AutowiredFF4JBeanPostProcessor implements BeanPostProcessor {
                 return null;
             }
         }
-        return ff4j.getFeatureStore().read(featureName);
+        return ff4j.getFeatureStore().findById(featureName);
     }
 
     private Property<?> readProperty(Field field, String propertyName, boolean required) {
-        if (!ff4j.getPropertiesStore().existProperty(propertyName)) {
+        if (!ff4j.getPropertiesStore().exists(propertyName)) {
             if (required) {
                 throw new IllegalArgumentException("Cannot autowiring field '" + field.getName() + "' with FF4J property as"
                         + " target property has not been found");
@@ -188,7 +188,7 @@ public class AutowiredFF4JBeanPostProcessor implements BeanPostProcessor {
                 return null;
             }
         }
-        return ff4j.getPropertiesStore().readProperty(propertyName);
+        return ff4j.getPropertiesStore().findById(propertyName);
     }
 
 }

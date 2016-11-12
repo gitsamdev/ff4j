@@ -20,7 +20,7 @@ package org.ff4j.test.cache;
  * #L%
  */
 
-import org.ff4j.cache.FF4JCacheManager;
+import org.ff4j.cache.FF4jCacheManager;
 import org.ff4j.feature.Feature;
 import org.junit.After;
 import org.junit.Assert;
@@ -36,14 +36,14 @@ public abstract class AbstractCacheManagerJUnitTest {
 
     public static final String DESCRIPTION = "Description";
     /** Cache Manager. */
-    protected FF4JCacheManager cacheManager = getCacheManager();
+    protected FF4jCacheManager cacheManager = getCacheManager();
     
     /**
      * Implementation of cache manager.
      *
      * @return
      */
-    protected abstract FF4JCacheManager getCacheManager();
+    protected abstract FF4jCacheManager getCacheManager();
     
     @Before
     /** Init cache. */

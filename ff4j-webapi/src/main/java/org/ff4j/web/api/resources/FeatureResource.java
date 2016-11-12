@@ -81,11 +81,11 @@ public class FeatureResource extends AbstractResource {
         @ApiResponse(code = 200, message= "Information about features"), 
         @ApiResponse(code = 404, message= "Feature not found") })
     public Response read(@PathParam("uid") String id) {
-       if (!ff4j.getFeatureStore().exist(id)) {
+       if (!ff4j.getFeatureStore().exists(id)) {
             String errMsg = new FeatureNotFoundException(id).getMessage();
             return Response.status(Response.Status.NOT_FOUND).entity(errMsg).build();
        }
-       return  Response.ok(new FeatureApiBean(ff4j.getFeatureStore().read(id))).build();
+       return  Response.ok(new FeatureApiBean(ff4j.getFeatureStore().findById(id))).build();
     }
 
     /**
@@ -137,7 +137,7 @@ public class FeatureResource extends AbstractResource {
         }
         
         // Update or create ? 
-        if (!getFeatureStore().exist(feat.getUid())) {
+        if (!getFeatureStore().exists(feat.getUid())) {
             getFeatureStore().create(feat);
             String location = String.format("%s", uriInfo.getAbsolutePath().toString());
             try {
@@ -171,7 +171,7 @@ public class FeatureResource extends AbstractResource {
             String errMsg = "Invalid URL : Must be '/features/{uid}' with {uid} not null nor empty";
             return Response.status(Response.Status.BAD_REQUEST).entity(errMsg).build();
         }
-        if (!ff4j.getFeatureStore().exist(id)) {
+        if (!ff4j.getFeatureStore().exists(id)) {
             String errMsg = new FeatureNotFoundException(id).getMessage();
             return Response.status(Response.Status.NOT_FOUND).entity(errMsg).build();
         }
@@ -192,7 +192,7 @@ public class FeatureResource extends AbstractResource {
         @ApiResponse(code = 204, message= "Features has been enabled"), 
         @ApiResponse(code = 404, message= "Feature not found") })
     public Response operationEnable(@PathParam("uid") String id) {
-        if (!ff4j.getFeatureStore().exist(id)) {
+        if (!ff4j.getFeatureStore().exists(id)) {
             String errMsg = new FeatureNotFoundException(id).getMessage();
             return Response.status(Response.Status.NOT_FOUND).entity(errMsg).build();
         }
@@ -213,7 +213,7 @@ public class FeatureResource extends AbstractResource {
         @ApiResponse(code = 204, message= "Features has been disabled"), 
         @ApiResponse(code = 404, message= "Feature not found") })
     public Response operationDisable(@PathParam("uid") String id) {
-        if (!ff4j.getFeatureStore().exist(id)) {
+        if (!ff4j.getFeatureStore().exists(id)) {
             String errMsg = new FeatureNotFoundException(id).getMessage();
             return Response.status(Response.Status.NOT_FOUND).entity(errMsg).build();
         }
@@ -235,7 +235,7 @@ public class FeatureResource extends AbstractResource {
         @ApiResponse(code = 404, message= "Feature not found"),
         @ApiResponse(code = 400, message= "Invalid RoleName") })
     public Response operationGrantRole(@PathParam("uid") String id, @PathParam("role") String role) {
-        if (!ff4j.getFeatureStore().exist(id)) {
+        if (!ff4j.getFeatureStore().exists(id)) {
             String errMsg = new FeatureNotFoundException(id).getMessage();
             return Response.status(Response.Status.NOT_FOUND).entity(errMsg).build();
         }
@@ -261,11 +261,11 @@ public class FeatureResource extends AbstractResource {
         @ApiResponse(code = 404, message= "Feature not found"),
         @ApiResponse(code = 400, message= "Invalid RoleName") })
     public Response operationRemoveRole(@PathParam("uid") String id, @PathParam("role") String role) {
-        if (!ff4j.getFeatureStore().exist(id)) {
+        if (!ff4j.getFeatureStore().exists(id)) {
             String errMsg = new FeatureNotFoundException(id).getMessage();
             return Response.status(Response.Status.NOT_FOUND).entity(errMsg).build();
         }
-        Set < String > permissions = ff4j.getFeatureStore().read(id).getPermissions();
+        Set < String > permissions = ff4j.getFeatureStore().findById(id).getPermissions();
         if (!permissions.contains(role)) {
             String errMsg = "Invalid role should be within " + permissions;
             return Response.status(Response.Status.BAD_REQUEST).entity(errMsg).build();
@@ -288,7 +288,7 @@ public class FeatureResource extends AbstractResource {
         @ApiResponse(code = 404, message= "Feature not found"),
         @ApiResponse(code = 400, message= "Invalid GroupName") })
     public Response operationAddGroup(@PathParam("uid") String id, @PathParam("groupName") String groupName) {
-        if (!ff4j.getFeatureStore().exist(id)) {
+        if (!ff4j.getFeatureStore().exists(id)) {
             String errMsg = new FeatureNotFoundException(id).getMessage();
             return Response.status(Response.Status.NOT_FOUND).entity(errMsg).build();
         }
@@ -314,7 +314,7 @@ public class FeatureResource extends AbstractResource {
         @ApiResponse(code = 404, message= "Feature not found"),
         @ApiResponse(code = 400, message= "Invalid GroupName") })
     public Response operationRemoveGroup(@PathParam("uid") String id,  @PathParam("groupName") String groupName) {
-        if (!ff4j.getFeatureStore().exist(id)) {
+        if (!ff4j.getFeatureStore().exists(id)) {
             String errMsg = new FeatureNotFoundException(id).getMessage();
             return Response.status(Response.Status.NOT_FOUND).entity(errMsg).build();
         }

@@ -142,10 +142,10 @@ public final class ConsoleOperations {
         String uid          = req.getParameter("uid");
         
         Property<?> ap;
-        if (ff4j.getPropertiesStore().existProperty(uid)) {
+        if (ff4j.getPropertiesStore().exists(uid)) {
             // Do not change name, just and update
             if (uid.equalsIgnoreCase(name)) {
-                ap = ff4j.getPropertiesStore().readProperty(uid);
+                ap = ff4j.getPropertiesStore().findById(uid);
                 // just an update for the value
                 if (ap.getType().equalsIgnoreCase(type)) {
                     ap.setDescription(description);
@@ -156,8 +156,8 @@ public final class ConsoleOperations {
                     ap.setDescription(description);
                     // Note : Fixed Values are LOST if type changed => cannot cast ? to T
                     LOGGER.warn("By changing property type you loose the fixedValues, cannot evaluate ? at runtime");
-                    ff4j.getPropertiesStore().deleteProperty(name);
-                    ff4j.getPropertiesStore().createProperty(ap);
+                    ff4j.getPropertiesStore().delete(name);
+                    ff4j.getPropertiesStore().create(ap);
                 }
                 
             } else {
@@ -166,8 +166,8 @@ public final class ConsoleOperations {
                 ap.setDescription(description);
                 // Note : Fixed Values are LOST if name changed => cannot cast ? to T
                 LOGGER.warn("By changing property name you loose the fixedValues, cannot evaluate generics at runtime (type inference)");
-                ff4j.getPropertiesStore().deleteProperty(uid);
-                ff4j.getPropertiesStore().createProperty(ap);
+                ff4j.getPropertiesStore().delete(uid);
+                ff4j.getPropertiesStore().create(ap);
             }
         }
     }
@@ -187,7 +187,7 @@ public final class ConsoleOperations {
         String value        = req.getParameter("pValue");
         Property<?> ap = PropertyFactory.createProperty(name, type, value);
         ap.setDescription(description);
-        ff4j.getPropertiesStore().createProperty(ap);
+        ff4j.getPropertiesStore().create(ap);
     }
 
     private static void updateFlippingStrategy(Feature fp, String strategy, String strategyParams) {
@@ -232,7 +232,7 @@ public final class ConsoleOperations {
         final String featureId = req.getParameter(FEATID);
         if (featureId != null && !featureId.isEmpty()) {
             // https://github.com/clun/ff4j/issues/66
-            Feature old = ff4j.getFeatureStore().read(featureId);
+            Feature old = ff4j.getFeatureStore().findById(featureId);
             Feature fp = new Feature(featureId, old.isEnable());
             // <--
             
@@ -286,7 +286,7 @@ public final class ConsoleOperations {
         XmlConfig xmlConfig = new XmlParser().parseConfigurationFile(in);
         Map<String, Feature> mapsOfFeat = xmlConfig.getFeatures();
         for (Entry<String, Feature> feature : mapsOfFeat.entrySet()) {
-            if (store.exist(feature.getKey())) {
+            if (store.exists(feature.getKey())) {
                 store.update(feature.getValue());
             } else {
                 store.create(feature.getValue());
@@ -297,10 +297,10 @@ public final class ConsoleOperations {
         PropertyStore pstore = ff4j.getPropertiesStore();
         Map<String, Property<?>> mapsOfProperties = xmlConfig.getProperties();
         for (Entry<String, Property<?>> p : mapsOfProperties.entrySet()) {
-            if (pstore.existProperty(p.getKey())) {
+            if (pstore.exists(p.getKey())) {
                 pstore.updateProperty(p.getValue());
             } else {
-                pstore.createProperty(p.getValue());
+                pstore.create(p.getValue());
             }
         }
         LOGGER.info(mapsOfProperties.size() + " features have been imported.");
@@ -315,7 +315,7 @@ public final class ConsoleOperations {
      *             error when building response
      */
     public static void exportFile(FF4j ff4j, HttpServletResponse res) throws IOException {
-        Map<String, Feature> features = ff4j.getFeatureStore().readAll();
+        Map<String, Feature> features = ff4j.getFeatureStore().findAll();
         InputStream in = new XmlParser().exportFeatures(features);
         ServletOutputStream sos = null;
         try {

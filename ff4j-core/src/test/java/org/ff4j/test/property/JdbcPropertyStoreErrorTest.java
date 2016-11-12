@@ -39,7 +39,7 @@ public class JdbcPropertyStoreErrorTest {
         doThrow(new SQLException()).when(mockDS).getConnection();
         PropertyStoreJdbc jrepo = new PropertyStoreJdbc(mockDS);
         jrepo.setDataSource(mockDS);
-        jrepo.existProperty("xx");
+        jrepo.exists("xx");
     }
     
     @Test(expected = PropertyAccessException.class)
@@ -48,7 +48,7 @@ public class JdbcPropertyStoreErrorTest {
         doThrow(new SQLException()).when(mockDS).getConnection();
         PropertyStoreJdbc jrepo = new PropertyStoreJdbc(mockDS);
         jrepo.setDataSource(mockDS);
-        jrepo.readAllProperties();
+        jrepo.findAll();
     }
     
     @Test(expected = PropertyAccessException.class)
@@ -57,7 +57,7 @@ public class JdbcPropertyStoreErrorTest {
         doThrow(new SQLException()).when(mockDS).getConnection();
         PropertyStoreJdbc jrepo = new PropertyStoreJdbc(mockDS);
         jrepo.setDataSource(mockDS);
-        jrepo.createProperty(new PropertyString("p1","v1"));
+        jrepo.create(new PropertyString("p1","v1"));
     }
     
     @Test(expected = PropertyAccessException.class)
@@ -66,7 +66,7 @@ public class JdbcPropertyStoreErrorTest {
         doThrow(new SQLException()).when(mockDS).getConnection();
         PropertyStoreJdbc jrepo = new PropertyStoreJdbc(mockDS);
         jrepo.setDataSource(mockDS);
-        jrepo.readProperty("p1");
+        jrepo.findById("p1");
     }
     
     @Test(expected = IllegalArgumentException.class)
@@ -93,7 +93,7 @@ public class JdbcPropertyStoreErrorTest {
         doThrow(new SQLException()).when(mockDS).getConnection();
         PropertyStoreJdbc jrepo = new PropertyStoreJdbc(mockDS);
         jrepo.setDataSource(mockDS);
-        jrepo.deleteProperty("p1");
+        jrepo.delete("p1");
     }
     
     @Test(expected = PropertyAccessException.class)

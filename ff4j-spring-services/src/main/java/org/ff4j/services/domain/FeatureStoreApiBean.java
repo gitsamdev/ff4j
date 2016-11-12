@@ -56,7 +56,7 @@ public class FeatureStoreApiBean implements Serializable {
         if (featureStore instanceof FF4jCacheProxy) {
             cache = new CacheApiBean(featureStore);
         }
-        features.addAll(featureStore.readAll().keySet());
+        features.addAll(featureStore.findAll().keySet());
         groups.addAll(featureStore.readAllGroups());
         numberOfFeatures = features.size();
         numberOfGroups = groups.size();

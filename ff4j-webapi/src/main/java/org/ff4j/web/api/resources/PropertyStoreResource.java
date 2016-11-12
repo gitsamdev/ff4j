@@ -76,8 +76,8 @@ public class PropertyStoreResource  extends AbstractResource {
     @ApiResponses(@ApiResponse(code = 200, message= "get all Properties"))
     public List < PropertyApiBean> readProperties() {
         List < PropertyApiBean > apiBean = new ArrayList<PropertyApiBean>();
-        getPropertyStore().readAllProperties();
-        for (Property<?> prop : getPropertyStore().readAllProperties().values()) {
+        getPropertyStore().findAll();
+        for (Property<?> prop : getPropertyStore().findAll().values()) {
             apiBean.add(new PropertyApiBean(prop));
         }
         return apiBean;

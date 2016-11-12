@@ -35,7 +35,7 @@ import static org.ff4j.ehcache.FF4JEhCacheConstants.*;
  * * Warn : DO NOT USE THIS CACHE WHEN WORKING WITH EXTERNAL FEATURESTORE (as Database) and cluster application : EACH NODE GOT
  * ITS MEMORY AND AN MODIFICATION IN STORE WON'T REFRESH THIS CACHE. Please use REDIS/MEMCACHED implementations.
  */
-public class FeatureCacheProviderEhCache implements FF4JCacheManager {
+public class FeatureCacheProviderEhCache implements FF4jCacheManager {
 
     /** Logger for the class. */
     private static final Logger LOG = LoggerFactory.getLogger(FF4jCacheProxy.class);

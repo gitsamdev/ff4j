@@ -53,13 +53,13 @@ public class FeatureValidator {
     }
 
     public void assertRoleDoesNotExist(String featureUID, String role) {
-        if (ff4j.getFeatureStore().read(featureUID).getPermissions().contains(role)) {
+        if (ff4j.getFeatureStore().findById(featureUID).getPermissions().contains(role)) {
             throw new RoleExistsException();
         }
     }
 
     public void assertRoleExist(String featureUID, String role) {
-        if (!ff4j.getFeatureStore().read(featureUID).getPermissions().contains(role)) {
+        if (!ff4j.getFeatureStore().findById(featureUID).getPermissions().contains(role)) {
             throw new RoleNotExistsException();
         }
     }

@@ -38,7 +38,7 @@ public class PropertyValidator {
 
 
     public void assertPropertyExist(String propertyName) {
-        if (!ff4j.getPropertiesStore().existProperty(propertyName)) {
+        if (!ff4j.getPropertiesStore().exists(propertyName)) {
             throw new PropertyNotFoundException();
         }
     }

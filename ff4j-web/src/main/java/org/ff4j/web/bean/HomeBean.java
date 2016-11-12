@@ -25,11 +25,11 @@ import static org.ff4j.web.bean.WebConstants.PIC_DISABLE;
 import java.io.Serializable;
 
 import org.ff4j.FF4j;
-import org.ff4j.audit.repository.EventRepository;
 import org.ff4j.cache.FF4jCacheProxy;
-import org.ff4j.core.FeatureStore;
-import org.ff4j.property.store.PropertyStore;
 import org.ff4j.security.AuthorizationsManager;
+import org.ff4j.store.EventRepository;
+import org.ff4j.store.FeatureStore;
+import org.ff4j.store.PropertyStore;
 
 /**
  * Webbean to display home information
@@ -92,7 +92,7 @@ public class HomeBean implements Serializable {
         if (ff4j.getFeatureStore() != null) {
             FeatureStore fs = ff4j.getConcreteFeatureStore();
             this.featureStore = fs.getClass().getSimpleName();
-            this.nbFeature = fs.readAll().size();
+            this.nbFeature = fs.findAll().size();
             this.nbGroup   = fs.readAllGroups().size();
             featureStore = featureStore.replaceAll("FeatureStore", "").toLowerCase();
          }

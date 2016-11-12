@@ -86,7 +86,7 @@ public class FeatureStoreApiBean {
         if (featureStore instanceof FF4jCacheProxy) {
             cache = new CacheApiBean(featureStore);
         }
-        features = new ArrayList<String>(featureStore.readAll().keySet());
+        features = new ArrayList<String>(featureStore.findAll().keySet());
         groups   = new ArrayList<String>(featureStore.readAllGroups());
         numberOfFeatures = features.size();
         numberOfGroups = groups.size();

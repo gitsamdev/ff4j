@@ -65,13 +65,13 @@ public class MockFeatureStore implements FeatureStore {
     }
 
     /** {@inheritDoc} */
-    public Feature read(String featureUid) {
+    public Feature findById(String featureUid) {
         if ("first".equals(featureUid)) return new Feature("first");
         return null;
     }
 
     /** {@inheritDoc} */
-    public Map<String, Feature> readAll() {
+    public Map<String, Feature> findAll() {
         Map < String, Feature> map = new HashMap<String, Feature>();
         if (!empty) {
             map.put("a", new Feature("a").toggleOn());
@@ -143,7 +143,7 @@ public class MockFeatureStore implements FeatureStore {
     }
 
     /** {@inheritDoc} */
-    public void importFeatures(Collection<Feature> features) {
+    public void save(Collection<Feature> features) {
         LOGGER.debug("MOCK [importFeatures]");
     }
 

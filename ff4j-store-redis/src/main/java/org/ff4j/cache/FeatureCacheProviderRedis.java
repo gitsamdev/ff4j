@@ -37,7 +37,7 @@ import static org.ff4j.redis.RedisContants.*;
  * 
  * @author <a href="mailto:cedrick.lunven@gmail.com">Cedrick LUNVEN</a>
  */
-public class FeatureCacheProviderRedis implements FF4JCacheManager {
+public class FeatureCacheProviderRedis implements FF4jCacheManager {
     
     /** Wrapping of redis connection (isolation). */
     private RedisConnection redisConnection;

@@ -1,5 +1,11 @@
 package org.ff4j.store;
 
+import static org.ff4j.utils.FF4jUtils.assertHasLength;
+import static org.ff4j.utils.FF4jUtils.assertNotNull;
+import static org.ff4j.utils.JsonUtils.attributeAsJson;
+import static org.ff4j.utils.JsonUtils.cacheJson;
+import static org.ff4j.utils.JsonUtils.collectionAsJson;
+
 /*
  * #%L
  * ff4j-core
@@ -24,14 +30,14 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-import org.ff4j.conf.XmlConfig;
 import org.ff4j.conf.XmlParser;
 import org.ff4j.exception.FeatureAlreadyExistException;
 import org.ff4j.exception.FeatureNotFoundException;
 import org.ff4j.exception.GroupNotFoundException;
 import org.ff4j.feature.Feature;
-import org.ff4j.utils.JsonUtils;
+import org.ff4j.utils.FF4jUtils;
 import org.ff4j.utils.Util;
 
 /**
@@ -48,19 +54,15 @@ public abstract class AbstractFeatureStore implements FeatureStore {
      *      xml configuration file
      */
     public Map < String, Feature > importFeaturesFromXmlFile(String xmlConfFile) {
-        // Argument validation
-        if (xmlConfFile == null || xmlConfFile.isEmpty()) {
-            throw new IllegalArgumentException("Configuration filename cannot be null nor empty");
-        }
+        assertHasLength("xml conf file", xmlConfFile);
+        
         // Load as Inputstream
         InputStream xmlIS = getClass().getClassLoader().getResourceAsStream(xmlConfFile);
-        if (xmlIS == null) {
-            throw new IllegalArgumentException("File " + xmlConfFile + " could not be read, please check path and rights");
-        }
+        assertNotNull(xmlIS);
+        
         // Use the Feature Parser
-        XmlConfig conf = new XmlParser().parseConfigurationFile(xmlIS);
-        Map < String, Feature > features = conf.getFeatures();
-        importFeatures(features.values());
+        Map < String, Feature > features = new XmlParser().parseConfigurationFile(xmlIS).getFeatures();
+        save(features.values());
         return features;
     }
     
@@ -80,45 +82,29 @@ public abstract class AbstractFeatureStore implements FeatureStore {
      *
      * @param features
      */
-    public void importFeatures(Collection < Feature > features) {
+    @Override
+    public void save(Collection < Feature > features) {
         if (features != null) {
-            for (Feature feature : features) {
-                if (exist(feature.getUid())) {
+            features.stream().forEach(feature -> {
+                if (exists(feature.getUid())) {
                     delete(feature.getUid());
                 }
                 create(feature);
-            }
+            });
         }
     }
     
     /** {@inheritDoc} */
     public String toJson() {
         StringBuilder sb = new StringBuilder("{");
-        sb.append("\"type\":\"" + this.getClass().getCanonicalName() + "\"");
-        sb.append(JsonUtils.cacheJson(this));
-        Set<String> myFeatures = readAll().keySet();
+        sb.append(attributeAsJson("type", this.getClass().getCanonicalName()));
+        sb.append(cacheJson(this));
+        Set<String> myFeatures = FF4jUtils.setOf(findAll().map(Feature::getUid));
         sb.append(",\"numberOfFeatures\":" + myFeatures.size());
-        sb.append(",\"features\":[");
-        boolean first = true;
-        for (String myFeature : myFeatures) {
-            if (!first) {
-                sb.append(",");
-            }
-            first = false;
-            sb.append("\"" + myFeature + "\"");
-        }
-        Set<String> myGroups = readAllGroups();
-        sb.append("],\"numberOfGroups\":" + myGroups.size());
-        sb.append(",\"groups\":[");
-        first = true;
-        for (String myGroup : myGroups) {
-            if (!first) {
-                sb.append(",");
-            }
-            first = false;
-            sb.append("\"" + myGroup + "\"");
-        }
-        sb.append("]");
+        sb.append(",\"features\":" + collectionAsJson(myFeatures));
+        Set<String> groups = readAllGroups().collect(Collectors.toSet());
+        sb.append(",\"numberOfGroups\":" + groups.size());
+        sb.append(",\"groups\":" + collectionAsJson(groups));
         sb.append("}");
         return sb.toString();
     }
@@ -137,7 +123,7 @@ public abstract class AbstractFeatureStore implements FeatureStore {
      */
     protected void assertFeatureExist(String uid) {
         Util.assertHasLength(uid);
-        if (!exist(uid)) {
+        if (!exists(uid)) {
             throw new FeatureNotFoundException(uid);
         }
     }
@@ -150,7 +136,7 @@ public abstract class AbstractFeatureStore implements FeatureStore {
      */
     protected void assertFeatureNotExist(String uid) {
         Util.assertHasLength(uid);
-        if (exist(uid)) {
+        if (exists(uid)) {
             throw new FeatureAlreadyExistException(uid);
         }
     }
@@ -179,5 +165,12 @@ public abstract class AbstractFeatureStore implements FeatureStore {
             throw new IllegalArgumentException("Feature cannot be null nor empty");
         }
     } 
+    
+    /** {@inheritDoc} */
+    @Override
+    public Feature read(String id) {
+        assertFeatureExist(id);
+        return findById(id).get();
+    }
     
 }

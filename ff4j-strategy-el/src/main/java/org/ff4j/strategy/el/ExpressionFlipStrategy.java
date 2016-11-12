@@ -98,7 +98,7 @@ public class ExpressionFlipStrategy extends AbstractFlipStrategy implements Seri
     private Map<String, Boolean> getFeaturesStatus(FeatureStore currentStore) {
         Map<String, Boolean> bools = new HashMap<String, Boolean>();
         List<Feature> listOfFlip = new ArrayList<Feature>();
-        listOfFlip.addAll(currentStore.readAll().values());
+        listOfFlip.addAll(currentStore.findAll().values());
         for (Feature fp : listOfFlip) {
             bools.put(fp.getUid(), fp.isEnable());
         }

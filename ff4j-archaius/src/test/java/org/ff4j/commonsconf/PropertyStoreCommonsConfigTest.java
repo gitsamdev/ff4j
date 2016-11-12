@@ -59,7 +59,7 @@ public class PropertyStoreCommonsConfigTest extends PropertyStoreTestSupport {
     @Test(expected = IllegalStateException.class)
     public void initializationKO() {
         PropertyStoreCommonsConfig psConf = new PropertyStoreCommonsConfig();
-        psConf.existProperty("toto");
+        psConf.exists("toto");
     }
     
     /** TDD. */
@@ -84,9 +84,9 @@ public class PropertyStoreCommonsConfigTest extends PropertyStoreTestSupport {
     @Test
     public void readOKFixed() {
       // Given
-        testedStore.createProperty(new PropertyLogLevel(READ_OK_FIXED, LogLevel.ERROR));
+        testedStore.create(new PropertyLogLevel(READ_OK_FIXED, LogLevel.ERROR));
         // When
-        Property<?> log = testedStore.readProperty(READ_OK_FIXED);
+        Property<?> log = testedStore.findById(READ_OK_FIXED);
         // Then
         Assert.assertNotNull(log);
         Assert.assertNotNull(log.getUid());
@@ -99,11 +99,11 @@ public class PropertyStoreCommonsConfigTest extends PropertyStoreTestSupport {
     @Test
     public void updateOK() {
         // Given
-        testedStore.createProperty(new PropertyLogLevel(UPDATE_OK, LogLevel.ERROR));
+        testedStore.create(new PropertyLogLevel(UPDATE_OK, LogLevel.ERROR));
         // When
         testedStore.updateProperty(UPDATE_OK, "INFO");
         // Then
-        Assert.assertEquals("INFO", testedStore.readProperty(UPDATE_OK).getValue());
+        Assert.assertEquals("INFO", testedStore.findById(UPDATE_OK).getValue());
     }
     
 

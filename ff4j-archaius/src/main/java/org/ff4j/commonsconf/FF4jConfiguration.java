@@ -75,11 +75,11 @@ public class FF4jConfiguration extends AbstractConfiguration {
     /** {@inheritDoc} */
     @Override
     public Configuration subset(String prefix) {
-        Map < String, Property<?>> myProps = ff4jStore().readAllProperties();
+        Map < String, Property<?>> myProps = ff4jStore().findAll();
         PropertyStore ps = new PropertyStoreInMemory();
         for (Map.Entry< String, Property<?>>  prop : myProps.entrySet()) {
             if (prop.getKey().startsWith(prefix)) {
-                ps.createProperty(prop.getValue());
+                ps.create(prop.getValue());
             }
         }
         return new FF4jConfiguration(ps);
@@ -90,7 +90,7 @@ public class FF4jConfiguration extends AbstractConfiguration {
     public Properties getProperties(String key) {
         Properties props = new Properties();
         if (key == null) return props;
-        Map < String, Property<?>> myProps = ff4jStore().readAllProperties();
+        Map < String, Property<?>> myProps = ff4jStore().findAll();
         for (Map.Entry< String, Property<?>>  prop : myProps.entrySet()) {
             if (prop.getKey().startsWith(key)) {
                 props.put(prop.getKey(), prop.getValue().getValue());
@@ -109,29 +109,29 @@ public class FF4jConfiguration extends AbstractConfiguration {
     @Override
     public boolean containsKey(String key) {
         if (key == null) return false;
-        return ff4jStore().existProperty(key);
+        return ff4jStore().exists(key);
     }
     
     /** {@inheritDoc} */
     @Override
     public void addProperty(String key, Object value) {
-        ff4jStore().createProperty(PropertyFactory.createProperty(key, value));
+        ff4jStore().create(PropertyFactory.createProperty(key, value));
     }
     
     /** {@inheritDoc} */
     @Override
     protected void addPropertyDirect(String key, Object value) {
-        ff4jStore().createProperty(PropertyFactory.createProperty(key, value));
+        ff4jStore().create(PropertyFactory.createProperty(key, value));
     }
     
     /** {@inheritDoc} */
     @SuppressWarnings("unchecked")
     @Override
     public void setProperty(String key, Object value) {
-        if (!ff4jStore.existProperty(key)) {
+        if (!ff4jStore.exists(key)) {
             addProperty(key, value);
         }
-        Property<Object> ap = (Property<Object>) ff4jStore().readProperty(key);
+        Property<Object> ap = (Property<Object>) ff4jStore().findById(key);
         ap.setValue(String.valueOf(value));
         ff4jStore().updateProperty(ap);
     }
@@ -139,7 +139,7 @@ public class FF4jConfiguration extends AbstractConfiguration {
     /** {@inheritDoc} */
     @Override
     public void clearProperty(String key) {
-        ff4jStore().deleteProperty(key);
+        ff4jStore().delete(key);
     }
 
     /** {@inheritDoc} */
@@ -151,7 +151,7 @@ public class FF4jConfiguration extends AbstractConfiguration {
     /** {@inheritDoc} */
     @Override
     public Object getProperty(String key) {
-        return ff4jStore().readProperty(key).getValue();
+        return ff4jStore().findById(key).getValue();
     }
 
     /** {@inheritDoc} */
@@ -179,7 +179,7 @@ public class FF4jConfiguration extends AbstractConfiguration {
      */
     private Object getValue(String key) {
         Util.assertHasLength(key);
-        return ff4jStore().readProperty(key).asString();
+        return ff4jStore().findById(key).asString();
     }
 
     /** {@inheritDoc} */
@@ -210,13 +210,13 @@ public class FF4jConfiguration extends AbstractConfiguration {
     /** {@inheritDoc} */
     @Override
     public Boolean getBoolean(String key, Boolean defaultValue) {
-        return ff4jStore().existProperty(key) ? getBoolean(key) : defaultValue;
+        return ff4jStore().exists(key) ? getBoolean(key) : defaultValue;
     }
 
     /** {@inheritDoc} */
     @Override
     public boolean getBoolean(String key, boolean defaultValue) {
-        return ff4jStore().existProperty(key) ? getBoolean(key) : defaultValue;
+        return ff4jStore().exists(key) ? getBoolean(key) : defaultValue;
     }    
 
     /** {@inheritDoc} */
@@ -234,13 +234,13 @@ public class FF4jConfiguration extends AbstractConfiguration {
     /** {@inheritDoc} */
     @Override
     public byte getByte(String key, byte defaultValue) {
-        return ff4jStore().existProperty(key) ? getByte(key) : defaultValue;
+        return ff4jStore().exists(key) ? getByte(key) : defaultValue;
     }
 
     /** {@inheritDoc} */
     @Override
     public Byte getByte(String key, Byte defaultValue) {
-        return ff4jStore().existProperty(key) ? getByte(key) : defaultValue;
+        return ff4jStore().exists(key) ? getByte(key) : defaultValue;
     }
 
     /** {@inheritDoc} */
@@ -256,13 +256,13 @@ public class FF4jConfiguration extends AbstractConfiguration {
     /** {@inheritDoc} */
     @Override
     public double getDouble(String key, double defaultValue) {
-        return ff4jStore().existProperty(key) ? getDouble(key) : defaultValue;
+        return ff4jStore().exists(key) ? getDouble(key) : defaultValue;
     }
 
     /** {@inheritDoc} */
     @Override
     public Double getDouble(String key, Double defaultValue) {
-        return ff4jStore().existProperty(key) ? getDouble(key) : defaultValue;
+        return ff4jStore().exists(key) ? getDouble(key) : defaultValue;
     }
 
     /** {@inheritDoc} */
@@ -278,13 +278,13 @@ public class FF4jConfiguration extends AbstractConfiguration {
     /** {@inheritDoc} */
     @Override
     public float getFloat(String key, float defaultValue) {
-        return ff4jStore().existProperty(key) ? getFloat(key) : defaultValue;
+        return ff4jStore().exists(key) ? getFloat(key) : defaultValue;
     }
 
     /** {@inheritDoc} */
     @Override
     public Float getFloat(String key, Float defaultValue) {
-        return ff4jStore().existProperty(key) ? getFloat(key) : defaultValue;
+        return ff4jStore().exists(key) ? getFloat(key) : defaultValue;
     }
 
     /** {@inheritDoc} */
@@ -300,13 +300,13 @@ public class FF4jConfiguration extends AbstractConfiguration {
     /** {@inheritDoc} */
     @Override
     public int getInt(String key, int defaultValue) {
-        return ff4jStore().existProperty(key) ? getInt(key) : defaultValue;
+        return ff4jStore().exists(key) ? getInt(key) : defaultValue;
     }
 
     /** {@inheritDoc} */
     @Override
     public Integer getInteger(String key, Integer defaultValue) {
-        return ff4jStore().existProperty(key) ? getInt(key) : defaultValue;
+        return ff4jStore().exists(key) ? getInt(key) : defaultValue;
     }
 
     /** {@inheritDoc} */
@@ -322,13 +322,13 @@ public class FF4jConfiguration extends AbstractConfiguration {
     /** {@inheritDoc} */
     @Override
     public Long getLong(String key, Long defaultValue) {
-        return ff4jStore().existProperty(key) ? getLong(key) : defaultValue;
+        return ff4jStore().exists(key) ? getLong(key) : defaultValue;
     }
     
     /** {@inheritDoc} */
     @Override
     public long getLong(String key, long defaultValue) {
-        return ff4jStore().existProperty(key) ? getLong(key) : defaultValue;
+        return ff4jStore().exists(key) ? getLong(key) : defaultValue;
     }
 
     /** {@inheritDoc} */
@@ -344,13 +344,13 @@ public class FF4jConfiguration extends AbstractConfiguration {
     /** {@inheritDoc} */
     @Override
     public short getShort(String key, short defaultValue) {
-        return ff4jStore().existProperty(key) ? getShort(key) : defaultValue;
+        return ff4jStore().exists(key) ? getShort(key) : defaultValue;
     }
 
     /** {@inheritDoc} */
     @Override
     public Short getShort(String key, Short defaultValue) {
-        return ff4jStore().existProperty(key) ? getShort(key) : defaultValue;
+        return ff4jStore().exists(key) ? getShort(key) : defaultValue;
     }
 
     /** {@inheritDoc} */
@@ -366,7 +366,7 @@ public class FF4jConfiguration extends AbstractConfiguration {
     /** {@inheritDoc} */
     @Override
     public BigDecimal getBigDecimal(String key, BigDecimal defaultValue) {
-        return ff4jStore().existProperty(key) ? getBigDecimal(key) : defaultValue;
+        return ff4jStore().exists(key) ? getBigDecimal(key) : defaultValue;
     }
 
     /** {@inheritDoc} */
@@ -382,7 +382,7 @@ public class FF4jConfiguration extends AbstractConfiguration {
     /** {@inheritDoc} */
     @Override
     public BigInteger getBigInteger(String key, BigInteger defaultValue) {
-        return ff4jStore().existProperty(key) ? getBigInteger(key) : defaultValue;
+        return ff4jStore().exists(key) ? getBigInteger(key) : defaultValue;
     }
 
     /** {@inheritDoc} */
@@ -394,7 +394,7 @@ public class FF4jConfiguration extends AbstractConfiguration {
     /** {@inheritDoc} */
     @Override
     public String getString(String key, String defaultValue) {
-        return ff4jStore().existProperty(key) ? getString(key) : defaultValue;
+        return ff4jStore().exists(key) ? getString(key) : defaultValue;
     }
 
     /** {@inheritDoc} */
@@ -408,7 +408,7 @@ public class FF4jConfiguration extends AbstractConfiguration {
     /** {@inheritDoc} */
     @Override
     public List<Object> getList(String key, List<?> defaultValue) {
-        if (ff4jStore().existProperty(key)) return getList(key);
+        if (ff4jStore().exists(key)) return getList(key);
         return new ArrayList<Object>(defaultValue);
     }
     

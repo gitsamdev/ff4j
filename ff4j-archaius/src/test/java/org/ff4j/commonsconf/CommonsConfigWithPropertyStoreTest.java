@@ -58,7 +58,7 @@ public class CommonsConfigWithPropertyStoreTest {
         Assert.assertEquals("hello", config.getString("e"));
         
         // Retrieve whole property if required
-        Assert.assertEquals("comment", ff4jConf.getFf4jStore().readProperty("e").getDescription().get());
+        Assert.assertEquals("comment", ff4jConf.getFf4jStore().findById("e").getDescription().get());
     }
 
 }

@@ -76,11 +76,11 @@ public class PropertyResource extends AbstractResource {
         @ApiResponse(code = 200, message= "Information about features"), 
         @ApiResponse(code = 404, message= "Property not found") })
     public Response read(@PathParam("name") String name) {
-       if (!ff4j.getPropertiesStore().existProperty(name)) {
+       if (!ff4j.getPropertiesStore().exists(name)) {
             String errMsg = new PropertyNotFoundException(name).getMessage();
             return Response.status(Response.Status.NOT_FOUND).entity(errMsg).build();
        }
-       return Response.ok(new PropertyApiBean(ff4j.getPropertiesStore().readProperty(name))).build();
+       return Response.ok(new PropertyApiBean(ff4j.getPropertiesStore().findById(name))).build();
     }
 
     /**
@@ -109,8 +109,8 @@ public class PropertyResource extends AbstractResource {
         
         Property<?> property = pApiBean.asProperty();
         // Update or create ? 
-        if (!getPropertyStore().existProperty(property.getName())) {
-            getPropertyStore().createProperty(property);
+        if (!getPropertyStore().exists(property.getName())) {
+            getPropertyStore().create(property);
             String location = String.format("%s", uriInfo.getAbsolutePath().toString());
             try {
                 return Response.created(new URI(location)).build();
@@ -143,11 +143,11 @@ public class PropertyResource extends AbstractResource {
             String errMsg = "Invalid URL : Must be '/properties/{name}' with {name} not null nor empty";
             return Response.status(Response.Status.BAD_REQUEST).entity(errMsg).build();
         }
-        if (!ff4j.getPropertiesStore().existProperty(name)) {
+        if (!ff4j.getPropertiesStore().exists(name)) {
             String errMsg = new FeatureNotFoundException(name).getMessage();
             return Response.status(Response.Status.NOT_FOUND).entity(errMsg).build();
         }
-        getPropertyStore().deleteProperty(name);
+        getPropertyStore().delete(name);
         return Response.noContent().build();
     }
 
@@ -165,7 +165,7 @@ public class PropertyResource extends AbstractResource {
         @ApiResponse(code = 404, message= "Property not found"),
         @ApiResponse(code = 400, message= "Invalid new value") })
     public Response operationUpdate(@PathParam("name") String name, @PathParam("groupName") String newValue) {
-        if (!ff4j.getPropertiesStore().existProperty(name)) {
+        if (!ff4j.getPropertiesStore().exists(name)) {
             String errMsg = new FeatureNotFoundException(name).getMessage();
             return Response.status(Response.Status.NOT_FOUND).entity(errMsg).build();
         }

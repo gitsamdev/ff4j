@@ -82,17 +82,17 @@ public class PropertyStoreSpringJdbc extends AbstractPropertyStore {
     }
 
     /** {@inheritDoc} */
-    public boolean existProperty(String name) {
+    public boolean exists(String name) {
         Util.assertHasLength(name);
         return 1 == getJdbcTemplate().
         		queryForObject(getQueryBuilder().existProperty(), Integer.class, name);
     }
 
     /** {@inheritDoc} */
-    public <T> void createProperty(Property<T> ap) {
+    public <T> void create(Property<T> ap) {
         Util.assertNotNull(ap);
         Util.assertHasLength(ap.getName());
-        if (existProperty(ap.getName())) {
+        if (exists(ap.getName())) {
             throw new PropertyAlreadyExistException(ap.getName());
         }
         String fixedValues = null;
@@ -106,9 +106,9 @@ public class PropertyStoreSpringJdbc extends AbstractPropertyStore {
     }
 
     /** {@inheritDoc} */
-    public Property<?> readProperty(String name) {
+    public Property<?> findById(String name) {
         Util.assertNotNull(name);
-        if (!existProperty(name)) {
+        if (!exists(name)) {
             throw new PropertyNotFoundException(name);
         }
         return getJdbcTemplate().
@@ -118,11 +118,11 @@ public class PropertyStoreSpringJdbc extends AbstractPropertyStore {
     /** {@inheritDoc} */
     public void updateProperty(String name, String newValue) {
         Util.assertHasLength(name);
-        if (!existProperty(name)) {
+        if (!exists(name)) {
             throw new PropertyNotFoundException(name);
         }
         // Check new value validity
-        readProperty(name).fromString(newValue);
+        findById(name).fromString(newValue);
         getJdbcTemplate().update(getQueryBuilder().updateProperty(), newValue, name);
     }
 
@@ -130,22 +130,22 @@ public class PropertyStoreSpringJdbc extends AbstractPropertyStore {
     public <T> void updateProperty(Property<T> prop) {
         Util.assertNotNull(prop);
         // Delete
-        deleteProperty(prop.getName());
+        delete(prop.getName());
         // Create
-        createProperty(prop);
+        create(prop);
     }
 
     /** {@inheritDoc} */
-    public void deleteProperty(String name) {
+    public void delete(String name) {
         Util.assertHasLength(name);
-        if (!existProperty(name)) {
+        if (!exists(name)) {
             throw new PropertyNotFoundException(name);
         }
         getJdbcTemplate().update(getQueryBuilder().deleteProperty(), name);
     }
 
     /** {@inheritDoc} */
-    public Map<String, Property<?>> readAllProperties() {
+    public Map<String, Property<?>> findAll() {
         Map<String, Property<?>> properties = new LinkedHashMap<String, Property<?>>();
         List<Property<?>> listOfProps = getJdbcTemplate().
         		query(getQueryBuilder().getAllProperties(), PMAPPER);

@@ -35,11 +35,11 @@ public class RedisCacheManagerTestIT {
     public void testPutGet() {
        
         // Initializing cache manager
-        FF4JCacheManager cache = new FeatureCacheProviderRedis();
+        FF4jCacheManager cache = new FeatureCacheProviderRedis();
 
         // Initializing Features for test
         FeatureStore store = new InMemoryFeatureStore(TEST_FEATURES_FILE);
-        Feature fold = store.read(F4);
+        Feature fold = store.findById(F4);
         
         // Put in Cache
         cache.putFeature(fold);

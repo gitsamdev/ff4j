@@ -115,7 +115,7 @@ public abstract class FeatureStoreTestSupport {
         assertFf4j.assertThatFeatureExist(F4);
         assertFf4j.assertThatStoreHasSize(EXPECTED_FEATURES_NUMBERS);
         // When
-        Map<String, Feature> features = testedStore.readAll();
+        Map<String, Feature> features = testedStore.findAll();
         // Then
         Assert.assertEquals(EXPECTED_FEATURES_NUMBERS, features.size());
         // Then testing whole structure
@@ -134,7 +134,7 @@ public abstract class FeatureStoreTestSupport {
 	public void testReadNull() {
 		// Given
 		// When
-		testedStore.read(null);
+		testedStore.findById(null);
 		// Then, expected error...
 	}
 
@@ -145,7 +145,7 @@ public abstract class FeatureStoreTestSupport {
 	public void testReadEmpty() {
 		// Given
 		// When
-		testedStore.read("");
+		testedStore.findById("");
 		// Then, expected error...
 	}
 
@@ -156,7 +156,7 @@ public abstract class FeatureStoreTestSupport {
 	public void testReadNotExist() {
 		// Given
 		// When
-		testedStore.read("I-DONT-EXIST");
+		testedStore.findById("I-DONT-EXIST");
 		// Then, expected error...
 	}
 
@@ -168,7 +168,7 @@ public abstract class FeatureStoreTestSupport {
 	    // Given
         assertFf4j.assertThatFeatureExist(F4);
         // When
-        Feature f = testedStore.read(F4);
+        Feature f = testedStore.findById(F4);
         // Then
         Assert.assertEquals(f.getUid(), F4);
         Assert.assertTrue("no description", f.getDescription().isPresent());
@@ -341,8 +341,8 @@ public abstract class FeatureStoreTestSupport {
 	public void testDeleteFeature() throws Exception {
 		// Given
 		assertFf4j.assertThatFeatureExist(F1);
-		Feature tmpf1 = testedStore.read(F1);
-		int initialNumber = testedStore.readAll().size();
+		Feature tmpf1 = testedStore.findById(F1);
+		int initialNumber = testedStore.findAll().size();
 		// When
 		testedStore.delete(F1);
 		// Then
@@ -538,14 +538,14 @@ public abstract class FeatureStoreTestSupport {
 		FlippingStrategy newStrategy = new PonderationStrategy(0.12);
 		// Given
 		assertFf4j.assertThatFeatureExist(F1);
-		Assert.assertFalse(newDescription.equals(testedStore.read(F1).getDescription()));
+		Assert.assertFalse(newDescription.equals(testedStore.findById(F1).getDescription()));
 		// When
-		Feature fpBis = testedStore.read(F1);
+		Feature fpBis = testedStore.findById(F1);
 		fpBis.setDescription(newDescription);
 		fpBis.setFlippingStrategy(newStrategy);
 		testedStore.update(fpBis);
 		// Then
-		Feature updatedFeature = testedStore.read(F1);
+		Feature updatedFeature = testedStore.findById(F1);
 		Assert.assertTrue(newDescription.equals(updatedFeature.getDescription().get()));
 		Assert.assertNotNull(updatedFeature.getFlippingStrategy());
 		Assert.assertEquals(newStrategy.toString(), updatedFeature.getFlippingStrategy().get().toString());
@@ -562,7 +562,7 @@ public abstract class FeatureStoreTestSupport {
 		assertFf4j.assertThatFeatureExist(F1);
 		assertFf4j.assertThatFeatureHasNotRole(F1, ROLE_ADMIN);
 		// When
-		Feature fpBis = testedStore.read(F1);
+		Feature fpBis = testedStore.findById(F1);
 		fpBis.setPermissions(rights2);
 		testedStore.update(fpBis);
 		// Then
@@ -601,12 +601,12 @@ public abstract class FeatureStoreTestSupport {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testExistNull() {
-		ff4j.getFeatureStore().exist(null);
+		ff4j.getFeatureStore().exists(null);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testExistEmpty() {
-		ff4j.getFeatureStore().exist("");
+		ff4j.getFeatureStore().exists("");
 	}
 
 	/**
@@ -1017,7 +1017,7 @@ public abstract class FeatureStoreTestSupport {
 		// Given
 		assertFf4j.assertThatFeatureExist(F3);
 		// When
-		Feature myFeature = ff4j.getFeatureStore().read(F3);
+		Feature myFeature = ff4j.getFeatureStore().findById(F3);
 		myFeature.setFlippingStrategy(new PonderationStrategy(0.1));
 		testedStore.update(myFeature);
 		// Then
@@ -1031,12 +1031,12 @@ public abstract class FeatureStoreTestSupport {
 	public void testUpdateRemoveFlippingStrategy() {
 		// Given
 		assertFf4j.assertThatFeatureExist(F3);
-		Feature myFeature = ff4j.getFeatureStore().read(F3);
+		Feature myFeature = ff4j.getFeatureStore().findById(F3);
 		myFeature.setFlippingStrategy(new PonderationStrategy(0.1));
 		testedStore.update(myFeature);
 		assertFf4j.assertThatFeatureHasFlippingStrategy(F3);
 		// When
-		Feature myFeature2 = ff4j.getFeatureStore().read(F3);
+		Feature myFeature2 = ff4j.getFeatureStore().findById(F3);
 		myFeature2.setFlippingStrategy(null);
 		testedStore.update(myFeature2);
 		// Then
@@ -1052,7 +1052,7 @@ public abstract class FeatureStoreTestSupport {
 		assertFf4j.assertThatFeatureExist(F2);
 		assertFf4j.assertThatFeatureDoesNotHaveFlippingStrategy(F2);
 		// When
-		Feature myFeature = ff4j.getFeatureStore().read(F2);
+		Feature myFeature = ff4j.getFeatureStore().findById(F2);
 		myFeature.setFlippingStrategy(new PonderationStrategy(0.1));
 		testedStore.update(myFeature);
 		// Then
@@ -1078,12 +1078,12 @@ public abstract class FeatureStoreTestSupport {
 	public void testClear() {
 		// Given
 		Assert.assertNotNull(testedStore);
-		Map<String, Feature> before = testedStore.readAll();
+		Map<String, Feature> before = testedStore.findAll();
 		Assert.assertFalse(before.isEmpty());
 		// When
 		testedStore.clear();
 		// Then
-		Assert.assertTrue(testedStore.readAll().isEmpty());
+		Assert.assertTrue(testedStore.findAll().isEmpty());
 		/// Reinit
 		for (Map.Entry<String, Feature> pName : before.entrySet()) {
 			testedStore.create(pName.getValue());
@@ -1099,7 +1099,7 @@ public abstract class FeatureStoreTestSupport {
         assertFf4j.assertThatFeatureExist(F2);
         assertFf4j.assertThatFeatureHasNotProperty(F2, "p1");
         // When
-        Feature myFeature = ff4j.getFeatureStore().read(F2);
+        Feature myFeature = ff4j.getFeatureStore().findById(F2);
         PropertyString p1 = new PropertyString("p1", "v1");
         myFeature.addCustomProperty(p1);
         testedStore.update(myFeature);
@@ -1116,7 +1116,7 @@ public abstract class FeatureStoreTestSupport {
         assertFf4j.assertThatFeatureExist(F1);
         assertFf4j.assertThatFeatureHasProperty(F1, "ppint");
         // When
-        Feature myFeature = ff4j.getFeatureStore().read(F1);
+        Feature myFeature = ff4j.getFeatureStore().findById(F1);
         myFeature.getCustomProperties().get().remove("ppint");
         testedStore.update(myFeature);
         // Then
@@ -1132,18 +1132,18 @@ public abstract class FeatureStoreTestSupport {
         assertFf4j.assertThatFeatureExist(F1);
         assertFf4j.assertThatFeatureHasProperty(F1, "ppstring");
         Assert.assertEquals("hello", 
-                ff4j.getFeatureStore().read(F1)//
+                ff4j.getFeatureStore().findById(F1)//
                     .getCustomProperty("ppstring").get()
                     .asString());
         // When
-        Feature myFeature = ff4j.getFeatureStore().read(F1);
+        Feature myFeature = ff4j.getFeatureStore().findById(F1);
         PropertyString p1 = new PropertyString("ppstring", "goodbye");
         myFeature.addCustomProperty(p1);
         testedStore.update(myFeature);
         
         // Then
         Assert.assertEquals("goodbye", 
-                ff4j.getFeatureStore().read(F1)//
+                ff4j.getFeatureStore().findById(F1)//
                     .getCustomProperty("ppstring").get()//
                     .asString());
 	}
@@ -1158,13 +1158,13 @@ public abstract class FeatureStoreTestSupport {
         assertFf4j.assertThatFeatureExist(F1);
         assertFf4j.assertThatFeatureHasProperty(F1, "digitValue");
         Set < Integer > fixValues = (Set<Integer>) ff4j
-                .getFeatureStore().read(F1)//
+                .getFeatureStore().findById(F1)//
                 .getCustomProperty("digitValue").get()
                 .getFixedValues().get();
         Assert.assertEquals(4, fixValues.size()); 
                 
         // When
-        Feature myFeature = ff4j.getFeatureStore().read(F1);
+        Feature myFeature = ff4j.getFeatureStore().findById(F1);
         PropertyInt p1 = new PropertyInt("digitValue");
         p1.setFixedValues(FF4jUtils.setOf(0,1,2,3,4));
         p1.setValue(4);
@@ -1173,7 +1173,7 @@ public abstract class FeatureStoreTestSupport {
         
         // Then
         Set < Integer > fixValues2 = (Set<Integer>) ff4j
-                .getFeatureStore().read(F1)//
+                .getFeatureStore().findById(F1)//
                 .getCustomProperty("digitValue").get()
                 .getFixedValues().get();
         Assert.assertEquals(5, fixValues2.size());
@@ -1189,13 +1189,13 @@ public abstract class FeatureStoreTestSupport {
         assertFf4j.assertThatFeatureExist(F1);
         assertFf4j.assertThatFeatureHasProperty(F1, "regionIdentifier");
         Set < String > fixValues = (Set<String>) ff4j
-                .getFeatureStore().read(F1)//
+                .getFeatureStore().findById(F1)//
                 .getCustomProperty("regionIdentifier").get()
                 .getFixedValues().get();
         Assert.assertEquals(3, fixValues.size()); 
                 
         // When
-        Feature myFeature = ff4j.getFeatureStore().read(F1);
+        Feature myFeature = ff4j.getFeatureStore().findById(F1);
         PropertyString p1 = new PropertyString("regionIdentifier");
         p1.setValue("AMER");
         p1.setFixedValues(FF4jUtils.setOf("AMER", "SSSS"));
@@ -1204,7 +1204,7 @@ public abstract class FeatureStoreTestSupport {
         
         // Then
         Set < Integer > fixValues2 = (Set<Integer>) ff4j
-                .getFeatureStore().read(F1)//
+                .getFeatureStore().findById(F1)//
                 .getCustomProperty("regionIdentifier").get()
                 .getFixedValues().get();
         Assert.assertEquals(2, fixValues2.size());

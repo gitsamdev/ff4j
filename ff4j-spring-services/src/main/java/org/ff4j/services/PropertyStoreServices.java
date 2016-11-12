@@ -51,7 +51,7 @@ public class PropertyStoreServices {
     @SuppressWarnings("rawtypes")
     public List<PropertyApiBean> getAllProperties() {
         List<PropertyApiBean> properties;
-        Map<String, Property<?>> propertyMap = ff4j.getPropertiesStore().readAllProperties();
+        Map<String, Property<?>> propertyMap = ff4j.getPropertiesStore().findAll();
         if (CollectionUtils.isEmpty(propertyMap)) {
             properties = new ArrayList<PropertyApiBean>(0);
         } else {

@@ -127,12 +127,12 @@ public class SpringJdbcXMLDataSourceStoreTest extends FeatureStoreTestSupport {
     public void testUpdateEditPropertyAddFixedValues() {
         // Given
         assertFf4j.assertThatFeatureExist(F1);
-        Feature myFeature = ff4j.getFeatureStore().read(F1);
-        myFeature = ff4j.getFeatureStore().read(F1);
+        Feature myFeature = ff4j.getFeatureStore().findById(F1);
+        myFeature = ff4j.getFeatureStore().findById(F1);
         assertFf4j.assertThatFeatureHasProperty(F1, "digitValue");
         
         Set < Integer > fixValues = (Set<Integer>) ff4j
-                .getFeatureStore().read(F1)//
+                .getFeatureStore().findById(F1)//
                 .getCustomProperties().get("digitValue")
                 .getFixedValues();
         Assert.assertEquals(4, fixValues.size()); 
@@ -146,7 +146,7 @@ public class SpringJdbcXMLDataSourceStoreTest extends FeatureStoreTestSupport {
         
         // Then
         Set < Integer > fixValues2 = (Set<Integer>) ff4j
-                .getFeatureStore().read(F1)//
+                .getFeatureStore().findById(F1)//
                 .getCustomProperties().get("digitValue")
                 .getFixedValues();
         Assert.assertEquals(5, fixValues2.size());
@@ -163,13 +163,13 @@ public class SpringJdbcXMLDataSourceStoreTest extends FeatureStoreTestSupport {
         assertFf4j.assertThatFeatureExist(F1);
         assertFf4j.assertThatFeatureHasProperty(F1, "regionIdentifier");
         Set < String > fixValues = (Set<String>) ff4j
-                .getFeatureStore().read(F1)//
+                .getFeatureStore().findById(F1)//
                 .getCustomProperties().get("regionIdentifier")
                 .getFixedValues();
         Assert.assertEquals(3, fixValues.size()); 
                 
         // When
-        Feature myFeature = ff4j.getFeatureStore().read(F1);
+        Feature myFeature = ff4j.getFeatureStore().findById(F1);
         PropertyString p1 = new PropertyString("regionIdentifier");
         p1.setValue("AMER");
         p1.setFixedValues(Util.set("AMER", "SSSS"));
@@ -178,7 +178,7 @@ public class SpringJdbcXMLDataSourceStoreTest extends FeatureStoreTestSupport {
         
         // Then
         Set < Integer > fixValues2 = (Set<Integer>) ff4j
-                .getFeatureStore().read(F1)//
+                .getFeatureStore().findById(F1)//
                 .getCustomProperties().get("regionIdentifier")
                 .getFixedValues();
         Assert.assertEquals(2, fixValues2.size());

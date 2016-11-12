@@ -62,7 +62,7 @@ public final class FF4jBeanDefinitionParser extends AbstractSimpleBeanDefinition
             PropertyStoreInMemory imps = new PropertyStoreInMemory(fileName);
             definitionBuilder.getBeanDefinition().getPropertyValues().addPropertyValue("featureStore", imfs);
             definitionBuilder.getBeanDefinition().getPropertyValues().addPropertyValue("propertiesStore", imps);
-            logger.debug("... Setting in-memory stores : " + imfs.readAll().size() + " feature(s), " + imps.readAllProperties().size() + " propertie(s)");
+            logger.debug("... Setting in-memory stores : " + imfs.findAll().size() + " feature(s), " + imps.findAll().size() + " propertie(s)");
         }
         
         if (StringUtils.hasLength(ff4jTag.getAttribute(ATT_FF4J_AUTOCREATE))) {

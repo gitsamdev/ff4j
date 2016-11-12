@@ -69,7 +69,7 @@ public class FF4jPolledConfigurationSource implements PolledConfigurationSource 
         }
         // Cannot convert to Map < String, Object >
         Map < String, Object > properties = new HashMap<String, Object>();
-        for(Map.Entry<String, Property<?>> property : getFf4jStore().readAllProperties().entrySet()) {
+        for(Map.Entry<String, Property<?>> property : getFf4jStore().findAll().entrySet()) {
             // All properties are String in commons-configuration
             properties.put(property.getKey(), property.getValue().asString());   
         }

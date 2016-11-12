@@ -46,9 +46,9 @@ public class PropertyStoreRedisTestIT extends PropertyStoreTestSupport {
      */
     @After
     public void cleanStore() {
-        Map < String, Property<?> > f = testedStore.readAllProperties();
+        Map < String, Property<?> > f = testedStore.findAll();
         for (String key : f.keySet()) {
-            testedStore.deleteProperty(key);
+            testedStore.delete(key);
         }
         // Close Pool
         ((PropertyStoreRedis) ff4j.getConcretePropertyStore()).getRedisConnection().destroyPool();

@@ -1,9 +1,13 @@
 package org.ff4j.store;
 
+import static org.ff4j.utils.JsonUtils.attributeAsJson;
+import static org.ff4j.utils.JsonUtils.collectionAsJson;
+
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.ff4j.conf.XmlConfig;
 import org.ff4j.conf.XmlParser;
@@ -39,6 +43,17 @@ import org.ff4j.utils.Util;
  */
 public abstract class AbstractPropertyStore implements PropertyStore {
     
+    /** {@inheritDoc} */
+    @Override
+    public void createSchema() {
+        /* 
+         * In most of cases there is nothing to do. The feature and properties are createdat runtime.
+         * But not always (JDBC, Mongo, Cassandra)... this is the reason why the dedicated store must 
+         * override this method. It a default implementation (Pattern Adapter).
+         */
+        return;
+    }
+    
     /**
      * Initialize store from XML Configuration File.
      *
@@ -61,37 +76,24 @@ public abstract class AbstractPropertyStore implements PropertyStore {
 
         // Override existing configuration within database
         for (Map.Entry<String,Property<?>> featureName : properties.entrySet()) {
-            if (existProperty(featureName.getKey())) {
-                deleteProperty(featureName.getKey());
+            if (exists(featureName.getKey())) {
+                delete(featureName.getKey());
             }
-            createProperty(featureName.getValue());
+            create(featureName.getValue());
         }
         return properties;
     }
     
     /** {@inheritDoc} */
-    @Override
-    public boolean isEmpty() {
-        Set < String > pNames = listPropertyNames();
-        return pNames == null || pNames.isEmpty();
-    }
-    
-    /** {@inheritDoc} */
     public String toJson() {
         StringBuilder sb = new StringBuilder("{");
-        sb.append("\"type\":\"" + this.getClass().getCanonicalName() + "\"");
-        Set<String> myProperties = readAllProperties().keySet();
-        sb.append(",\"numberOfProperties\":" + myProperties.size());
-        sb.append(",\"properties\":[");
-        boolean first = true;
-        for (String myProperty : myProperties) {
-            if (!first) {
-                sb.append(",");
-            }
-            first = false;
-           sb.append("\"" + myProperty + "\"");
-        }
-        sb.append("]}");
+        sb.append(attributeAsJson("type", this.getClass().getCanonicalName()));
+        
+        Set<String> props = findAll().map(Property::getUid).collect(Collectors.toSet());
+        sb.append(",\"numberOfProperties\":" + props.size());
+        sb.append(",\"properties\":" + collectionAsJson(props));
+        
+        sb.append("}");
         return sb.toString();
     }
     
@@ -103,7 +105,7 @@ public abstract class AbstractPropertyStore implements PropertyStore {
      */
     protected void assertPropertyExist(String name) {
         Util.assertHasLength(name);
-        if (!existProperty(name)) {
+        if (!exists(name)) {
             throw new PropertyNotFoundException(name);
         }
     }
@@ -116,7 +118,7 @@ public abstract class AbstractPropertyStore implements PropertyStore {
      */
     protected void assertPropertyNotExist(String uid) {
         Util.assertHasLength(uid);
-        if (existProperty(uid)) {
+        if (exists(uid)) {
             throw new PropertyAlreadyExistException(uid);
         }
     }
@@ -135,58 +137,50 @@ public abstract class AbstractPropertyStore implements PropertyStore {
     
     /** {@inheritDoc} */
     @Override
-    public <T> void updateProperty(Property<T> prop) {
+    public void update(Property<?> prop) {
         Util.assertNotNull(prop);
         // Delete
-        deleteProperty(prop.getUid());
+        delete(prop.getUid());
         // Create
-        createProperty(prop);
+        create(prop);
     }
     
     /** {@inheritDoc} */
     @Override
-    public void updateProperty(String name, String newValue) {
-        // Read from redis, feature not found if no present
-        Property<?> p = readProperty(name);
+    public void update(String name, String newValue) {
+        // Read feature not found if no present
+        Property<?> p = read(name);
         // Update within Object
         p.setValueFromString(newValue);
         // Serialization and update key, update TTL
-        updateProperty(p);
+        update(p);
     }
     
     /** {@inheritDoc} */
     @Override
-    public void importProperties(Collection<Property<?>> properties) {
+    public void save(Collection<Property<?>> properties) {
         // Do not use target as the delete/create operation will be traced
         if (properties != null) {
             for (Property<?> property : properties) {
-                if (existProperty(property.getUid())) {
-                    deleteProperty(property.getUid());
+                if (exists(property.getUid())) {
+                    delete(property.getUid());
                 }
-                createProperty(property);
+                create(property);
             }
         }
     }
     
     /** {@inheritDoc} */
     @Override
-    public Property<?> readProperty(String name, Property < ? > defaultValue) {
-        try {
-            return readProperty(name);
-        } catch(PropertyNotFoundException pnf) {
-            return defaultValue;
-        }
-    }
+    public Property<?> read(String name) {
+        assertPropertyExist(name);
+        return findById(name).get();
+    }       
     
     /** {@inheritDoc} */
     @Override
-    public void createSchema() {
-        /* 
-         * In most of cases there is nothing to do. The feature and properties are createdat runtime.
-         * But not always (JDBC, Mongo, Cassandra)... this is the reason why the dedicated store must 
-         * override this method. It a default implementation (Pattern Adapter).
-         */
-        return;
+    public Property<?> read(String name, Property < ? > defaultValue) {
+        return findById(name).orElse(defaultValue);
     }
     
 }

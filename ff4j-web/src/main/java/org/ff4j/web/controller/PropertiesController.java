@@ -106,10 +106,10 @@ public class PropertiesController extends AbstractController {
                 msgType = "warning";
                 msg = "Cannot rename " + propertyName + " to " + newName + " : it already exists";
             } else {
-                Property<?> newProperty = getFf4j().getPropertiesStore().readProperty(propertyName);
+                Property<?> newProperty = getFf4j().getPropertiesStore().findById(propertyName);
                 newProperty.setName(newName);
-                getFf4j().getPropertiesStore().deleteProperty(propertyName);
-                getFf4j().getPropertiesStore().createProperty(newProperty);
+                getFf4j().getPropertiesStore().delete(propertyName);
+                getFf4j().getPropertiesStore().create(newProperty);
                 msg = "Property " + propertyName + " has been renamed to " + newName;
             }
             
@@ -120,12 +120,12 @@ public class PropertiesController extends AbstractController {
                 msgType = "warning";
                 msg = "Cannot copy " + propertyName + " to " + newName + " : it already exists";
             } else {
-                Property<?> p = getFf4j().getPropertiesStore().readProperty(propertyName);
+                Property<?> p = getFf4j().getPropertiesStore().findById(propertyName);
                 Property<?> newProperty = PropertyFactory.createProperty(newName, p.getType(), p.asString(), p.getDescription(), null);
                 for(Object o : p.getFixedValues()) {
                     newProperty.add2FixedValueFromString(o.toString());
                 }
-                getFf4j().getPropertiesStore().createProperty(newProperty);
+                getFf4j().getPropertiesStore().create(newProperty);
                 msg = "Property " + propertyName + " has been copied to " + newName;
             }
         }
@@ -144,17 +144,17 @@ public class PropertiesController extends AbstractController {
         String msgType = "success";
         String msg = null;
         if (Util.hasLength(operation) && Util.hasLength(propertyName) && 
-                getFf4j().getPropertiesStore().existProperty(propertyName)) {
+                getFf4j().getPropertiesStore().exists(propertyName)) {
 
             if (OP_RMV_PROPERTY.equalsIgnoreCase(operation)) {
-                getFf4j().getPropertiesStore().deleteProperty(propertyName);
+                getFf4j().getPropertiesStore().delete(propertyName);
                 msg = msg(propertyName, "DELETED");
                 LOGGER.info("Property '" + propertyName + "' has been disabled");
             }
 
             if (OP_DELETE_FIXEDVALUE.equalsIgnoreCase(operation)) {
                 String fixedValue = req.getParameter(PARAM_FIXEDVALUE);
-                Property<?> ap = getFf4j().getPropertiesStore().readProperty(propertyName);
+                Property<?> ap = getFf4j().getPropertiesStore().findById(propertyName);
                 ap.getFixedValues().remove(fixedValue);
                 getFf4j().getPropertiesStore().updateProperty(ap);
                 LOGGER.info("Property '" + propertyName + "' remove fixedValue '" + fixedValue + "'");
@@ -162,7 +162,7 @@ public class PropertiesController extends AbstractController {
 
             if (OP_ADD_FIXEDVALUE.equalsIgnoreCase(operation)) {
                 String fixedValue = req.getParameter(PARAM_FIXEDVALUE);
-                Property<?> ap = getFf4j().getPropertiesStore().readProperty(propertyName);
+                Property<?> ap = getFf4j().getPropertiesStore().findById(propertyName);
                 ap.add2FixedValueFromString(fixedValue);
                 getFf4j().getPropertiesStore().updateProperty(ap);
                 LOGGER.info("Property '" + propertyName + "' add fixedValue '" + fixedValue + "'");
@@ -183,7 +183,7 @@ public class PropertiesController extends AbstractController {
         ctx.setVariable(KEY_TITLE, "Properties");
 
         // Sort natural Order
-        Map<String, Property<?>> mapOfProperties = ff4j.getPropertiesStore().readAllProperties();
+        Map<String, Property<?>> mapOfProperties = ff4j.getPropertiesStore().findAll();
         List<String> propertyNames = Arrays.asList(mapOfProperties.keySet().toArray(new String[0]));
         Collections.sort(propertyNames);
         List<Property<?>> orderedProperties = new ArrayList<Property<?>>();

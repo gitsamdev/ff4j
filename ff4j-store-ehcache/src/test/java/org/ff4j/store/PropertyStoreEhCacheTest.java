@@ -93,9 +93,9 @@ public class PropertyStoreEhCacheTest extends PropertyStoreTestSupport {
         // Given
         //Assert.assertFalse(testedStore.exist("log"));
         // When
-        testedStore.createProperty(new PropertyDate("ddateee", new Date()));
+        testedStore.create(new PropertyDate("ddateee", new Date()));
         // Then
-        Assert.assertTrue(testedStore.existProperty("ddateee"));
+        Assert.assertTrue(testedStore.exists("ddateee"));
     }
     
     @Test
@@ -108,11 +108,11 @@ public class PropertyStoreEhCacheTest extends PropertyStoreTestSupport {
     @Override
     public void updateOK() {
         // Given
-        testedStore.createProperty(new PropertyLogLevel("updateOKK", LogLevel.ERROR));
+        testedStore.create(new PropertyLogLevel("updateOKK", LogLevel.ERROR));
         // When
         testedStore.updateProperty("updateOKK", "INFO");
         // Then
-        Assert.assertEquals(LogLevel.INFO, testedStore.readProperty("updateOKK").getValue());
+        Assert.assertEquals(LogLevel.INFO, testedStore.findById("updateOKK").getValue());
     }
 
     /** TDD. */

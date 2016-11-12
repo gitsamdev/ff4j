@@ -191,7 +191,7 @@ public class FeatureStoreHttp extends AbstractFeatureStore {
 
     /** {@inheritDoc} */
     @Override
-    public Feature read(String uid) {
+    public Feature findById(String uid) {
         if (uid == null || uid.isEmpty()) {
             throw new IllegalArgumentException(FEATURE_IDENTIFIER_CANNOT_BE_NULL_NOR_EMPTY);
         }
@@ -248,7 +248,7 @@ public class FeatureStoreHttp extends AbstractFeatureStore {
         if (fp == null) {
             throw new IllegalArgumentException("Feature cannot be null nor empty");
         }
-        if (exist(fp.getUid())) {
+        if (exists(fp.getUid())) {
             throw new FeatureAlreadyExistException(fp.getUid());
         }
         // Now can process upsert through PUT HTTP method
@@ -263,7 +263,7 @@ public class FeatureStoreHttp extends AbstractFeatureStore {
 
     /** {@inheritDoc} */
     @Override
-    public Map<String, Feature> readAll() {
+    public Map<String, Feature> findAll() {
         ClientResponse cRes = getStore().get(ClientResponse.class);
         if (Status.OK.getStatusCode() != cRes.getStatus()) {
             throw new FeatureAccessException("Cannot read features, an HTTP error " + cRes.getStatus() + OCCURED);
@@ -296,7 +296,7 @@ public class FeatureStoreHttp extends AbstractFeatureStore {
     @Override
     public void update(Feature fp) {
         Util.assertNotNull(fp);
-        if (!exist(fp.getUid())) {
+        if (!exists(fp.getUid())) {
             throw new FeatureNotFoundException(fp.getUid());
         }
         ClientResponse cRes = getStore().path(fp.getUid()) //

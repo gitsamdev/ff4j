@@ -50,13 +50,13 @@ public class FeatureStoreAuditProxyTest extends CoreFeatureStoreTestSupport {
     
     @Test
     public void testImportFeatures() {
-        testedStore.importFeatures(null);
+        testedStore.save(null);
         
         Feature fx1 = new Feature("fx1").toggleOn();
         Feature fx2 = new Feature("fx2").toggleOn();
-        testedStore.importFeatures(FF4jUtils.listOf(fx1, fx2));
-        Assert.assertTrue(testedStore.exist("fx1"));
-        testedStore.importFeatures(FF4jUtils.listOf(fx1, fx2));
+        testedStore.save(FF4jUtils.listOf(fx1, fx2));
+        Assert.assertTrue(testedStore.exists("fx1"));
+        testedStore.save(FF4jUtils.listOf(fx1, fx2));
         
     }
 

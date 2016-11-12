@@ -112,7 +112,7 @@ public class FeatureStoreMongoDBCore1Test extends FeatureStoreTestSupport {
         // When
         FeatureStore mongoStore = new FeatureStoreMongoDB(features, "ff4j.xml");
         // Then (no error)
-        Assert.assertTrue(mongoStore.readAll().keySet().size() > 0);
+        Assert.assertTrue(mongoStore.findAll().keySet().size() > 0);
     }
     
     @Test

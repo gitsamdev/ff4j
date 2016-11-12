@@ -23,7 +23,7 @@ package org.ff4j.cache.ignite;
 
 import javax.cache.CacheManager;
 
-import org.ff4j.cache.FF4JCacheManager;
+import org.ff4j.cache.FF4jCacheManager;
 import org.ff4j.test.cache.AbstractCacheManagerJUnitTest;
 import org.junit.Ignore;
 
@@ -38,7 +38,7 @@ import org.junit.Ignore;
 public class FeatureCacheProviderIgniteTest extends AbstractCacheManagerJUnitTest {
 
     /** {@inheritDoc} */
-    protected FF4JCacheManager getCacheManager() {
+    protected FF4jCacheManager getCacheManager() {
         return new FeatureCacheProviderIgnite();
     }
 

@@ -53,6 +53,18 @@ public class JsonUtils {
         return value.toString();
     }
     
+    public static final String attributeAsJson(String name, Object value) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(",\"" + name + "\":" + valueAsJson(value));
+        return sb.toString();
+    }
+    
+    public static final String objectAsJson(String name, Object value) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(",\"" + name + "\":" + value);
+        return sb.toString();
+    }
+    
     /**
      * Serialize a collection of object as Json. Element should eventually override <code>toString()</code> to produce JSON.
      *

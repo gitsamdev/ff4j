@@ -200,7 +200,7 @@ public class FF4jCliDisplay {
 			yellow("|  ");
 			String featureStore = "---";
 			if (fs != null) {
-				featureStore = String.valueOf(fs.readAll().size());
+				featureStore = String.valueOf(fs.findAll().size());
 			}
 			white(StringUtils.rightPad(featureStore, 8));
 			yellow("|  ");

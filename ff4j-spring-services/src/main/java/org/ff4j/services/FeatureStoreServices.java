@@ -50,7 +50,7 @@ public class FeatureStoreServices {
 
     public Collection<FeatureApiBean> getAllFeatures() {
         List<FeatureApiBean> features;
-        Map<String, Feature> featureMap = ff4j.getFeatureStore().readAll();
+        Map<String, Feature> featureMap = ff4j.getFeatureStore().findAll();
         if (CollectionUtils.isEmpty(featureMap)) {
             features = new ArrayList<FeatureApiBean>(0);
         } else {
@@ -64,7 +64,7 @@ public class FeatureStoreServices {
 
     public Collection<GroupDescApiBean> getAllGroups() {
         Map<String, GroupDescApiBean> groups = new HashMap<String, GroupDescApiBean>();
-        Map<String, Feature> featureMap = ff4j.getFeatureStore().readAll();
+        Map<String, Feature> featureMap = ff4j.getFeatureStore().findAll();
         if (!CollectionUtils.isEmpty(featureMap)) {
             for (Feature feature : featureMap.values()) {
                 initGroupMap(groups, feature.getUid(), feature.getGroup());

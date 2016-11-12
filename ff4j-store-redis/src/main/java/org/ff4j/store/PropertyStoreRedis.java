@@ -114,7 +114,7 @@ public class PropertyStoreRedis extends AbstractPropertyStore {
     }
     
     /** {@inheritDoc} */
-    public boolean existProperty(String name) {
+    public boolean exists(String name) {
         Util.assertParamHasLength(name, "PropertyName identifier");
         Jedis jedis = null;
         try {
@@ -128,9 +128,9 @@ public class PropertyStoreRedis extends AbstractPropertyStore {
     }
 
     /** {@inheritDoc} */
-    public <T> void createProperty(Property<T> prop) {
+    public <T> void create(Property<T> prop) {
         Util.assertNotNull(prop);
-        if (existProperty(prop.getName())) {
+        if (exists(prop.getName())) {
             throw new PropertyAlreadyExistException(prop.getName());
         }
         Jedis jedis = null;
@@ -146,7 +146,7 @@ public class PropertyStoreRedis extends AbstractPropertyStore {
     }
 
     /** {@inheritDoc} */
-    public Property<?> readProperty(String name) {
+    public Property<?> findById(String name) {
         assertPropertyExist(name);
         Jedis jedis = null;
         try {
@@ -160,7 +160,7 @@ public class PropertyStoreRedis extends AbstractPropertyStore {
     }  
 
     /** {@inheritDoc} */
-    public void deleteProperty(String name) {
+    public void delete(String name) {
         assertPropertyExist(name);
         Jedis jedis = null;
         try {
@@ -174,7 +174,7 @@ public class PropertyStoreRedis extends AbstractPropertyStore {
     }
 
     /** {@inheritDoc} */
-    public Map<String, Property<?>> readAllProperties() {
+    public Map<String, Property<?>> findAll() {
         LinkedHashMap<String, Property<?>> mapP = new LinkedHashMap<String, Property<?>>();
         Jedis jedis = null;
         try {
@@ -183,7 +183,7 @@ public class PropertyStoreRedis extends AbstractPropertyStore {
             if (myKeys != null) {
                 for (String key : myKeys) {
                     key = key.replaceAll(KEY_PROPERTY, "");
-                    mapP.put(key, readProperty(key));
+                    mapP.put(key, findById(key));
                 }
             }
             return mapP;

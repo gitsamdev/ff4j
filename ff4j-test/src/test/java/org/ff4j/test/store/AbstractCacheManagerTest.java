@@ -20,7 +20,7 @@ package org.ff4j.test.store;
  * #L%
  */
 
-import org.ff4j.cache.FF4JCacheManager;
+import org.ff4j.cache.FF4jCacheManager;
 import org.ff4j.cache.InMemoryCacheManager;
 import org.ff4j.store.FeatureStore;
 import org.ff4j.store.PropertyStore;
@@ -39,7 +39,7 @@ public class AbstractCacheManagerTest {
     @Test
     public void testAbstractCacheManagerForCoverage() {
         AbstractCacheManagerJUnitTest ac = new AbstractCacheManagerJUnitTest() {
-            protected FF4JCacheManager getCacheManager() {
+            protected FF4jCacheManager getCacheManager() {
                 return new InMemoryCacheManager();
             }
         };

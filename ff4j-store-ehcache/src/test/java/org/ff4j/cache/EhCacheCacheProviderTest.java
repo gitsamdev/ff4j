@@ -41,7 +41,7 @@ import net.sf.ehcache.config.Configuration;
 public class EhCacheCacheProviderTest extends FeatureStoreTestSupport {
 
     /** Cache Manager. */
-    private final FF4JCacheManager cache = new FeatureCacheProviderEhCache();
+    private final FF4jCacheManager cache = new FeatureCacheProviderEhCache();
     
     private FeatureStore  store  = new InMemoryFeatureStore("test-ehcacheProvider.xml");
     

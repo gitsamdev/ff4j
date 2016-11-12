@@ -175,10 +175,10 @@ public class ConsoleServlet extends HttpServlet {
                 
                 // Work on a feature ID
                 if ((featureId != null) && (!featureId.isEmpty())) {
-                    if (getFf4j().getFeatureStore().exist(featureId)) {
+                    if (getFf4j().getFeatureStore().exists(featureId)) {
                         message = workWithFeature(res, operation, featureId);
                     }
-                    if (getFf4j().getPropertiesStore().existProperty(featureId)) {
+                    if (getFf4j().getPropertiesStore().exists(featureId)) {
                         message = workWithProperties(res, req, operation, featureId);
                     }
                 }
@@ -215,27 +215,27 @@ public class ConsoleServlet extends HttpServlet {
     throws IOException {
         String message = null;
         if (OP_RMV_PROPERTY.equalsIgnoreCase(operation)) {
-            getFf4j().getPropertiesStore().deleteProperty(uid);
+            getFf4j().getPropertiesStore().delete(uid);
             LOGGER.info("Property '" + uid + "' has been deleted");
             message = renderMsgProperty(uid, "DELETED");
         }
         
         if (OP_READ_PROPERTY.equalsIgnoreCase(operation)) {
-            Property<?> ap = getFf4j().getPropertiesStore().readProperty(uid);
+            Property<?> ap = getFf4j().getPropertiesStore().findById(uid);
             res.setContentType(CONTENT_TYPE_JSON);
             res.getWriter().println(ap.toString());
         }
         
         if (OP_DELETE_FIXEDVALUE.equalsIgnoreCase(operation)) {
             String fixedValue = req.getParameter(PARAM_FIXEDVALUE);
-            Property<?> ap = getFf4j().getPropertiesStore().readProperty(uid);
+            Property<?> ap = getFf4j().getPropertiesStore().findById(uid);
             ap.getFixedValues().remove(fixedValue);
             getFf4j().getPropertiesStore().updateProperty(ap);
         }
         
         if (OP_ADD_FIXEDVALUE.equalsIgnoreCase(operation)) {
             String fixedValue = req.getParameter(PARAM_FIXEDVALUE);
-            Property<?> ap = getFf4j().getPropertiesStore().readProperty(uid);
+            Property<?> ap = getFf4j().getPropertiesStore().findById(uid);
             ap.add2FixedValueFromString(fixedValue);
             getFf4j().getPropertiesStore().updateProperty(ap);
         }
@@ -272,7 +272,7 @@ public class ConsoleServlet extends HttpServlet {
         }
         
         if (OP_READ_FEATURE.equalsIgnoreCase(operation)) {
-            Feature f = getFf4j().getFeatureStore().read(uid);
+            Feature f = getFf4j().getFeatureStore().findById(uid);
             res.setContentType(CONTENT_TYPE_JSON);
             res.getWriter().println(f.toJson());
         }

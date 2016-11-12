@@ -80,7 +80,7 @@ public class FeatureStoreOverPropertyStore extends  AbstractFeatureStore {
     @Override
     public void enable(String uid) {
         assertFeatureExist(uid);
-        PropertyFeature prop = (PropertyFeature) propertyStore.readProperty(uid);
+        PropertyFeature prop = (PropertyFeature) propertyStore.findById(uid);
         prop.getValue().toggleOn();
         propertyStore.updateProperty(uid, prop.getValue().toJson());
     }
@@ -89,7 +89,7 @@ public class FeatureStoreOverPropertyStore extends  AbstractFeatureStore {
     @Override
     public void disable(String uid) {
         assertFeatureExist(uid);
-        PropertyFeature prop = (PropertyFeature) propertyStore.readProperty(uid);
+        PropertyFeature prop = (PropertyFeature) propertyStore.findById(uid);
         prop.getValue().toggleOff();
         propertyStore.updateProperty(uid, prop.getValue().toJson());
     }
@@ -97,7 +97,7 @@ public class FeatureStoreOverPropertyStore extends  AbstractFeatureStore {
     /** {@inheritDoc} */
     @Override
     public boolean exist(String uid) {
-        return propertyStore.existProperty(uid);
+        return propertyStore.exists(uid);
     }
 
     /** {@inheritDoc} */
@@ -105,18 +105,18 @@ public class FeatureStoreOverPropertyStore extends  AbstractFeatureStore {
     public void create(Feature feature) {
         assertFeatureNotNull(feature);
         assertFeatureNotExist(feature.getUid());
-        propertyStore.createProperty(new PropertyFeature(feature));
+        propertyStore.create(new PropertyFeature(feature));
     }
 
     /** {@inheritDoc} */
     @Override
-    public Feature read(String uid) {
+    public Feature findById(String uid) {
         
         return null;
     }
 
     @Override
-    public Map<String, Feature> readAll() {
+    public Map<String, Feature> findAll() {
         // TODO Auto-generated method stub
         return null;
     }

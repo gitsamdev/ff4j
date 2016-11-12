@@ -80,10 +80,10 @@ public class InMemoryCacheTest extends CoreFeatureStoreTestSupport {
         FF4jCacheProxy fscp = new FF4jCacheProxy(
                 new FeatureStoreInMemory("ff4j.xml"), null,  
                 new InMemoryCacheManager());
-        Assert.assertFalse(fscp.exist("toto"));
-        Assert.assertFalse(fscp.exist("toto"));
-        Assert.assertTrue(fscp.exist("first"));
-        Assert.assertTrue(fscp.exist("first"));
+        Assert.assertFalse(fscp.exists("toto"));
+        Assert.assertFalse(fscp.exists("toto"));
+        Assert.assertTrue(fscp.exists("first"));
+        Assert.assertTrue(fscp.exists("first"));
     }
     
     @Test

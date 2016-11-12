@@ -109,14 +109,14 @@ public class PropertyStoreInMemory extends AbstractPropertyStore {
     
     /** {@inheritDoc} */
     @Override
-    public boolean existProperty(String name) {
+    public boolean exists(String name) {
         Util.assertHasLength(name);
         return properties.containsKey(name);
     }
     
     /** {@inheritDoc} */
     @Override
-    public <T> void createProperty(Property<T> value) {
+    public <T> void create(Property<T> value) {
         // Check Params
         assertPropertyNotNull(value);
         assertPropertyNotExist(value.getUid());
@@ -126,14 +126,14 @@ public class PropertyStoreInMemory extends AbstractPropertyStore {
 
     /** {@inheritDoc} */
     @Override
-    public Property<?> readProperty(String name) {
+    public Property<?> findById(String name) {
         assertPropertyExist(name);
         return properties.get(name);
     }
     
     /** {@inheritDoc} */
     @Override
-    public void deleteProperty(String name) {
+    public void delete(String name) {
         assertPropertyExist(name);
         // Delete
         properties.remove(name);
@@ -158,7 +158,7 @@ public class PropertyStoreInMemory extends AbstractPropertyStore {
     
     /** {@inheritDoc} */
     @Override
-    public Map<String, Property<?>> readAllProperties() {
+    public Map<String, Property<?>> findAll() {
        return properties;
     }
 

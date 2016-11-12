@@ -59,14 +59,14 @@ public class PropertyStoreJCache extends AbstractPropertyStore {
     
     /** {@inheritDoc} */
     @Override
-    public boolean existProperty(String name) {
+    public boolean exists(String name) {
         Util.assertParamHasLength(name, "Property name");
         return getCacheManager().getProperty(name) != null;
     }
 
     /** {@inheritDoc} */
     @Override
-    public <T> void createProperty(Property<T> property) {
+    public <T> void create(Property<T> property) {
         assertPropertyNotNull(property);
         assertPropertyNotExist(property.getUid());
         getCacheManager().putProperty(property);
@@ -74,7 +74,7 @@ public class PropertyStoreJCache extends AbstractPropertyStore {
 
     /** {@inheritDoc} */
     @Override
-    public Property<?> readProperty(String uid) {
+    public Property<?> findById(String uid) {
         assertPropertyExist(uid);
         return getCacheManager().getProperty(uid);
     }
@@ -82,7 +82,7 @@ public class PropertyStoreJCache extends AbstractPropertyStore {
     /** {@inheritDoc} */
     @Override
     public void updateProperty(String name, String newValue) {
-        Property<?> fp = readProperty(name);
+        Property<?> fp = findById(name);
         fp.setValueFromString(newValue);
         updateProperty(fp);
     }
@@ -97,8 +97,8 @@ public class PropertyStoreJCache extends AbstractPropertyStore {
 
     /** {@inheritDoc} */
     @Override
-    public void deleteProperty(String name) {
-        if (!existProperty(name)) {
+    public void delete(String name) {
+        if (!exists(name)) {
             throw new PropertyNotFoundException(name);
         }
         getCacheManager().evictProperty(name);
@@ -106,7 +106,7 @@ public class PropertyStoreJCache extends AbstractPropertyStore {
 
     /** {@inheritDoc} */
     @Override
-    public Map<String, Property<?>> readAllProperties() {
+    public Map<String, Property<?>> findAll() {
         Map<String, Property<?>> myMap = new HashMap<>();
         getCacheManager().getPropertiesCache().forEach(e->myMap.put(e.getKey(), e.getValue()));
         return myMap;

@@ -144,7 +144,7 @@ public class JdbcFeatureDataSourceTest extends CoreFeatureStoreTestSupport {
     public void testDS() throws SQLException {
         DataSource test = Mockito.mock(DataSource.class);
         doThrow(new SQLException()).when(test).getConnection();
-        Assert.assertFalse(ff4j.getFeatureStore().exist("I-DONT-EXIST"));
+        Assert.assertFalse(ff4j.getFeatureStore().exists("I-DONT-EXIST"));
     }
 
 }

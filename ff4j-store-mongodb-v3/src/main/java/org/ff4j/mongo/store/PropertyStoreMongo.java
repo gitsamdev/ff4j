@@ -152,7 +152,7 @@ public class PropertyStoreMongo extends AbstractPropertyStore {
         if (prop == null) {
             throw new IllegalArgumentException("Property cannot be null nor empty");
         }
-        if (existProperty(prop.getName())) {
+        if (exists(prop.getName())) {
             throw new PropertyAlreadyExistException(prop.getName());
         }
         getPropertiesCollection().insertOne(PMAPPER.toStore(prop));
@@ -189,7 +189,7 @@ public class PropertyStoreMongo extends AbstractPropertyStore {
     public <T> void updateProperty(Property<T> prop) {
         Util.assertNotNull(prop);
         // Delete
-        deleteProperty(prop.getName());
+        delete(prop.getName());
         // Create
         createProperty(prop);
     }

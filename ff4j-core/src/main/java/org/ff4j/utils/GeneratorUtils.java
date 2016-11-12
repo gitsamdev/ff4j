@@ -27,11 +27,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Map;
 
 import org.ff4j.FF4j;
-import org.ff4j.feature.Feature;
-import org.ff4j.property.Property;
 
 /**
  * Generation of Java Interface.
@@ -73,32 +70,29 @@ public class GeneratorUtils {
         sb.append("\r\n   //  Features ");
         sb.append("\r\n   // -------------------------");
         sb.append("\r\n");
-        for (Map.Entry<String, Feature> feat : ff4j.getFeatureStore().readAll().entrySet()) {
-            sb.append("\r\n   /* Feature '" + feat.getKey() + "' : '" + feat.getValue().getDescription() + "' */");
-            sb.append("\r\n   String FEATURE_" + feat.getKey().replaceAll(" ", "_").toUpperCase() + " = \"" + feat.getKey()
-                    + "\";");
+        ff4j.getFeatureStore().findAll().forEach(f -> {
+            sb.append("\r\n   /* Feature '" + f.getUid() + "' : '" + f.getDescription().orElse("") + "' */");
+            sb.append("\r\n   String FEATURE_" + f.getUid().replaceAll(" ", "_").toUpperCase() + " = \"" + f.getUid() + "\";");
             sb.append("\r\n");
-        }
+        });
         sb.append("\r\n   // -------------------------");
         sb.append("\r\n   //  Groups ");
         sb.append("\r\n   // -------------------------");
         sb.append("\r\n");
-        for (String groupName : ff4j.getFeatureStore().readAllGroups()) {
-            sb.append("\r\n   /* Group '" + groupName + "' */");
-            sb.append(
-                    "\r\n   String FEATURE_GROUP_" + groupName.replaceAll(" ", "_").toUpperCase() + " = \"" + groupName + "\";");
+        ff4j.getFeatureStore().readAllGroups().forEach(g -> {
+            sb.append("\r\n   /* Group '" + g + "' */");
+            sb.append("\r\n   String FEATURE_GROUP_" + g.replaceAll(" ", "_").toUpperCase() + " = \"" + g + "\";");
             sb.append("\r\n");
-        }
+        });
         sb.append("\r\n   // -------------------------");
         sb.append("\r\n   //  Properties ");
         sb.append("\r\n   // -------------------------");
         sb.append("\r\n");
-        for (Map.Entry<String, Property<?>> prop : ff4j.getPropertiesStore().readAllProperties().entrySet()) {
-            sb.append("\r\n   /* Property '" + prop.getKey() + "' : '" + prop.getValue().getDescription() + "' */");
-            sb.append("\r\n   String PROPERTY_" + prop.getKey().replaceAll(" ", "_").toUpperCase() + " = \"" + prop.getKey()
-                    + "\";");
+        ff4j.getPropertiesStore().findAll().forEach(p -> {
+            sb.append("\r\n   /* Property '" + p.getUid() + "' : '" + p.getDescription().orElse("") + "' */");
+            sb.append("\r\n   String PROPERTY_" + p.getUid().replaceAll(" ", "_").toUpperCase() + " = \"" + p.getUid() + "\";");
             sb.append("\r\n");
-        }
+        });
         sb.append("\r\n}");
         return sb.toString();      
     }

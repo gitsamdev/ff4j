@@ -210,8 +210,8 @@ public class OperationsController extends AbstractController {
         res.setContentType(CONTENT_TYPE_JSON);
         if (pathParts.length > 3) {
             String featureId   = pathParts[3];
-            if (getFf4j().getFeatureStore().exist(featureId)) {
-                Feature f = getFf4j().getFeatureStore().read(featureId);
+            if (getFf4j().getFeatureStore().exists(featureId)) {
+                Feature f = getFf4j().getFeatureStore().findById(featureId);
                 res.getWriter().println(f.toJson());
             } else {
 
@@ -219,7 +219,7 @@ public class OperationsController extends AbstractController {
                 res.getWriter().println("Feature " + featureId + " does not exist in feature store." );
             }
         } else {
-            Map< String, Feature > mapOfFeatures = getFf4j().getFeatureStore().readAll();
+            Map< String, Feature > mapOfFeatures = getFf4j().getFeatureStore().findAll();
             StringBuilder sb = new StringBuilder("[");
             boolean first = true;
             for (Feature feature : mapOfFeatures.values()) {
@@ -248,15 +248,15 @@ public class OperationsController extends AbstractController {
         res.setContentType(CONTENT_TYPE_JSON);
         if (pathParts.length > 3) {
             String propertyName   = pathParts[3];
-            if (getFf4j().getPropertiesStore().existProperty(propertyName)) {
-                Property<?> p = getFf4j().getPropertiesStore().readProperty(propertyName);
+            if (getFf4j().getPropertiesStore().exists(propertyName)) {
+                Property<?> p = getFf4j().getPropertiesStore().findById(propertyName);
                 res.getWriter().println(p.toJson());
             } else {
                 res.setStatus(WebConstants.STATUS_NOT_FOUND);
                 res.getWriter().println("Property " + propertyName + " does not exist in property store." );
             }
         } else {
-            Map< String, Property<?> > mapOfFeatures = getFf4j().getPropertiesStore().readAllProperties();
+            Map< String, Property<?> > mapOfFeatures = getFf4j().getPropertiesStore().findAll();
             StringBuilder sb = new StringBuilder("[");
             boolean first = true;
             for (Property<?> myProperty : mapOfFeatures.values()) {

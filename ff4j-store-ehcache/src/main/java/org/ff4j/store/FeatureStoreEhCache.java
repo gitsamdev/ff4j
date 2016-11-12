@@ -78,7 +78,7 @@ public class FeatureStoreEhCache extends AbstractFeatureStore {
     
     /** {@inheritDoc} */
     @Override
-    public Feature read(String uid) {
+    public Feature findById(String uid) {
         if (!exist(uid)) {
             throw new FeatureNotFoundException(uid);
         }
@@ -91,7 +91,7 @@ public class FeatureStoreEhCache extends AbstractFeatureStore {
         if (fp == null) {
             throw new IllegalArgumentException("Feature cannot be null");
         }
-        if (!exist(fp.getUid())) {
+        if (!exists(fp.getUid())) {
             throw new FeatureNotFoundException(fp.getUid());
         }
         getCache().put(new Element(fp.getUid(), fp));
@@ -101,7 +101,7 @@ public class FeatureStoreEhCache extends AbstractFeatureStore {
     @Override
     public void enable(String uid) {
         // Read from redis, feature not found if no present
-        Feature f = read(uid);
+        Feature f = findById(uid);
         // Update within Object
         f.enable();
         // Serialization and update key, update TTL
@@ -112,7 +112,7 @@ public class FeatureStoreEhCache extends AbstractFeatureStore {
     @Override
     public void disable(String uid) {
         // Read from redis, feature not found if no present
-        Feature f = read(uid);
+        Feature f = findById(uid);
         // Update within Object
         f.disable();
         // Serialization and update key, update TTL
@@ -125,7 +125,7 @@ public class FeatureStoreEhCache extends AbstractFeatureStore {
         if (fp == null) {
             throw new IllegalArgumentException("Feature cannot be null nor empty");
         }
-        if (exist(fp.getUid())) {
+        if (exists(fp.getUid())) {
             throw new FeatureAlreadyExistException(fp.getUid());
         }
         getCache().put(new Element(fp.getUid(), fp));
@@ -133,7 +133,7 @@ public class FeatureStoreEhCache extends AbstractFeatureStore {
 
     /** {@inheritDoc} */
     @Override
-    public Map<String, Feature> readAll() {
+    public Map<String, Feature> findAll() {
         Map<String, Feature> myMap = new HashMap<String, Feature>();
         if (getCache().getKeys() != null) {
             for (Object key : getCache().getKeys()) {
@@ -161,7 +161,7 @@ public class FeatureStoreEhCache extends AbstractFeatureStore {
     public void grantRoleOnFeature(String flipId, String roleName) {
         Util.assertParamHasLength(roleName, "roleName (#2)");
         // retrieve
-        Feature f = read(flipId);
+        Feature f = findById(flipId);
         // modify
         f.getPermissions().add(roleName);
         // persist modification
@@ -173,7 +173,7 @@ public class FeatureStoreEhCache extends AbstractFeatureStore {
     public void removeRoleFromFeature(String flipId, String roleName) {
         Util.assertParamHasLength(roleName, "roleName (#2)");
         // retrieve
-        Feature f = read(flipId);
+        Feature f = findById(flipId);
         f.getPermissions().remove(roleName);
         // persist modification
         update(f);
@@ -183,7 +183,7 @@ public class FeatureStoreEhCache extends AbstractFeatureStore {
     @Override
     public Map<String, Feature> readGroup(String groupName) {
         Util.assertParamHasLength(groupName, "groupName");
-        Map < String, Feature > features = readAll();
+        Map < String, Feature > features = findAll();
         Map < String, Feature > group = new HashMap<String, Feature>();
         for (Map.Entry<String,Feature> uid : features.entrySet()) {
             if (groupName.equals(uid.getValue().getGroup())) {
@@ -200,7 +200,7 @@ public class FeatureStoreEhCache extends AbstractFeatureStore {
     @Override
     public boolean existGroup(String groupName) {
         Util.assertParamHasLength(groupName, "groupName");
-        Map < String, Feature > features = readAll();
+        Map < String, Feature > features = findAll();
         Map < String, Feature > group = new HashMap<String, Feature>();
         for (Map.Entry<String,Feature> uid : features.entrySet()) {
             if (groupName.equals(uid.getValue().getGroup())) {
@@ -235,7 +235,7 @@ public class FeatureStoreEhCache extends AbstractFeatureStore {
     public void addToGroup(String featureId, String groupName) {
         Util.assertParamHasLength(groupName, "groupName (#2)");
         // retrieve
-        Feature f = read(featureId);
+        Feature f = findById(featureId);
         f.setGroup(groupName);
         // persist modification
         update(f);
@@ -249,7 +249,7 @@ public class FeatureStoreEhCache extends AbstractFeatureStore {
             throw new GroupNotFoundException(groupName);
         }
         // retrieve
-        Feature f = read(featureId);
+        Feature f = findById(featureId);
         f.setGroup(null);
         // persist modification
         update(f);
@@ -258,7 +258,7 @@ public class FeatureStoreEhCache extends AbstractFeatureStore {
     /** {@inheritDoc} */
     @Override
     public Set<String> readAllGroups() {
-        Map < String, Feature > features = readAll();
+        Map < String, Feature > features = findAll();
         Set < String > groups = new HashSet<String>();
         for (Map.Entry<String,Feature> uid : features.entrySet()) {
             groups.add(uid.getValue().getGroup());

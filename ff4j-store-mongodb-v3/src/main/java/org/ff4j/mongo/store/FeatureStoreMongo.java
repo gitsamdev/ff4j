@@ -183,7 +183,7 @@ public class FeatureStoreMongo extends AbstractFeatureStore {
 
     /** {@inheritDoc} */
     @Override
-    public Feature read(String uid) {
+    public Feature findById(String uid) {
         if (uid == null || uid.isEmpty()) {
             throw new IllegalArgumentException(FEATURE_IDENTIFIER_CANNOT_BE_NULL_NOR_EMPTY);
         }
@@ -200,7 +200,7 @@ public class FeatureStoreMongo extends AbstractFeatureStore {
         if (fp == null) {
             throw new IllegalArgumentException("Feature cannot be null nor empty");
         }
-        if (exist(fp.getUid())) {
+        if (exists(fp.getUid())) {
             throw new FeatureAlreadyExistException(fp.getUid());
         }
         getFeaturesCollection().insertOne(FMAPPER.toStore(fp));
@@ -250,7 +250,7 @@ public class FeatureStoreMongo extends AbstractFeatureStore {
 
     /** {@inheritDoc} */
     @Override
-    public Map<String, Feature> readAll() {
+    public Map<String, Feature> findAll() {
         LinkedHashMap<String, Feature> mapFP = new LinkedHashMap<String, Feature>();
         for(Document document : getFeaturesCollection().find()) {
             Feature feature = FMAPPER.fromStore(document);
@@ -265,7 +265,7 @@ public class FeatureStoreMongo extends AbstractFeatureStore {
         if (fp == null) {
             throw new IllegalArgumentException("Feature cannot be null nor empty");
         }
-        read(fp.getUid());
+        findById(fp.getUid());
         getFeaturesCollection().updateOne(BUILDER.getFeatUid(fp.getUid()), new Document(MONGO_SET, FMAPPER.toStore(fp)));
     }
 

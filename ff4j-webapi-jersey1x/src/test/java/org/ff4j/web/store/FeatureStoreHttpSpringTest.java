@@ -104,7 +104,7 @@ public class FeatureStoreHttpSpringTest extends FeatureStoreTestSupport {
         // When
         testedStore.update(new Feature(F1, false, null));
         // Then
-        Assert.assertTrue(testedStore.read(F1).getPermissions().isEmpty());
+        Assert.assertTrue(testedStore.findById(F1).getPermissions().isEmpty());
     }
 
     /**

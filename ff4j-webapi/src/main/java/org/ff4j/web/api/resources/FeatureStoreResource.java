@@ -84,7 +84,7 @@ public class FeatureStoreResource extends AbstractResource {
     @ApiOperation(value= "Display information regarding <b>Features</b>", response=FeatureApiBean.class)
     @ApiResponses(@ApiResponse(code = 200, message= "get all features"))
     public List < FeatureApiBean> readFeatures() {
-        Feature[] storeContent = getFeatureStore().readAll().values().toArray(new Feature[0]);
+        Feature[] storeContent = getFeatureStore().findAll().values().toArray(new Feature[0]);
         List < FeatureApiBean > apiBean = new ArrayList<FeatureApiBean>();
         for (Feature feature : storeContent) {
             apiBean.add(new FeatureApiBean(feature));
@@ -103,7 +103,7 @@ public class FeatureStoreResource extends AbstractResource {
     @ApiOperation(value= "Display information regarding <b>Groups</b>", response=GroupDescApiBean.class)
     @ApiResponses({@ApiResponse(code = 200, message="Groups resource", response=GroupDescApiBean.class)})
     public List < GroupDescApiBean > readGroups() {
-        Map< String, Feature > features = getFeatureStore().readAll();
+        Map< String, Feature > features = getFeatureStore().findAll();
         Map< String , GroupDescApiBean > groups = new HashMap<String, GroupDescApiBean>();
         if (features != null && !features.isEmpty()) {
             // Build groups from features

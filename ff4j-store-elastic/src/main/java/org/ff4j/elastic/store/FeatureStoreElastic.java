@@ -102,7 +102,7 @@ public class FeatureStoreElastic extends AbstractFeatureStore {
 
     /** {@inheritDoc} */
     @Override
-    public Feature read(String uid) {
+    public Feature findById(String uid) {
         assertFeatureExist(uid);
         // first hit is ensured as feature exist
         return getConnection().search(
@@ -111,7 +111,7 @@ public class FeatureStoreElastic extends AbstractFeatureStore {
 
     /** {@inheritDoc} */
     @Override
-    public Map<String, Feature> readAll() {
+    public Map<String, Feature> findAll() {
 
         SearchResult result = getConnection().search(getBuilder().queryReadAllFeatures(), true);
 
@@ -145,7 +145,7 @@ public class FeatureStoreElastic extends AbstractFeatureStore {
         assertFeatureExist(flipId);
         Util.assertHasLength(roleName);
 
-        Feature feature = read(flipId);
+        Feature feature = findById(flipId);
         feature.getPermissions().add(roleName);
         getConnection().execute(getBuilder().queryUpdateFeature(feature));
     }
@@ -156,7 +156,7 @@ public class FeatureStoreElastic extends AbstractFeatureStore {
         assertFeatureExist(flipId);
         Util.assertHasLength(roleName);
 
-        Feature feature = read(flipId);
+        Feature feature = findById(flipId);
         feature.getPermissions().remove(roleName);
         getConnection().execute(getBuilder().queryUpdateFeature(feature));
     }
@@ -221,7 +221,7 @@ public class FeatureStoreElastic extends AbstractFeatureStore {
     @Override
     public Set<String> readAllGroups() {
         Set<String> groups = new HashSet<String>();
-        for (Map.Entry<String, Feature> entry : readAll().entrySet()) {
+        for (Map.Entry<String, Feature> entry : findAll().entrySet()) {
             if (null != entry.getValue().getGroup()) {
                 groups.add(entry.getValue().getGroup());
             }

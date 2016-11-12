@@ -49,7 +49,7 @@ public class FeatureServices {
 
     public FeatureApiBean getFeature(String featureUID) {
         featureValidator.assertFeatureExists(featureUID);
-        return new FeatureApiBean(ff4j.getFeatureStore().read(featureUID));
+        return new FeatureApiBean(ff4j.getFeatureStore().findById(featureUID));
     }
 
     public FeatureActions createOrUpdateFeature(String featureUID, FeatureApiBean featureApiBean) {
@@ -62,7 +62,7 @@ public class FeatureServices {
         feature.setPermissions(new HashSet<String>(featureApiBean.getPermissions()));
         initFlippingStrategy(featureApiBean, feature);
         initProperties(featureApiBean, feature);
-        if (ff4j.getFeatureStore().exist(featureUID)) {
+        if (ff4j.getFeatureStore().exists(featureUID)) {
             ff4j.getFeatureStore().update(feature);
             return FeatureActions.UPDATED;
         } else {

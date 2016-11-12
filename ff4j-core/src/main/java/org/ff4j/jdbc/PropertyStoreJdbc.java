@@ -99,7 +99,7 @@ public class PropertyStoreJdbc extends AbstractPropertyStore {
     }
      
     /** {@inheritDoc} */
-    public boolean existProperty(String name) {
+    public boolean exists(String name) {
         Util.assertHasLength(name);
         PreparedStatement  ps = null;
         ResultSet          rs = null;
@@ -120,13 +120,13 @@ public class PropertyStoreJdbc extends AbstractPropertyStore {
     }
 
     /** {@inheritDoc} */
-    public <T> void createProperty(Property<T> ap) {
+    public <T> void create(Property<T> ap) {
         Util.assertNotNull(ap);
         Connection sqlConn = null;
         PreparedStatement ps = null;
         try {
             sqlConn = getDataSource().getConnection();
-            if (existProperty(ap.getUid())) {
+            if (exists(ap.getUid())) {
                 throw new PropertyAlreadyExistException(ap.getUid());
             }
             ps = sqlConn.prepareStatement(getQueryBuilder().createProperty());
@@ -151,14 +151,14 @@ public class PropertyStoreJdbc extends AbstractPropertyStore {
     }
 
     /** {@inheritDoc} */
-    public Property<?> readProperty(String name) {
+    public Property<?> findById(String name) {
         Util.assertHasLength(name);
         Connection   sqlConn = null;
         PreparedStatement ps = null;
         ResultSet         rs = null;
         try {
             sqlConn = getDataSource().getConnection();
-            if (!existProperty(name)) {
+            if (!exists(name)) {
                 throw new PropertyNotFoundException(name);
             }
             // Returns features
@@ -183,7 +183,7 @@ public class PropertyStoreJdbc extends AbstractPropertyStore {
         try {
             sqlConn = getDataSource().getConnection();
             // Check existence
-            Property<?> ab = readProperty(name);
+            Property<?> ab = findById(name);
             // Check new value validity
             ab.fromString(newValue);
             ps = buildStatement(sqlConn, getQueryBuilder().updateProperty(), newValue, name);
@@ -201,18 +201,18 @@ public class PropertyStoreJdbc extends AbstractPropertyStore {
         if (prop == null || prop.getUid() == null) {
             throw new IllegalArgumentException("Cannot update property, please provide property name");
         }
-        deleteProperty(prop.getUid());
-        createProperty(prop);
+        delete(prop.getUid());
+        create(prop);
     }
    
     /** {@inheritDoc} */
-    public void deleteProperty(String name) {
+    public void delete(String name) {
         Util.assertHasLength(name);
         Connection   sqlConn = null;
         PreparedStatement ps = null;
         try {
             sqlConn = getDataSource().getConnection();
-            if (!existProperty(name)) {
+            if (!exists(name)) {
                 throw new PropertyNotFoundException(name);
             }
             ps = buildStatement(sqlConn, getQueryBuilder().deleteProperty(), name);
@@ -227,7 +227,7 @@ public class PropertyStoreJdbc extends AbstractPropertyStore {
     
     /** {@inheritDoc} */
     @Override
-    public Map<String, Property<?>> readAllProperties() {
+    public Map<String, Property<?>> findAll() {
         Map<String, Property<?>> properties = new LinkedHashMap<String, Property<?>>();
         Connection   sqlConn = null;
         PreparedStatement ps = null;

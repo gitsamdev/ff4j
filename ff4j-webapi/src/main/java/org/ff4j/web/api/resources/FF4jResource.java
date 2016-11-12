@@ -118,7 +118,7 @@ public class FF4jResource extends AbstractResource {
         FF4JSecurityContextHolder.save(securityContext);
         
         // Expected Custom FlipStrategy (JSON)
-        if (!ff4j.getFeatureStore().exist(uid)) {
+        if (!ff4j.getFeatureStore().exists(uid)) {
             String errMsg = new FeatureNotFoundException(uid).getMessage();
             return Response.status(Response.Status.NOT_FOUND).entity(errMsg).build();
         }
@@ -144,7 +144,7 @@ public class FF4jResource extends AbstractResource {
     public Response checkPOST(@Context HttpHeaders headers, @PathParam("uid") String uid, MultivaluedMap<String, String> formParams) {
         // HoldSecurity Context
         FF4JSecurityContextHolder.save(securityContext);
-        if (!ff4j.getFeatureStore().exist(uid)) {
+        if (!ff4j.getFeatureStore().exists(uid)) {
             String errMsg = new FeatureNotFoundException(uid).getMessage();
             return Response.status(Response.Status.NOT_FOUND).entity(errMsg).build();
        }

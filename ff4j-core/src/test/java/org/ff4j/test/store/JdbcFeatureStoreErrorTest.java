@@ -79,7 +79,7 @@ public class JdbcFeatureStoreErrorTest {
         // Exist goes before
         FeatureStoreJdbc jrepo = new FeatureStoreJdbc(mockDS);
         jrepo.setDataSource(mockDS);
-        jrepo.read("xx");
+        jrepo.findById("xx");
     }
     
     @Test(expected = FeatureAccessException.class)
@@ -115,7 +115,7 @@ public class JdbcFeatureStoreErrorTest {
         doThrow(new SQLException()).when(mockDS).getConnection();
         FeatureStoreJdbc jrepo = new FeatureStoreJdbc(mockDS);
         jrepo.setDataSource(mockDS);
-        jrepo.readAll();
+        jrepo.findAll();
     }
     
     @Test(expected = FeatureAccessException.class)

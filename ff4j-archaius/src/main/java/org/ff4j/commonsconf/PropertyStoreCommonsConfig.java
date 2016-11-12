@@ -78,15 +78,15 @@ public class PropertyStoreCommonsConfig extends AbstractPropertyStore {
     
     /** {@inheritDoc} */
     @Override
-    public boolean existProperty(String name) {
+    public boolean exists(String name) {
         Util.assertHasLength(name);
         return conf().containsKey(name);
     }
     
     /** {@inheritDoc} */
     @Override
-    public void deleteProperty(String name) {
-        if (!existProperty(name)) {
+    public void delete(String name) {
+        if (!exists(name)) {
             throw new PropertyNotFoundException(name);
         }
         conf().clearProperty(name);
@@ -104,10 +104,10 @@ public class PropertyStoreCommonsConfig extends AbstractPropertyStore {
 
     /** {@inheritDoc} */
     @Override
-    public <T> void createProperty(Property<T> value) {
+    public <T> void create(Property<T> value) {
         Util.assertNotNull(value);
         Util.hasLength(value.getUid());
-        if (existProperty(value.getUid())) {
+        if (exists(value.getUid())) {
             throw new PropertyAlreadyExistException(value.getUid());
         }
         conf().addProperty(value.getUid(), value.asString());
@@ -115,7 +115,7 @@ public class PropertyStoreCommonsConfig extends AbstractPropertyStore {
 
     /** {@inheritDoc} */
     @Override
-    public Property<?> readProperty(String name) {
+    public Property<?> findById(String name) {
         Util.assertHasLength(name);
         if ("g".equals(name)) {
             System.out.println("x");
@@ -129,12 +129,12 @@ public class PropertyStoreCommonsConfig extends AbstractPropertyStore {
 
     /** {@inheritDoc} */
     @Override
-    public Map<String, Property<?>> readAllProperties() {
+    public Map<String, Property<?>> findAll() {
         Map<String, Property<?>> props = new HashMap<String, Property<?>>();
         Iterator<String > iterKeys = conf().getKeys();
         while(iterKeys.hasNext()) {
             String currentKey = iterKeys.next();
-            props.put(currentKey, readProperty(currentKey));
+            props.put(currentKey, findById(currentKey));
         }
         return props;
     }

@@ -54,7 +54,7 @@ public class FeatureStoreEhCacheTest extends FeatureStoreTestSupport {
      */
     @After
     public void cleanStore() {
-        Map < String, Feature > f = testedStore.readAll();
+        Map < String, Feature > f = testedStore.findAll();
         for (String key : f.keySet()) {
             testedStore.delete(key);
         }

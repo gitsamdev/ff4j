@@ -110,7 +110,7 @@ public class FeatureStoreSpringJdbc extends AbstractFeatureStore {
     }
 
     /** {@inheritDoc} */
-    public Feature read(String uid) {
+    public Feature findById(String uid) {
         Util.assertHasLength(uid);
         try {
             Feature feature = getJdbcTemplate().queryForObject(
@@ -152,7 +152,7 @@ public class FeatureStoreSpringJdbc extends AbstractFeatureStore {
     @Transactional
     public void create(Feature fp) {
         Util.assertNotNull(fp);
-        if (exist(fp.getUid())) {
+        if (exists(fp.getUid())) {
             throw new FeatureAlreadyExistException(fp.getUid());
         }
         createCoreFeature(fp);
@@ -364,7 +364,7 @@ public class FeatureStoreSpringJdbc extends AbstractFeatureStore {
     }
 
     /** {@inheritDoc} */
-    public Map<String, Feature> readAll() {
+    public Map<String, Feature> findAll() {
         LinkedHashMap<String, Feature> mapFP = new LinkedHashMap<String, Feature>();
         List<Feature> lFp = getJdbcTemplate().query(getQueryBuilder().getAllFeatures(), FMAPPER);
         for (Feature flipPoint : lFp) {

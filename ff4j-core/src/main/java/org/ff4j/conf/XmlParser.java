@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Stream;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -169,6 +170,8 @@ public final class XmlParser {
     
     /** XML Generation constants. */
     private static final String END_FF4J = "</ff4j>\n\n";
+    
+    /** Error message. */
     public static final String ERROR_SYNTAX_IN_CONFIGURATION_FILE = "Error syntax in configuration file : ";
 
     /** Document Builder use to parse XML. */
@@ -493,7 +496,7 @@ public final class XmlParser {
      * @throws IOException
      *             error occurs when generating output
      */
-    public InputStream exportFeatures(Map<String, Feature> mapOfFeatures) throws IOException {    
+    public InputStream exportFeatures(Stream < Feature> mapOfFeatures) throws IOException {    
         return new ByteArrayInputStream(exportFeaturesPart(mapOfFeatures).getBytes(ENCODING));
     }
     
@@ -506,7 +509,7 @@ public final class XmlParser {
      * @throws IOException
      *             error occurs when generating output
      */
-    public InputStream exportProperties(Map < String, Property<?>> mapOfProperties) throws IOException {   
+    public InputStream exportProperties(Stream < Property<?> > mapOfProperties) throws IOException {   
         return new ByteArrayInputStream(exportPropertiesPart(mapOfProperties).getBytes(ENCODING));
     }
     
@@ -522,8 +525,8 @@ public final class XmlParser {
     public InputStream exportAll(Map<String, Feature> mapOfFeatures, Map < String, Property<?>> mapOfProperties) throws IOException {   
         // Create output
         StringBuilder sb = new StringBuilder(XML_HEADER);
-        sb.append(exportFeaturesPart(mapOfFeatures));
-        sb.append(exportPropertiesPart(mapOfProperties));
+        sb.append(exportFeaturesPart(mapOfFeatures.values().stream()));
+        sb.append(exportPropertiesPart(mapOfProperties.values().stream()));
         sb.append(END_FF4J);
         return new ByteArrayInputStream(sb.toString().getBytes(ENCODING));
     }
@@ -542,8 +545,6 @@ public final class XmlParser {
         return exportAll(conf.getFeatures(), conf.getProperties());
     }
     
-    
-    
     /**
      * Create dedicated output for Properties.
      *
@@ -552,12 +553,9 @@ public final class XmlParser {
      * @return
      *      XML Flow     
      */
-    private String exportPropertiesPart(Map < String, Property<?>> mapOfProperties) {
-        // Create <features>
+    private String exportPropertiesPart(Stream < Property<?> > streamOfProperties) {
         StringBuilder sb = new StringBuilder(BEGIN_PROPERTIES);
-        if (mapOfProperties != null && !mapOfProperties.isEmpty()) {
-            sb.append(buildPropertiesPart(mapOfProperties));
-        }
+        sb.append(buildPropertiesPart(streamOfProperties));
         sb.append(END_PROPERTIES);
         return sb.toString();
     }
@@ -571,12 +569,11 @@ public final class XmlParser {
      * @return
      *      all XML
      */
-    private String exportFeaturesPart(Map<String, Feature> mapOfFeatures) {
-        
+    private String exportFeaturesPart(Stream<Feature> streamOfFeatures) {
         // Split features
         Map<String, List<Feature>> mapOfGroups = new HashMap<String, List<Feature>>();
         List < Feature > noGroupFeatures = new ArrayList<>();
-        mapOfFeatures.values().stream().forEach(feature -> {
+        streamOfFeatures.forEach(feature -> {
             if (feature.getGroup().isPresent()) {
                 String groupName = feature.getGroup().get();
                 if (!mapOfGroups.containsKey(groupName)) {
@@ -638,7 +635,7 @@ public final class XmlParser {
         // <custom-properties>
         if (feature.getCustomProperties().isPresent()) {
             sb.append(BEGIN_CUSTOMPROPERTIES);
-            sb.append(buildPropertiesPart(feature.getCustomProperties().get()));
+            sb.append(buildPropertiesPart(feature.getCustomProperties().get().values().stream()));
             sb.append(END_CUSTOMPROPERTIES);
         }
         sb.append(END_FEATURE);
@@ -652,11 +649,10 @@ public final class XmlParser {
      *      properties elements.
      * @return
      */
-    private String buildPropertiesPart(Map < String, Property<?>> props) {
+    private String buildPropertiesPart(Stream < Property<?> > props) {
         final StringBuilder sb = new StringBuilder();
-        if (props != null && !props.isEmpty()) {
-            // Loop over property
-            for (Property<?> property : props.values()) {
+        if (props != null) {
+            props.forEach(property -> {
                 sb.append("    <" + PROPERTY_TAG + " " + PROPERTY_PARAMNAME + "=\"" + property.getUid() + "\" ");
                 sb.append(PROPERTY_PARAMVALUE + "=\"" + property.asString() + "\" ");
                 if (!(property instanceof PropertyString)) {
@@ -673,7 +669,7 @@ public final class XmlParser {
                 } else {
                     sb.append("/>\n");
                 }
-            }
+            });
         }
         return sb.toString();
     }

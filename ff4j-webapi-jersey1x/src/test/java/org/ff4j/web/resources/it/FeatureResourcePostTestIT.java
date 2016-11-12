@@ -187,7 +187,7 @@ public class FeatureResourcePostTestIT extends AbstractWebResourceTestIT {
     public void testPostRemoveRoleInvalidParameter() {
         // Given
         assertFF4J.assertThatFeatureExist(F2);
-        Assert.assertFalse(ff4j.getFeatureStore().read(F2).getPermissions().contains(ROLE_READ));
+        Assert.assertFalse(ff4j.getFeatureStore().findById(F2).getPermissions().contains(ROLE_READ));
         // When
         WebResource wResf4 = resourceFeatures().path(F2);
         ClientResponse resHttp = wResf4.path(OPERATION_REMOVEROLE).path(ROLE_READ).post(ClientResponse.class);

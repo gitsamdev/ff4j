@@ -40,25 +40,25 @@ public class PropertyServices {
 
     public PropertyApiBean getProperty(String propertyName) {
         propertyValidator.assertPropertyExist(propertyName);
-        return new PropertyApiBean(ff4j.getPropertiesStore().readProperty(propertyName));
+        return new PropertyApiBean(ff4j.getPropertiesStore().findById(propertyName));
     }
 
     public FeatureActions createOrUpdateProperty(String propertyName, PropertyApiBean propertyApiBean) {
         propertyValidator.assertPropertyNameNotBlank(propertyApiBean.getName());
         propertyValidator.assertPropertyNameMatch(propertyName, propertyApiBean.getName());
         Property<?> property = propertyApiBean.asProperty();
-        if (ff4j.getPropertiesStore().existProperty(propertyName)) {
+        if (ff4j.getPropertiesStore().exists(propertyName)) {
             ff4j.getPropertiesStore().updateProperty(property);
             return FeatureActions.UPDATED;
         } else {
-            ff4j.getPropertiesStore().createProperty(property);
+            ff4j.getPropertiesStore().create(property);
             return FeatureActions.CREATED;
         }
     }
 
     public void deleteProperty(String propertyName) {
         propertyValidator.assertPropertyExist(propertyName);
-        ff4j.getPropertiesStore().deleteProperty(propertyName);
+        ff4j.getPropertiesStore().delete(propertyName);
     }
 
     public void updatePropertyName(String propertyName, String newValue) {

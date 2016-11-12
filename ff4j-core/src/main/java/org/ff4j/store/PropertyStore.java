@@ -1,8 +1,6 @@
 package org.ff4j.store;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
+import java.util.stream.Stream;
 
 import org.ff4j.property.Property;
 
@@ -31,45 +29,27 @@ import org.ff4j.property.Property;
  *
  * @author Cedrick Lunven (@clunven)
  */
-public interface PropertyStore {
+public interface PropertyStore extends FF4jRepository < Property<?> , String> {
     
     /**
-     * Check existence of target property.
-     *
-     * @param name
-     *      target name
-     * @return
-     *      if the property exist
-     */
-    boolean existProperty(String name);
-    
-    /**
-     * Create new property within store.
-     * 
-     * @param value
-     *      target value
-     */
-    <T> void createProperty(Property<T> value);
-    
-    /**
-     * Read property value.
+     * Read property value and if not found return the default value.
      * 
      * @param name
      *      target property name
      * @return
      *      property of exist
      */
-    Property<?> readProperty(String name);
-    
+    Property<?> read(String name);
+            
     /**
-     * Read property value and if not found return the default value
+     * Read property value and if not found return the default value.
      * 
      * @param name
      *      target property name
      * @return
      *      property of exist
      */
-    Property<?> readProperty(String name, Property < ? > defaultValue);
+    Property<?> read(String name, Property < ? > defaultValue);
     
     /**
      * Update existing property.
@@ -79,62 +59,14 @@ public interface PropertyStore {
      * @param newValue
      *      new value
      */
-    void updateProperty(String name, String newValue);
-    
-    /**
-     * Update existing property.
-     *
-     * @param name
-     *      target name
-     * @param newValue
-     *      new value
-     */
-    <T> void updateProperty(Property<T> fixedValue);
-    
-    /**
-     * Delete current property.
-     *
-     * @param name
-     *      target name
-     */
-    void deleteProperty(String name);
-    
-    /**
-     * Retrieve all properties from store.
-     *
-     * @return
-     *      all properties from store
-     */
-    Map<String, Property<?> > readAllProperties();
+    void update(String name, String newValue);
     
     /**
      * List all property names.
      *
      * @return
      */
-    Set < String > listPropertyNames();
-    
-    /**
-     * Tell if a store is empty
-     * 
-     * @return
-     *      target store
-     */
-    boolean isEmpty();
-    
-    /**
-     * Empty current property store.
-     *
-     */
-    void clear();
-    
-    /**
-     * Import a set of properties.
-     *
-     * @param properties
-     *      a set of properties
-     */
-    void importProperties(Collection<Property<?>> properties);
+    Stream < String > listPropertyNames();
     
     /**
      * Initialize target database with expected schema if needed.

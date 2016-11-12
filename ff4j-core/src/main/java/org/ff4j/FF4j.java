@@ -3,37 +3,17 @@ package org.ff4j;
 import static org.ff4j.audit.EventConstants.ACTION_CHECK_OFF;
 import static org.ff4j.audit.EventConstants.ACTION_CHECK_OK;
 import static org.ff4j.audit.EventConstants.SOURCE_JAVA;
+import static org.ff4j.utils.JsonUtils.attributeAsJson;
+import static org.ff4j.utils.JsonUtils.objectAsJson;
 
-/*
- * #%L
- * ff4j-core
- * %%
- * Copyright (C) 2013 Ff4J
- * %%
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *      http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * #L%
- */
-
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
-import java.util.Map;
 
 import org.ff4j.audit.EventBuilder;
 import org.ff4j.audit.EventPublisher;
 import org.ff4j.audit.FeatureStoreAuditProxy;
 import org.ff4j.audit.PropertyStoreAuditProxy;
-import org.ff4j.cache.FF4JCacheManager;
+import org.ff4j.cache.FF4jCacheManager;
 import org.ff4j.cache.FF4jCacheProxy;
 import org.ff4j.conf.XmlConfig;
 import org.ff4j.conf.XmlParser;
@@ -46,9 +26,9 @@ import org.ff4j.inmemory.FeatureStoreInMemory;
 import org.ff4j.inmemory.PropertyStoreInMemory;
 import org.ff4j.property.Property;
 import org.ff4j.security.AuthorizationsManager;
-import org.ff4j.store.PropertyStore;
 import org.ff4j.store.EventRepository;
 import org.ff4j.store.FeatureStore;
+import org.ff4j.store.PropertyStore;
 
 /**
  * Principal class stands as public api to work with FF4J.
@@ -83,23 +63,19 @@ public class FF4j {
     private final String version = getClass().getPackage().getImplementationVersion();
     
     /** Source of initialization (JAVA_API, WEBAPI, SSH, CONSOLE...). */
-    private String source =  SOURCE_JAVA;
+    private String source = SOURCE_JAVA;
     
-    // -- Stores --
-
     /** Do not through {@link FeatureNotFoundException} exception and but feature is required. */
     private boolean autocreate = false;
     
     /** Storage to persist feature within {@link FeatureStore}. */
-    private FeatureStore fstore = new FeatureStoreInMemory();
+    private FeatureStore featureStore = new FeatureStoreInMemory();
     
     /** Storage to persist properties within {@link PropertyStore}. */
-    private PropertyStore pStore = new PropertyStoreInMemory();
+    private PropertyStore propertyStore = new PropertyStoreInMemory();
    
     /** Security policy to limit access through ACL with {@link AuthorizationsManager}. */
     private AuthorizationsManager authorizationsManager = null;
-
-    // -- Audit --
     
     /** Capture informations relative to audit. */
     private boolean enableAudit = false;
@@ -112,8 +88,6 @@ public class FF4j {
    
     /** This attribute indicates to stop the event publisher. */
     private volatile boolean shutdownEventPublisher;
-
-    // -- Settings --
     
     /** Post Processing like audit enable. */
     private boolean initialized = false;
@@ -131,8 +105,8 @@ public class FF4j {
      * Constructor initializing ff4j with an InMemoryStore
      */
     public FF4j(String xmlFile) {
-        this.fstore = new FeatureStoreInMemory(xmlFile);
-        this.pStore = new PropertyStoreInMemory(xmlFile);
+        this.featureStore  = new FeatureStoreInMemory(xmlFile);
+        this.propertyStore = new PropertyStoreInMemory(xmlFile);
     }
 
     /**
@@ -140,7 +114,8 @@ public class FF4j {
      * <code>Asset</code>
      */
     public FF4j(InputStream xmlFileResourceAsStream) {
-        this.fstore = new FeatureStoreInMemory(xmlFileResourceAsStream);
+        this.featureStore  = new FeatureStoreInMemory(xmlFileResourceAsStream);
+        this.propertyStore = new PropertyStoreInMemory(xmlFileResourceAsStream);
     }
 
     /**
@@ -249,25 +224,6 @@ public class FF4j {
                feature.getPermissions().get().isEmpty() ||
                feature.getPermissions().get().stream().anyMatch(getAuthorizationsManager().getCurrentUserPermissions()::contains);
     }
-
-    /**
-     * Read Features from store.
-     * 
-     * @return get store features
-     */
-    public Map<String, Feature> getFeatures() {
-        return getFeatureStore().readAll();
-    }
-    
-    /**
-     * Return all properties from store.
-     *
-     * @return
-     * 		target property store.
-     */
-    public Map < String, Property<?>> getProperties() {
-    	return getPropertiesStore().readAllProperties();
-    }
     
     /**
      * Enable Feature.
@@ -276,26 +232,57 @@ public class FF4j {
      *            unique feature identifier.
      */
     public FF4j toggleOn(String uid) {
-        return enable(uid);
+        try {
+            getFeatureStore().enable(uid);
+        } catch (FeatureNotFoundException fnfe) {
+            if (this.autocreate) {
+                getFeatureStore().create(new Feature(uid).toggleOn());
+            } else {
+                throw fnfe;
+            }
+        }
+        return this;
     }
-
+    
+    /**
+     * Disable Feature.
+     * 
+     * @param featureID
+     *            unique feature identifier.
+     */
+    public FF4j toggleOff(String uid) {
+        try {
+            getFeatureStore().disable(uid);
+        } catch (FeatureNotFoundException fnfe) {
+             if (this.autocreate) {
+                 getFeatureStore().create(new Feature(uid).toggleOff());
+             } else {
+                throw fnfe;
+             }
+        }
+        return this;
+    }
+    
     /**
      * Enable Feature.
      * 
      * @param featureID
      *            unique feature identifier.
      */
-    public FF4j enable(String featureID) {
-        try {
-            getFeatureStore().enable(featureID);
-        } catch (FeatureNotFoundException fnfe) {
-            if (this.autocreate) {
-                getFeatureStore().create(new Feature(featureID).toggleOn());
-            } else {
-            	throw fnfe;
-            }
-        }
-        return this;
+    @Deprecated
+    public FF4j enable(String uid) {
+        return toggleOn(uid);
+    }
+    
+    /**
+     * Disable Feature.
+     * 
+     * @param featureID
+     *            unique feature identifier.
+     */
+    @Deprecated
+    public FF4j disable(String uid) {
+        return toggleOff(uid);
     }
     
     /**
@@ -309,7 +296,6 @@ public class FF4j {
         return this;
     }
     
-    
     /**
      * Create new Property.
      * 
@@ -317,48 +303,8 @@ public class FF4j {
      *            unique feature identifier.
      */
     public FF4j createProperty(Property<?> prop) {
-        getPropertiesStore().createProperty(prop);
+        getPropertiesStore().create(prop);
         return this;
-    }
-    
-    /**
-     * Disable Feature.
-     * 
-     * @param featureID
-     *            unique feature identifier.
-     */
-    public FF4j toggleOff(String uid) {
-        return disable(uid);
-    }
-    
-    /**
-     * Disable Feature.
-     * 
-     * @param featureID
-     *            unique feature identifier.
-     */
-    public FF4j disable(String featureID) {
-        try {
-            getFeatureStore().disable(featureID);
-        } catch (FeatureNotFoundException fnfe) {
-        	 if (this.autocreate) {
-                 getFeatureStore().create(new Feature(featureID).toggleOff());
-             } else {
-             	throw fnfe;
-             }
-        }
-        return this;
-    }
-
-    /**
-     * Check if target feature exist.
-     * 
-     * @param featureId
-     *            unique feature identifier.
-     * @return flag to check existence of
-     */
-    public boolean exist(String featureId) {
-        return getFeatureStore().exist(featureId);
     }
 
     /**
@@ -391,18 +337,7 @@ public class FF4j {
      * @return target feature.
      */
     public Property<?> getProperty(String propertyName) {
-       return getPropertiesStore().readProperty(propertyName);
-    }
-    
-    /**
-     * Read property in Store
-     * 
-     * @param featureID
-     *            target feature ID
-     * @return target feature.
-     */
-    public String getPropertyAsString(String propertyName) {
-       return getProperty(propertyName).asString();
+       return getPropertiesStore().read(propertyName);
     }
     
     /**
@@ -416,7 +351,7 @@ public class FF4j {
      * @since 1.6
      */
     public FF4j importFeatures(Collection < Feature> features) {
-        getFeatureStore().importFeatures(features);
+        getFeatureStore().save(features);
         return this;
     }
     
@@ -431,22 +366,8 @@ public class FF4j {
      * @since 1.6
      */
     public FF4j importProperties(Collection < Property<?>> properties) {
-        if (properties != null) {
-            for (Property<?> property : properties) {
-                getPropertiesStore().createProperty(property);
-            }
-        }
+        getPropertiesStore().save(properties);
         return this;
-    }
-
-    /**
-     * Export Feature through FF4J.
-     * 
-     * @return
-     * @throws IOException
-     */
-    public InputStream exportFeatures() throws IOException {
-        return new XmlParser().exportFeatures(getFeatureStore().readAll());
     }
 
     /**
@@ -472,28 +393,6 @@ public class FF4j {
          setEnableAudit(val);
          return this;
     }
-
-    /**
-     * Delete feature name.
-     * 
-     * @param fpId
-     *            target feature
-     */
-    public FF4j delete(String fpId) {
-        getFeatureStore().delete(fpId);
-        return this;
-    }
-    
-    /**
-     * Delete new Property.
-     * 
-     * @param featureID
-     *            unique feature identifier.
-     */
-    public FF4j deleteProperty(String propertyName) {
-        getPropertiesStore().deleteProperty(propertyName);
-        return this;
-    }
     
     /**
      * Enable a cache proxy.
@@ -503,7 +402,7 @@ public class FF4j {
      * @return
      *      current ff4j bean
      */
-    public FF4j cache(FF4JCacheManager cm) {
+    public FF4j cache(FF4jCacheManager cm) {
         FF4jCacheProxy cp = new FF4jCacheProxy(getFeatureStore(), getPropertiesStore(), cm);
         setFeatureStore(cp);
         setPropertiesStore(cp);
@@ -543,25 +442,19 @@ public class FF4j {
         sb.append(hourNumber + " hours(s) ");
         sb.append(minutenumber + " minute(s) ");
         sb.append(secondnumber + " seconds\"");
-        sb.append(", \"autocreate\":" + isAutocreate());
-        sb.append(", \"version\": \"" + version + "\"");
-        
-        // Display only if not null
+        sb.append(attributeAsJson("autocreate", isAutocreate()));
+        sb.append(attributeAsJson("version", version));
         if (getFeatureStore() != null) {
-            sb.append(", \"featuresStore\":");
-            sb.append(getFeatureStore().toString());
+            sb.append(objectAsJson("featuresStore", getFeatureStore().toString()));
         }
         if (getPropertiesStore() != null) {
-            sb.append(", \"propertiesStore\":");
-            sb.append(getPropertiesStore().toString());
+            sb.append(objectAsJson("propertiesStore", getPropertiesStore().toString()));
         }
         if (getEventRepository() != null) {
-            sb.append(", \"eventRepository\":");
-            sb.append(getEventRepository().toString());
+            sb.append(objectAsJson("eventRepository", getEventRepository().toString()));
         }
         if (getAuthorizationsManager() != null) {
-            sb.append(", \"authorizationsManager\":");
-            sb.append(getAuthorizationsManager().toString());
+            sb.append(objectAsJson("authorizationsManager", getAuthorizationsManager().toString()));
         }
         sb.append("}");
         return sb.toString();
@@ -578,7 +471,7 @@ public class FF4j {
      *            target store.
      */
     public void setFeatureStore(FeatureStore fbs) {
-        this.fstore = fbs;
+        this.featureStore = fbs;
     }
 
     /**
@@ -655,20 +548,20 @@ public class FF4j {
         // Audit is enabled, proxified stores for auditing
         if (isEnableAudit()) {
         	
-        	if (fstore != null && !(fstore instanceof FeatureStoreAuditProxy)) {
-                this.fstore = new FeatureStoreAuditProxy(this, fstore);
+        	if (featureStore != null && !(featureStore instanceof FeatureStoreAuditProxy)) {
+                this.featureStore = new FeatureStoreAuditProxy(this, featureStore);
             }
-            if (pStore != null && !(pStore instanceof PropertyStoreAuditProxy)) { 
-                this.pStore = new PropertyStoreAuditProxy(this, pStore);
+            if (propertyStore != null && !(propertyStore instanceof PropertyStoreAuditProxy)) { 
+                this.propertyStore = new PropertyStoreAuditProxy(this, propertyStore);
             }
         } else {
         	
         	 // Audit is disabled but could have been enabled before... removing PROXY if relevant
-        	 if (fstore != null && fstore instanceof FeatureStoreAuditProxy) {
-        		 this.fstore = ((FeatureStoreAuditProxy) fstore).getTarget();
+        	 if (featureStore != null && featureStore instanceof FeatureStoreAuditProxy) {
+        		 this.featureStore = ((FeatureStoreAuditProxy) featureStore).getTarget();
         	 }
-        	 if (pStore != null && pStore instanceof PropertyStoreAuditProxy) { 
-        		 this.pStore = ((PropertyStoreAuditProxy) pStore).getTarget();
+        	 if (propertyStore != null && propertyStore instanceof PropertyStoreAuditProxy) { 
+        		 this.propertyStore = ((PropertyStoreAuditProxy) propertyStore).getTarget();
              }
         }
         
@@ -700,7 +593,7 @@ public class FF4j {
         if (!initialized) {
             init();
         }
-        return fstore;
+        return featureStore;
     }
     
     /**
@@ -725,7 +618,7 @@ public class FF4j {
         if (!initialized) {
             init();
         }
-        return pStore;
+        return propertyStore;
     }
     
     /**
@@ -780,7 +673,7 @@ public class FF4j {
      * 		new value for 'pStore '
      */
     public void setPropertiesStore(PropertyStore pStore) {
-        this.pStore = pStore;
+        this.propertyStore = pStore;
     }
     
     /**

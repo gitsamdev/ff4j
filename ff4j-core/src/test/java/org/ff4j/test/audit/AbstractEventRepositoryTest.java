@@ -72,7 +72,7 @@ public abstract class AbstractEventRepositoryTest {
     public void setUp() throws Exception {
         repo      = initRepository();
         publisher = new EventPublisher(repo);
-        features  = new ArrayList<Feature>(new FeatureStoreInMemory("ff4j.xml").readAll().values());
+        features  = new ArrayList<Feature>(new FeatureStoreInMemory("ff4j.xml").findAll().values());
     }
    
     // Utility to generate event

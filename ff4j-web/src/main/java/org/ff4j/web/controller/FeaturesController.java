@@ -53,8 +53,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.ff4j.FF4j;
-import org.ff4j.core.Feature;
-import org.ff4j.core.FlippingStrategy;
+import org.ff4j.feature.Feature;
+import org.ff4j.feature.FlippingStrategy;
 import org.ff4j.utils.MappingUtil;
 import org.ff4j.utils.Util;
 import org.ff4j.web.bean.WebConstants;
@@ -113,7 +113,7 @@ public class FeaturesController extends AbstractController {
                 if (OP_ADD_PERMISSION.equalsIgnoreCase(operation)) {
                     String permName = req.getParameter(WebConstants.PERMISSION);
                     Feature feature = getFf4j().getFeatureStore().read(featureId);
-                    feature.getPermissions().add(permName);
+                    feature.addPermission(permName);
                     getFf4j().getFeatureStore().update(feature);
                     LOGGER.info("Add new " + permName + " to " + featureId );
                 }
@@ -121,14 +121,14 @@ public class FeaturesController extends AbstractController {
                 if (OP_RMV_PERMISSION.equalsIgnoreCase(operation)) {
                     String permName = req.getParameter(WebConstants.PERMISSION);
                     Feature feature = getFf4j().getFeatureStore().read(featureId);
-                    feature.getPermissions().remove(permName);
+                    feature.removePermission(permName);
                     getFf4j().getFeatureStore().update(feature);
                     LOGGER.info("Remove " + permName + " to " + featureId );
                 }
                 
                 if (OP_CLEAR_PERMISSIONS.equalsIgnoreCase(operation)) {
                     Feature feature = getFf4j().getFeatureStore().read(featureId);
-                    feature.getPermissions().clear();
+                    feature.getPermissions().;
                     getFf4j().getFeatureStore().update(feature);
                     LOGGER.info("Clear permissions for " + featureId);
                 }
@@ -136,7 +136,7 @@ public class FeaturesController extends AbstractController {
                 if (OP_RMV_PROPERTY.equalsIgnoreCase(operation)) {
                     String propertyName = req.getParameter(WebConstants.NAME);
                     Feature feature     = getFf4j().getFeatureStore().read(featureId);
-                    feature.getCustomProperties().remove(propertyName);
+                    feature.removePermission(propertyName);
                     getFf4j().getFeatureStore().update(feature);
                     LOGGER.info("Remove Property " + propertyName + " to " + featureId );
                 }
@@ -174,8 +174,7 @@ public class FeaturesController extends AbstractController {
                 msgType = "warning";
                 msg = "Cannot rename " + featureId + " to " + newName + " : it already exists";
             } else {
-                Feature newFeature = getFf4j().getFeatureStore().read(featureId);
-                newFeature.setUid(newName);
+                Feature newFeature = new Feature(newName, ff4j.getFeatureStore().read(featureId));
                 getFf4j().getFeatureStore().delete(featureId);
                 getFf4j().getFeatureStore().create(newFeature);
                 msg = "Feature " + featureId + " has been renamed to " + newName;

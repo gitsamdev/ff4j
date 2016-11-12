@@ -1,31 +1,7 @@
 package org.ff4j.store;
 
-import java.util.Collection;
+import java.util.stream.Stream;
 
-/*
- * #%L
- * ff4j-core
- * %%
- * Copyright (C) 2013 Ff4J
- * %%
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *      http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * #L%
- */
-
-import java.util.Map;
-import java.util.Set;
-
-import org.ff4j.exception.FeatureNotFoundException;
 import org.ff4j.exception.GroupNotFoundException;
 import org.ff4j.feature.Feature;
 
@@ -34,7 +10,7 @@ import org.ff4j.feature.Feature;
  * 
  * @author Cedrick Lunven (@clunven)
  */
-public interface FeatureStore {
+public interface FeatureStore extends FF4jRepository < Feature, String > {
 
     /**
      * Toggle ON a feature by its identifier.
@@ -51,54 +27,7 @@ public interface FeatureStore {
      *            unique feature identifier
      */
     void disable(String uid);
-
-    /**
-     * Check if a feature exists or not
-     * 
-     * @param uid
-     *            unique feature identifier
-     */
-    boolean exist(String uid);
-
-    /**
-     * Create a new feature in the target storage.
-     * 
-     * @param fp
-     *            create roles
-     */
-    void create(Feature feature);
-
-    /**
-     * Read a feature by id, get a {@link FeatureNotFoundException} eventually.
-     * 
-     * @param uid
-     *            unique feature identifier
-     */
-    Feature read(String uid);
-
-    /**
-     * Retrieve all features available in target storage.
-     * 
-     * @return all features
-     */
-    Map<String, Feature> readAll();
-
-    /**
-     * Delete a feature by its id, get a {@link FeatureNotFoundException} eventually.
-     * 
-     * @param uid
-     *            unique feature identifier
-     */
-    void delete(String uid);
-
-    /**
-     * Update a feature in the storage.
-     * 
-     * @param feature
-     *           feature to be updated
-     */
-    void update(Feature feature);
-
+   
     /**
      * Grant role on target feature.
      * 
@@ -153,7 +82,7 @@ public interface FeatureStore {
      * @throws GroupNotFoundException
      *              if group does not exist
      */
-    Map<String, Feature> readGroup(String groupName);
+    Stream < Feature> readGroup(String groupName);
     
     /**
      * Add target {@link Feature} to target group.
@@ -180,20 +109,7 @@ public interface FeatureStore {
      * 
      * @return set of group in the store
      */
-    Set<String> readAllGroups();
-    
-    /**
-     * Empty the store
-     */
-    void clear();
-    
-    /**
-     * Import feature into store.
-     *
-     * @param features
-     *      list of features.s
-     */
-    void importFeatures(Collection < Feature > features);
+    Stream < String > readAllGroups();
     
     /**
      * Initialize the target database schema by creating expected structures.

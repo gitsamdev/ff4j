@@ -14,12 +14,18 @@ import static org.ff4j.utils.Util.assertHasLength;
  */
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.ff4j.conf.XmlParser;
 import org.ff4j.feature.Feature;
@@ -52,10 +58,7 @@ public class FeatureStoreInMemory extends AbstractFeatureStore {
      *            fileName present in classPath or on fileSystem.
      */
     public FeatureStoreInMemory(String fileName) {
-        if (fileName == null || fileName.isEmpty()) {
-            throw new IllegalArgumentException(
-                    "fileName is required, cannot be null nor empty : the file must exist in classpath");
-        }
+        assertHasLength(fileName);
         createSchema();
         loadConfFile(fileName);
     }
@@ -76,12 +79,203 @@ public class FeatureStoreInMemory extends AbstractFeatureStore {
      * 
      * @param maps
      */
-    public FeatureStoreInMemory(Map<String, Feature> maps) {
+    public FeatureStoreInMemory(Collection<Feature> features) {
         createSchema();
-        this.featuresMap = maps;
+        if (null != features) {
+            this.featuresMap = features.stream()
+                    .collect(Collectors.toMap(Feature::getUid, Function.identity()));
+            buildGroupsFromFeatures();
+        }
+    }
+    
+    // --- FF4jRepository Methods ---
+    
+    /** {@inheritDoc} */
+    @Override
+    public boolean exists(String uid) {
+        assertHasLength(uid);
+        return featuresMap.containsKey(uid);
+    }
+    
+    /** {@inheritDoc} */
+    @Override
+    public Optional < Feature > findById(String uid) {
+        return Optional.ofNullable(featuresMap.get(uid));
+    }
+    
+    /** {@inheritDoc} */    
+    @Override
+    public void create(Feature fp) {
+        assertFeatureNotNull(fp);
+        assertFeatureNotExist(fp.getUid());
+        updateFeature(fp);
+    }
+    
+    /** {@inheritDoc} */
+    @Override
+    public void update(Feature fp) {
+        assertFeatureNotNull(fp);
+        assertFeatureExist(fp.getUid());
+        Feature fpExist = findById(fp.getUid()).get();
+        // Checking new roles
+        Set<String> toBeAdded = new HashSet<String>();
+        fp.getPermissions().ifPresent(perms -> toBeAdded.addAll(perms));
+        fpExist.getPermissions().ifPresent(perms -> toBeAdded.removeAll(perms));
+        toBeAdded.stream().forEach(p -> grantRoleOnFeature(fpExist.getUid(), p));
+        updateFeature(fp);
+    }
+    
+    /** {@inheritDoc} */
+    @Override
+    public void delete(String uid) {
+        assertFeatureExist(uid);
+        featuresMap.remove(uid);
         buildGroupsFromFeatures();
     }
+    
+    /** {@inheritDoc} */
+    @Override
+    public void deleteAll() {
+       featuresMap.clear();
+    }
+    
+    /** {@inheritDoc} */
+    @Override
+    public Stream <Feature> findAll() {
+        return featuresMap.values().stream();
+    }
+    
+    /** {@inheritDoc} */
+    @Override
+    public long count() {
+        return findAll().count();
+    }
 
+    /** {@inheritDoc} */
+    @Override
+    public void delete(Iterable<? extends Feature> entities) {
+        if (null != entities) {
+            entities.forEach(this::delete);
+        }
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void delete(Feature entity) {
+        assertFeatureExist(entity.getUid());
+        delete(entity.getUid());
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Stream<Feature> findAll(Iterable<String> candidates) {
+        if (candidates == null) return null;
+        List < Feature > targets  = new ArrayList<>();
+        candidates.forEach(id -> targets.add(read(id)));
+        return targets.stream();
+    }
+    
+    // --- FeatureStore Methods ---
+    
+    /** {@inheritDoc} */
+    @Override
+    public void grantRoleOnFeature(String uid, String roleName) {
+        assertFeatureExist(uid);
+        assertHasLength(roleName);
+        featuresMap.get(uid).getPermissions().get().add(roleName);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void removeRoleFromFeature(String uid, String roleName) {
+        assertFeatureExist(uid);
+        assertHasLength(roleName);
+        featuresMap.get(uid).getPermissions().get().remove(roleName);
+    }    
+
+    /** {@inheritDoc} */
+    @Override
+    public void enable(String uid) {
+        assertFeatureExist(uid);
+        featuresMap.get(uid).toggleOn();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void disable(String uid) {
+        assertFeatureExist(uid);
+        featuresMap.get(uid).toggleOff();
+    }
+    
+    /** {@inheritDoc} */
+    @Override
+    public boolean existGroup(String groupName) {
+        assertHasLength(groupName);
+        return featureGroups.containsKey(groupName);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void enableGroup(String groupName) {
+        assertGroupExist(groupName);
+        for (String feat : featureGroups.get(groupName)) {
+            this.enable(feat);
+        }
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void disableGroup(String groupName) {
+        assertGroupExist(groupName);
+        for (String feat : featureGroups.get(groupName)) {
+            this.disable(feat);
+        }
+    }
+    
+    /** {@inheritDoc} */
+    @Override
+    public Stream<Feature> readGroup(String groupName) {
+        assertGroupExist(groupName);
+        return featureGroups.get(groupName).stream()
+            .map(featureName -> findById(featureName))
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .collect(Collectors.toSet())
+            .stream();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Stream<String> readAllGroups() {
+        Set<String> groups = new HashSet<String>();
+        groups.addAll(featureGroups.keySet());
+        groups.remove(null);
+        groups.remove("");
+        return groups.stream();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void addToGroup(String uid, String groupName) {
+        assertHasLength(uid);
+        assertHasLength(groupName);        
+        Feature feat = findById(uid).get();
+        feat.setGroup(groupName);
+        update(feat);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void removeFromGroup(String uid, String groupName) {
+        assertFeatureExist(uid);
+        assertGroupExist(groupName);
+        Feature feat = findById(uid).get();
+        feat.setGroup("");
+        update(feat);
+    }
+    
+    // --- Utility Methods ---
+    
     /**
      * Load configuration through FF4J.vml file.
      * 
@@ -124,7 +318,8 @@ public class FeatureStoreInMemory extends AbstractFeatureStore {
         // Populate groups
         featuresMap.values().stream()
                 .filter(item -> item.getGroup().isPresent())
-                .forEach(feature -> featureGroups.get(feature.getGroup().get()).add(feature.getUid()));
+                .forEach(feature -> featureGroups.get(
+                         feature.getGroup().get()).add(feature.getUid()));
     }
 
     /**
@@ -136,142 +331,6 @@ public class FeatureStoreInMemory extends AbstractFeatureStore {
     private void updateFeature(Feature fp) {
         featuresMap.put(fp.getUid(), fp);
         buildGroupsFromFeatures();
-    }
-
-    /** {@inheritDoc} */    
-    public void create(Feature fp) {
-        assertFeatureNotNull(fp);
-        assertFeatureNotExist(fp.getUid());
-        updateFeature(fp);
-    }
-
-    /** {@inheritDoc} */    
-    public void update(Feature fp) {
-        assertFeatureNotNull(fp);
-        Feature fpExist = read(fp.getUid());
-        // Checking new roles
-        Set<String> toBeAdded = new HashSet<String>();
-        fp.getPermissions().ifPresent(perms -> toBeAdded.addAll(perms));
-        fpExist.getPermissions().ifPresent(perms -> toBeAdded.removeAll(perms));
-        toBeAdded.stream().forEach(p -> grantRoleOnFeature(fpExist.getUid(), p));
-        updateFeature(fp);
-    }
-
-    /** {@inheritDoc} */
-    public void delete(String uid) {
-        assertFeatureExist(uid);
-        featuresMap.remove(uid);
-        buildGroupsFromFeatures();
-    }
-
-    /** {@inheritDoc} */
-    public void grantRoleOnFeature(String uid, String roleName) {
-        assertFeatureExist(uid);
-        assertHasLength(roleName);
-        featuresMap.get(uid).getPermissions().get().add(roleName);
-    }
-
-    /** {@inheritDoc} */
-    public void removeRoleFromFeature(String uid, String roleName) {
-        assertFeatureExist(uid);
-        assertHasLength(roleName);
-        featuresMap.get(uid).getPermissions().get().remove(roleName);
-    }
-
-    /** {@inheritDoc} */
-    public boolean exist(String uid) {
-        assertHasLength(uid);
-        return featuresMap.containsKey(uid);
-    }
-
-    /** {@inheritDoc} */
-    public void enable(String uid) {
-        assertFeatureExist(uid);
-        featuresMap.get(uid).toggleOn();
-    }
-
-    /** {@inheritDoc} */    
-    public void disable(String uid) {
-        assertFeatureExist(uid);
-        featuresMap.get(uid).toggleOff();
-    }
-
-    /** {@inheritDoc} */
-    public Feature read(String uid) {
-        assertFeatureExist(uid);
-        return featuresMap.get(uid);
-    }
-
-    /** {@inheritDoc} */
-    public boolean existGroup(String groupName) {
-        assertHasLength(groupName);
-        return featureGroups.containsKey(groupName);
-    }
-
-    /** {@inheritDoc} */
-    public void enableGroup(String groupName) {
-        assertGroupExist(groupName);
-        for (String feat : featureGroups.get(groupName)) {
-            this.enable(feat);
-        }
-    }
-
-    /** {@inheritDoc} */
-    public void disableGroup(String groupName) {
-        assertGroupExist(groupName);
-        for (String feat : featureGroups.get(groupName)) {
-            this.disable(feat);
-        }
-    }
-
-    /** {@inheritDoc} */
-    public Map<String, Feature> readGroup(String groupName) {
-        assertGroupExist(groupName);
-        // Retrieve feature per feature (in-memory, no overhead)
-        Map<String, Feature> features = new HashMap<String, Feature>();
-        for (String feat : featureGroups.get(groupName)) {
-            features.put(feat, this.read(feat));
-        }
-        return features;
-    }
-
-    /** {@inheritDoc} */
-    public Set<String> readAllGroups() {
-        Set<String> groups = new HashSet<String>();
-        groups.addAll(featureGroups.keySet());
-        groups.remove(null);
-        groups.remove("");
-        return groups;
-    }
-
-    /** {@inheritDoc} */
-    public void addToGroup(String uid, String groupName) {
-        assertHasLength(uid);
-        assertHasLength(groupName);        
-        Feature feat = read(uid);
-        feat.setGroup(groupName);
-        update(feat);
-    }
-
-    /** {@inheritDoc} */
-    public void removeFromGroup(String uid, String groupName) {
-        assertFeatureExist(uid);
-        assertGroupExist(groupName);
-        Feature feat = read(uid);
-        feat.setGroup("");
-        update(feat);
-    }
-    
-    /** {@inheritDoc} */
-    @Override
-    public void clear() {
-       featuresMap.clear();
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public Map<String, Feature> readAll() {
-        return featuresMap;
     }
 
     /** {@inheritDoc} */
@@ -308,7 +367,5 @@ public class FeatureStoreInMemory extends AbstractFeatureStore {
     public String getFileName() {
         return fileName;
     }
-
-   
     
 }

@@ -20,10 +20,10 @@ package org.ff4j.test.cache;
  * #L%
  */
 
-import org.ff4j.cache.FF4JCacheManager;
+import org.ff4j.cache.FF4jCacheManager;
 import org.ff4j.cache.FF4jCacheProxy;
 import org.ff4j.cache.InMemoryCacheManager;
-import org.ff4j.cache.Store2CachePollingScheduler;
+import org.ff4j.cache.FF4jCachePollingScheduler;
 import org.ff4j.inmemory.FeatureStoreInMemory;
 import org.ff4j.inmemory.PropertyStoreInMemory;
 import org.ff4j.store.FeatureStore;
@@ -38,7 +38,7 @@ public class CacheProxyWithPollingTest {
         // When
         FeatureStore  fs     = new FeatureStoreInMemory("ff4j.xml");
         PropertyStore ps     = new PropertyStoreInMemory("ff4j.xml");
-        FF4JCacheManager cm  = new InMemoryCacheManager();
+        FF4jCacheManager cm  = new InMemoryCacheManager();
         FF4jCacheProxy proxy = new FF4jCacheProxy(fs, ps, cm);
 
         // Start polling on 100ms basis
@@ -49,19 +49,19 @@ public class CacheProxyWithPollingTest {
         // When (Remove something)
         fs.delete("AwesomeFeature");
         // Then (Proxy is not yet refresh)
-        Assert.assertTrue(proxy.exist("AwesomeFeature"));
+        Assert.assertTrue(proxy.exists("AwesomeFeature"));
         
         // When (wait for cache refresh)
         Thread.sleep(200);
         // Then (also delete in cache si Cache is refreshed)
-        Assert.assertFalse(proxy.exist("AwesomeFeature"));
+        Assert.assertFalse(proxy.exists("AwesomeFeature"));
         
-        Store2CachePollingScheduler scheduler = proxy.getStore2CachePoller();
+        FF4jCachePollingScheduler scheduler = proxy.getStore2CachePoller();
         scheduler.setInitialDelay(scheduler.getInitialDelay());
         scheduler.setPollingDelay(scheduler.getPollingDelay());
         proxy.stopPolling();
         
-        proxy.setStore2CachePoller(new Store2CachePollingScheduler(fs, ps, cm));
+        proxy.setStore2CachePoller(new FF4jCachePollingScheduler(fs, ps, cm));
     }
     
     

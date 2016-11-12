@@ -9,29 +9,8 @@ import static org.ff4j.audit.EventConstants.TARGET_PROPERTY;
 import static org.ff4j.audit.EventConstants.TARGET_PSTORE;
 
 import java.util.Collection;
-
-/*
- * #%L
- * ff4j-core
- * %%
- * Copyright (C) 2013 - 2016 FF4J
- * %%
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *      http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * #L%
- */
-
-import java.util.Map;
-import java.util.Set;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.ff4j.FF4j;
 import org.ff4j.property.Property;
@@ -61,9 +40,10 @@ public class PropertyStoreAuditProxy implements PropertyStore {
     }
 
     /** {@inheritDoc} */
-    public  < T > void createProperty(Property<T> prop) {
+    @Override
+    public  void create(Property<?> prop) {
         long start = System.nanoTime();
-        target.createProperty(prop);
+        target.create(prop);
         long duration = System.nanoTime() - start;
         publish(builder(ACTION_CREATE)
                     .property(prop.getUid())
@@ -72,9 +52,10 @@ public class PropertyStoreAuditProxy implements PropertyStore {
     }
 
     /** {@inheritDoc} */
-    public void updateProperty(String name, String newValue) {
+    @Override
+    public void update(String name, String newValue) {
         long start = System.nanoTime();
-        target.updateProperty(name, newValue);
+        target.update(name, newValue);
         long duration = System.nanoTime() - start;
         publish(builder(ACTION_UPDATE)
                     .property(name)
@@ -83,9 +64,10 @@ public class PropertyStoreAuditProxy implements PropertyStore {
     }
 
     /** {@inheritDoc} */
-    public <T> void updateProperty(Property<T> prop) {
+    @Override
+    public void update(Property<?> prop) {
         long start = System.nanoTime();
-        target.updateProperty(prop);
+        target.update(prop);
         long duration = System.nanoTime() - start;
         publish(builder(ACTION_UPDATE)
                     .property(prop.getUid())
@@ -94,9 +76,10 @@ public class PropertyStoreAuditProxy implements PropertyStore {
     }
 
     /** {@inheritDoc} */
-    public void deleteProperty(String name) {
+    @Override
+    public void delete(String name) {
         long start = System.nanoTime();
-        target.deleteProperty(name);
+        target.delete(name);
         long duration = System.nanoTime() - start;
         publish(builder(ACTION_DELETE)
                     .property(name)
@@ -104,40 +87,46 @@ public class PropertyStoreAuditProxy implements PropertyStore {
     }
     
     /** {@inheritDoc} */
-    public boolean existProperty(String name) {
-        return target.existProperty(name);
+    @Override
+    public boolean exists(String name) {
+        return target.exists(name);
     }
 
     /** {@inheritDoc} */
-    public Property<?> readProperty(String name) {
-        return target.readProperty(name);
+    @Override
+    public Optional <Property<?> > findById(String name) {
+        return target.findById(name);
     }
     
     /** {@inheritDoc} */
     @Override
-    public Property<?> readProperty(String name, Property<?> defaultValue) {
-        return target.readProperty(name, defaultValue);
+    public Property<?> read(String name) {
+        return target.read(name);
     }
     
     /** {@inheritDoc} */
-    public Map<String, Property<?>> readAllProperties() {
-        return target.readAllProperties();
+    @Override
+    public Property<?> read(String name, Property<?> defaultValue) {
+        return target.read(name, defaultValue);
+    }
+    
+    /** {@inheritDoc} */
+    @Override
+    public Stream < Property<?> > findAll() {
+        return target.findAll();
     }
 
     /** {@inheritDoc} */
-    public Set<String> listPropertyNames() {
+    @Override
+    public Stream < String > listPropertyNames() {
         return target.listPropertyNames();
     }
 
     /** {@inheritDoc} */
-    public boolean isEmpty() {
-        return target.isEmpty();
-    }
-
-    /** {@inheritDoc} */
-    public void clear() {
+    @Override
+    public void deleteAll() {
         long start = System.nanoTime();
-        target.clear();
+        target.deleteAll();
         long duration = System.nanoTime() - start;
         publish(builder(ACTION_CLEAR).type(TARGET_PSTORE)
                 .name(ff4j.getPropertiesStore().getClass().getName())
@@ -145,17 +134,44 @@ public class PropertyStoreAuditProxy implements PropertyStore {
     }
     
     /** {@inheritDoc} */
-    public void importProperties(Collection<Property<?>> properties) {
+    @Override
+    public Stream<Property<?>> findAll(Iterable<String> ids) {
+        return target.findAll();
+    }
+    
+    /** {@inheritDoc} */
+    @Override
+    public void save(Collection<Property<?>> properties) {
         // Do not use target as the delete/create operation will be traced
         if (properties != null) {
             for (Property<?> property : properties) {
-                if (existProperty(property.getUid())) {
-                    deleteProperty(property.getUid());
+                if (exists(property.getUid())) {
+                    delete(property.getUid());
                 }
-                createProperty(property);
+                create(property);
             }
         }
     }
+
+    /** {@inheritDoc} */
+    @Override
+    public long count() {
+        return listPropertyNames().count();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void delete(Iterable<? extends Property<?>> entities) {
+        if (entities != null) {
+            entities.forEach(this::delete);
+        }
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void delete(Property<?> entity) {
+        delete(entity.getUid());
+    }  
     
     /** {@inheritDoc} */
     @Override
@@ -192,8 +208,6 @@ public class PropertyStoreAuditProxy implements PropertyStore {
 	 */
 	public PropertyStore getTarget() {
 		return target;
-	}
-
-       
+	}   
 
 }

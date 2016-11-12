@@ -26,6 +26,7 @@ import java.util.WeakHashMap;
 
 import org.ff4j.feature.Feature;
 import org.ff4j.property.Property;
+import org.ff4j.utils.FF4jUtils;
 
 /**
  * Proposition of inmemory cache implementation.
@@ -35,7 +36,7 @@ import org.ff4j.property.Property;
  * 
  * @author Cedrick Lunven (@clunven)
  */
-public class InMemoryCacheManager implements FF4JCacheManager {    
+public class InMemoryCacheManager implements FF4jCacheManager {    
 
     /** cache name if several caches within memory. */
     public static final String DEFAULT_CACHENAME = "ff4j-cache";
@@ -91,46 +92,30 @@ public class InMemoryCacheManager implements FF4JCacheManager {
     /** {@inheritDoc} */
     @Override
     public void putFeature(Feature feat) {
-        if (feat == null) {
-            throw new IllegalArgumentException("ff4j-core: Cannot insert null feature into cache");
-        }
-        if (feat.getUid() == null || feat.getUid().isEmpty()) {
-            throw new IllegalArgumentException("ff4j-core: Cannot insert feature with null identifier into cache");
-        }
+        FF4jUtils.assertNotNull(feat);
+        FF4jUtils.assertHasLength(feat.getUid());
         getFeaturesCache().put(feat.getUid(), new InMemoryCacheEntry<Feature>(feat));
     }
     
     /** {@inheritDoc} */
     public void putFeature(Feature feat, long timeToLive) {
-        if (feat == null) {
-            throw new IllegalArgumentException("ff4j-core: Cannot insert null feature into cache");
-        }
-        if (feat.getUid() == null || feat.getUid().isEmpty()) {
-            throw new IllegalArgumentException("ff4j-core: Cannot insert feature with null identifier into cache");
-        }
+        FF4jUtils.assertNotNull(feat);
+        FF4jUtils.assertHasLength(feat.getUid());
         getFeaturesCache().put(feat.getUid(), new InMemoryCacheEntry<Feature>(feat, timeToLive));
     }
 
     /** {@inheritDoc} */
     @Override
     public void putProperty(Property<?> prop) {
-        if (prop == null) {
-            throw new IllegalArgumentException("ff4j-core: Cannot insert null property into cache");
-        }
-        if (prop.getUid() == null || prop.getUid().isEmpty()) {
-            throw new IllegalArgumentException("ff4j-core: Cannot insert property with null identifier into cache");
-        }
+        FF4jUtils.assertNotNull(prop);
+        FF4jUtils.assertHasLength(prop.getUid());
         getPropertyCache().put(prop.getUid(), new InMemoryCacheEntry<Property<?>>(prop));
     }
     
     /** {@inheritDoc} */
     public void putProperty(Property<?> prop, long timeToLive) {
-        if (prop == null) {
-            throw new IllegalArgumentException("ff4j-core: Cannot insert null property into cache");
-        }
-        if (prop.getUid() == null || prop.getUid().isEmpty()) {
-            throw new IllegalArgumentException("ff4j-core: Cannot insert property with null identifier into cache");
-        }
+        FF4jUtils.assertNotNull(prop);
+        FF4jUtils.assertHasLength(prop.getUid());
         getPropertyCache().put(prop.getUid(), new InMemoryCacheEntry<Property<?>>(prop, timeToLive));
     }
 

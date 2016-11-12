@@ -125,31 +125,31 @@ public class PropertyStoreMongoDB extends AbstractPropertyStore {
     }
     
     /** {@inheritDoc} */
-    public boolean existProperty(String name) {
+    public boolean exists(String name) {
         Util.assertHasLength(name);
         return 1 == getPropertiesCollection().count(BUILDER.getName(name));
     }
 
     /** {@inheritDoc} */
-    public <T> void createProperty(Property<T> prop) {
+    public <T> void create(Property<T> prop) {
         if (prop == null) {
             throw new IllegalArgumentException("Property cannot be null nor empty");
         }
-        if (existProperty(prop.getName())) {
+        if (exists(prop.getName())) {
             throw new PropertyAlreadyExistException(prop.getName());
         }
         getPropertiesCollection().save(MAPPER.fromProperty2DBObject(prop));
     }
 
     /** {@inheritDoc} */
-    public Property<?> readProperty(String name) {
+    public Property<?> findById(String name) {
         assertPropertyExist(name);
         DBObject object = getPropertiesCollection().findOne(BUILDER.getName(name));
         return MAPPER.mapProperty(object);
     }
     
     /** {@inheritDoc} */
-    public void deleteProperty(String name) {
+    public void delete(String name) {
         assertPropertyExist(name);
         getPropertiesCollection().remove(BUILDER.getName(name));
     }
@@ -162,7 +162,7 @@ public class PropertyStoreMongoDB extends AbstractPropertyStore {
     /** {@inheritDoc} */
     public void updateProperty(String name, String newValue) {
         assertPropertyExist(name);
-        readProperty(name).fromString(newValue);
+        findById(name).fromString(newValue);
         DBObject query = BUILDER.getName(name);
         Object update = BUILDER.getValue(newValue);
         getPropertiesCollection().update(query, BasicDBObjectBuilder.start(MONGO_SET, update).get());
@@ -172,13 +172,13 @@ public class PropertyStoreMongoDB extends AbstractPropertyStore {
     public <T> void updateProperty(Property<T> prop) {
         Util.assertNotNull(prop);
         // Delete
-        deleteProperty(prop.getName());
+        delete(prop.getName());
         // Create
-        createProperty(prop);
+        create(prop);
     }
     
     /** {@inheritDoc} */
-    public Map<String, Property<?>> readAllProperties() {
+    public Map<String, Property<?>> findAll() {
         LinkedHashMap<String, Property<?>> mapP = new LinkedHashMap<String, Property<?>>();
         for(DBObject dbObject : getPropertiesCollection().find()) {
             Property<?> prop = MAPPER.mapProperty(dbObject);

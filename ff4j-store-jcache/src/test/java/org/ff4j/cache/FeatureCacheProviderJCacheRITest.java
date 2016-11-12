@@ -36,7 +36,7 @@ import org.junit.Test;
 public class FeatureCacheProviderJCacheRITest extends AbstractCacheManagerJUnitTest {
 
     /** {@inheritDoc} */
-    protected FF4JCacheManager getCacheManager() {
+    protected FF4jCacheManager getCacheManager() {
         return new FF4jJCacheManager(RICachingProvider.class.getName());
     }
     

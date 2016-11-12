@@ -82,7 +82,7 @@ public class AssertFf4j {
 	 */
 	public final AssertFf4j assertThatPropertyExist(String propertyName) {
 		Assert.assertTrue("Property '" + propertyName + IS_MANDATORY,
-				ff4j.getPropertiesStore().existProperty(propertyName));
+				ff4j.getPropertiesStore().exists(propertyName));
 		waitSomeSeconds();
 		return this;
 	}
@@ -109,7 +109,7 @@ public class AssertFf4j {
 	 */
 	public final AssertFf4j assertThatPropertyDoesNotExist(String propertyName) {
 		Assert.assertFalse("Property '" + propertyName + IS_MANDATORY,
-				ff4j.getPropertiesStore().existProperty(propertyName));
+				ff4j.getPropertiesStore().exists(propertyName));
 		waitSomeSeconds();
 		return this;
 	}
@@ -178,7 +178,7 @@ public class AssertFf4j {
 	 * @return current object
 	 */
 	public final AssertFf4j assertThatStoreHasSize(int expectedNumber) {
-		Assert.assertEquals(expectedNumber, ff4j.getFeatureStore().readAll().size());
+		Assert.assertEquals(expectedNumber, ff4j.getFeatureStore().findAll().size());
 		waitSomeSeconds();
 		return this;
 	}
@@ -291,7 +291,7 @@ public class AssertFf4j {
 	 */
 	public final AssertFf4j assertThatFeatureIsEnabled(String featureName) {
 		assertThatFeatureExist(featureName);
-		Assert.assertTrue(ff4j.getFeatureStore().read(featureName).isEnable());
+		Assert.assertTrue(ff4j.getFeatureStore().findById(featureName).isEnable());
 		waitSomeSeconds();
 		return this;
 	}
@@ -306,7 +306,7 @@ public class AssertFf4j {
 	public final AssertFf4j assertThatFeatureIsDisabled(String featureName) {
 		assertThatFeatureExist(featureName);
 		Assert.assertFalse("'" + featureName + "' must be disabled",
-				ff4j.getFeatureStore().read(featureName).isEnable());
+				ff4j.getFeatureStore().findById(featureName).isEnable());
 		waitSomeSeconds();
 		return this;
 	}

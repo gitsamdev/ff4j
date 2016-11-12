@@ -24,7 +24,7 @@ import java.util.Set;
  * #L%
  */
 
-import org.ff4j.cache.FF4JCacheManager;
+import org.ff4j.cache.FF4jCacheManager;
 import org.ff4j.cache.FF4jCacheProxy;
 import org.ff4j.cache.FeatureCacheProviderRedis;
 import org.ff4j.core.Feature;
@@ -49,7 +49,7 @@ public class FeatureStoreWithRedisCacheTestIT extends FeatureStoreTestSupport {
     private static final int EXPECTED_FEATURES_NUMBERS = 5;
 
     /** Cache Manager. */
-    private static final FF4JCacheManager cache = new FeatureCacheProviderRedis();
+    private static final FF4jCacheManager cache = new FeatureCacheProviderRedis();
 
     /** {@inheritDoc} */
     @Override

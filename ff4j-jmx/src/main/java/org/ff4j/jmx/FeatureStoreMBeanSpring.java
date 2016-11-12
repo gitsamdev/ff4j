@@ -65,7 +65,7 @@ public class FeatureStoreMBeanSpring implements FeatureStore {
     @ManagedOperation(description = "Test if a feature exists based on its identifier")
     @ManagedOperationParameters({@ManagedOperationParameter(name = "feature_UID", description = "Identifier of feature to test")})
     public boolean exist(String feature_UID) {
-        return internalStore.exist(feature_UID);
+        return internalStore.exists(feature_UID);
     }
 
     @Override
@@ -78,13 +78,13 @@ public class FeatureStoreMBeanSpring implements FeatureStore {
     @Override
     @ManagedOperation(description = "Disable feature from its identifier")
     @ManagedOperationParameters({@ManagedOperationParameter(name = "feature_UID", description = "Unique Identifier of feature")})
-    public Feature read(String feature_UID) {
-        return internalStore.read(feature_UID);
+    public Feature findById(String feature_UID) {
+        return internalStore.findById(feature_UID);
     }
 
     /** {@inheritDoc} */
     @Override
-    public Map<String, Feature> readAll() {
+    public Map<String, Feature> findAll() {
         // TODO Auto-generated method stub
         return null;
     }
@@ -175,7 +175,7 @@ public class FeatureStoreMBeanSpring implements FeatureStore {
 
     /** {@inheritDoc} */
     @Override
-    public void importFeatures(Collection<Feature> features) {
+    public void save(Collection<Feature> features) {
         // TODO Auto-generated method stub
         
     }

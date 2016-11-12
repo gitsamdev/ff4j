@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.ff4j.FF4j;
-import org.ff4j.cache.FF4JCacheManager;
+import org.ff4j.cache.FF4jCacheManager;
 import org.ff4j.cache.FF4jCacheProxy;
 import org.ff4j.cache.InMemoryCacheManager;
 import org.ff4j.feature.Feature;
@@ -57,21 +57,21 @@ public class CacheProxyTest {
     @Test
     public void testCacheProxyManager() {
         FF4jCacheProxy proxy = new FF4jCacheProxy();
-        FF4JCacheManager cm = new InMemoryCacheManager();
+        FF4jCacheManager cm = new InMemoryCacheManager();
         proxy.setCacheManager(cm);
         proxy.isCached();
         Assert.assertNotNull(proxy.getCacheProvider());
         proxy.setTargetPropertyStore(new PropertyStoreInMemory());
-        Assert.assertEquals(0, proxy.readAllProperties().size());
-        proxy.createProperty(new PropertyString("p1", "v1"));
-        Assert.assertTrue(proxy.existProperty("p1"));
-        Assert.assertFalse(proxy.existProperty("p2"));
+        Assert.assertEquals(0, proxy.findAll().size());
+        proxy.create(new PropertyString("p1", "v1"));
+        Assert.assertTrue(proxy.exists("p1"));
+        Assert.assertFalse(proxy.exists("p2"));
         
         proxy.setTargetFeatureStore(new FeatureStoreInMemory());
         Set < Feature> setOfFeatures = new HashSet<Feature>();
         setOfFeatures.add(new Feature("f1"));
         setOfFeatures.add(new Feature("f2"));
-        proxy.importFeatures(setOfFeatures);
+        proxy.save(setOfFeatures);
     }
     
     @Test
@@ -85,18 +85,18 @@ public class CacheProxyTest {
         proxy.create(new Feature("a"));
         Assert.assertFalse(proxy.isEmpty());
         
-        proxy.createProperty(new PropertyString("p1", "v1"));
-        Property<?> p1 = proxy.readProperty("p1");
-        proxy.readProperty("p1");
-        proxy.getTargetPropertyStore().createProperty(new PropertyString("p2"));
-        proxy.readProperty("p2");
+        proxy.create(new PropertyString("p1", "v1"));
+        Property<?> p1 = proxy.findById("p1");
+        proxy.findById("p1");
+        proxy.getTargetPropertyStore().create(new PropertyString("p2"));
+        proxy.findById("p2");
         
         proxy.updateProperty("p1", "v2");
         proxy.updateProperty(p1);
         Assert.assertFalse(proxy.isEmpty());
         
         Assert.assertFalse(proxy.listPropertyNames().isEmpty());
-        proxy.deleteProperty("p1");
+        proxy.delete("p1");
         proxy.clear();
         
         Set < Property<?>> setOfProperty = new HashSet<Property<?>>();
@@ -105,17 +105,17 @@ public class CacheProxyTest {
         proxy.importProperties(setOfProperty);
         
         // Already in cache, but not same value
-        proxy.createProperty(new PropertyString("cacheNStore", "cacheNStore"));
-        proxy.readProperty("cacheNStore", p1);
+        proxy.create(new PropertyString("cacheNStore", "cacheNStore"));
+        proxy.read("cacheNStore", p1);
         
         // Not in cache, but in store, but not same default value
-        proxy.getTargetPropertyStore().createProperty(new PropertyString("p4", "v4"));
-        proxy.readProperty("p1", p1);
+        proxy.getTargetPropertyStore().create(new PropertyString("p4", "v4"));
+        proxy.read("p1", p1);
         
-        proxy.readProperty("p1", p1);
+        proxy.read("p1", p1);
         // Nowhere, return default
-        proxy.readProperty("p2", new PropertyString("p2"));
-        proxy.readProperty("p1", new PropertyString("p3"));
+        proxy.read("p2", new PropertyString("p2"));
+        proxy.read("p1", new PropertyString("p3"));
     }
     
     @Test

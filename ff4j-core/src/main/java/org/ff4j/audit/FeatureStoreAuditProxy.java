@@ -2,38 +2,17 @@ package org.ff4j.audit;
 
 import static org.ff4j.audit.EventConstants.ACTION_CLEAR;
 import static org.ff4j.audit.EventConstants.ACTION_CREATE;
-import static org.ff4j.audit.EventConstants.ACTION_DELETE;
 import static org.ff4j.audit.EventConstants.ACTION_CREATESCHEMA;
+import static org.ff4j.audit.EventConstants.ACTION_DELETE;
 import static org.ff4j.audit.EventConstants.ACTION_TOGGLE_OFF;
 import static org.ff4j.audit.EventConstants.ACTION_TOGGLE_ON;
 import static org.ff4j.audit.EventConstants.ACTION_UPDATE;
-import static org.ff4j.audit.EventConstants.TARGET_FSTORE;
 import static org.ff4j.audit.EventConstants.TARGET_FEATURE;
+import static org.ff4j.audit.EventConstants.TARGET_FSTORE;
 
 import java.util.Collection;
-
-/*
- * #%L
- * ff4j-core
- * %%
- * Copyright (C) 2013 - 2016 FF4J
- * %%
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *      http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * #L%
- */
-
-import java.util.Map;
-import java.util.Set;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.ff4j.FF4j;
 import org.ff4j.feature.Feature;
@@ -171,9 +150,9 @@ public class FeatureStoreAuditProxy implements FeatureStore {
 
     /** {@inheritDoc} */
     @Override
-    public void clear() {
+    public void deleteAll() {
         long start = System.nanoTime();
-        target.clear();
+        target.deleteAll();
         long duration = System.nanoTime() - start;
         publish(builder(ACTION_CLEAR).type(TARGET_FSTORE)
                 .name(ff4j.getFeatureStore().getClass().getName())
@@ -202,20 +181,20 @@ public class FeatureStoreAuditProxy implements FeatureStore {
     
     /** {@inheritDoc} */
     @Override
-    public boolean exist(String uid) {
-        return target.exist(uid);
+    public boolean exists(String uid) {
+        return target.exists(uid);
     }
 
     /** {@inheritDoc} */
     @Override
-    public Feature read(String uid) {
-        return target.read(uid);
+    public Optional < Feature > findById(String uid) {
+        return target.findById(uid);
     }
 
     /** {@inheritDoc} */
     @Override
-    public Map<String, Feature> readAll() {
-        return target.readAll();
+    public Stream < Feature > findAll() {
+        return target.findAll();
     }
 
     /** {@inheritDoc} */
@@ -226,29 +205,58 @@ public class FeatureStoreAuditProxy implements FeatureStore {
 
     /** {@inheritDoc} */
     @Override
-    public Map<String, Feature> readGroup(String groupName) {
+    public Stream < Feature > readGroup(String groupName) {
         return target.readGroup(groupName);
     }
 
     /** {@inheritDoc} */
     @Override
-    public Set<String> readAllGroups() {
+    public Stream < String >  readAllGroups() {
         return target.readAllGroups();
     }
     
     /** {@inheritDoc} */
     @Override
-    public void importFeatures(Collection<Feature> features) {
-        // Do not use target as the delete/create operation will be traced
-        if (features != null) {
-            for (Feature feature : features) {
-                if (exist(feature.getUid())) {
-                    delete(feature.getUid());
-                }
-                create(feature);
-            }
-        }
+    public void save(Collection<Feature> features) {
+        long start = System.nanoTime();
+        target.save(features);
+        long duration = System.nanoTime() - start;
+        publish(builder(ACTION_UPDATE).type(TARGET_FSTORE)
+                .name(ff4j.getFeatureStore().getClass().getName())
+                .duration(duration));
     }
+    
+    /** {@inheritDoc} */
+    @Override
+    public long count() {
+        return target.count();
+    }
+    
+    /** {@inheritDoc} */
+    @Override
+    public void delete(Iterable<? extends Feature> entities) {
+       if (entities != null) {
+           entities.forEach(this::delete);
+       }
+    }
+    
+    /** {@inheritDoc} */
+    @Override
+    public Feature read(String id) {
+        return target.read(id);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void delete(Feature entity) {
+        this.delete(entity.getUid());
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Stream<Feature> findAll(Iterable<String> ids) {
+        return target.findAll();
+    }   
 
 	/**
 	 * Getter accessor for attribute 'target'.
@@ -258,7 +266,7 @@ public class FeatureStoreAuditProxy implements FeatureStore {
 	 */
 	public FeatureStore getTarget() {
 		return target;
-	}
+	}    
 
     
 }

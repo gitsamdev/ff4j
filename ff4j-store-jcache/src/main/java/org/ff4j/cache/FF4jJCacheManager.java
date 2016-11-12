@@ -30,11 +30,11 @@ import org.ff4j.feature.Feature;
 import org.ff4j.property.Property;
 
 /**
- * Implementation of {@link FF4JCacheManager} with reference interface JCache {@link Cache}.
+ * Implementation of {@link FF4jCacheManager} with reference interface JCache {@link Cache}.
  * 
  * @author Cedrick Lunven (@clunven)</a>
  */
-public class FF4jJCacheManager extends FF4jJCacheProvider implements FF4JCacheManager {    
+public class FF4jJCacheManager extends FF4jJCacheProvider implements FF4jCacheManager {    
     
     /** cache name of the features. */
     protected static final String CACHENAME_FEATURES      = "ff4jFeatures";

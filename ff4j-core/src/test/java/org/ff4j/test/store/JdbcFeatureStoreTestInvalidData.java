@@ -61,7 +61,7 @@ public class JdbcFeatureStoreTestInvalidData {
 
     @Test(expected = FeatureAccessException.class)
     public void testReadInvalid() {
-        jdbcStore.read("forth");
+        jdbcStore.findById("forth");
     }
     
     @Test(expected = FeatureAccessException.class)

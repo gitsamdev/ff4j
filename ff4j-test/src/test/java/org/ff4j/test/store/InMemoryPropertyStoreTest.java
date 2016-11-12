@@ -48,8 +48,8 @@ public class InMemoryPropertyStoreTest extends PropertyStoreTestSupport {
     @Override
     public void existfilled() {
         // When-Then
-        Assert.assertTrue(testedStore.existProperty("a"));
-        Assert.assertFalse(testedStore.existProperty("koala"));
+        Assert.assertTrue(testedStore.exists("a"));
+        Assert.assertFalse(testedStore.exists("koala"));
     }
     
     /** TDD. */
@@ -57,19 +57,19 @@ public class InMemoryPropertyStoreTest extends PropertyStoreTestSupport {
     @Override
     public void valueFixed() {
         // When-Then
-        Assert.assertTrue(testedStore.existProperty("a"));
-        Assert.assertEquals("AMER", testedStore.readProperty("a").getValue());
+        Assert.assertTrue(testedStore.exists("a"));
+        Assert.assertEquals("AMER", testedStore.findById("a").getValue());
     }
     
     public void testProperty() {
         FF4j ff4j = new FF4j("ff4j.xml");
-        ff4j.getPropertiesStore().createProperty(new PropertyDate("property_3", new Date()));
-        Property<?> ap = ff4j.getPropertiesStore().readProperty("property_3");
+        ff4j.getPropertiesStore().create(new PropertyDate("property_3", new Date()));
+        Property<?> ap = ff4j.getPropertiesStore().findById("property_3");
         PropertyDate pDate = (PropertyDate) ap;
         pDate.setValue(new Date());
         ff4j.getPropertiesStore().updateProperty(pDate);
-        ff4j.getPropertiesStore().deleteProperty("property_3");
-        Assert.assertFalse(testedStore.existProperty("property_3"));
+        ff4j.getPropertiesStore().delete("property_3");
+        Assert.assertFalse(testedStore.exists("property_3"));
     }
     
     @Test
@@ -138,7 +138,7 @@ public class InMemoryPropertyStoreTest extends PropertyStoreTestSupport {
     public void testEmpty3() {
         // Given
         PropertyStoreInMemory ips = new PropertyStoreInMemory();
-        ips.createProperty(new PropertyString("P1", "v1"));
+        ips.create(new PropertyString("P1", "v1"));
         Assert.assertFalse(ips.isEmpty());
     }
     

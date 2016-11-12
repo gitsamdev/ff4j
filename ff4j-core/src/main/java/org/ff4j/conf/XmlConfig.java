@@ -37,7 +37,7 @@ public class XmlConfig {
     private Map <String, Feature > features = new LinkedHashMap<String, Feature>();
     
     /** InMemory Feature Map */
-    private Map<String, Property<?>> properties = new LinkedHashMap<String, Property<?>>();
+    private Map <String, Property<?> > properties = new LinkedHashMap<String, Property<?>>();
 
     /**
      * Getter accessor for attribute 'features'.

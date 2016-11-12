@@ -96,8 +96,8 @@ public class FF4JConfigurationTest {
         ff4jConf.addProperty("myNewProp", "hello");
         // Then
         Assert.assertTrue(ff4jConf.containsKey("myNewProp"));
-        Assert.assertTrue(pStore.existProperty("myNewProp"));
-        Assert.assertEquals("hello", pStore.readProperty("myNewProp").asString());
+        Assert.assertTrue(pStore.exists("myNewProp"));
+        Assert.assertEquals("hello", pStore.findById("myNewProp").asString());
     }
     
     @Test
@@ -108,8 +108,8 @@ public class FF4JConfigurationTest {
         ff4jConf.addPropertyDirect("myNewProp", "hello");
         // Then
         Assert.assertTrue(ff4jConf.containsKey("myNewProp"));
-        Assert.assertTrue(pStore.existProperty("myNewProp"));
-        Assert.assertEquals("hello", pStore.readProperty("myNewProp").asString());
+        Assert.assertTrue(pStore.exists("myNewProp"));
+        Assert.assertEquals("hello", pStore.findById("myNewProp").asString());
     }
     
     @Test
@@ -142,7 +142,7 @@ public class FF4JConfigurationTest {
         ff4jConf.clearProperty("propInt");
         // Then
         Assert.assertFalse(ff4jConf.containsKey("propInt"));
-        Assert.assertFalse(pStore.existProperty("myNewProp"));
+        Assert.assertFalse(pStore.exists("myNewProp"));
     }
     
     @Test

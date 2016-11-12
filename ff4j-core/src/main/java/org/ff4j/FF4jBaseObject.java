@@ -1,5 +1,8 @@
 package org.ff4j;
 
+import static org.ff4j.utils.JsonUtils.attributeAsJson;
+import static org.ff4j.utils.JsonUtils.valueAsJson;
+
 /*
  * #%L
  * ff4j-core
@@ -87,17 +90,15 @@ public abstract class FF4jBaseObject<T extends FF4jBaseObject<?>> implements Ser
     }
     
     public String baseJson() {
-        StringBuilder json = 
-                new StringBuilder("\"uid\":\"" + uid + "\"");
-        description.ifPresent(d -> 
-                json.append(",\"description\":\"" + d + "\""));
-        owner.ifPresent(o -> 
-                json.append(",\"owner\":\"" + o + "\""));
-        creationDate.ifPresent(c -> 
-                json.append(",\"creationDate\":\"" + c.format(FORMATTER) + "\""));
-        lastModifiedDate.ifPresent(c -> 
-                json.append(",\"lastModifiedDate\":\"" + c.format(FORMATTER) + "\""));
-        
+        StringBuilder json = new StringBuilder("\"uid\":" + valueAsJson(uid));
+        description.ifPresent(
+                d -> attributeAsJson("description", d));
+        owner.ifPresent(
+                d -> attributeAsJson("owner", d));
+        creationDate.ifPresent(
+                d -> attributeAsJson("creationDate", d.format(FORMATTER)));
+        lastModifiedDate.ifPresent(
+                d -> attributeAsJson("lastModifiedDate", d.format(FORMATTER)));
         return json.toString();   
     }
 

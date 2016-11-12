@@ -47,25 +47,25 @@ public class MockPropertyStore implements PropertyStore {
     private boolean empty = false;
     
     /** {@inheritDoc} */
-    public boolean existProperty(String name) {
+    public boolean exists(String name) {
         return ("log".equals(name) || "a".equals(name));
     }
 
     /** {@inheritDoc} */
-    public <T> void createProperty(Property<T> value) {
+    public <T> void create(Property<T> value) {
     	LOGGER.debug("MOCK [createProperty]");
     }
 
     /** {@inheritDoc} */
-    public Property<?> readProperty(String name) {
+    public Property<?> findById(String name) {
         if ("a".equals(name)) return new PropertyString("a", "AMER");
         return null;
     }
     
     /** {@inheritDoc} */
     @Override
-    public Property<?> readProperty(String name, Property<?> defaultValue) {
-        return readProperty(name);
+    public Property<?> read(String name, Property<?> defaultValue) {
+        return findById(name);
     }
 
     /** {@inheritDoc} */
@@ -79,12 +79,12 @@ public class MockPropertyStore implements PropertyStore {
     }
 
    /** {@inheritDoc} */
-    public void deleteProperty(String name) {
+    public void delete(String name) {
     	LOGGER.debug("MOCK [enable]");
     }
 
     /** {@inheritDoc} */
-    public Map<String, Property<?>> readAllProperties() {
+    public Map<String, Property<?>> findAll() {
         Map < String, Property<?>> map = new HashMap<String, Property<?>>();
         if (!empty) {
             map.put("a", new PropertyString("a", "AMER"));

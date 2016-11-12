@@ -1,5 +1,10 @@
 package org.ff4j.feature;
 
+import static org.ff4j.utils.JsonUtils.attributeAsJson;
+import static org.ff4j.utils.JsonUtils.collectionAsJson;
+import static org.ff4j.utils.JsonUtils.customPropertiesAsJson;
+import static org.ff4j.utils.JsonUtils.flippingStrategyAsJson;
+
 /*
  * #%L
  * ff4j-core
@@ -36,7 +41,6 @@ import org.ff4j.FF4jBaseObject;
 import org.ff4j.property.Property;
 import org.ff4j.property.PropertyFactory;
 import org.ff4j.utils.FF4jUtils;
-import org.ff4j.utils.JsonUtils;
 import org.ff4j.utils.Util;
 
 /**
@@ -226,17 +230,14 @@ public class Feature extends FF4jBaseObject < Feature > {
     public String toJson() {
         StringBuilder json = new StringBuilder("{");
         json.append(super.baseJson());
-        json.append(",\"enable\":" + enable);
-        description.ifPresent(d -> 
-                json.append(",\"description\":\"" + d + "\""));
-        group.ifPresent(g -> 
-                json.append(",\"group\":\"" + g + "\""));
+        json.append(attributeAsJson("enable", enable));
+        group.ifPresent(g -> attributeAsJson("group", g));
         permissions.ifPresent(perm -> 
-                json.append(",\"permissions\": [" +  perm.stream().collect(Collectors.joining(", ")) + "]"));
+                json.append(",\"permissions\": " + collectionAsJson(perm)));
         flippingStrategy.ifPresent(fs ->
-                json.append(",\"flippingStrategy\":" + JsonUtils.flippingStrategyAsJson(fs)));
+                json.append(",\"flippingStrategy\":" + flippingStrategyAsJson(fs)));
         customProperties.ifPresent(cp ->
-                json.append(",\"customProperties\":" + JsonUtils.customPropertiesAsJson(cp)));
+                json.append(",\"customProperties\":" + customPropertiesAsJson(cp)));
         json.append("}");
         return json.toString();
     }

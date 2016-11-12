@@ -155,7 +155,7 @@ public class FeatureStoreCassandra extends AbstractFeatureStore {
 
     /** {@inheritDoc} */
     @Override
-    public Feature read(String uid) {
+    public Feature findById(String uid) {
         assertFeatureExist(uid);
         ResultSet rs = conn.getSession().execute(getBuilder().cqlReadFeature(), uid);
         return CassandraMapper.mapFeature(rs.one());
@@ -163,7 +163,7 @@ public class FeatureStoreCassandra extends AbstractFeatureStore {
 
     /** {@inheritDoc} */
     @Override
-    public Map<String, Feature> readAll() {
+    public Map<String, Feature> findAll() {
         Map < String, Feature> features = new HashMap<String, Feature>();
         ResultSet resultSet = conn.getSession().execute(getBuilder().selectAllFeatures());
         for (Row row : resultSet.all()) {

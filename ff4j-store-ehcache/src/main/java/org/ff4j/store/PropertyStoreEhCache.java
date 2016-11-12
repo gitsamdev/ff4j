@@ -70,18 +70,18 @@ public class PropertyStoreEhCache extends AbstractPropertyStore {
     
     /** {@inheritDoc} */
     @Override
-    public boolean existProperty(String name) {
+    public boolean exists(String name) {
         Util.assertParamHasLength(name, "Property name");
         return  wrapper.getCacheProperties().get(name) != null;
     }
 
     /** {@inheritDoc} */
     @Override
-    public <T> void createProperty(Property<T> property) {
+    public <T> void create(Property<T> property) {
         if (property == null) {
             throw new IllegalArgumentException("Property cannot be null nor empty");
         }
-        if (existProperty(property.getName())) {
+        if (exists(property.getName())) {
             throw new PropertyAlreadyExistException(property.getName());
         }
         wrapper.getCacheProperties().put(new Element(property.getName(), property));
@@ -89,8 +89,8 @@ public class PropertyStoreEhCache extends AbstractPropertyStore {
 
     /** {@inheritDoc} */
     @Override
-    public Property<?> readProperty(String name) {
-        if (!existProperty(name)) {
+    public Property<?> findById(String name) {
+        if (!exists(name)) {
             throw new PropertyNotFoundException(name);
         }
         return  (Property<?>) wrapper.getCacheProperties().get(name).getObjectValue();
@@ -99,7 +99,7 @@ public class PropertyStoreEhCache extends AbstractPropertyStore {
     /** {@inheritDoc} */
     @Override
     public void updateProperty(String name, String newValue) {
-        Property<?> fp = readProperty(name);
+        Property<?> fp = findById(name);
         fp.setValueFromString(newValue);
         updateProperty(fp);
     }
@@ -110,7 +110,7 @@ public class PropertyStoreEhCache extends AbstractPropertyStore {
         if (property == null) {
             throw new IllegalArgumentException("Property cannot be null");
         }
-        if (!existProperty(property.getName())) {
+        if (!exists(property.getName())) {
             throw new PropertyNotFoundException(property.getName());
         }
         wrapper.getCacheProperties().put(new Element(property.getName(), property));
@@ -118,8 +118,8 @@ public class PropertyStoreEhCache extends AbstractPropertyStore {
 
     /** {@inheritDoc} */
     @Override
-    public void deleteProperty(String name) {
-        if (!existProperty(name)) {
+    public void delete(String name) {
+        if (!exists(name)) {
             throw new PropertyNotFoundException(name);
         }
         wrapper.getCacheProperties().remove(name);
@@ -127,7 +127,7 @@ public class PropertyStoreEhCache extends AbstractPropertyStore {
 
     /** {@inheritDoc} */
     @Override
-    public Map<String, Property<?>> readAllProperties() {
+    public Map<String, Property<?>> findAll() {
         Map<String, Property<?>> myMap = new HashMap<String, Property<?>>();
         if (wrapper.getCacheProperties().getKeys() != null) {
             for (Object key : wrapper.getCacheProperties().getKeys()) {

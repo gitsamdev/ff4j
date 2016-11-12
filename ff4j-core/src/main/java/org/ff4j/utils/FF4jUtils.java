@@ -25,6 +25,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.lang.model.type.NullType;
 
@@ -47,8 +49,18 @@ public class FF4jUtils {
      */
     @SuppressWarnings("unchecked")
     public static <T> Set<T> setOf(T... els) {
-        if (els == null) return null;
-        return new HashSet<T>(Arrays.asList(els));
+         return (els == null) ? null : new HashSet<T>(Arrays.asList(els));
+    }
+    
+    /**
+     * Create an HashSet.
+     *
+     * @param els
+     *            enumeration of elements
+     * @return
+     */
+    public static <T> Set<T> setOf(Stream < T > elements) {
+        return (elements == null) ? null : elements.collect(Collectors.toSet());
     }
     
     /**
@@ -60,8 +72,7 @@ public class FF4jUtils {
      */
     @SuppressWarnings("unchecked")
     public static <T> List<T> listOf(T... els) {
-        if (els == null) return null;
-        return new ArrayList<T>(Arrays.asList(els));
+        return (els == null) ? null : new ArrayList<T>(Arrays.asList(els));
     }
     
     /**

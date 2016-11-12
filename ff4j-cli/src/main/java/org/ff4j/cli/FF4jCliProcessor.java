@@ -147,53 +147,53 @@ public class FF4jCliProcessor {
 			displayHelpConnected();
 			
 		} else if (cmd.equals("features")) {
-			displayFeatures(currentFF4J.getFeatureStore().readAll());
+			displayFeatures(currentFF4J.getFeatureStore().findAll());
 			
 		} else if (cmd.equals("properties")) {
-			displayProperties(currentFF4J.getPropertiesStore().readAllProperties());
+			displayProperties(currentFF4J.getPropertiesStore().findAll());
 			
 		} else if (cmd.equals("conf")) {
 			displayConf(currentFF4J);
 			
 		}else if (cmd.equals("list") || cmd.equals("ls")) {
 			AnsiTerminal.white("\nFeatures:\n");
-			displayFeatures(currentFF4J.getFeatureStore().readAll());
+			displayFeatures(currentFF4J.getFeatureStore().findAll());
 			
 			AnsiTerminal.white("\nProperties:\n");
-			displayProperties(currentFF4J.getPropertiesStore().readAllProperties());
+			displayProperties(currentFF4J.getPropertiesStore().findAll());
 			
 		} else if (cmd.equals("enable")) {
 			processCommandEnable(commandLine, true);
 			System.out.println("");
-			displayFeatures(currentFF4J.getFeatureStore().readAll());
+			displayFeatures(currentFF4J.getFeatureStore().findAll());
 			
 		} else if (cmd.equals("disable")) {
 			processCommandEnable(commandLine, false);
-			displayFeatures(currentFF4J.getFeatureStore().readAll());
+			displayFeatures(currentFF4J.getFeatureStore().findAll());
 			
 		} else if (cmd.equals("enableGroup")) {
 			processCommandEnableGroup(commandLine, true);
-			displayFeatures(currentFF4J.getFeatureStore().readAll());
+			displayFeatures(currentFF4J.getFeatureStore().findAll());
 			
 		} else if (cmd.equals("disableGroup")) {
 			processCommandEnableGroup(commandLine, false);
-			displayFeatures(currentFF4J.getFeatureStore().readAll());
+			displayFeatures(currentFF4J.getFeatureStore().findAll());
 			
 		} else if (cmd.equals("addToGroup")) {
 			processCommandAddGroup(commandLine);
-			displayFeatures(currentFF4J.getFeatureStore().readAll());
+			displayFeatures(currentFF4J.getFeatureStore().findAll());
 			
 		} else if (cmd.equals("removeFromGroup")) {
 			processCommandAddGroup(commandLine);
-			displayFeatures(currentFF4J.getFeatureStore().readAll());
+			displayFeatures(currentFF4J.getFeatureStore().findAll());
 			
 		} else if (cmd.equals("grant")) {
 			processCommandGrant(commandLine);
-			displayFeatures(currentFF4J.getFeatureStore().readAll());
+			displayFeatures(currentFF4J.getFeatureStore().findAll());
 			
 		}  else if (cmd.equals("revoke")) {
 			processCommandGrant(commandLine);
-			displayFeatures(currentFF4J.getFeatureStore().readAll());
+			displayFeatures(currentFF4J.getFeatureStore().findAll());
 			
 		} else if (cmd.equals("enableAudit")) {
 			processCommandEnableEnableAudit(commandLine, true);
@@ -212,7 +212,7 @@ public class FF4jCliProcessor {
 		} else if (cmd.equals("update")) {
 			processCommandUpdateProperty(commandLine);
 			System.out.println("");
-			displayProperties(currentFF4J.getPropertiesStore().readAllProperties());
+			displayProperties(currentFF4J.getPropertiesStore().findAll());
 			
 		} else {
 			logWarn("Invalid command, not recognized");
@@ -228,7 +228,7 @@ public class FF4jCliProcessor {
 			} else {
 				String property = cmd.getOptionValue('p');
 				String value    = cmd.getOptionValue('v');
-				if (!currentFF4J.getPropertiesStore().existProperty(property)) {
+				if (!currentFF4J.getPropertiesStore().exists(property)) {
 					logWarn("Property " + property + " does not exist, nothing to update");
 				} else {
 					currentFF4J.getPropertiesStore().updateProperty(property, value);
@@ -250,14 +250,14 @@ public class FF4jCliProcessor {
 			} else {
 				String feature = cmd.getOptionValue('f');
 				String group   = cmd.getOptionValue('g');
-				if (!currentFF4J.getFeatureStore().exist(feature)) {
+				if (!currentFF4J.getFeatureStore().exists(feature)) {
 					logWarn("Feature does not exist, nothing updated");
 				} else {
 					if (cmd.getArgList().get(0).equals("addToGroup")) {
 						currentFF4J.getFeatureStore().addToGroup(feature, group);
 						logInfo(FEATURE + feature + " has been added to group " + group);
 					} else if (cmd.getArgList().get(0).equals("removeFromGroup")) {
-					    Optional<String> currentGroup = currentFF4J.getFeatureStore().read(feature).getGroup();
+					    Optional<String> currentGroup = currentFF4J.getFeatureStore().findById(feature).getGroup();
 						if (currentGroup.isPresent()) {
 						    if (group.equals(currentGroup)) {
 						        currentFF4J.getFeatureStore().removeFromGroup(feature, group);
@@ -284,7 +284,7 @@ public class FF4jCliProcessor {
 			} else {
 				String feature = cmd.getOptionValue('f');
 				String role    = cmd.getOptionValue('r');
-				if (!currentFF4J.getFeatureStore().exist(feature)) {
+				if (!currentFF4J.getFeatureStore().exists(feature)) {
 					logWarn("Feature does not exist, nothing updated");
 				} else {
 					if (cmd.getArgList().get(0).equals("grant")) {
@@ -292,7 +292,7 @@ public class FF4jCliProcessor {
 						logInfo("Role " + role + " has been added to feature " + feature);
 					} else if (cmd.getArgList().get(0).equals("revoke")) {
 					    Optional < Set< String > > permissions = 
-						        currentFF4J.getFeatureStore().read(feature).getPermissions();
+						        currentFF4J.getFeatureStore().findById(feature).getPermissions();
 						if (permissions.isPresent()) {
 						    if (permissions.get().contains(role)) {
 							 currentFF4J.getFeatureStore().removeRoleFromFeature(feature, role);
@@ -357,7 +357,7 @@ public class FF4jCliProcessor {
 				logWarn("Invalid command, expecting enable/disable -f <featureName>");
 			} else {
 				String featureName = cmd.getOptionValue('f');
-				if (!currentFF4J.getFeatureStore().exist(featureName)) {
+				if (!currentFF4J.getFeatureStore().exists(featureName)) {
 					logWarn("Feature [" + featureName + "] not found");
 					
 				} else if (enable){
