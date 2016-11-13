@@ -20,17 +20,17 @@ package org.ff4j.jdbc;
  * #L%
  */
 
-import static org.ff4j.jdbc.JdbcStoreConstants.COL_EVENT_ACTION;
-import static org.ff4j.jdbc.JdbcStoreConstants.COL_EVENT_DURATION;
-import static org.ff4j.jdbc.JdbcStoreConstants.COL_EVENT_HOSTNAME;
-import static org.ff4j.jdbc.JdbcStoreConstants.COL_EVENT_KEYS;
-import static org.ff4j.jdbc.JdbcStoreConstants.COL_EVENT_NAME;
-import static org.ff4j.jdbc.JdbcStoreConstants.COL_EVENT_SOURCE;
-import static org.ff4j.jdbc.JdbcStoreConstants.COL_EVENT_TIME;
-import static org.ff4j.jdbc.JdbcStoreConstants.COL_EVENT_TYPE;
-import static org.ff4j.jdbc.JdbcStoreConstants.COL_EVENT_USER;
-import static org.ff4j.jdbc.JdbcStoreConstants.COL_EVENT_UUID;
-import static org.ff4j.jdbc.JdbcStoreConstants.COL_EVENT_VALUE;
+import static org.ff4j.jdbc.JdbcConstants.COL_EVENT_ACTION;
+import static org.ff4j.jdbc.JdbcConstants.COL_EVENT_DURATION;
+import static org.ff4j.jdbc.JdbcConstants.COL_EVENT_HOSTNAME;
+import static org.ff4j.jdbc.JdbcConstants.COL_EVENT_KEYS;
+import static org.ff4j.jdbc.JdbcConstants.COL_EVENT_NAME;
+import static org.ff4j.jdbc.JdbcConstants.COL_EVENT_SOURCE;
+import static org.ff4j.jdbc.JdbcConstants.COL_EVENT_TIME;
+import static org.ff4j.jdbc.JdbcConstants.COL_EVENT_TYPE;
+import static org.ff4j.jdbc.JdbcConstants.COL_EVENT_USER;
+import static org.ff4j.jdbc.JdbcConstants.COL_EVENT_UID;
+import static org.ff4j.jdbc.JdbcConstants.COL_EVENT_VALUE;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -40,10 +40,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.ff4j.audit.Event;
+import org.ff4j.audit.MutableHitCount;
 import org.ff4j.exception.AuditAccessException;
 import org.ff4j.mapper.EventMapper;
 import org.ff4j.utils.MappingUtil;
-import org.ff4j.utils.Util;
 
 /**
  * Map resultset into {@link Event}
@@ -66,41 +66,41 @@ public class JdbcEventMapper implements EventMapper < PreparedStatement, ResultS
     public PreparedStatement toStore(Event evt) {
         PreparedStatement stmt = null;
         try {
-            int idx = 9;
+            MutableHitCount idx = new MutableHitCount(9);
             Map < Integer, String > statementParams = new HashMap<Integer, String>();
             
-            StringBuilder sb = new StringBuilder("INSERT INTO " + queryBuilder.getTableNameAudit() + 
-                    "(EVT_UUID,EVT_TIME,EVT_TYPE,EVT_NAME,EVT_ACTION,EVT_HOSTNAME,EVT_SOURCE,EVT_DURATION");
-            if (Util.hasLength(evt.getUser())) {
-                sb.append(", EVT_USER");
-                statementParams.put(idx, evt.getUser());
-                idx++;
-            }
-            if (Util.hasLength(evt.getValue())) {
-                sb.append(", EVT_VALUE");
-                statementParams.put(idx, evt.getValue());
-                idx++;
-            }
-            if (!evt.getCustomKeys().isEmpty()) {
-                sb.append(", EVT_KEYS");
-                statementParams.put(idx, MappingUtil.fromMap(evt.getCustomKeys()));
-                idx++;
-            }            
+            StringBuilder sb = new StringBuilder(queryBuilder.sqlStartCreateEvent());
+            
+            evt.getOwner().ifPresent(user -> {
+                sb.append(", " + JdbcConstants.COL_EVENT_USER);
+                statementParams.put(idx.get(), user);
+                idx.inc();
+            });
+            evt.getValue().ifPresent(value -> {
+                sb.append(", " + JdbcConstants.COL_EVENT_VALUE);
+                statementParams.put(idx.get(), value);
+                idx.inc();
+            });
+            evt.getCustomKeys().ifPresent(cp -> {
+                sb.append(", " + JdbcConstants.COL_EVENT_KEYS);
+                statementParams.put(idx.get(), MappingUtil.fromMap(cp));
+                idx.inc();
+            });       
             sb.append(") VALUES (?");
-            for(int offset = 1; offset < idx-1;offset++) {
+            for(int offset = 1; offset < idx.get()-1;offset++) {
                 sb.append(",?");
             }
             sb.append(")");
             stmt = sqlConn.prepareStatement(sb.toString());
-            stmt.setString(1, evt.getUuid());
+            stmt.setString(1, evt.getUid());
             stmt.setTimestamp(2, new java.sql.Timestamp(evt.getTimestamp()));
             stmt.setString(3, evt.getType());
             stmt.setString(4, evt.getName());
             stmt.setString(5, evt.getAction());
             stmt.setString(6, evt.getHostName());
             stmt.setString(7, evt.getSource());
-            stmt.setLong(8, evt.getDuration());
-            for (int id = 9;id < idx;id++) {
+            stmt.setLong(8, evt.getDuration().orElse(0L));
+            for (int id = 9;id < idx.get();id++) {
                 stmt.setString(id, statementParams.get(id));
             }
         } catch(SQLException sqlEx) {
@@ -122,8 +122,7 @@ public class JdbcEventMapper implements EventMapper < PreparedStatement, ResultS
     @Override
     public Event fromStore(ResultSet rs) {
         try {
-            Event evt = new Event();
-            evt.setUuid(rs.getString(COL_EVENT_UUID));
+            Event evt = new Event(rs.getString(COL_EVENT_UID));
             evt.setTimestamp(rs.getTimestamp(COL_EVENT_TIME).getTime());
             evt.setType(rs.getString(COL_EVENT_TYPE));
             evt.setName(rs.getString(COL_EVENT_NAME));
@@ -131,7 +130,7 @@ public class JdbcEventMapper implements EventMapper < PreparedStatement, ResultS
             evt.setHostName(rs.getString(COL_EVENT_HOSTNAME));
             evt.setSource(rs.getString(COL_EVENT_SOURCE));
             evt.setDuration(rs.getLong(COL_EVENT_DURATION));
-            evt.setUser(rs.getString(COL_EVENT_USER));
+            evt.setOwner(rs.getString(COL_EVENT_USER));
             evt.setValue(rs.getString(COL_EVENT_VALUE));
             evt.setCustomKeys(MappingUtil.toMap(rs.getString(COL_EVENT_KEYS)));
             return evt;

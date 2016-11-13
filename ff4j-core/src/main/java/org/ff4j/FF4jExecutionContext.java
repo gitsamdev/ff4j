@@ -1,4 +1,6 @@
-package org.ff4j.feature;
+package org.ff4j;
+
+import java.util.Collection;
 
 /*
  * #%L
@@ -23,30 +25,46 @@ package org.ff4j.feature;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+
+import org.ff4j.exception.ItemNotFoundException;
+import org.ff4j.feature.FlippingStrategy;
 
 /**
  * Pojo holding an execution context to perform {@link FlippingStrategy} evaluations.
  *
  * @author Cedrick Lunven (@clunven)
  */
-public class FlippingExecutionContext {
+public class FF4jExecutionContext implements Map < String, Object > {
 
     /** Current Parameter Map. */
-    private transient Map<String, Object> parameters = new HashMap<String, Object>();
+    private transient Map<String, Object> parameters;
 
     /**
      * Default Constructor.
      */
-    public FlippingExecutionContext() {}
-
+    public FF4jExecutionContext() {
+        init();
+    }
+    
     /**
      * Initializing context.
      * 
      * @param init
      *            initialisation for parameters.
      */
-    public FlippingExecutionContext(Map<String, Object> init) {
+    public FF4jExecutionContext(Map<String, Object> init) {
         this.parameters = init;
+    }
+    
+    /**
+     * Init the parameters if null
+     */
+    public void init() {
+        if (parameters == null) {
+            parameters = new HashMap<>();
+        }
     }
 
     /**
@@ -56,28 +74,27 @@ public class FlippingExecutionContext {
      *            current key
      * @return object if present in map
      */
-    public Object getValue(String key, boolean required) {
-        if (!parameters.containsKey(key)) {
-            if (required) {
-                throw new IllegalArgumentException("Parameter '" + key
-                        + "' has not been found but it's required to evaluate strategy");
-            }
-            return null;
-        }
-        return parameters.get(key);
+    public Optional < Object > getValue(String key) {
+        return Optional.ofNullable(get(key));
     }
-
+    
     /**
-     * Check inexistence of key within map
+     * Get a value from the context.
      * 
      * @param key
-     *            target parameter key
-     * @return if the parameter exist
+     *      current key
+     * @param required
+     *      if the parameter is required
+     * @return
+     *      object
      */
-    public boolean containsKey(String key) {
-        return parameters.containsKey(key);
+    public Object getValue(String key, boolean required) {
+        if (required) {
+            return getValue(key).orElseThrow(() -> new ItemNotFoundException(key));
+        }
+        return getValue(key).orElse(null);
     }
-
+    
     /**
      * Add a value to the parameter list.
      * 
@@ -86,8 +103,12 @@ public class FlippingExecutionContext {
      * @param value
      *            target value
      */
-    public void addValue(String key, Object value) {
-        parameters.put(key, value);
+    public void putValues(FF4jExecutionContext ctx) {
+        if (ctx != null && ctx.parameters != null) {
+            init();
+            ctx.parameters.entrySet().stream()
+                .forEach(p -> parameters.put(p.getKey(), p.getValue()));
+        }
     }
 
     /**
@@ -114,8 +135,8 @@ public class FlippingExecutionContext {
      * @param required
      *            if value is required
      */
-    public Boolean getBoolean(String key) {
-        return this.getBoolean(key, false);
+    public Optional <Boolean > getBoolean(String key) {
+        return Optional.ofNullable(this.getBoolean(key, false));
     }
 
     /**
@@ -143,8 +164,8 @@ public class FlippingExecutionContext {
      * @param required
      *            if value is required
      */
-    public Integer getInt(String key) {
-        return this.getInt(key, false);
+    public Optional <Integer> getInt(String key) {
+        return Optional.ofNullable(this.getInt(key, false));
     }
 
     /**
@@ -171,8 +192,8 @@ public class FlippingExecutionContext {
      * @param required
      *            if value is required
      */
-    public Double getDouble(String key) {
-        return this.getDouble(key, false);
+    public Optional <Double> getDouble(String key) {
+        return Optional.ofNullable(this.getDouble(key, false));
     }
 
     /**
@@ -199,8 +220,8 @@ public class FlippingExecutionContext {
      * @param required
      *            if value is required
      */
-    public Date getDate(String key) {
-        return this.getDate(key, false);
+    public Optional < Date > getDate(String key) {
+        return Optional.ofNullable(this.getDate(key, false));
     }
 
     /**
@@ -225,69 +246,86 @@ public class FlippingExecutionContext {
      * @param key
      *            target key
      */
-    public String getString(String key) {
-        return getString(key, false);
+    public Optional <String> getString(String key) {
+        return Optional.ofNullable(getString(key, false));
     }
 
-    /**
-     * Convenient method to add a parameter of type {@link String}.
-     * 
-     * @param key
-     *            current ley of the parameters
-     * @param value
-     *            value of the parameter
-     */
-    public void putString(String key, String value) {
-        this.addValue(key, value);
+    /** {@inheritDoc} */
+    @Override
+    public void clear() {
+        if (parameters != null) parameters.clear();
     }
 
-    /**
-     * Convenient method to add a parameter of type {@link String}.
-     * 
-     * @param key
-     *            current ley of the parameters
-     * @param value
-     *            value of the parameter
-     */
-    public void putBoolean(String key, Boolean value) {
-        this.addValue(key, value);
+    /** {@inheritDoc} */
+    @Override
+    public boolean containsKey(Object key) {
+        return (parameters == null || key == null) ? false : parameters.containsKey(key); 
+    }
+    
+    /** {@inheritDoc} */
+    @Override
+    public boolean containsValue(Object value) {
+        return (parameters == null || value == null) ? false : parameters.containsValue(value); 
     }
 
-    /**
-     * Convenient method to add a parameter of type {@link String}.
-     * 
-     * @param key
-     *            current ley of the parameters
-     * @param value
-     *            value of the parameter
-     */
-    public void putDate(String key, Date value) {
-        this.addValue(key, value);
+    /** {@inheritDoc} */
+    @Override
+    public Set<java.util.Map.Entry<String, Object>> entrySet() {
+        return (parameters == null) ? null : parameters.entrySet();
     }
 
-    /**
-     * Convenient method to add a parameter of type {@link String}.
-     * 
-     * @param key
-     *            current ley of the parameters
-     * @param value
-     *            value of the parameter
-     */
-    public void putInt(String key, Integer value) {
-        this.addValue(key, value);
+    /** {@inheritDoc} */
+    @Override
+    public Object get(Object key) {
+        return (parameters == null) ? null : parameters.get(key);
     }
 
-    /**
-     * Convenient method to add a parameter of type {@link String}.
-     * 
-     * @param key
-     *            current ley of the parameters
-     * @param value
-     *            value of the parameter
-     */
-    public void putDouble(String key, Double value) {
-        this.addValue(key, value);
+    /** {@inheritDoc} */
+    @Override
+    public boolean isEmpty() {
+        return (parameters == null) ? true : parameters.isEmpty();
     }
 
+    /** {@inheritDoc} */
+    @Override
+    public Set<String> keySet() {
+        return (parameters == null) ? null : parameters.keySet();
+    }
 
+    /** {@inheritDoc} */
+    @Override
+    public Object put(String key, Object value) {
+        init();
+        if (key != null && value != null) {
+            return parameters.put(key, value);
+        }
+        return null;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void putAll(Map<? extends String, ? extends Object> map) {
+        init();
+        if (map != null) {
+            parameters.putAll(map);
+        }
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Object remove(Object key) {
+        return (parameters == null) ? null : parameters.remove(key);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public int size() {
+        return (parameters == null) ? 0 : parameters.size();
+    }
+    
+    /** {@inheritDoc} */
+    @Override
+    public Collection<Object> values() {
+        return (parameters == null) ? null : parameters.values();
+    }
 }

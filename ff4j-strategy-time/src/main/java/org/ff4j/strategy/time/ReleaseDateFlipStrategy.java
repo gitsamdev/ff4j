@@ -25,7 +25,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 
-import org.ff4j.feature.FlippingExecutionContext;
+import org.ff4j.FlippingExecutionContext;
 import org.ff4j.store.FeatureStore;
 import org.ff4j.strategy.AbstractFlipStrategy;
 

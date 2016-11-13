@@ -15,6 +15,9 @@ import org.ff4j.store.PropertyStore;
  */
 public class FeatureStoreOverPropertyStore extends AbstractFeatureStore {
     
+    /** serialVersionUID. */
+    private static final long serialVersionUID = -1866729081216457698L;
+    
     /** Emebbeded property store. */
     private PropertyStore propertyStore = null;
     

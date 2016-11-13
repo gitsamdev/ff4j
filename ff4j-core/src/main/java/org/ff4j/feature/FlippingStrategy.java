@@ -2,6 +2,7 @@ package org.ff4j.feature;
 
 import java.util.Map;
 
+import org.ff4j.FF4jExecutionContext;
 import org.ff4j.exception.FeatureAccessException;
 import org.ff4j.store.FeatureStore;
 
@@ -58,7 +59,7 @@ public interface FlippingStrategy {
      *            custom params to make decision
      * @return if flipping should be performed
      */
-    boolean evaluate(String featureName, FeatureStore store, FlippingExecutionContext executionContext);
+    boolean evaluate(String featureName, FeatureStore store, FF4jExecutionContext executionContext);
 
     /**
      * Instanciate flipping strategy from its class name.

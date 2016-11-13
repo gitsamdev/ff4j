@@ -1,8 +1,8 @@
 package org.ff4j.aop.test.context;
 
+import org.ff4j.FlippingExecutionContext;
 import org.ff4j.aop.ContextLocation;
 import org.ff4j.aop.Flip;
-import org.ff4j.feature.FlippingExecutionContext;
 
 /*
  * #%L

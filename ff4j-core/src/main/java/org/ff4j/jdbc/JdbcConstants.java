@@ -18,18 +18,18 @@ import org.ff4j.audit.EventConstants;
  * 
  * @author Cedrick Lunven (@clunven)
  */
-public class JdbcStoreConstants {
+public class JdbcConstants {
 	
-	/** sql query expression */
+	/** sql query expression *
     public static final String SQLQUERY_ALLFEATURES = "SELECT FEAT_UID,ENABLE,DESCRIPTION,STRATEGY,EXPRESSION,GROUPNAME FROM FF4J_FEATURES";
 	
-    /** sql query expression */
+    /** sql query expression *
     public static final String SQLQUERY_ALLGROUPS = "SELECT DISTINCT(GROUPNAME) FROM FF4J_FEATURES";
 
-    /** sql query expression */
+    /** sql query expression *
     public static final String SQLQUERY_GET_FEATURE_GROUP = "SELECT FEAT_UID,ENABLE,DESCRIPTION,STRATEGY,EXPRESSION,GROUPNAME FROM FF4J_FEATURES WHERE GROUPNAME = ?";
 
-    /** sql query expression */
+    /** sql query expression *
     public static final String SQL_GETFEATUREBYID = "SELECT FEAT_UID,ENABLE,DESCRIPTION,STRATEGY,EXPRESSION,GROUPNAME FROM FF4J_FEATURES WHERE FEAT_UID = ?";
 
     /** sql query expression */
@@ -137,51 +137,48 @@ public class JdbcStoreConstants {
     /** sql query expression */
     public static final String SQL_PROPERTY_READNAMES = "SELECT PROPERTY_ID FROM FF4J_PROPERTIES";
     
+    // ---------------------------------
+    // ------- TABLE AUDIT -------------
+    // ---------------------------------
     
-    // ------- AUDIT -------------
-
-    public static final String TABLE_AUDIT = "FF4J_AUDIT";
+    /** sql column name for table AUDIT. */
+    public static final String TABLENAME_AUDIT      = "AUDIT";
+    /** sql column name for table AUDIT. */
+    public static final String COL_EVENT_UID        = "UID";
+    /** sql column name for table AUDIT. */
+    public static final String COL_EVENT_USER       = "OWNER";
+    /** sql column name for table AUDIT. */
+    public static final String COL_EVENT_CREATIONDATE   = "CREATED";
+    /** sql column name for table AUDIT. */
+    public static final String COL_EVENT_LASTMODIFIED   = "LASTMODIFIED";
+    /** sql column name for table AUDIT. */
+    public static final String COL_EVENT_DESCRIPTION    = "DESCRIPTION";
+    /** sql column name for table AUDIT. */
+    public static final String COL_EVENT_TIME       = "EVT_TIME";
+    /** sql column name for table AUDIT. */
+    public static final String COL_EVENT_TYPE       = "EVT_TYPE";
+    /** sql column name for table AUDIT. */
+    public static final String COL_EVENT_NAME       = "NAME";
+    /** sql column name for table AUDIT. */
+    public static final String COL_EVENT_ACTION     = "ACTION";
+    /** sql column name for table AUDIT. */
+    public static final String COL_EVENT_HOSTNAME   = "HOSTNAME";
+    /** sql column name for table AUDIT. */
+    public static final String COL_EVENT_SOURCE     = "SOURCE";
+    /** sql column name for table AUDIT. */
+    public static final String COL_EVENT_DURATION   = "DURATION";
+    /** sql column name for table AUDIT. */
+    public static final String COL_EVENT_VALUE      = "EVT_VALUE";
+    /** sql column name for table AUDIT. */
+    public static final String COL_EVENT_KEYS       = "EVT_KEYS";
     
-    /** sql column name for table FF4J_AUDIT. */
-    public static final String COL_EVENT_UUID = "EVT_UUID";
-    
-    /** sql column name for table FF4J_AUDIT. */
-    public static final String COL_EVENT_TIME = "EVT_TIME";
-    
-    /** sql column name for table FF4J_AUDIT. */
-    public static final String COL_EVENT_TYPE = "EVT_TYPE";
-    
-    /** sql column name for table FF4J_AUDIT. */
-    public static final String COL_EVENT_NAME = "EVT_NAME";
-    
-    /** sql column name for table FF4J_AUDIT. */
-    public static final String COL_EVENT_ACTION = "EVT_ACTION";
-    
-    /** sql column name for table FF4J_AUDIT. */
-    public static final String COL_EVENT_HOSTNAME = "EVT_HOSTNAME";
-    
-    /** sql column name for table FF4J_AUDIT. */
-    public static final String COL_EVENT_SOURCE = "EVT_SOURCE";
-    
-    /** sql column name for table FF4J_AUDIT. */
-    public static final String COL_EVENT_DURATION = "EVT_DURATION";
-    
-    /** sql column name for table FF4J_AUDIT. */
-    public static final String COL_EVENT_USER = "EVT_USER";
-    
-    /** sql column name for table FF4J_AUDIT. */
-    public static final String COL_EVENT_VALUE = "EVT_VALUE";
-    
-    /** sql column name for table FF4J_AUDIT. */
-    public static final String COL_EVENT_KEYS = "EVT_KEYS";
-     
-    /** Creation. */
+    /** Creation. *
     public static final String SQL_AUDIT_COUNT = "SELECT COUNT(*) FROM " + TABLE_AUDIT;
 
-    /** Creation. */
+    /** Creation. *
     public static final String SQL_AUDIT_LISTFEATURES = "SELECT DISTINCT " + COL_EVENT_NAME + " FROM " + TABLE_AUDIT + " WHERE " + COL_EVENT_TYPE + " LIKE '" + EventConstants.TARGET_FEATURE + "'";
 
-    /** Get all information for the Pie as a single request. */
+    /** Get all information for the Pie as a single request. *
     public static final String SQL_AUDIT_OK_DISTRIB = "SELECT count(" + COL_EVENT_UUID + ") as NB, " + COL_EVENT_NAME +
                                   " FROM " + TABLE_AUDIT +
                                   " WHERE (" + COL_EVENT_TYPE   + " LIKE '" + EventConstants.TARGET_FEATURE  + "') " +
@@ -190,7 +187,7 @@ public class JdbcStoreConstants {
                                   " AND   (" + COL_EVENT_TIME + "< ?)" +
                                   " GROUP BY " + COL_EVENT_NAME;
     
-    /** List events for a dedicate feature (in a time window). */
+    /** List events for a dedicate feature (in a time window). *
     public static final String SQL_AUDIT_FEATURE_DISTRIB = "SELECT count(" + COL_EVENT_UUID + ") as NB, " + COL_EVENT_ACTION +
                                      " FROM " + TABLE_AUDIT  +
                                      " WHERE (" + COL_EVENT_TYPE + " LIKE '" + EventConstants.TARGET_FEATURE  + "') " +
@@ -200,7 +197,7 @@ public class JdbcStoreConstants {
                                      " GROUP BY " + COL_EVENT_ACTION;
     
       
-    /** List events for a dedicate feature (in a time window). */
+    /** List events for a dedicate feature (in a time window). *
     public static final String SQL_AUDIT_FEATURE_ALLEVENTS = "SELECT * FROM " + TABLE_AUDIT  +      // Count
                                      " WHERE (" + COL_EVENT_TYPE + " LIKE '" + EventConstants.TARGET_FEATURE  + "') " +
                                      " AND   (" + COL_EVENT_NAME + " LIKE ?) " +    // lower bound
@@ -251,5 +248,5 @@ public class JdbcStoreConstants {
     /** sql column name from table FF4J_PROPERTIES. */
     public static final String COL_PROPERTY_DESCRIPTION = "DESCRIPTION";
 
-    private JdbcStoreConstants() {}
+    private JdbcConstants() {}
 }

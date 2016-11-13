@@ -25,8 +25,8 @@ import java.text.ParseException;
 import org.junit.Assert;
 
 import org.ff4j.FF4j;
+import org.ff4j.FF4jExecutionContext;
 import org.ff4j.feature.Feature;
-import org.ff4j.feature.FlippingExecutionContext;
 import org.ff4j.strategy.ServerFilterStrategy;
 import org.ff4j.test.AbstractFf4jTest;
 import org.junit.Test;
@@ -50,8 +50,8 @@ public class ServerFilterStrategyTest extends AbstractFf4jTest {
         Assert.assertTrue(f1.isEnable());
 
         // When (add correct client name)
-        FlippingExecutionContext fex = new FlippingExecutionContext();
-        fex.addValue(ServerFilterStrategy.SERVER_HOSTNAME, "dev01");
+        FF4jExecutionContext fex = new FF4jExecutionContext();
+        fex.put(ServerFilterStrategy.SERVER_HOSTNAME, "dev01");
 
         // Then
         Assert.assertTrue(ff4j.check(F1, fex));
@@ -68,8 +68,8 @@ public class ServerFilterStrategyTest extends AbstractFf4jTest {
         Assert.assertTrue(f1.isEnable());
 
         // When (add invalid client name)
-        FlippingExecutionContext fex = new FlippingExecutionContext();
-        fex.addValue(ServerFilterStrategy.SERVER_HOSTNAME, FEATURE_NEW);
+        FF4jExecutionContext fex = new FF4jExecutionContext();
+        fex.put(ServerFilterStrategy.SERVER_HOSTNAME, FEATURE_NEW);
 
         // Then
         Assert.assertFalse(ff4j.check(F1, fex));

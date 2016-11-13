@@ -1,4 +1,4 @@
-package org.ff4j.lab;
+package org.ff4j.property;
 
 /*
  * #%L
@@ -22,8 +22,15 @@ package org.ff4j.lab;
 
 import java.util.Map;
 
-import org.ff4j.property.Property;
+import org.ff4j.FF4jExecutionContext;
 
+/**
+ * Allow to compute properties at runtime through
+ * 
+ * @author Cedrick LUNVEN  (@clunven)
+ *
+ * @param <T>
+ */
 public interface PropertyEvaluationStrategy<T> {
 
     /**
@@ -34,7 +41,7 @@ public interface PropertyEvaluationStrategy<T> {
      * @param initValue
      *            initial Value
      */
-    void init(String propertyName, Map<String, String> initParam);
+    void init(String uid, Map<String, String> initParam);
 
     /**
      * Initial Parameters required to insert this new flipping.
@@ -52,7 +59,6 @@ public interface PropertyEvaluationStrategy<T> {
      *            custom params to make decision
      * @return if flipping should be performed
      */
-    T getValue(Property<?> prop, PropertyExecutionContext executionContext);
-
+    T evaluate(Property<?> currentProperty, FF4jExecutionContext executionContext);
     
 }

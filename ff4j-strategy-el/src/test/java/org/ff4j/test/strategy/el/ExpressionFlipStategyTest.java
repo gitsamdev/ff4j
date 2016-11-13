@@ -12,7 +12,7 @@ package org.ff4j.test.strategy.el;
  */
 
 import org.ff4j.FF4j;
-import org.ff4j.feature.FlippingExecutionContext;
+import org.ff4j.FlippingExecutionContext;
 import org.ff4j.strategy.el.ExpressionFlipStrategy;
 import org.ff4j.test.AssertFF4j;
 import org.junit.Assert;

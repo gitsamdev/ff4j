@@ -1,8 +1,8 @@
 package org.ff4j.jdbc;
 
-import static org.ff4j.jdbc.JdbcStoreConstants.COL_FEAT_GROUPNAME;
-import static org.ff4j.jdbc.JdbcStoreConstants.COL_ROLE_FEATID;
-import static org.ff4j.jdbc.JdbcStoreConstants.COL_ROLE_ROLENAME;
+import static org.ff4j.jdbc.JdbcConstants.COL_FEAT_GROUPNAME;
+import static org.ff4j.jdbc.JdbcConstants.COL_ROLE_FEATID;
+import static org.ff4j.jdbc.JdbcConstants.COL_ROLE_ROLENAME;
 import static org.ff4j.utils.JdbcUtils.buildStatement;
 
 /*

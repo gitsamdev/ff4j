@@ -24,7 +24,7 @@ import java.io.Serializable;
 
 import java.util.Map;
 
-import org.ff4j.feature.FlippingExecutionContext;
+import org.ff4j.FF4jExecutionContext;
 import org.ff4j.store.FeatureStore;
 
 /**
@@ -75,7 +75,7 @@ public class PonderationStrategy extends AbstractFlipStrategy implements Seriali
 
     /** {@inheritDoc} */
     @Override
-    public boolean evaluate(String featureName, FeatureStore currentStore, FlippingExecutionContext executionContext) {
+    public boolean evaluate(String featureName, FeatureStore currentStore, FF4jExecutionContext executionContext) {
         return Math.random() <= weight;
     }
 

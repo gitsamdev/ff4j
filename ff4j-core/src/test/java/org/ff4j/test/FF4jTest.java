@@ -1,5 +1,8 @@
 package org.ff4j.test;
 
+import static org.ff4j.audit.EventConstants.ACTION_CHECK_OK;
+import static org.ff4j.audit.EventConstants.SOURCE_JAVA;
+
 /*
  * #%L
  * ff4j-core
@@ -29,14 +32,14 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.ff4j.FF4j;
+import org.ff4j.FF4jExecutionContext;
 import org.ff4j.audit.Event;
-import org.ff4j.audit.EventConstants;
+import org.ff4j.audit.EventBuilder;
 import org.ff4j.audit.EventPublisher;
 import org.ff4j.audit.PropertyStoreAuditProxy;
 import org.ff4j.cache.CacheManagerInMemory;
 import org.ff4j.exception.FeatureNotFoundException;
 import org.ff4j.feature.Feature;
-import org.ff4j.feature.FlippingExecutionContext;
 import org.ff4j.inmemory.EventRepositoryInMemory;
 import org.ff4j.inmemory.FeatureStoreInMemory;
 import org.ff4j.property.Property;
@@ -107,8 +110,6 @@ public class FF4jTest extends AbstractFf4jTest {
         FF4j ff4j = new FF4j();
         ff4j.setEventPublisher(new EventPublisher());
         ff4j.setEventRepository(new EventRepositoryInMemory());
-        ff4j.removeCurrentContext();
-        ff4j.getCurrentContext();
         // When
         ff4j.stop();
         
@@ -118,7 +119,7 @@ public class FF4jTest extends AbstractFf4jTest {
         ff4j.stop();
         
         // When
-        Event evt = new Event("f1", EventConstants.TARGET_FEATURE, "f2", EventConstants.ACTION_CHECK_OK);
+        Event evt = new EventBuilder().source(SOURCE_JAVA).feature("f2").action(ACTION_CHECK_OK).build();
         Assert.assertNotNull(evt.toJson());
         Assert.assertNotNull(evt.toString());
         
@@ -154,7 +155,6 @@ public class FF4jTest extends AbstractFf4jTest {
         ff4j.getVersion();
         Assert.assertNotNull(ff4j.getStartTime());
         Assert.assertNotNull(ff4j.getPropertiesStore());
-        Assert.assertNotNull(ff4j.getCurrentContext());
     }
     
     @Test
@@ -168,9 +168,6 @@ public class FF4jTest extends AbstractFf4jTest {
         ff4j.setEventPublisher(null);
         ff4j.setAuthorizationsManager(new DefinedPermissionSecurityManager(FF4jUtils.setOf("val1")));
         ff4j.toString();
-        
-        ff4j.removeCurrentContext();
-        ff4j.getCurrentContext();
     }
 
     @Test
@@ -265,8 +262,8 @@ public class FF4jTest extends AbstractFf4jTest {
         Assert.assertTrue(ff4j.check("coco"));
         ff4j.setAuthorizationsManager(mockAuthManager);
         Assert.assertTrue(ff4j.check("coco"));
-        FlippingExecutionContext ex = new FlippingExecutionContext();
-        ex.putString("OK", "OK");
+        FF4jExecutionContext ex = new FF4jExecutionContext();
+        ex.put("OK", "OK");
         Assert.assertTrue(ff4j.check("coco", ex));
         Assert.assertTrue(ff4j.checkOveridingStrategy("coco", mockFlipStrategy));
         Assert.assertTrue(ff4j.checkOveridingStrategy("coco", null, null));

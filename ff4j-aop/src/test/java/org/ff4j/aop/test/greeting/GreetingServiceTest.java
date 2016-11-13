@@ -21,8 +21,8 @@ package org.ff4j.aop.test.greeting;
  */
 
 import org.ff4j.FF4j;
+import org.ff4j.FlippingExecutionContext;
 import org.ff4j.aop.test.context.ContextService;
-import org.ff4j.feature.FlippingExecutionContext;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;

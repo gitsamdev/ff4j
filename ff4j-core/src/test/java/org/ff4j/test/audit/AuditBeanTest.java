@@ -65,7 +65,7 @@ public class AuditBeanTest {
                 new DefinedPermissionSecurityManager("a", FF4jUtils.setOf("1", "2")));
         EventBuilder eb = new EventBuilder(ff4j);
         eb.name("FeatureX");
-        Assert.assertEquals("a", eb.build().getUser());
+        Assert.assertEquals("a", eb.build().getOwner());
     }
     
     @Test

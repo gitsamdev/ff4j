@@ -25,8 +25,8 @@ import java.lang.reflect.Constructor;
 import java.util.Map;
 
 import org.ff4j.FF4j;
+import org.ff4j.FF4jExecutionContext;
 import org.ff4j.feature.Feature;
-import org.ff4j.feature.FlippingExecutionContext;
 import org.ff4j.feature.FlippingStrategy;
 import org.ff4j.store.FeatureStore;
 import org.ff4j.test.TestConstantsFF4j;
@@ -134,7 +134,7 @@ public class FeatureJsonMarshallTest implements TestConstantsFF4j {
         FlippingStrategy ps = new FlippingStrategy() { 
             public void init(String featureName, Map<String, String> initParam)  {}
             public Map<String, String> getInitParams() { return null; }
-            public boolean evaluate(String fn, FeatureStore s, FlippingExecutionContext ex) {  return false; }
+            public boolean evaluate(String fn, FeatureStore s, FF4jExecutionContext ex) {  return false; }
         };
         JsonUtils.flippingStrategyAsJson(ps);
     }

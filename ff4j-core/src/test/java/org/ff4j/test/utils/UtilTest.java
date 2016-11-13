@@ -32,7 +32,7 @@ import java.util.Set;
 import javax.lang.model.type.NullType;
 
 import org.ff4j.audit.EventConstants;
-import org.ff4j.jdbc.JdbcStoreConstants;
+import org.ff4j.jdbc.JdbcConstants;
 import org.ff4j.utils.FF4jUtils;
 import org.ff4j.utils.TimeUtils;
 import org.ff4j.utils.Util;
@@ -146,7 +146,7 @@ public class UtilTest {
     
     @Test
     public void testConstants() throws Exception {
-         Constructor<JdbcStoreConstants> ce = JdbcStoreConstants.class.getDeclaredConstructor();
+         Constructor<JdbcConstants> ce = JdbcConstants.class.getDeclaredConstructor();
          ce.setAccessible(true);
          ce.newInstance();
          

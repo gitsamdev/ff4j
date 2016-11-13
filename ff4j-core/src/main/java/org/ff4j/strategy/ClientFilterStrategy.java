@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.ff4j.feature.FlippingExecutionContext;
+import org.ff4j.FF4jExecutionContext;
 import org.ff4j.store.FeatureStore;
 
 /*
@@ -81,7 +81,7 @@ public class ClientFilterStrategy extends AbstractFlipStrategy {
     
     /** {@inheritDoc} */
     @Override
-    public boolean evaluate(String featureName, FeatureStore store, FlippingExecutionContext executionContext) {
+    public boolean evaluate(String featureName, FeatureStore store, FF4jExecutionContext executionContext) {
         if (null == executionContext || !executionContext.containsKey(CLIENT_HOSTNAME)) {
             throw new IllegalArgumentException("To work with " + getClass().getCanonicalName() + " you must provide '"
                     + CLIENT_HOSTNAME + "' parameter in execution context");

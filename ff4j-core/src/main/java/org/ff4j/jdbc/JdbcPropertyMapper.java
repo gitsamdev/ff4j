@@ -1,10 +1,10 @@
 package org.ff4j.jdbc;
 
-import static org.ff4j.jdbc.JdbcStoreConstants.COL_PROPERTY_DESCRIPTION;
-import static org.ff4j.jdbc.JdbcStoreConstants.COL_PROPERTY_FIXED;
-import static org.ff4j.jdbc.JdbcStoreConstants.COL_PROPERTY_ID;
-import static org.ff4j.jdbc.JdbcStoreConstants.COL_PROPERTY_TYPE;
-import static org.ff4j.jdbc.JdbcStoreConstants.COL_PROPERTY_VALUE;
+import static org.ff4j.jdbc.JdbcConstants.COL_PROPERTY_DESCRIPTION;
+import static org.ff4j.jdbc.JdbcConstants.COL_PROPERTY_FIXED;
+import static org.ff4j.jdbc.JdbcConstants.COL_PROPERTY_ID;
+import static org.ff4j.jdbc.JdbcConstants.COL_PROPERTY_TYPE;
+import static org.ff4j.jdbc.JdbcConstants.COL_PROPERTY_VALUE;
 
 import java.sql.PreparedStatement;
 

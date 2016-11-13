@@ -19,7 +19,7 @@ import javax.lang.model.type.NullType;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.ff4j.FF4j;
-import org.ff4j.feature.FlippingExecutionContext;
+import org.ff4j.FlippingExecutionContext;
 import org.ff4j.feature.FlippingStrategy;
 import org.ff4j.utils.Util;
 import org.slf4j.Logger;

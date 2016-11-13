@@ -21,12 +21,12 @@ package org.ff4j.jdbc;
  */
 
 
-import static org.ff4j.jdbc.JdbcStoreConstants.COL_FEAT_DESCRIPTION;
-import static org.ff4j.jdbc.JdbcStoreConstants.COL_FEAT_ENABLE;
-import static org.ff4j.jdbc.JdbcStoreConstants.COL_FEAT_EXPRESSION;
-import static org.ff4j.jdbc.JdbcStoreConstants.COL_FEAT_GROUPNAME;
-import static org.ff4j.jdbc.JdbcStoreConstants.COL_FEAT_STRATEGY;
-import static org.ff4j.jdbc.JdbcStoreConstants.COL_FEAT_UID;
+import static org.ff4j.jdbc.JdbcConstants.COL_FEAT_DESCRIPTION;
+import static org.ff4j.jdbc.JdbcConstants.COL_FEAT_ENABLE;
+import static org.ff4j.jdbc.JdbcConstants.COL_FEAT_EXPRESSION;
+import static org.ff4j.jdbc.JdbcConstants.COL_FEAT_GROUPNAME;
+import static org.ff4j.jdbc.JdbcConstants.COL_FEAT_STRATEGY;
+import static org.ff4j.jdbc.JdbcConstants.COL_FEAT_UID;
 import static org.ff4j.utils.MappingUtil.toMap;
 
 import java.sql.Connection;

@@ -1,6 +1,6 @@
 package org.ff4j.test.store;
 
-import static org.ff4j.jdbc.JdbcStoreConstants.*;
+import static org.ff4j.jdbc.JdbcConstants.*;
 import static org.ff4j.utils.JdbcUtils.closeConnection;
 import static org.ff4j.utils.JdbcUtils.closeResultSet;
 import static org.ff4j.utils.JdbcUtils.closeStatement;

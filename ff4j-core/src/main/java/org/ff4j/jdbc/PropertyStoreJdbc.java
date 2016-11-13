@@ -21,7 +21,7 @@ package org.ff4j.jdbc;
  */
 
 
-import static org.ff4j.jdbc.JdbcStoreConstants.COL_PROPERTY_ID;
+import static org.ff4j.jdbc.JdbcConstants.COL_PROPERTY_ID;
 import static org.ff4j.utils.JdbcUtils.buildStatement;
 import static org.ff4j.utils.JdbcUtils.closeConnection;
 import static org.ff4j.utils.JdbcUtils.closeResultSet;

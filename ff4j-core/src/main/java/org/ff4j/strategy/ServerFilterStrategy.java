@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.ff4j.feature.FlippingExecutionContext;
+import org.ff4j.FF4jExecutionContext;
 import org.ff4j.store.FeatureStore;
 import org.ff4j.utils.IOUtil;
 
@@ -82,7 +82,7 @@ public class ServerFilterStrategy extends AbstractFlipStrategy {
 
     /** {@inheritDoc} */
     @Override
-    public boolean evaluate(String featureName, FeatureStore store, FlippingExecutionContext ctx) {
+    public boolean evaluate(String featureName, FeatureStore store, FF4jExecutionContext ctx) {
         if (null != ctx && ctx.containsKey(SERVER_HOSTNAME)) {
             return setOfTargetServer.contains(ctx.getString(SERVER_HOSTNAME));
         }

@@ -211,4 +211,10 @@ public abstract class AbstractPropertyStore implements PropertyStore {
         return targets.stream();
     }
     
+    /** {@inheritDoc} */
+    @Override
+    public boolean isEmpty() {
+        return count() == 0;
+    }
+    
 }

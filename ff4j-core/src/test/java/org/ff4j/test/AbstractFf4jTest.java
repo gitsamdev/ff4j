@@ -31,7 +31,7 @@ import java.util.HashSet;
 import org.junit.Assert;
 
 import org.ff4j.FF4j;
-import org.ff4j.feature.FlippingExecutionContext;
+import org.ff4j.FF4jExecutionContext;
 import org.ff4j.feature.FlippingStrategy;
 import org.ff4j.security.AuthorizationsManager;
 import org.ff4j.store.FeatureStore;
@@ -68,7 +68,7 @@ public abstract class AbstractFf4jTest implements TestConstantsFF4j {
         
         // Create MOCK
         mockFlipStrategy = mock(FlippingStrategy.class);
-        when(mockFlipStrategy.evaluate(any(String.class), any(FeatureStore.class), any(FlippingExecutionContext.class)))
+        when(mockFlipStrategy.evaluate(any(String.class), any(FeatureStore.class), any(FF4jExecutionContext.class)))
                 .thenReturn(true);
         when(mockFlipStrategy.getInitParams()).thenReturn(null);
 

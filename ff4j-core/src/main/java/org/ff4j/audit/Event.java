@@ -76,20 +76,19 @@ public class Event extends FF4jBaseObject<Event> implements Serializable, Compar
      * 
      */
     public Event() {
-        super(UUID.randomUUID().toString());
+        this(UUID.randomUUID().toString());
+    }
+    
+    /**
+     * Default constructor.
+     * 
+     */
+    public Event(String uid) {
+        super(uid);
         timestamp    = creationDate.get().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
         hostName     = IOUtil.resolveHostName();
     }
     
-    /** Default constructor. */
-    public Event(String pSource, String pType, String pName, String pAction) {
-        this();
-        this.type   = pType;
-        this.action = pAction;
-        this.name   = pName;
-        this.source = pSource;
-    }
-
     /** {@inheritDoc} */
     @Override
     public String toString() {

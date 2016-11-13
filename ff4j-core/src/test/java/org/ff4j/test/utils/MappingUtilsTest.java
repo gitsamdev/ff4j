@@ -27,15 +27,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.ff4j.cache.FF4jCacheProxy;
+import org.ff4j.cache.CacheManagerInMemory;
+import org.ff4j.cache.FeatureStoreCacheProxy;
 import org.ff4j.exception.FeatureAccessException;
+import org.ff4j.feature.Feature;
 import org.ff4j.feature.FlippingStrategy;
 import org.ff4j.inmemory.FeatureStoreInMemory;
 import org.ff4j.property.Property;
 import org.ff4j.property.PropertyInt;
 import org.ff4j.property.PropertyLong;
 import org.ff4j.property.PropertyString;
-import org.ff4j.store.FeatureStore;
 import org.ff4j.utils.FF4jUtils;
 import org.ff4j.utils.JdbcUtils;
 import org.ff4j.utils.JsonUtils;
@@ -64,10 +65,7 @@ public class MappingUtilsTest {
         JsonUtils.permissionsAsJson(null);
         JsonUtils.customPropertiesAsJson(null);
         JsonUtils.customPropertiesAsJson( new HashMap<String, Property<?>>());
-        
-        FeatureStore store1 = new FeatureStoreInMemory();
-        FF4jCacheProxy proxy = new FF4jCacheProxy(store1, null, null);
-        JsonUtils.cacheJson(proxy);
+        JsonUtils.cacheJson(new FeatureStoreCacheProxy(new FeatureStoreInMemory(), new CacheManagerInMemory<Feature>()));
     }
     
     @Test

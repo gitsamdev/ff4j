@@ -20,7 +20,6 @@ import org.ff4j.conf.XmlConfig;
 import org.ff4j.conf.XmlParser;
 import org.ff4j.exception.FeatureNotFoundException;
 import org.ff4j.feature.Feature;
-import org.ff4j.feature.FlippingExecutionContext;
 import org.ff4j.feature.FlippingStrategy;
 import org.ff4j.inmemory.EventRepositoryInMemory;
 import org.ff4j.inmemory.FeatureStoreInMemory;
@@ -92,9 +91,6 @@ public class FF4j {
     
     /** Post Processing like audit enable. */
     private boolean initialized = false;
-
-    /** Hold flipping execution context as Thread-safe data. */
-    private ThreadLocal<FlippingExecutionContext> currentExecutionContext = new ThreadLocal<FlippingExecutionContext>();
     
     /**
      * Default constructor to allows instantiation through IoC. The created store is an empty {@link FeatureStoreInMemory}.
@@ -141,7 +137,7 @@ public class FF4j {
      *            current execution context
      * @return current feature status
      */
-    public boolean check(String uid, FlippingExecutionContext executionContext) {
+    public boolean check(String uid, FF4jExecutionContext executionContext) {
         return isFeatureToggled(uid, null, executionContext);
     }
 
@@ -155,7 +151,7 @@ public class FF4j {
      * @return
      */
     public boolean checkOveridingStrategy(String uid, FlippingStrategy strats) {
-        return isFeatureToggled(uid, strats, currentExecutionContext.get());
+        return isFeatureToggled(uid, strats, FF4jExecutionContextHolder.getContext());
     }
 
     /**
@@ -167,7 +163,7 @@ public class FF4j {
      *            current execution context
      * @return
      */
-    public boolean checkOveridingStrategy(String uid, FlippingStrategy strats, FlippingExecutionContext executionContext) {
+    public boolean checkOveridingStrategy(String uid, FlippingStrategy strats, FF4jExecutionContext executionContext) {
         return isFeatureToggled(uid, strats, executionContext);
     }
 
@@ -182,24 +178,23 @@ public class FF4j {
      *      execution context
      * @return
      */
-    protected boolean isFeatureToggled(String uid, FlippingStrategy strats, FlippingExecutionContext executionContext) {
+    protected boolean isFeatureToggled(String uid, FlippingStrategy strats, FF4jExecutionContext executionContext) {
         
         // Read from store
         Feature feature = getFeature(uid);
+        
+        // Update current context
+        FF4jExecutionContextHolder.add2Context(executionContext);
         
         // First level check (status = ON and permission OK)
         boolean featureToggled = feature.isEnable() && isAllowed(feature);
         if (featureToggled) {
             if (strats != null) {
-                featureToggled = strats.evaluate(uid, getFeatureStore(), executionContext);
+                featureToggled = strats.evaluate(uid, getFeatureStore(), 
+                        FF4jExecutionContextHolder.getContext());
             } else if (feature.getFlippingStrategy().isPresent()) {
                 featureToggled = feature.getFlippingStrategy().get().evaluate(uid, getFeatureStore(), executionContext);
             }
-        }
-        
-        // Update current context
-        if (null != executionContext) {
-            currentExecutionContext.set(executionContext);
         }
         
         // Publish audit
@@ -537,10 +532,6 @@ public class FF4j {
      */
     private synchronized void init() {
         
-        // Execution Context
-        FlippingExecutionContext context = new FlippingExecutionContext();
-        this.currentExecutionContext.set(context);
-        
         // Event Publisher
         eventPublisher = new EventPublisher(eventRepository);
         this.shutdownEventPublisher = true;
@@ -620,23 +611,6 @@ public class FF4j {
         }
         return propertyStore;
     }
-    
-    /**
-     * Initialize flipping execution context.
-     *
-     * @return
-     *      get current context
-     */
-    public FlippingExecutionContext getCurrentContext() {
-        if (!initialized) {
-            init();
-        }
-        
-        if (null == this.currentExecutionContext.get()) {
-            this.currentExecutionContext.set(new FlippingExecutionContext());
-        }
-        return this.currentExecutionContext.get();
-    }
 
     /**
      * Getter accessor for attribute 'autocreate'.
@@ -674,13 +648,6 @@ public class FF4j {
      */
     public void setPropertiesStore(PropertyStore pStore) {
         this.propertyStore = pStore;
-    }
-    
-    /**
-     * Clear context.
-     */
-    public void removeCurrentContext() {
-        this.currentExecutionContext.remove();
     }
 
     /**

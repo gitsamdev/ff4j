@@ -1,6 +1,6 @@
 package org.ff4j.aop.test.context;
 
-import org.ff4j.feature.FlippingExecutionContext;
+import org.ff4j.FlippingExecutionContext;
 import org.ff4j.store.FeatureStore;
 
 /*

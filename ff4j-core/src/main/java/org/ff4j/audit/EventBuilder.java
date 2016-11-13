@@ -37,6 +37,13 @@ public class EventBuilder {
     }
     
     /**
+     * Default constructor.
+     */
+    public EventBuilder(String uid) {
+        this.event = new Event(uid);
+    }
+    
+    /**
      * Constructor with ff4J.
      *
      * @param ff4j
@@ -51,6 +58,11 @@ public class EventBuilder {
         if (ff4j.getAuthorizationsManager() != null) {
             event.setOwner(ff4j.getAuthorizationsManager().getCurrentUserName());
         }
+    }
+    
+    public EventBuilder source(String source) {
+        event.setSource(source);
+        return this;
     }
     
     public EventBuilder feature(String uid) {

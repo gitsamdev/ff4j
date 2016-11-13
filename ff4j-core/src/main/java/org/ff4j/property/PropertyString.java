@@ -68,7 +68,7 @@ public class PropertyString extends Property<String> {
     public PropertyString(String name, String value, Set < String> fixed) {
         this(name, value);
         setFixedValues(fixed);
-        if (fixedValues.isPresent() && !fixedValues.get().contains(value)) {
+        if (fixedValues != null &&  !fixedValues.isEmpty() && !fixedValues.contains(value)) {
             throw new IllegalArgumentException("Invalid value corrects are " + fixedValues);
         }
     }

@@ -3,7 +3,6 @@ package org.ff4j.test.audit;
 import static org.ff4j.audit.EventConstants.ACTION_CHECK_OFF;
 import static org.ff4j.audit.EventConstants.ACTION_CHECK_OK;
 import static org.ff4j.audit.EventConstants.SOURCE_JAVA;
-import static org.ff4j.audit.EventConstants.TARGET_FEATURE;
 import static org.mockito.Mockito.doThrow;
 
 /*
@@ -27,9 +26,9 @@ import static org.mockito.Mockito.doThrow;
  */
 
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import org.ff4j.audit.Event;
+import org.ff4j.audit.EventBuilder;
 import org.ff4j.audit.EventPublisher;
 import org.ff4j.audit.EventRejectedExecutionHandler;
 import org.ff4j.audit.EventWorker;
@@ -44,7 +43,7 @@ public class EventWorkerTest {
     public void testEventWorker() {
         // Given
         EventRepository er = new EventRepositoryInMemory();
-        Event evt = new Event(SOURCE_JAVA, TARGET_FEATURE, "F1", ACTION_CHECK_OFF);
+        Event evt = new EventBuilder().source(SOURCE_JAVA).feature("F1").action(ACTION_CHECK_OFF).build();
         EventWorker ew = new EventWorker(evt, er);
         // When
         ew.setName("NAME1");
@@ -56,8 +55,8 @@ public class EventWorkerTest {
     public void testEventWorkerCall() throws Exception {
         // Given
         EventRepository er = mock(EventRepository.class);
-        Event evt = new Event(SOURCE_JAVA, TARGET_FEATURE, "F1", ACTION_CHECK_OK);
-        when(er.saveEvent(evt)).thenReturn(false);
+        Event evt = new EventBuilder().source(SOURCE_JAVA).feature("F1").action(ACTION_CHECK_OK).build();
+        er.create(evt);
         EventWorker ew = new EventWorker(evt, er);
         // When
         ew.call();
@@ -67,8 +66,8 @@ public class EventWorkerTest {
     public void testErrorOnSubmitEventPublisher() {
         // Given
         EventRepository er = mock(EventRepository.class);
-        Event evt = new Event(SOURCE_JAVA, TARGET_FEATURE, "F1", ACTION_CHECK_OFF);
-        doThrow(new RuntimeException("Erreur")).when(er).saveEvent(evt);
+        Event evt = new EventBuilder().source(SOURCE_JAVA).feature("F1").action(ACTION_CHECK_OFF).build();
+        doThrow(new RuntimeException("Erreur")).when(er).create(evt);
         EventPublisher evtPublisher = new EventPublisher(er);
         evtPublisher.publish(evt);
         Assert.assertNotNull(evt);

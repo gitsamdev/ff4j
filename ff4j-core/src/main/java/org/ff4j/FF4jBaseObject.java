@@ -33,7 +33,7 @@ import java.util.Optional;
  *
  * @author Cedrick LUNVEN (@clunven)
  */
-public abstract class FF4jBaseObject<T extends FF4jBaseObject<?>> implements Serializable {
+public class FF4jBaseObject<T extends FF4jBaseObject<?>> implements Comparable<T>, Serializable {
 
     /** serial number. */
     private static final long serialVersionUID = -6001829116967488353L;
@@ -55,6 +55,25 @@ public abstract class FF4jBaseObject<T extends FF4jBaseObject<?>> implements Ser
     
     /** Last modified date if available in the underlying store. */
     protected Optional < LocalDateTime > lastModifiedDate = Optional.empty();
+    
+    public String baseJson() {
+        StringBuilder json = new StringBuilder("\"uid\":" + valueAsJson(uid));
+        description.ifPresent(
+                d -> attributeAsJson("description", d));
+        owner.ifPresent(
+                d -> attributeAsJson("owner", d));
+        creationDate.ifPresent(
+                d -> attributeAsJson("creationDate", d.format(FORMATTER)));
+        lastModifiedDate.ifPresent(
+                d -> attributeAsJson("lastModifiedDate", d.format(FORMATTER)));
+        return json.toString();   
+    }
+    
+    /** {@inheritDoc} */
+    @Override
+    public int compareTo(T otherObject) {
+        return this.uid.compareTo(otherObject.uid);
+    }
     
     /**
      * Parameterized constructor.
@@ -91,19 +110,6 @@ public abstract class FF4jBaseObject<T extends FF4jBaseObject<?>> implements Ser
         return (T) this;
     }
     
-    public String baseJson() {
-        StringBuilder json = new StringBuilder("\"uid\":" + valueAsJson(uid));
-        description.ifPresent(
-                d -> attributeAsJson("description", d));
-        owner.ifPresent(
-                d -> attributeAsJson("owner", d));
-        creationDate.ifPresent(
-                d -> attributeAsJson("creationDate", d.format(FORMATTER)));
-        lastModifiedDate.ifPresent(
-                d -> attributeAsJson("lastModifiedDate", d.format(FORMATTER)));
-        return json.toString();   
-    }
-
     /**
      * Getter accessor for attribute 'description'.
      *
@@ -152,5 +158,5 @@ public abstract class FF4jBaseObject<T extends FF4jBaseObject<?>> implements Ser
     public String getUid() {
         return uid;
     }
-
+    
 }

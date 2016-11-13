@@ -26,7 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.ff4j.FF4j;
-import org.ff4j.feature.FlippingExecutionContext;
+import org.ff4j.FlippingExecutionContext;
 import org.ff4j.inmemory.FeatureStoreInMemory;
 import org.ff4j.strategy.time.HourInterval;
 import org.ff4j.strategy.time.OfficeHourStrategy;

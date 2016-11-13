@@ -24,8 +24,8 @@ import java.text.ParseException;
 import java.util.HashMap;
 
 import org.ff4j.FF4j;
+import org.ff4j.FF4jExecutionContext;
 import org.ff4j.feature.Feature;
-import org.ff4j.feature.FlippingExecutionContext;
 import org.ff4j.feature.FlippingStrategy;
 import org.ff4j.inmemory.FeatureStoreInMemory;
 import org.ff4j.strategy.BlackListStrategy;
@@ -59,8 +59,8 @@ public class ClientFilterStrategyTest extends AbstractFf4jTest {
         Assert.assertTrue(f1.isEnable());
 
         // When (add correct client name)
-        FlippingExecutionContext fex = new FlippingExecutionContext();
-        fex.addValue(ClientFilterStrategy.CLIENT_HOSTNAME, "pierre");
+        FF4jExecutionContext fex = new FF4jExecutionContext();
+        fex.put(ClientFilterStrategy.CLIENT_HOSTNAME, "pierre");
 
         // Then
         Assert.assertTrue(ff4j.check(F1, fex));
@@ -79,8 +79,8 @@ public class ClientFilterStrategyTest extends AbstractFf4jTest {
 
 
         // When (add invalid client name)
-        FlippingExecutionContext fex = new FlippingExecutionContext();
-        fex.addValue(ClientFilterStrategy.CLIENT_HOSTNAME, FEATURE_NEW);
+        FF4jExecutionContext fex = new FF4jExecutionContext();
+        fex.put(ClientFilterStrategy.CLIENT_HOSTNAME, FEATURE_NEW);
 
         // Then
         Assert.assertFalse(ff4j.check(F1, fex));
@@ -113,8 +113,8 @@ public class ClientFilterStrategyTest extends AbstractFf4jTest {
         Assert.assertTrue(f1.isEnable());
 
         // When
-        FlippingExecutionContext fex = new FlippingExecutionContext();
-        fex.addValue(FEATURE_NEW, FEATURE_NEW);
+        FF4jExecutionContext fex = new FF4jExecutionContext();
+        fex.put(FEATURE_NEW, FEATURE_NEW);
 
         // Then
         ff4j.check(F1, fex);
@@ -140,11 +140,11 @@ public class ClientFilterStrategyTest extends AbstractFf4jTest {
         // Working
         new BlackListStrategy();
         FlippingStrategy bl2 = new BlackListStrategy("Pierre");
-        FlippingExecutionContext context = new FlippingExecutionContext();
-        context.putString("clientHostName", "localhost");
+        FF4jExecutionContext context = new FF4jExecutionContext();
+        context.put("clientHostName", "localhost");
         Assert.assertTrue(bl2.evaluate("f1", new FeatureStoreInMemory(), context));
         
-        context.putString("clientHostName", "Pierre");
+        context.put("clientHostName", "Pierre");
         Assert.assertFalse(bl2.evaluate("f1", new FeatureStoreInMemory(), context));
     }
     
@@ -153,7 +153,7 @@ public class ClientFilterStrategyTest extends AbstractFf4jTest {
         FlippingStrategy fs = new ServerFilterStrategy("serv1,serv2");
         fs.init("f1", null);
         fs.init("f1", new HashMap<String, String>());
-        FlippingExecutionContext context = new FlippingExecutionContext();
+        FF4jExecutionContext context = new FF4jExecutionContext();
         fs.evaluate("f1", new FeatureStoreInMemory(), context);
     }
 

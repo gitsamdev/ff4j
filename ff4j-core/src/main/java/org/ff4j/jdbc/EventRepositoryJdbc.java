@@ -1,10 +1,10 @@
 package org.ff4j.jdbc;
 
 
-import static org.ff4j.jdbc.JdbcStoreConstants.COL_EVENT_HOSTNAME;
-import static org.ff4j.jdbc.JdbcStoreConstants.COL_EVENT_NAME;
-import static org.ff4j.jdbc.JdbcStoreConstants.COL_EVENT_SOURCE;
-import static org.ff4j.jdbc.JdbcStoreConstants.COL_EVENT_USER;
+import static org.ff4j.jdbc.JdbcConstants.COL_EVENT_HOSTNAME;
+import static org.ff4j.jdbc.JdbcConstants.COL_EVENT_NAME;
+import static org.ff4j.jdbc.JdbcConstants.COL_EVENT_SOURCE;
+import static org.ff4j.jdbc.JdbcConstants.COL_EVENT_USER;
 
 /*
  * #%L ff4j-core %% Copyright (C) 2013 - 2015 Ff4J %% Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -22,15 +22,18 @@ import static org.ff4j.utils.JdbcUtils.closeResultSet;
 import static org.ff4j.utils.JdbcUtils.closeStatement;
 import static org.ff4j.utils.JdbcUtils.executeUpdate;
 import static org.ff4j.utils.JdbcUtils.isTableExist;
+import static org.ff4j.utils.JdbcUtils.rollback;
+import static org.ff4j.utils.Util.assertHasLength;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -47,6 +50,7 @@ import org.ff4j.exception.AuditAccessException;
 import org.ff4j.exception.FeatureAccessException;
 import org.ff4j.store.AbstractEventRepository;
 import org.ff4j.store.EventRepository;
+import org.ff4j.utils.JdbcUtils;
 import org.ff4j.utils.Util;
 
 /**
@@ -56,6 +60,9 @@ import org.ff4j.utils.Util;
  */
 public class EventRepositoryJdbc extends AbstractEventRepository {
     
+    /** serialVersionUID. */
+    private static final long serialVersionUID = 8469658392544225615L;
+
     /** Error message 1. */
     public static final String CANNOT_READ_AUDITTABLE =  "Cannot read audit table from DB";
 
@@ -90,7 +97,7 @@ public class EventRepositoryJdbc extends AbstractEventRepository {
     
     /** {@inheritDoc} */
     @Override
-    public boolean saveEvent(Event evt) {
+    public void create(Event evt) {
         Util.assertEvent(evt);
         Connection sqlConn = null;
         PreparedStatement stmt = null;
@@ -104,7 +111,6 @@ public class EventRepositoryJdbc extends AbstractEventRepository {
            closeStatement(stmt);
            closeConnection(sqlConn);
         }
-        return true;
     }
     
     /** {@inheritDoc} */
@@ -131,7 +137,74 @@ public class EventRepositoryJdbc extends AbstractEventRepository {
             closeConnection(sqlConn);
         }
     }
-     
+
+    /** {@inheritDoc} */
+    @Override
+    public void delete(String entityId) {
+        assertItemExist(entityId);
+        Connection sqlConn = null;
+        PreparedStatement ps = null;
+        try {
+            sqlConn = getDataSource().getConnection();
+            ps = sqlConn.prepareStatement(getQueryBuilder().sqldeleteEvent());
+            ps.setString(1, entityId);
+            ps.executeUpdate();
+            sqlConn.commit();
+        } catch (SQLException sqlEX) {
+            rollback(sqlConn);
+            throw new AuditAccessException("CANNOT DELETE EVENT", sqlEX);
+        } finally {
+            closeStatement(ps);
+            closeConnection(sqlConn);
+        }
+    }
+    
+    /** {@inheritDoc} */
+    @Override
+    public boolean exists(String uid) {
+        assertHasLength(uid);
+        Connection          sqlConn = null;
+        PreparedStatement   ps = null;
+        ResultSet           rs = null;
+        try {
+            sqlConn = getDataSource().getConnection();
+            ps = JdbcUtils.buildStatement(sqlConn, getQueryBuilder().sqlExistEvent(), uid);
+            rs = ps.executeQuery();
+            rs.next();
+            return 1 == rs.getInt(1);
+        } catch (SQLException sqlEX) {
+            throw new AuditAccessException("Cannot READ EVENT", sqlEX);
+        } finally {
+            closeResultSet(rs);
+            closeStatement(ps);
+            closeConnection(sqlConn);
+        }
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Stream<Event> findAll() {
+        Connection          sqlConn = null;
+        PreparedStatement   ps = null;
+        ResultSet           rs = null;
+        try {
+            sqlConn = getDataSource().getConnection();
+            ps = sqlConn.prepareStatement(getQueryBuilder().sqlFindAllEvents());
+            rs = ps.executeQuery();
+            List<Event> events = new ArrayList<>();
+            while (rs.next()) {
+                events.add(new JdbcEventMapper(sqlConn, getQueryBuilder()).fromStore(rs));
+            }
+            return events.stream();
+        } catch (SQLException sqlEX) {
+            throw new IllegalStateException("CANNOT_READ_AUDITTABLE", sqlEX);
+        } finally {
+            closeResultSet(rs);
+            closeStatement(ps);
+            closeConnection(sqlConn);
+        }
+    }
+    
     /** {@inheritDoc} */
     @Override
     public void purgeAuditTrail(EventQueryDefinition qDef) {
@@ -313,81 +386,4 @@ public class EventRepositoryJdbc extends AbstractEventRepository {
 		this.queryBuilder = queryBuilder;
 	}
 
-    @Override
-    public long count() {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    @Override
-    public void delete(String entityId) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public void delete(Iterable<? extends Event> entities) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public void delete(Event entity) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public void deleteAll() {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public boolean exists(String id) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public Stream<Event> findAll() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public Stream<Event> findAll(Iterable<String> ids) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public Optional<Event> findById(String id) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public Event read(String id) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public void create(Event entity) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public void update(Event entity) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public void save(Collection<Event> entities) {
-        // TODO Auto-generated method stub
-        
-    }
 }

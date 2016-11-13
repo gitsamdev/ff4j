@@ -9,14 +9,15 @@ import static org.ff4j.audit.EventConstants.ACTION_DISCONNECT;
 import static org.ff4j.audit.EventConstants.ACTION_TOGGLE_OFF;
 import static org.ff4j.audit.EventConstants.ACTION_TOGGLE_ON;
 import static org.ff4j.audit.EventConstants.ACTION_UPDATE;
-import static org.ff4j.jdbc.JdbcStoreConstants.COL_EVENT_ACTION;
-import static org.ff4j.jdbc.JdbcStoreConstants.COL_EVENT_HOSTNAME;
-import static org.ff4j.jdbc.JdbcStoreConstants.COL_EVENT_NAME;
-import static org.ff4j.jdbc.JdbcStoreConstants.COL_EVENT_SOURCE;
-import static org.ff4j.jdbc.JdbcStoreConstants.COL_EVENT_TIME;
-import static org.ff4j.jdbc.JdbcStoreConstants.COL_EVENT_TYPE;
-import static org.ff4j.jdbc.JdbcStoreConstants.COL_EVENT_USER;
-import static org.ff4j.jdbc.JdbcStoreConstants.COL_EVENT_UUID;
+import static org.ff4j.jdbc.JdbcConstants.COL_EVENT_ACTION;
+import static org.ff4j.jdbc.JdbcConstants.COL_EVENT_DURATION;
+import static org.ff4j.jdbc.JdbcConstants.COL_EVENT_HOSTNAME;
+import static org.ff4j.jdbc.JdbcConstants.COL_EVENT_NAME;
+import static org.ff4j.jdbc.JdbcConstants.COL_EVENT_SOURCE;
+import static org.ff4j.jdbc.JdbcConstants.COL_EVENT_TIME;
+import static org.ff4j.jdbc.JdbcConstants.COL_EVENT_TYPE;
+import static org.ff4j.jdbc.JdbcConstants.COL_EVENT_UID;
+import static org.ff4j.jdbc.JdbcConstants.COL_EVENT_USER;
 
 import java.util.Collection;
 
@@ -527,11 +528,39 @@ public class JdbcQueryBuilder {
 	
     // ------- AUDIT -------------
 	
+	public String sqlStartCreateEvent() {
+	    StringBuilder sb = new StringBuilder("INSERT INTO " + getTableNameAudit() + "(");
+	    sb.append("(" + COL_EVENT_UID + "," + COL_EVENT_TIME   + "," + COL_EVENT_TYPE);
+	    sb.append("," + COL_EVENT_NAME + "," + COL_EVENT_ACTION + "," + COL_EVENT_HOSTNAME);
+	    sb.append("," + COL_EVENT_SOURCE + "," + COL_EVENT_DURATION);
+	    return sb.toString();
+	}
+	
+	public String sqlFindAllEvents() {
+        return "SELECT * FROM " + getTableNameAudit();
+    }
+	
+	public String sqlExistEvent() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("SELECT COUNT(" + COL_EVENT_UID + ") FROM ");
+        sb.append(getTableNameAudit());
+        sb.append(" WHERE " + COL_EVENT_UID + " = ?");
+        return sb.toString();
+    }
+    
+    public String sqldeleteEvent() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("DELETE FROM ");
+        sb.append(getTableNameAudit());
+        sb.append(" WHERE " + COL_EVENT_UID + " = ?");
+        return sb.toString();
+    }
+	
 	public String getEventByUuidQuery() {
 	     StringBuilder sb = new StringBuilder();
 	     sb.append("SELECT * FROM ");
 	     sb.append(getTableNameAudit());
-	     sb.append(" WHERE " + COL_EVENT_UUID + " LIKE ?");
+	     sb.append(" WHERE " + COL_EVENT_UID + " LIKE ?");
 	     return sb.toString();
 	}
 	
@@ -569,7 +598,7 @@ public class JdbcQueryBuilder {
 	
 	public String getHitCount(String columName) {
 	    StringBuilder sb = new StringBuilder();
-        sb.append("SELECT count(" + COL_EVENT_UUID + ") as NB, " + columName + " FROM ");
+        sb.append("SELECT count(" + COL_EVENT_UID + ") as NB, " + columName + " FROM ");
         sb.append(getTableNameAudit());
         sb.append(" WHERE (" + COL_EVENT_TYPE   + " LIKE '" + EventConstants.TARGET_FEATURE  + "') ");
         sb.append(" AND   (" + COL_EVENT_ACTION + " LIKE '" + EventConstants.ACTION_CHECK_OK + "') ");
@@ -599,7 +628,7 @@ public class JdbcQueryBuilder {
    
     public String getFeatureDistributionAudit() {
         StringBuilder sb = new StringBuilder();
-        sb.append("SELECT count(" + COL_EVENT_UUID + ") as NB, " + COL_EVENT_ACTION + " FROM ");
+        sb.append("SELECT count(" + COL_EVENT_UID + ") as NB, " + COL_EVENT_ACTION + " FROM ");
         sb.append(getTableNameAudit());
         sb.append(" WHERE (" + COL_EVENT_TYPE + " LIKE '" + EventConstants.TARGET_FEATURE  + "') ");
         sb.append(" AND   (" + COL_EVENT_NAME + " LIKE ?) ");
