@@ -27,9 +27,6 @@ import static org.ff4j.utils.JsonUtils.collectionAsJson;
  */
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -39,6 +36,8 @@ import org.ff4j.conf.XmlParser;
 import org.ff4j.exception.FeatureAlreadyExistException;
 import org.ff4j.exception.FeatureNotFoundException;
 import org.ff4j.exception.GroupNotFoundException;
+import org.ff4j.exception.ItemAlreadyExistException;
+import org.ff4j.exception.ItemNotFoundException;
 import org.ff4j.feature.Feature;
 import org.ff4j.utils.FF4jUtils;
 import org.ff4j.utils.Util;
@@ -48,7 +47,10 @@ import org.ff4j.utils.Util;
  *
  * @author Cedrick Lunven (@clunven)
  */
-public abstract class AbstractFeatureStore implements FeatureStore {
+public abstract class AbstractFeatureStore extends AbstractFF4jRepository<Feature> implements FeatureStore {
+
+    /** serialVersionUID. */
+    private static final long serialVersionUID = -7450698535116107530L;
 
     /**
      * Initialize store from XML Configuration File.
@@ -56,69 +58,15 @@ public abstract class AbstractFeatureStore implements FeatureStore {
      * @param xmlConfFile
      *      xml configuration file
      */
-    public Map < String, Feature > importFeaturesFromXmlFile(String xmlConfFile) {
-        assertHasLength("xml conf file", xmlConfFile);
-        
+    protected Stream < Feature > importFeaturesFromXmlFile(String xmlConfFile) {
         // Load as Inputstream
+        assertHasLength(xmlConfFile);
         InputStream xmlIS = getClass().getClassLoader().getResourceAsStream(xmlConfFile);
         assertNotNull(xmlIS);
-        
         // Use the Feature Parser
         Map < String, Feature > features = new XmlParser().parseConfigurationFile(xmlIS).getFeatures();
         save(features.values());
-        return features;
-    }
-    
-    /** {@inheritDoc} */
-    @Override
-    public void createSchema() {
-        /* 
-         * In most of cases there is nothing to do. The feature and properties are createdat runtime.
-         * But not always (JDBC, Mongo, Cassandra)... this is the reason why the dedicated store must 
-         * override this method. It a default implementation (Pattern Adapter).
-         */
-        return;
-    }
-    
-    /**
-     * Import features from a set of feature.
-     *
-     * @param features
-     */
-    @Override
-    public void save(Collection < Feature > features) {
-        if (features != null) {
-            features.stream().forEach(feature -> {
-                if (exists(feature.getUid())) {
-                    delete(feature.getUid());
-                }
-                create(feature);
-            });
-        }
-    }
-    
-    /** {@inheritDoc} */
-    @Override
-    public void delete(Iterable<? extends Feature> entities) {
-        if (null != entities) {
-            entities.forEach(this::delete);
-        }
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void delete(Feature entity) {
-        assertFeatureExist(entity.getUid());
-        delete(entity.getUid());
-    }
-    
-    /** {@inheritDoc} */
-    @Override
-    public Stream<Feature> findAll(Iterable<String> candidates) {
-        if (candidates == null) return null;
-        List < Feature > targets  = new ArrayList<>();
-        candidates.forEach(id -> targets.add(read(id)));
-        return targets.stream();
+        return features.values().stream();
     }
     
     /** {@inheritDoc} */
@@ -127,10 +75,10 @@ public abstract class AbstractFeatureStore implements FeatureStore {
         sb.append(attributeAsJson("type", this.getClass().getCanonicalName()));
         sb.append(cacheJson(this));
         Set<String> myFeatures = FF4jUtils.setOf(findAll().map(Feature::getUid));
-        sb.append(",\"numberOfFeatures\":" + myFeatures.size());
+        sb.append(attributeAsJson("numberOfFeatures", myFeatures.size()));
         sb.append(",\"features\":" + collectionAsJson(myFeatures));
         Set<String> groups = readAllGroups().collect(Collectors.toSet());
-        sb.append(",\"numberOfGroups\":" + groups.size());
+        sb.append(attributeAsJson("numberOfGroups", groups.size()));
         sb.append(",\"groups\":" + collectionAsJson(groups));
         sb.append("}");
         return sb.toString();
@@ -149,9 +97,10 @@ public abstract class AbstractFeatureStore implements FeatureStore {
      *      target uid
      */
     protected void assertFeatureExist(String uid) {
-        Util.assertHasLength(uid);
-        if (!exists(uid)) {
-            throw new FeatureNotFoundException(uid);
+        try {
+            assertItemExist(uid);
+        } catch(ItemNotFoundException infEx) {
+            throw new FeatureNotFoundException(uid, infEx);
         }
     }
     
@@ -162,9 +111,10 @@ public abstract class AbstractFeatureStore implements FeatureStore {
      *      current feature identifier.s
      */
     protected void assertFeatureNotExist(String uid) {
-        Util.assertHasLength(uid);
-        if (exists(uid)) {
-            throw new FeatureAlreadyExistException(uid);
+        try {
+            assertItemNotExist(uid);
+        } catch(ItemAlreadyExistException infEx) {
+            throw new FeatureAlreadyExistException(uid, infEx);
         }
     }
     
@@ -192,13 +142,6 @@ public abstract class AbstractFeatureStore implements FeatureStore {
             throw new IllegalArgumentException("Feature cannot be null nor empty");
         }
     } 
-    
-    /** {@inheritDoc} */
-    @Override
-    public Feature read(String id) {
-        assertFeatureExist(id);
-        return findById(id).get();
-    }
     
     /** {@inheritDoc} */
     @Override

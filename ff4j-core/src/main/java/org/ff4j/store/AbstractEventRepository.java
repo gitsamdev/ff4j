@@ -25,14 +25,17 @@ import static org.ff4j.audit.EventConstants.TITLE_BARCHAR_HIT;
 import static org.ff4j.audit.EventConstants.TITLE_PIE_HITCOUNT;
 
 import java.text.SimpleDateFormat;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 import org.ff4j.audit.BarChart;
 import org.ff4j.audit.Event;
@@ -47,10 +50,71 @@ import org.ff4j.utils.Util;
  *
  * @author Cedrick Lunven (@clunven)
  */
-public abstract class AbstractEventRepository implements EventRepository {
+public abstract class AbstractEventRepository extends AbstractFF4jRepository<Event>  implements EventRepository {
+    
+    /** serialVersionUID. */
+    private static final long serialVersionUID = 1370494145233610878L;
     
     /** Create key. */
     protected static final SimpleDateFormat KDF = new SimpleDateFormat("yyyyMMdd");
+    
+    /** {@inheritDoc} */
+    @Override
+    public Optional<Event> findById(String id) {
+        return findById(id, null);
+    }
+    
+
+
+    @Override
+    public long count() {
+        return 0;
+    }
+
+    @Override
+    public void delete(String entityId) {
+    }
+
+    @Override
+    public void delete(Iterable<? extends Event> entities) {
+    }
+
+    @Override
+    public void delete(Event entity) {
+    }
+
+    @Override
+    public void deleteAll() {
+    }
+
+    @Override
+    public boolean exists(String id) {
+        return false;
+    }
+
+    @Override
+    public Stream<Event> findAll() {
+        return null;
+    }
+
+    @Override
+    public Stream<Event> findAll(Iterable<String> ids) {
+        return null;
+    }    
+
+    @Override
+    public Event read(String id) {
+        return null;
+    }
+    
+    @Override
+    public void update(Event entity) {
+    }
+
+    @Override
+    public void save(Collection<Event> entities) {
+    }    
+   
     
     /** {@inheritDoc} */
     @Override
@@ -270,5 +334,5 @@ public abstract class AbstractEventRepository implements EventRepository {
             time += 3600 * 1000 * 24;
         }
         return resultKeys;
-    }    
+    }  
 }

@@ -63,7 +63,10 @@ import org.ff4j.utils.Util;
  */
 public class FeatureStoreJdbc extends AbstractFeatureStore {
 
-	/** Error message 1. */
+	/** serialVersionUID. */
+    private static final long serialVersionUID = 7144391802850457781L;
+
+    /** Error message 1. */
     public static final String CANNOT_CHECK_FEATURE_EXISTENCE_ERROR_RELATED_TO_DATABASE =
     		"Cannot check feature existence, error related to database";
 
@@ -120,6 +123,7 @@ public class FeatureStoreJdbc extends AbstractFeatureStore {
         }
     }
     
+    /** {@inheritDoc} */
     @Override
     public long count() {
         Connection          sqlConn = null;

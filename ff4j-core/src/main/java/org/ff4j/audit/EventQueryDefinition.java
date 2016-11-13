@@ -102,9 +102,9 @@ public class EventQueryDefinition implements Serializable {
 	    return (evt.getTimestamp() >= from) && 
 	           (evt.getTimestamp() <= to)   &&
 	           matchAction(evt.getAction()) && 
-	           matchSource(evt.getSource()) &&
 	           matchHost(evt.getHostName()) &&
-	           matchName(evt.getName());
+               matchName(evt.getName())     &&
+               matchSource(evt.getSource());
 	}
 	
 	public boolean matchAction(String action) {

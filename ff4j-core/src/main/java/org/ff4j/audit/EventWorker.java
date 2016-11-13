@@ -68,8 +68,10 @@ public class EventWorker implements Callable<Boolean> {
         boolean ok = false;
         int retryCount = 0;
         while (!ok && retryCount < MAX_RETRY) {
-            ok = eventRepository.saveEvent(event);
-            if (!ok) {
+            try {
+                eventRepository.create(event);
+                ok = true;
+            } catch(Throwable t) {
                 retryCount++;
                 Thread.sleep(RETRY_DELAY);
             }

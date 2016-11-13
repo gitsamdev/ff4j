@@ -1,5 +1,7 @@
 package org.ff4j.audit;
 
+import java.util.Optional;
+
 /*
  * #%L
  * ff4j-core
@@ -51,11 +53,14 @@ public class EventSeries extends TreeSet< Event > {
      * @return
      */
     public double getAverageDuration() {
-        long totalDuration = 0;
-        for(Event evt : this) {
-            totalDuration+= evt.getDuration();
-        }
-        return totalDuration / size();
+        MutableHitCount mhc = new MutableHitCount();
+        this.stream()
+            .map(Event::getDuration)
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .map(Long::intValue)
+            .forEach(mhc::incBy);
+        return mhc.get() / size();
     }
 
     /**

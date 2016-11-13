@@ -1,5 +1,8 @@
 package org.ff4j.audit;
 
+import static org.ff4j.utils.JsonUtils.attributeAsJson;
+import static org.ff4j.utils.JsonUtils.objectAsJson;
+
 /*
  * #%L
  * ff4j-core
@@ -21,11 +24,14 @@ package org.ff4j.audit;
  */
 
 import java.io.Serializable;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
+import org.ff4j.FF4jBaseObject;
 import org.ff4j.utils.IOUtil;
 
 /**
@@ -33,61 +39,55 @@ import org.ff4j.utils.IOUtil;
  * 
  * @author Cedrick Lunven (@clunven)
  */
-public class Event implements Serializable, Comparable < Event > {
+public class Event extends FF4jBaseObject<Event> implements Serializable, Comparable < Event > {
 
     /** Serial. */
     private static final long serialVersionUID = 6490780530212257217L;
-
-    /** Unique identifier. */
-    private String uuid;
     
     /** Time of event creation. */
-    private long timestamp;
-    
-    /** Duration of action. */
-    private long duration = 0;
-    
+    private long timestamp = 0;
+   
     /** HostName. */
     private String hostName;
     
-    /** Source. */
-    private String source;
+    /** feature or property. */
+    private String type;
     
-    /** Current user. */
-    private String user;
+    /** Action performed. */
+    private String action;
     
     /** feature or property name. */
     private String name;
     
-    /** feature or property. */
-    private String type;
-     
-    /** Action performed. */
-    private String action;
+    /** Source. */
+    private String source;
+    
+    /** Duration of action. */
+    private Optional < Long > duration = Optional.empty();
     
     /** Common element. */
-    private String value;
+    private Optional < String > value = Optional.empty();
     
     /** Specific parameters. */
-    private Map < String, String > customKeys = new HashMap<String, String>();
+    private Optional < Map < String, String > > customKeys = Optional.empty();
     
     /**
      * Default constructor.
      * 
      */
     public Event() {
-        uuid        = UUID.randomUUID().toString();
-        timestamp   = System.currentTimeMillis();
-        hostName    = IOUtil.resolveHostName();
+        super(UUID.randomUUID().toString());
+        timestamp    = creationDate.get().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        hostName     = IOUtil.resolveHostName();
     }
     
     /** Default constructor. */
     public Event(String pSource, String pType, String pName, String pAction) {
         this();
-        this.source = pSource;
         this.type   = pType;
-        this.name   = pName;
         this.action = pAction;
+        this.name   = pName;
+        this.source = pSource;
     }
 
     /** {@inheritDoc} */
@@ -104,23 +104,20 @@ public class Event implements Serializable, Comparable < Event > {
      */
     public String toJson() {
         StringBuilder sb = new StringBuilder("{");
-        sb.append("\"id\": \"" + uuid + "\"");
-        sb.append(", \"timestamp\":" + timestamp);
-        keyAsString(sb, "hostName", hostName);
-        keyAsString(sb, "source",   source);
-        keyAsString(sb, "user",   user);
-        keyAsString(sb, "name",   name);
-        keyAsString(sb, "type",   type);
-        keyAsString(sb, "action", action);
-        keyAsString(sb, "value", value);
-        sb.append(", \"duration\":" + duration);
-        if (customKeys != null && !customKeys.isEmpty()) {
-            for(Map.Entry<String,String> customKeysEntry : customKeys.entrySet()) {
-                if (null != customKeysEntry.getValue()) {
-                    keyAsString(sb, customKeysEntry.getKey(), customKeysEntry.getValue());
-                }
-            }
-        }
+        sb.append(super.baseJson());
+        sb.append(objectAsJson("timestamp", timestamp));
+        sb.append(attributeAsJson("hostName", hostName));
+        sb.append(attributeAsJson("action", action));
+        sb.append(attributeAsJson("type", type));
+        sb.append(attributeAsJson("name", name));
+        sb.append(attributeAsJson("source", source));
+        value.ifPresent( d -> sb.append(attributeAsJson("value", d)));
+        duration.ifPresent( d -> sb.append(objectAsJson("duration", d)));
+        customKeys.ifPresent(cp -> {
+            cp.entrySet().stream().forEach(entry -> {
+                sb.append(attributeAsJson(entry.getKey(), entry.getValue()));
+            });
+        });
         sb.append("}");
         return sb.toString();
     }
@@ -134,7 +131,10 @@ public class Event implements Serializable, Comparable < Event > {
      *      current value
      */
     public void put(String key, String value) {
-        getCustomKeys().put(key, value);
+        if (!getCustomKeys().isPresent()) {
+          setCustomKeys(new HashMap<String, String>());
+        }
+        getCustomKeys().get().put(key, value);
     }
     
     /**
@@ -143,23 +143,7 @@ public class Event implements Serializable, Comparable < Event > {
      * @return
      */
     public String getKey(String key) {
-        return getCustomKeys().get(key);
-    }
-    
-    /**
-     * Add key to Json expression.
-     *
-     * @param sb
-     *      current output
-     * @param name
-     *      current key
-     * @param value
-     *      current value
-     */
-    private void keyAsString(StringBuilder sb, String name, String value) {
-        if (value != null) {
-            sb.append(", \"" + name + "\": \"" + value + "\"");
-        }
+        return getCustomKeys().get().get(key);
     }
     
     /**
@@ -178,25 +162,6 @@ public class Event implements Serializable, Comparable < Event > {
      */
     public Date getDate() {
         return new Date(getTimestamp());
-    }
-    
-    /**
-     * Getter accessor for attribute 'uuid'.
-     *
-     * @return
-     *       current value of 'uuid'
-     */
-    public String getUuid() {
-        return uuid;
-    }
-
-    /**
-     * Setter accessor for attribute 'uuid'.
-     * @param uuid
-     * 		new value for 'uuid '
-     */
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
     }
 
     /**
@@ -233,27 +198,9 @@ public class Event implements Serializable, Comparable < Event > {
      * @param source
      * 		new value for 'source '
      */
-    public void setSource(String source) {
+    public Event setSource(String source) {
         this.source = source;
-    }
-
-    /**
-     * Getter accessor for attribute 'user'.
-     *
-     * @return
-     *       current value of 'user'
-     */
-    public String getUser() {
-        return user;
-    }
-
-    /**
-     * Setter accessor for attribute 'user'.
-     * @param user
-     * 		new value for 'user '
-     */
-    public void setUser(String user) {
-        this.user = user;
+        return this;
     }
 
     /**
@@ -271,8 +218,9 @@ public class Event implements Serializable, Comparable < Event > {
      * @param name
      * 		new value for 'name '
      */
-    public void setName(String name) {
+    public Event setName(String name) {
         this.name = name;
+        return this;
     }
 
     /**
@@ -290,8 +238,9 @@ public class Event implements Serializable, Comparable < Event > {
      * @param type
      * 		new value for 'type '
      */
-    public void setType(String type) {
+    public Event setType(String type) {
         this.type = type;
+        return this;
     }
     
     /**
@@ -309,8 +258,9 @@ public class Event implements Serializable, Comparable < Event > {
      * @param action
      * 		new value for 'action '
      */
-    public void setAction(String action) {
+    public Event setAction(String action) {
         this.action = action;
+        return this;
     }
 
     /**
@@ -319,7 +269,7 @@ public class Event implements Serializable, Comparable < Event > {
      * @return
      *       current value of 'customKeys'
      */
-    public Map<String, String> getCustomKeys() {
+    public Optional <Map<String, String>> getCustomKeys() {
         return customKeys;
     }
 
@@ -328,8 +278,9 @@ public class Event implements Serializable, Comparable < Event > {
      * @param customKeys
      * 		new value for 'customKeys '
      */
-    public void setCustomKeys(Map<String, String> customKeys) {
-        this.customKeys = customKeys;
+    public Event setCustomKeys(Map<String, String> customKeys) {
+        this.customKeys = Optional.ofNullable(customKeys);
+        return this;
     }
 
     /**
@@ -337,8 +288,9 @@ public class Event implements Serializable, Comparable < Event > {
      * @param timestamp
      * 		new value for 'timestamp '
      */
-    public void setTimestamp(long timestamp) {
+    public Event setTimestamp(long timestamp) {
         this.timestamp = timestamp;
+        return this;
     }
 
     /**
@@ -347,7 +299,7 @@ public class Event implements Serializable, Comparable < Event > {
      * @return
      *       current value of 'duration'
      */
-    public long getDuration() {
+    public Optional < Long > getDuration() {
         return duration;
     }
 
@@ -356,8 +308,9 @@ public class Event implements Serializable, Comparable < Event > {
      * @param duration
      * 		new value for 'duration '
      */
-    public void setDuration(long duration) {
-        this.duration = duration;
+    public Event setDuration(long duration) {
+        this.duration = Optional.ofNullable(duration);
+        return this;
     }
 
     /**
@@ -366,7 +319,7 @@ public class Event implements Serializable, Comparable < Event > {
      * @return
      *       current value of 'value'
      */
-    public String getValue() {
+    public Optional < String > getValue() {
         return value;
     }
 
@@ -375,8 +328,9 @@ public class Event implements Serializable, Comparable < Event > {
      * @param value
      * 		new value for 'value '
      */
-    public void setValue(String value) {
-        this.value = value;
+    public Event setValue(String value) {
+        this.value = Optional.ofNullable(value);
+        return this;
     }
 
     /** {@inheritDoc} */
@@ -384,7 +338,7 @@ public class Event implements Serializable, Comparable < Event > {
     public int compareTo(Event evt) {
         int myTime = new Long(this.getTimestamp() - evt.getTimestamp()).intValue();
         // Not equals even if same timestamp (of course...)
-        return (myTime != 0) ? myTime : evt.getUuid().compareTo(getUuid());
+        return (myTime != 0) ? myTime : evt.getUid().compareTo(getUid());
     }
 
 }

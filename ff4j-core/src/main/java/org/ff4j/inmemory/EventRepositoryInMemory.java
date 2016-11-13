@@ -1,5 +1,7 @@
 package org.ff4j.inmemory;
 
+import java.util.Collection;
+
 /*
  * #%L
  * ff4j-core
@@ -31,6 +33,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 import org.ff4j.audit.Event;
 import org.ff4j.audit.EventConstants;
@@ -49,6 +52,9 @@ import org.ff4j.utils.Util;
  * @author Cedrick Lunven (@clunven)
  */
 public class EventRepositoryInMemory extends AbstractEventRepository {
+
+    /** serialVersionUID. */
+    private static final long serialVersionUID = 5651555654265149964L;
 
     /** default retention. */
     private static final int DEFAULT_QUEUE_CAPACITY = 100000;
@@ -91,18 +97,18 @@ public class EventRepositoryInMemory extends AbstractEventRepository {
 
     /** {@inheritDoc} */
     @Override
-    public boolean saveEvent(Event e) {
+    public void create(Event e) {
         Util.assertEvent(e);
         if (EventConstants.ACTION_CHECK_OK.equalsIgnoreCase(e.getAction())) {
-            return saveEvent(e, featureUsageEvents);
+            saveEvent(e, featureUsageEvents);
         } else if (EventConstants.ACTION_CHECK_OFF.equalsIgnoreCase(e.getAction())) {
-            return saveEvent(e, checkOffEvents);
+            saveEvent(e, checkOffEvents);
         }
         String key = getKeyDate(e.getTimestamp());
         if (!auditTrailEvents.containsKey(key)) {
             auditTrailEvents.put(key, new EventSeries(this.queueCapacity));
         }
-        return auditTrailEvents.get(key).add(e);
+        auditTrailEvents.get(key).add(e);
     }
     
     /** {@inheritDoc} */
@@ -149,7 +155,7 @@ public class EventRepositoryInMemory extends AbstractEventRepository {
     public Map<String, MutableHitCount> getUserHitCount(EventQueryDefinition query) {
         Map<String, MutableHitCount> hitRatio = new TreeMap<String, MutableHitCount>();
         for (Event event : searchFeatureUsageEvents(query)) {
-            String user = Util.hasLength(event.getUser()) ? event.getUser() : "anonymous";
+            String user = event.getOwner().orElse("anonymous");
             if (!hitRatio.containsKey(user)) {
                 hitRatio.put(user, new MutableHitCount());
              }
@@ -298,7 +304,7 @@ public class EventRepositoryInMemory extends AbstractEventRepository {
         Iterator < Event > iterEvt = es.iterator();
         while(iterEvt.hasNext()) {
             Event currentEvent = iterEvt.next();
-            if (currentEvent.getUuid().equalsIgnoreCase(evt.getUuid())) {
+            if (currentEvent.getUid().equalsIgnoreCase(evt.getUid())) {
                 es.remove(currentEvent);
             }
         }
@@ -333,7 +339,7 @@ public class EventRepositoryInMemory extends AbstractEventRepository {
     
     /** {@inheritDoc} */
     @Override
-    public Optional<Event> getEventByUUID(String uuid, Long timestamp) {
+    public Optional<Event> findById(String uuid, Long timestamp) {
         // Limited Search by key
         if (timestamp != null) {
             String targetDate = KDF.format(new Date(timestamp.longValue()));
@@ -428,13 +434,60 @@ public class EventRepositoryInMemory extends AbstractEventRepository {
         Iterator<Event> iterEvents = es.iterator();
         while (iterEvents.hasNext()) {
             Event evt = iterEvents.next();
-            if (evt.getUuid().equalsIgnoreCase(uuid)) {
+            if (evt.getUid().equalsIgnoreCase(uuid)) {
                 return evt;
             }
         }
         return null;
     }
 
+    @Override
+    public long count() {
+        return 0;
+    }
+
+    @Override
+    public void delete(String entityId) {
+    }
+
+    @Override
+    public void delete(Iterable<? extends Event> entities) {
+    }
+
+    @Override
+    public void delete(Event entity) {
+    }
+
+    @Override
+    public void deleteAll() {
+    }
+
+    @Override
+    public boolean exists(String id) {
+        return false;
+    }
+
+    @Override
+    public Stream<Event> findAll() {
+        return null;
+    }
+
+    @Override
+    public Stream<Event> findAll(Iterable<String> ids) {
+        return null;
+    }    
+
+    @Override
+    public Event read(String id) {
+        return null;
+    }
     
+    @Override
+    public void update(Event entity) {
+    }
+
+    @Override
+    public void save(Collection<Event> entities) {
+    }    
    
 }

@@ -380,7 +380,7 @@ public abstract class EventRepositoryTestSupport {
 		// Let the store to be updated
 		Thread.sleep(100);
 		// Then
-		Optional<Event> evt = repo.getEventByUUID(dummyId, System.currentTimeMillis());
+		Optional<Event> evt = repo.findById(dummyId, System.currentTimeMillis());
 		Assert.assertTrue(evt.isPresent());
 	}
 
@@ -396,16 +396,16 @@ public abstract class EventRepositoryTestSupport {
 		repo.saveEvent(evtAudit);
 		repo.saveEvent(evtFeatureUsage);
 		Thread.sleep(100);
-		Assert.assertNotNull(repo.getEventByUUID(evtAudit.getUuid(), System.currentTimeMillis()));
-		Assert.assertNotNull(repo.getEventByUUID(evtFeatureUsage.getUuid(), System.currentTimeMillis()));
+		Assert.assertNotNull(repo.findById(evtAudit.getUuid(), System.currentTimeMillis()));
+		Assert.assertNotNull(repo.findById(evtFeatureUsage.getUuid(), System.currentTimeMillis()));
 		// When
 		EventQueryDefinition testQuery = new EventQueryDefinition(topStart - 100, System.currentTimeMillis());
 		repo.purgeAuditTrail(testQuery);
 
 		// Then
-		Assert.assertFalse(repo.getEventByUUID(evtAudit.getUuid(), System.currentTimeMillis()).isPresent());
+		Assert.assertFalse(repo.findById(evtAudit.getUuid(), System.currentTimeMillis()).isPresent());
 		repo.purgeFeatureUsage(testQuery);
-		Assert.assertFalse(repo.getEventByUUID(evtFeatureUsage.getUuid(), System.currentTimeMillis()).isPresent());
+		Assert.assertFalse(repo.findById(evtFeatureUsage.getUuid(), System.currentTimeMillis()).isPresent());
 	}
 
 }

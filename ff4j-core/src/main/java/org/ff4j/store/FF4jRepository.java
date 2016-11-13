@@ -6,18 +6,29 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
- * Super Interface to work with features and properties
+ * Super Interface to work with features and properties.
  *
  * @author Cedrick LUNVEN  (@clunven)
- * @author Andre Blaszczyk (@AndrBLASZCZYK)
  *
- * @since 2.x
  * @param <TARGET>
  *      current object to work with
  * @param <ID>
  *      unique identifier (String most of the case).
+ *      
+ * @since 2.x
  */
 public interface FF4jRepository < ID extends Serializable, ENTITY > {
+    
+    /**
+     * Initialize the target database schema by creating expected structures.
+     * 
+     * <li> TABLE, INDEX will be created for JDBC, but also COLLECTION and INDEXS for MongoDb, or COLUMN FAMILY for Cassandra.
+     * <li> The structures will be created only if they don't exist.
+     * <li> In some cases, there is nothing todo (Ehcache, Redis, InMemory), the method won't failed but do nothing (it does not clear the DB) 
+     * 
+     * @since 1.6
+     */
+    void createSchema();
     
     /**
      * Count number of elements in the repository

@@ -99,8 +99,8 @@ public class Util {
     
     public static void assertEvent(Event evt) {
         assertNotNull(evt);
-        assertHasLength(evt.getName());
         assertHasLength(evt.getType());
+        assertHasLength(evt.getName());
         assertHasLength(evt.getAction());
     }
 

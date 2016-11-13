@@ -180,6 +180,16 @@ public class CacheProxy < K extends Serializable, V extends FF4jBaseObject<?> > 
         }
     }
     
+    /** {@inheritDoc} */
+    @Override
+    public void createSchema() {
+        /* Most of the time there is nothing to do. The feature and properties are createdat runtime.
+         * But not always (JDBC, Mongo, Cassandra)... this is the reason why the dedicated store must 
+         * override this method. It a default implementation (Pattern Adapter).
+         */
+        return;
+    }
+    
     /**
      * Getter accessor for attribute 'cacheManager'.
      * 

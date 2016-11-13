@@ -20,7 +20,6 @@ package org.ff4j.store;
  * #L%
  */
 
-
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -38,16 +37,7 @@ import org.ff4j.audit.TimeSeriesChart;
  * 
  * @author Cedrick Lunven (@clunven)
  */
-public interface EventRepository {
-
-    /**
-     * Save event into store synchronously.
-     * 
-     * @param e
-     *            target event to store
-     * @return if saving is OK
-     */
-    boolean saveEvent(Event e);
+public interface EventRepository extends FF4jRepository < String, Event > {
     
     /**
      * Retrieve an event by its unique identifer.
@@ -59,7 +49,7 @@ public interface EventRepository {
      * @return
      *      target event detail
      */
-    Optional < Event > getEventByUUID(String uuid, Long timestamp);
+    Optional < Event > findById(String uuid, Long timestamp);
     
     /**
      * Count hit ratio of features between 2 dates. This will be used for different charts.
@@ -262,8 +252,4 @@ public interface EventRepository {
      */
     void purgeAuditTrail(EventQueryDefinition query);
     
-    /**
-     * Initialize target database with expected schema if needed.
-     */
-    void createSchema();
 }

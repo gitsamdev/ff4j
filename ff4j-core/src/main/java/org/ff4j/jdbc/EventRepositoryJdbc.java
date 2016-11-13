@@ -28,11 +28,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 import javax.sql.DataSource;
 
@@ -107,7 +109,7 @@ public class EventRepositoryJdbc extends AbstractEventRepository {
     
     /** {@inheritDoc} */
     @Override
-    public Optional < Event > getEventByUUID(String uuid, Long timestamp) {
+    public Optional < Event > findById(String uuid, Long timestamp) {
         Util.assertHasLength(uuid);
         Connection          sqlConn = null;
         PreparedStatement   ps = null;
@@ -310,4 +312,82 @@ public class EventRepositoryJdbc extends AbstractEventRepository {
 	public void setQueryBuilder(JdbcQueryBuilder queryBuilder) {
 		this.queryBuilder = queryBuilder;
 	}
+
+    @Override
+    public long count() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public void delete(String entityId) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void delete(Iterable<? extends Event> entities) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void delete(Event entity) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void deleteAll() {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public boolean exists(String id) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public Stream<Event> findAll() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Stream<Event> findAll(Iterable<String> ids) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Optional<Event> findById(String id) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Event read(String id) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void create(Event entity) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void update(Event entity) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void save(Collection<Event> entities) {
+        // TODO Auto-generated method stub
+        
+    }
 }

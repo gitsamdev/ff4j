@@ -16,10 +16,13 @@ package org.ff4j.exception;
  * 
  * @author Cedrick Lunven (@clunven)
  */
-public class FeatureAlreadyExistException extends ItemAlreadyExistException {
+public class ItemAlreadyExistException extends RuntimeException {
 
     /** serial. */
     private static final long serialVersionUID = -232699648959802172L;
+    
+    /** error message. */
+    private static final String ERROR_MESSAGE = "Entity id {%s} already exists in store where it does not";
 
     /**
      * Parameterized constructor.
@@ -27,8 +30,8 @@ public class FeatureAlreadyExistException extends ItemAlreadyExistException {
      * @param featureName
      *            feature to be processed
      **/
-    public FeatureAlreadyExistException(String featureName) {
-        super(featureName);
+    public ItemAlreadyExistException(String entityId) {
+        super(String.format(ERROR_MESSAGE, entityId));
     }
     
     /**
@@ -37,8 +40,8 @@ public class FeatureAlreadyExistException extends ItemAlreadyExistException {
      * @param featureName
      *            feature to be processed
      **/
-    public FeatureAlreadyExistException(String entityId, Throwable parentException) {
-        super(entityId, parentException);
+    public ItemAlreadyExistException(String entityId, Throwable parentException) {
+        super(String.format(ERROR_MESSAGE, entityId), parentException);
     }
 
 }

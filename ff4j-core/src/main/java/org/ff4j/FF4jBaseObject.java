@@ -62,7 +62,9 @@ public abstract class FF4jBaseObject<T extends FF4jBaseObject<?>> implements Ser
      * @param uid
      */
     protected FF4jBaseObject(String uid) {
-        this.uid = uid;
+        this.uid         = uid;
+        creationDate     = Optional.of(LocalDateTime.now());
+        lastModifiedDate = creationDate;
     }
     
     @SuppressWarnings("unchecked")

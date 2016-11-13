@@ -130,7 +130,7 @@ public class OperationsController extends AbstractController {
             if (isValidParam(req, WebConstants.KEY_DATE)) {
                 eventTime = Long.valueOf(req.getParameter(WebConstants.KEY_DATE));
             }
-            Event event = getFf4j().getEventRepository().getEventByUUID(eventUUId, eventTime);
+            Event event = getFf4j().getEventRepository().findById(eventUUId, eventTime);
             if (event != null) {
                 res.getWriter().println(event.toString());
             } else {

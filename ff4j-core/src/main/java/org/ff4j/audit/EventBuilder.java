@@ -49,7 +49,7 @@ public class EventBuilder {
         
         // Retrieved looged user from AuthorizationManager
         if (ff4j.getAuthorizationsManager() != null) {
-            event.setUser(ff4j.getAuthorizationsManager().getCurrentUserName());
+            event.setOwner(ff4j.getAuthorizationsManager().getCurrentUserName());
         }
     }
     

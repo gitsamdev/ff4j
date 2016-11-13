@@ -37,6 +37,9 @@ import org.ff4j.utils.FF4jUtils;
  */
 public class FeatureStoreInMemory extends AbstractFeatureStore {
 
+    /** serialVersionUID. */
+    private static final long serialVersionUID = -3768339754263659120L;
+
     /** XML File where features are load. */
     private String fileName = null;
 

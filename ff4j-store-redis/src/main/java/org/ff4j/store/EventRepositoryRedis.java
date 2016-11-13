@@ -132,7 +132,7 @@ public class EventRepositoryRedis extends AbstractEventRepository {
     
     /** {@inheritDoc} */
     @Override
-    public Event getEventByUUID(String uuid, Long timestamp) {
+    public Event findById(String uuid, Long timestamp) {
         // Check in AUDITTRAIL
         // Check in any Key with FF4J_EVENT_*****_YYMMDD
         return null;
