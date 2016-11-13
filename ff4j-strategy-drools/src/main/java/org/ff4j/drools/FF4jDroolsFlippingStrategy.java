@@ -30,7 +30,7 @@ import java.util.StringJoiner;
 import org.ff4j.core.FeatureStore;
 import org.ff4j.core.FlippingExecutionContext;
 import org.ff4j.core.FlippingStrategy;
-import org.ff4j.strategy.AbstractFlipStrategy;
+import org.ff4j.strategy.AbstractExecutionStrategy;
 
 /**
  * Proposition of {@link FlippingStrategy} delegating the evaluation of feature 
@@ -59,7 +59,7 @@ import org.ff4j.strategy.AbstractFlipStrategy;
  *
  * @author Cedrick Lunven (@clunven)</a>
  */
-public class FF4jDroolsFlippingStrategy extends AbstractFlipStrategy {
+public class FF4jDroolsFlippingStrategy extends AbstractExecutionStrategy {
 
     /** key to be used in map initParam. */
     private static final String KEY_BASE_NAME = "basename";

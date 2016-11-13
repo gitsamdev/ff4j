@@ -361,11 +361,11 @@ public class FF4jCliProcessor {
 					logWarn("Feature [" + featureName + "] not found");
 					
 				} else if (enable){
-					currentFF4J.getFeatureStore().enable(featureName);
+					currentFF4J.getFeatureStore().toggleOn(featureName);
 					logInfo(FEATURE + featureName + " is now enabled") ;
 					
 				} else {
-					currentFF4J.getFeatureStore().disable(featureName);
+					currentFF4J.getFeatureStore().toggleOff(featureName);
 					logInfo(FEATURE + featureName + " is now disabled") ;
 				}
 			}

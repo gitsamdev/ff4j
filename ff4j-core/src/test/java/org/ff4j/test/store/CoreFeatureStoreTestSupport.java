@@ -152,7 +152,7 @@ public abstract class CoreFeatureStoreTestSupport implements TestConstantsFF4j {
     public void testEnableNull() {
         // Given
         // When
-        testedStore.enable(null);
+        testedStore.toggleOn(null);
         // Then, expected error...
     }
 
@@ -163,7 +163,7 @@ public abstract class CoreFeatureStoreTestSupport implements TestConstantsFF4j {
     public void testEnableEmpty() {
         // Given
         // When
-        testedStore.enable("");
+        testedStore.toggleOn("");
         // Then, expected error...
     }
 
@@ -175,7 +175,7 @@ public abstract class CoreFeatureStoreTestSupport implements TestConstantsFF4j {
         // Given
         assertFf4j.assertThatFeatureDoesNotExist(F_DOESNOTEXIST);
         // When
-        testedStore.enable(F_DOESNOTEXIST);
+        testedStore.toggleOn(F_DOESNOTEXIST);
         // Then, expected error...
     }
 
@@ -186,7 +186,7 @@ public abstract class CoreFeatureStoreTestSupport implements TestConstantsFF4j {
     public void testDisableNull() {
         // Given
         // When
-        testedStore.disable(null);
+        testedStore.toggleOff(null);
         // Then, expected error...
     }
 
@@ -197,7 +197,7 @@ public abstract class CoreFeatureStoreTestSupport implements TestConstantsFF4j {
     public void testDisableEmpty() {
         // Given
         // When
-        testedStore.disable("");
+        testedStore.toggleOff("");
         // Then, expected error...
     }
 
@@ -209,7 +209,7 @@ public abstract class CoreFeatureStoreTestSupport implements TestConstantsFF4j {
         // Given
         assertFf4j.assertThatFeatureDoesNotExist(F_DOESNOTEXIST);
         // When
-        testedStore.disable(F_DOESNOTEXIST);
+        testedStore.toggleOff(F_DOESNOTEXIST);
         // Then, expected error...
     }
 
@@ -221,7 +221,7 @@ public abstract class CoreFeatureStoreTestSupport implements TestConstantsFF4j {
         // Given
         assertFf4j.assertThatFeatureExist(F1);
         // When
-        testedStore.enable(F1);
+        testedStore.toggleOn(F1);
         // Then
         assertFf4j.assertThatFeatureIsEnabled(F1);
     }
@@ -234,7 +234,7 @@ public abstract class CoreFeatureStoreTestSupport implements TestConstantsFF4j {
         // Given
         assertFf4j.assertThatFeatureExist(F1);
         // When
-        testedStore.disable(F1);
+        testedStore.toggleOff(F1);
         // Then
         assertFf4j.assertThatFeatureIsDisabled(F1);
     }
@@ -627,7 +627,7 @@ public abstract class CoreFeatureStoreTestSupport implements TestConstantsFF4j {
     @Test
     public void testEnableGroup() {
         // Given
-        testedStore.disable(F2);
+        testedStore.toggleOff(F2);
         testedStore.addToGroup(F2, G0);
         assertFf4j.assertThatFeatureIsDisabled(F2);
         assertFf4j.assertThatFeatureIsInGroup(F2, G0);
@@ -636,7 +636,7 @@ public abstract class CoreFeatureStoreTestSupport implements TestConstantsFF4j {
         // Then
         assertFf4j.assertThatFeatureIsEnabled(F2);
         // Reinit
-        testedStore.disable(F2);
+        testedStore.toggleOff(F2);
     }
 
     /**
@@ -686,7 +686,7 @@ public abstract class CoreFeatureStoreTestSupport implements TestConstantsFF4j {
         // Then
         assertFf4j.assertThatFeatureIsDisabled(F4);
         // Rollback modifications
-        testedStore.enable(F4);
+        testedStore.toggleOn(F4);
         assertFf4j.assertThatFeatureIsEnabled(F4);
     }
 

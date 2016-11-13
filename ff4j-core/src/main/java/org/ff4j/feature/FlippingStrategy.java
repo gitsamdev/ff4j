@@ -3,8 +3,9 @@ package org.ff4j.feature;
 import java.util.Map;
 
 import org.ff4j.FF4jExecutionContext;
-import org.ff4j.exception.FeatureAccessException;
+import org.ff4j.exception.InvalidStrategyTypeException;
 import org.ff4j.store.FeatureStore;
+import org.ff4j.strategy.FF4jExecutionStrategy;
 
 /*
  * #%L
@@ -31,25 +32,8 @@ import org.ff4j.store.FeatureStore;
  * 
  * @author Cedrick Lunven (@clunven)
  */
-public interface FlippingStrategy {
-
-    /**
-     * Allow to parameterized Flipping Strategy
-     * 
-     * @param featureName
-     *            current featureName
-     * @param initValue
-     *            initial Value
-     */
-    void init(String featureName, Map<String, String> initParam);
-
-    /**
-     * Initial Parameters required to insert this new flipping.
-     * 
-     * @return initial parameters for this strategy
-     */
-    Map<String, String> getInitParams();
-
+public interface FlippingStrategy extends FF4jExecutionStrategy {
+    
     /**
      * Tell if flip should be realized.
      * 
@@ -60,7 +44,7 @@ public interface FlippingStrategy {
      * @return if flipping should be performed
      */
     boolean evaluate(String featureName, FeatureStore store, FF4jExecutionContext executionContext);
-
+    
     /**
      * Instanciate flipping strategy from its class name.
      *
@@ -71,11 +55,11 @@ public interface FlippingStrategy {
      */
     public static FlippingStrategy instanciate(String uid, String className,  Map<String, String> initparams) {
         try {
-            FlippingStrategy flipStrategy = (FlippingStrategy) Class.forName(className).newInstance();
-            flipStrategy.init(uid, initparams);
-            return flipStrategy;
+            FlippingStrategy strategy = (FlippingStrategy) Class.forName(className).newInstance();
+            strategy.init(uid, initparams);
+            return strategy;
         } catch (Exception ie) {
-            throw new FeatureAccessException("Cannot instantiate Strategy, no default constructor available", ie);
+            throw new InvalidStrategyTypeException(className, ie);
         } 
     }
     

@@ -24,15 +24,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.ff4j.feature.FlippingStrategy;
-import org.ff4j.utils.JsonUtils;
-import org.ff4j.utils.MappingUtil;
 
 /**
  * Super class for {@link FlippingStrategy} implementation with utilities.
  * 
  * @author Cedrick Lunven (@clunven)
  */
-public abstract class AbstractFlipStrategy implements FlippingStrategy {
+public abstract class AbstractExecutionStrategy implements FF4jExecutionStrategy {
 
     /** Initial parameters. */
     protected Map<String, String> initParams = new HashMap<String, String>();
@@ -44,8 +42,8 @@ public abstract class AbstractFlipStrategy implements FlippingStrategy {
     @Override
     public void init(String featureName, Map<String, String> initParam) {
         this.initParams = initParam;
-    }
-
+    }    
+    
     /** {@inheritDoc} */
     @Override
     public Map<String, String> getInitParams() {
@@ -68,7 +66,7 @@ public abstract class AbstractFlipStrategy implements FlippingStrategy {
     /** {@inheritDoc} */
     @Override
     public String toString() {
-        return this.getType() + "," + MappingUtil.fromMap(getInitParams());
+        return toJson();
     }
     
     /**
@@ -78,9 +76,8 @@ public abstract class AbstractFlipStrategy implements FlippingStrategy {
      *      the relative string
      */
     public String toJson() {
-        return JsonUtils.flippingStrategyAsJson(this);
+        return FF4jExecutionStrategy.asJson(this);
     }
-    
 
     /**
      * Getter accessor for attribute 'classType'.

@@ -145,14 +145,14 @@ public abstract class AbstractFeatureStore extends AbstractFF4jRepository<Featur
     
     /** {@inheritDoc} */
     @Override
-    public void enable(String uid) {
+    public void toggleOn(String uid) {
         assertFeatureExist(uid);
         update(read(uid).toggleOn());
     }
     
     /** {@inheritDoc} */
     @Override
-    public void disable(String uid) {
+    public void toggleOff(String uid) {
         assertFeatureExist(uid);
         update(read(uid).toggleOff());
     }

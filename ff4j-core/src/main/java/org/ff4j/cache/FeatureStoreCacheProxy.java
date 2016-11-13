@@ -32,18 +32,18 @@ public class FeatureStoreCacheProxy extends CacheProxy< String, Feature> impleme
 
     /** {@inheritDoc} */
     @Override
-    public void enable(String featureId) {
+    public void toggleOn(String featureId) {
         // Reach target
-        getTargetFeatureStore().enable(featureId);
+        getTargetFeatureStore().toggleOn(featureId);
         // Modification => flush cache
         cacheManager.evict(featureId);
     }
 
     /** {@inheritDoc} */
     @Override
-    public void disable(String featureId) {
+    public void toggleOff(String featureId) {
         // Reach target
-        getTargetFeatureStore().disable(featureId);
+        getTargetFeatureStore().toggleOff(featureId);
         // Cache Operations : As modification, flush cache for this
         cacheManager.evict(featureId);
     }   

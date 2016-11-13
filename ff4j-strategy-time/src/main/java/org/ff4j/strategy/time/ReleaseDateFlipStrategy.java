@@ -27,14 +27,14 @@ import java.util.Map;
 
 import org.ff4j.FlippingExecutionContext;
 import org.ff4j.store.FeatureStore;
-import org.ff4j.strategy.AbstractFlipStrategy;
+import org.ff4j.strategy.AbstractExecutionStrategy;
 
 /**
  * The feature will be flipped after release date is reached.
  * 
  * @author Cedrick Lunven (@clunven)
  */
-public class ReleaseDateFlipStrategy extends AbstractFlipStrategy {
+public class ReleaseDateFlipStrategy extends AbstractExecutionStrategy {
     public static final String DATE_PATTERN = "yyyy-MM-dd-HH:mm";
     
     /** Pattern to create a release Date. */

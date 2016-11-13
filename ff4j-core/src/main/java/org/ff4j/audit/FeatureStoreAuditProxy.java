@@ -50,18 +50,18 @@ public class FeatureStoreAuditProxy implements FeatureStore {
     
     /** {@inheritDoc} */
     @Override
-    public void enable(String uid) {
+    public void toggleOn(String uid) {
         long start = System.nanoTime();
-        target.enable(uid);
+        target.toggleOn(uid);
         long duration = System.nanoTime() - start;
         publish(builder(ACTION_TOGGLE_ON).feature(uid).duration(duration));
     }
 
     /** {@inheritDoc} */
     @Override
-    public void disable(String uid) {
+    public void toggleOff(String uid) {
         long start = System.nanoTime();
-        target.disable(uid);
+        target.toggleOff(uid);
         long duration = System.nanoTime() - start;
         publish(builder(ACTION_TOGGLE_OFF).feature(uid).duration(duration));
     }    

@@ -19,6 +19,7 @@ import java.util.function.Supplier;
 
 import org.ff4j.FF4jBaseObject;
 import org.ff4j.FF4jExecutionContext;
+import org.ff4j.strategy.PropertyEvaluationStrategy;
 import org.ff4j.utils.FF4jUtils;
 import org.ff4j.utils.JsonUtils;
 

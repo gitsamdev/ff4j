@@ -18,6 +18,8 @@ import org.ff4j.feature.Feature;
  *      key (String most of the time)
  * @param <V>
  *      value (getUid())
+ *      
+ * @since 2.x
  */
 public interface CacheManager < K extends Serializable , V extends FF4jBaseObject<?>> {
     

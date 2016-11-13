@@ -46,7 +46,7 @@ public class FeatureResourcePostTestIT extends AbstractWebResourceTestIT {
     public void testPostEnable() {
         // Given
         assertFF4J.assertThatFeatureExist(F2);
-        ff4j.getFeatureStore().disable(F2);
+        ff4j.getFeatureStore().toggleOff(F2);
         assertFF4J.assertThatFeatureIsDisabled(F2);
         // When
         WebResource wResf4 = resourceFeatures().path(F2);

@@ -180,6 +180,12 @@ public class PropertyStoreAuditProxy implements PropertyStore {
         publish(builder(ACTION_CREATESCHEMA).feature("For Properties"));
     }
     
+    /** {@inheritDoc} */
+    @Override
+    public boolean isEmpty() {
+        return target.isEmpty();
+    } 
+    
     /**
      * Init a new builder;
      *
@@ -208,6 +214,6 @@ public class PropertyStoreAuditProxy implements PropertyStore {
 	 */
 	public PropertyStore getTarget() {
 		return target;
-	}   
+	}
 
 }

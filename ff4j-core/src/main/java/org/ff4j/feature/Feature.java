@@ -3,7 +3,6 @@ package org.ff4j.feature;
 import static org.ff4j.utils.JsonUtils.attributeAsJson;
 import static org.ff4j.utils.JsonUtils.collectionAsJson;
 import static org.ff4j.utils.JsonUtils.customPropertiesAsJson;
-import static org.ff4j.utils.JsonUtils.flippingStrategyAsJson;
 
 /*
  * #%L ff4j-core %% Copyright (C) 2013 - 2016 FF4J %% Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -29,6 +28,7 @@ import java.util.stream.Stream;
 import org.ff4j.FF4jBaseObject;
 import org.ff4j.property.Property;
 import org.ff4j.property.PropertyFactory;
+import org.ff4j.strategy.FF4jExecutionStrategy;
 import org.ff4j.utils.FF4jUtils;
 import org.ff4j.utils.Util;
 
@@ -46,7 +46,7 @@ import org.ff4j.utils.Util;
  *
  * @author Cedrick Lunven (@clunven)
  */
-public class Feature extends FF4jBaseObject<Feature> {
+public class Feature extends FF4jBaseObject < Feature > {
 
     /** serial of the class. */
     private static final long serialVersionUID = -1345806526991179050L;
@@ -141,8 +141,7 @@ public class Feature extends FF4jBaseObject<Feature> {
     }
 
     public Feature setCustomProperties(Property<?>... properties) {
-        if (properties == null)
-            return this;
+        if (properties == null) return this;
         return setCustomProperties(Arrays.stream(properties).collect(Collectors.toMap(Property::getUid, Function.identity())));
     }
 
@@ -222,7 +221,7 @@ public class Feature extends FF4jBaseObject<Feature> {
         json.append(attributeAsJson("enable", enable));
         group.ifPresent(g -> attributeAsJson("group", g));
         permissions.ifPresent(perm -> json.append(",\"permissions\": " + collectionAsJson(perm)));
-        flippingStrategy.ifPresent(fs -> json.append(",\"flippingStrategy\":" + flippingStrategyAsJson(fs)));
+        flippingStrategy.ifPresent(fs -> json.append(",\"flippingStrategy\":" + FF4jExecutionStrategy.asJson(fs)));
         customProperties.ifPresent(cp -> json.append(",\"customProperties\":" + customPropertiesAsJson(cp)));
         json.append("}");
         return json.toString();

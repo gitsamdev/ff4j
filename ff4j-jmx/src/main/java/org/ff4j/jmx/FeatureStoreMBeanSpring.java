@@ -49,16 +49,16 @@ public class FeatureStoreMBeanSpring implements FeatureStore {
     @Override
     @ManagedOperation(description = "Enable a feature")
     @ManagedOperationParameters({@ManagedOperationParameter(name = "uid", description = "Feature unique id")})
-    public void enable(String uid) {
-        internalStore.enable(uid);
+    public void toggleOn(String uid) {
+        internalStore.toggleOn(uid);
     }
 
     /** {@inheritDoc} */
     @Override
     @ManagedOperation(description = "Disable a feature")
     @ManagedOperationParameters({@ManagedOperationParameter(name = "uid",  description = "Feature unique id")})
-    public void disable(String uid) {
-        internalStore.disable(uid);
+    public void toggleOff(String uid) {
+        internalStore.toggleOff(uid);
     }
 
     @Override

@@ -144,13 +144,13 @@ public class FeatureStoreMongo extends AbstractFeatureStore {
 
     /** {@inheritDoc} */
     @Override
-    public void enable(String featId) {
+    public void toggleOn(String featId) {
         this.updateStatus(featId, true);
     }
 
     /** {@inheritDoc} */
     @Override
-    public void disable(String featId) {
+    public void toggleOff(String featId) {
         this.updateStatus(featId, false);
     }
 

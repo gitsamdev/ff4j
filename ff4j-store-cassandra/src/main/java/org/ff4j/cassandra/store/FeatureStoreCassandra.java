@@ -112,14 +112,14 @@ public class FeatureStoreCassandra extends AbstractFeatureStore {
     
     /** {@inheritDoc} */
     @Override
-    public void enable(String uid) {
+    public void toggleOn(String uid) {
         assertFeatureExist(uid);
         conn.getSession().execute(getBuilder().cqlEnableFeature(), uid);
     }
 
     /** {@inheritDoc} */
     @Override
-    public void disable(String uid) {
+    public void toggleOff(String uid) {
         assertFeatureExist(uid);
         conn.getSession().execute(getBuilder().cqlDisableFeature(), uid);
     }    
@@ -215,7 +215,7 @@ public class FeatureStoreCassandra extends AbstractFeatureStore {
         ResultSet rs = conn.getSession().execute(
                 getBuilder().cqlGetFeaturesNamesOfAGroup(), groupName);
         for (Row row : rs.all()) {
-            enable(row.getString(COL_FEAT_UID));
+            toggleOn(row.getString(COL_FEAT_UID));
         }
     }
 
@@ -226,7 +226,7 @@ public class FeatureStoreCassandra extends AbstractFeatureStore {
         ResultSet rs = conn.getSession().execute(
                 getBuilder().cqlGetFeaturesNamesOfAGroup(), groupName);
         for (Row row : rs.all()) {
-            disable(row.getString(COL_FEAT_UID));
+            toggleOff(row.getString(COL_FEAT_UID));
         }
     }
 

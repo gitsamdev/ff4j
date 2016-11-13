@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.ff4j.cache.CacheProxy;
-import org.ff4j.feature.FlippingStrategy;
 import org.ff4j.property.Property;
 
 /**
@@ -141,22 +140,6 @@ public class JsonUtils {
         return collectionAsJson(permissions);
     }
     
-    /**
-     * Generate flipping strategy as json.
-     * 
-     * @return
-     *      flippling strategy as json.     
-     */
-    public static final String flippingStrategyAsJson(final FlippingStrategy flippingStrategy) {
-        if (flippingStrategy == null) return "null";
-        StringBuilder json = new StringBuilder("{");
-        json.append(valueAsJson("initParams") + ":");
-        json.append(mapAsJson(flippingStrategy.getInitParams()));
-        json.append("," + valueAsJson("type")  + ":");
-        json.append(valueAsJson(flippingStrategy.getClass().getCanonicalName()));
-        json.append("}");
-        return json.toString();
-    }
     
     /**
      * Serialized custom properties.

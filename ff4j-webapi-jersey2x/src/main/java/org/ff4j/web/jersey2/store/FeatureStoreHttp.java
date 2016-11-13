@@ -179,7 +179,7 @@ public class FeatureStoreHttp extends AbstractFeatureStore {
 
     /** {@inheritDoc} */
     @Override
-    public void enable(String uid) {
+    public void toggleOn(String uid) {
         Util.assertHasLength(uid);
         Response cRes = post(getStore().path(uid).path(OPERATION_ENABLE));
         if (Status.NOT_FOUND.getStatusCode() == cRes.getStatus()) {
@@ -189,7 +189,7 @@ public class FeatureStoreHttp extends AbstractFeatureStore {
 
     /** {@inheritDoc} */
     @Override
-    public void disable(String uid) {
+    public void toggleOff(String uid) {
         Util.assertHasLength(uid);
         Response cRes = post(getStore().path(uid).path(OPERATION_DISABLE));
         if (Status.NOT_FOUND.getStatusCode() == cRes.getStatus()) {

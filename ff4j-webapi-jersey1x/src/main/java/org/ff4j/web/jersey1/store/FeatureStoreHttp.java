@@ -204,7 +204,7 @@ public class FeatureStoreHttp extends AbstractFeatureStore {
 
     /** {@inheritDoc} */
     @Override
-    public void enable(String uid) {
+    public void toggleOn(String uid) {
         if (uid == null || uid.isEmpty()) {
             throw new IllegalArgumentException(FEATURE_IDENTIFIER_CANNOT_BE_NULL_NOR_EMPTY);
         }
@@ -216,7 +216,7 @@ public class FeatureStoreHttp extends AbstractFeatureStore {
 
     /** {@inheritDoc} */
     @Override
-    public void disable(String uid) {
+    public void toggleOff(String uid) {
         if (uid == null || uid.isEmpty()) {
             throw new IllegalArgumentException(FEATURE_IDENTIFIER_CANNOT_BE_NULL_NOR_EMPTY);
         }

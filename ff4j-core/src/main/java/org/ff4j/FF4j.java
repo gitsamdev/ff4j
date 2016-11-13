@@ -8,6 +8,7 @@ import static org.ff4j.utils.JsonUtils.objectAsJson;
 
 import java.io.InputStream;
 import java.util.Collection;
+import java.util.Optional;
 
 import org.ff4j.audit.EventBuilder;
 import org.ff4j.audit.EventPublisher;
@@ -31,28 +32,17 @@ import org.ff4j.store.FeatureStore;
 import org.ff4j.store.PropertyStore;
 
 /**
- * Principal class stands as public api to work with FF4J.
- *
- * <ul>
- * <p>
- * <li>
- * It embeddes a {@link FeatureStore} to record features statused. By default, features are stored into memory but you would like
- * to persist them in an external storage (as database) and choose among implementations available in different modules (jdbc,
- * mongo, http...).
- * </p>
+ * Main class and public api to work with framework FF4j.
  * 
- * <p>
- * <li>It embeddes a {@link AuthorizationsManager} to add permissions and limit usage of features to granted people. FF4J does not
- * created roles, it's rely on external security provider as SpringSecurity Apache Chiro.
- * </p>
- * 
- * <p>
- * <li>It embeddes a {@link EventRepository} to monitoring actions performed on features.
- * </p>
- * 
+ * <ul>It proposes a few underlying elements :
+ * <li>{@link FeatureStore} is used to store status of manipulated features.
+ * <li>{@link PropertyStore} is used to store properties values.
+ * <li>{@link EventRepository} is used to store audit information.
+ * <li>{@link AuthorizationsManager} to limit access to features is relevant (permissions).
  * </ul>
- * 
+ *
  * @author Cedrick Lunven (@clunven)
+ * @since 1.0
  */
 public class FF4j {
     
@@ -62,12 +52,6 @@ public class FF4j {
     /** Version of ff4j. */
     private final String version = getClass().getPackage().getImplementationVersion();
     
-    /** Source of initialization (JAVA_API, WEBAPI, SSH, CONSOLE...). */
-    private String source = SOURCE_JAVA;
-    
-    /** Do not through {@link FeatureNotFoundException} exception and but feature is required. */
-    private boolean autocreate = false;
-    
     /** Storage to persist feature within {@link FeatureStore}. */
     private FeatureStore featureStore = new FeatureStoreInMemory();
     
@@ -76,6 +60,12 @@ public class FF4j {
    
     /** Security policy to limit access through ACL with {@link AuthorizationsManager}. */
     private AuthorizationsManager authorizationsManager = null;
+    
+    /** Source of initialization (JAVA_API, WEBAPI, SSH, CONSOLE...). */
+    private String source = SOURCE_JAVA;
+    
+    /** Do not through {@link FeatureNotFoundException} exception and but feature is required. */
+    private boolean autocreate = false;
     
     /** Capture informations relative to audit. */
     private boolean enableAudit = false;
@@ -93,7 +83,8 @@ public class FF4j {
     private boolean initialized = false;
     
     /**
-     * Default constructor to allows instantiation through IoC. The created store is an empty {@link FeatureStoreInMemory}.
+     * Base constructor to allows instantiation through IoC.
+     * Default stores are created and will work in memory.
      */
     public FF4j() {
     }
@@ -215,10 +206,11 @@ public class FF4j {
      * @return if the feature is allowed
      */
     public boolean isAllowed(Feature feature) {
-        return getAuthorizationsManager() == null || 
-               !feature.getPermissions().isPresent() ||
-               feature.getPermissions().get().isEmpty() ||
-               feature.getPermissions().get().stream().anyMatch(getAuthorizationsManager().getCurrentUserPermissions()::contains);
+        return getAuthorizationsManager() == null 
+                || !feature.getPermissions().isPresent() 
+                || feature.getPermissions().get().isEmpty() 
+                || feature.getPermissions().get().stream().anyMatch(
+                        getAuthorizationsManager().getCurrentUserPermissions()::contains);
     }
     
     /**
@@ -229,7 +221,7 @@ public class FF4j {
      */
     public FF4j toggleOn(String uid) {
         try {
-            getFeatureStore().enable(uid);
+            getFeatureStore().toggleOn(uid);
         } catch (FeatureNotFoundException fnfe) {
             if (this.autocreate) {
                 getFeatureStore().create(new Feature(uid).toggleOn());
@@ -248,7 +240,7 @@ public class FF4j {
      */
     public FF4j toggleOff(String uid) {
         try {
-            getFeatureStore().disable(uid);
+            getFeatureStore().toggleOff(uid);
         } catch (FeatureNotFoundException fnfe) {
              if (this.autocreate) {
                  getFeatureStore().create(new Feature(uid).toggleOff());
@@ -310,19 +302,17 @@ public class FF4j {
      *            target feature ID
      * @return target feature.
      */
-    public Feature getFeature(String featureID) {
-        Feature fp = null;
-        try {
-            fp = getFeatureStore().read(featureID);
-        } catch (FeatureNotFoundException fnfe) {
-            if (this.autocreate) {
-                fp = new Feature(featureID).toggleOff();
-                getFeatureStore().create(fp);
-            } else {
-                throw fnfe;
+    public Feature getFeature(String uid) {
+        Optional <Feature > oFeature = getFeatureStore().findById(uid);
+        if (!oFeature.isPresent()) {
+            if (autocreate) {
+                Feature autoFeature = new Feature(uid).toggleOff();
+                getFeatureStore().create(autoFeature);
+                return autoFeature;
             }
+            throw new FeatureNotFoundException(uid);
         }
-        return fp;
+        return oFeature.get();
     }
     
     /**

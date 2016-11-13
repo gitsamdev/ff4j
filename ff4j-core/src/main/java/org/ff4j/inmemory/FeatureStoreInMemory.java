@@ -182,7 +182,7 @@ public class FeatureStoreInMemory extends AbstractFeatureStore {
     public void enableGroup(String groupName) {
         assertGroupExist(groupName);
         for (String feat : featureGroups.get(groupName)) {
-            this.enable(feat);
+            this.toggleOn(feat);
         }
     }
 
@@ -191,7 +191,7 @@ public class FeatureStoreInMemory extends AbstractFeatureStore {
     public void disableGroup(String groupName) {
         assertGroupExist(groupName);
         for (String feat : featureGroups.get(groupName)) {
-            this.disable(feat);
+            this.toggleOff(feat);
         }
     }
     

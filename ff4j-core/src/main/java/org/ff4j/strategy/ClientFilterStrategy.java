@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.ff4j.FF4jExecutionContext;
+import org.ff4j.feature.FlippingStrategy;
 import org.ff4j.store.FeatureStore;
 
 /*
@@ -33,10 +34,10 @@ import org.ff4j.store.FeatureStore;
  * 
  * @author Cedrick Lunven (@clunven)
  */
-public class ClientFilterStrategy extends AbstractFlipStrategy {
+public class ClientFilterStrategy extends AbstractExecutionStrategy implements FlippingStrategy {
 
     /** Threshold. */
-    private static final String PARAM_CLIENTLIST = "grantedClients";
+    public static final String PARAM_CLIENTLIST = "grantedClients";
 
     /** Parameter to be checked in context. */
     public static final String CLIENT_HOSTNAME = "clientHostName";

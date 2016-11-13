@@ -86,7 +86,7 @@ public class FeatureStoreSpringJdbc extends AbstractFeatureStore {
     }
 
     /** {@inheritDoc} */
-    public void enable(String uid) {
+    public void toggleOn(String uid) {
         Util.assertHasLength(uid);
         if (!exist(uid)) {
             throw new FeatureNotFoundException(uid);
@@ -95,7 +95,7 @@ public class FeatureStoreSpringJdbc extends AbstractFeatureStore {
     }
 
     /** {@inheritDoc} */
-    public void disable(String uid) {
+    public void toggleOff(String uid) {
         Util.assertHasLength(uid);
         if (!exist(uid)) {
             throw new FeatureNotFoundException(uid);

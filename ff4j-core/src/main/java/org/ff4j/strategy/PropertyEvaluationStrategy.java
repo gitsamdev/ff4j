@@ -1,4 +1,4 @@
-package org.ff4j.property;
+package org.ff4j.strategy;
 
 /*
  * #%L
@@ -23,6 +23,8 @@ package org.ff4j.property;
 import java.util.Map;
 
 import org.ff4j.FF4jExecutionContext;
+import org.ff4j.exception.PropertyAccessException;
+import org.ff4j.property.Property;
 
 /**
  * Allow to compute properties at runtime through
@@ -31,24 +33,7 @@ import org.ff4j.FF4jExecutionContext;
  *
  * @param <T>
  */
-public interface PropertyEvaluationStrategy<T> {
-
-    /**
-     * Allow to parameterized Flipping Strategy
-     * 
-     * @param featureName
-     *            current featureName
-     * @param initValue
-     *            initial Value
-     */
-    void init(String uid, Map<String, String> initParam);
-
-    /**
-     * Initial Parameters required to insert this new flipping.
-     * 
-     * @return initial parameters for this strategy
-     */
-    Map<String, String> getInitParams();
+public interface PropertyEvaluationStrategy <T> extends FF4jExecutionStrategy {
 
     /**
      * Tell if flip should be realized.
@@ -60,5 +45,23 @@ public interface PropertyEvaluationStrategy<T> {
      * @return if flipping should be performed
      */
     T evaluate(Property<?> currentProperty, FF4jExecutionContext executionContext);
+    
+    /**
+     * Instanciate flipping strategy from its class name.
+     *
+     * @param className
+     *      current class name
+     * @return
+     *      the flipping strategy
+     */
+    public static PropertyEvaluationStrategy<?> instanciate(String uid, String className,  Map<String, String> initparams) {
+        try {
+            PropertyEvaluationStrategy<?> evalStrategy = (PropertyEvaluationStrategy<?>) Class.forName(className).newInstance();
+            evalStrategy.init(uid, initparams);
+            return evalStrategy;
+        } catch (Exception ie) {
+            throw new PropertyAccessException("Cannot instantiate Strategy, no default constructor available", ie);
+        } 
+    }
     
 }

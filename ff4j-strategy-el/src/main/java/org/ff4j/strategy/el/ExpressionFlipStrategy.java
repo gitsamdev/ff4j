@@ -21,14 +21,14 @@ import java.util.Map;
 import org.ff4j.FlippingExecutionContext;
 import org.ff4j.feature.Feature;
 import org.ff4j.store.FeatureStore;
-import org.ff4j.strategy.AbstractFlipStrategy;
+import org.ff4j.strategy.AbstractExecutionStrategy;
 
 /**
  * Allow to parse target expression.
  * 
  * @author Cedrick Lunven (@clunven)
  */
-public class ExpressionFlipStrategy extends AbstractFlipStrategy implements Serializable {
+public class ExpressionFlipStrategy extends AbstractExecutionStrategy implements Serializable {
 
     /** Serial. */
     private static final long serialVersionUID = 4739173170455721752L;

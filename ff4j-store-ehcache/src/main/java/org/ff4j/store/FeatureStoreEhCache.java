@@ -99,7 +99,7 @@ public class FeatureStoreEhCache extends AbstractFeatureStore {
     
     /** {@inheritDoc} */
     @Override
-    public void enable(String uid) {
+    public void toggleOn(String uid) {
         // Read from redis, feature not found if no present
         Feature f = findById(uid);
         // Update within Object
@@ -110,7 +110,7 @@ public class FeatureStoreEhCache extends AbstractFeatureStore {
 
     /** {@inheritDoc} */
     @Override
-    public void disable(String uid) {
+    public void toggleOff(String uid) {
         // Read from redis, feature not found if no present
         Feature f = findById(uid);
         // Update within Object

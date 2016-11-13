@@ -113,9 +113,9 @@ public class FF4JResource2TestIT extends AbstractWebResourceTestIT {
     public void testPostIsFlipped() {
         // Given
         assertFF4J.assertThatFeatureExist(F2);
-        ff4j.getFeatureStore().enable(F2);
+        ff4j.getFeatureStore().toggleOn(F2);
         assertFF4J.assertThatFeatureExist(F4);
-        ff4j.getFeatureStore().enable(F4);
+        ff4j.getFeatureStore().toggleOn(F4);
         assertFF4J.assertThatFeatureFlipped(F4);
         // When
         Form formData = new Form();

@@ -18,7 +18,7 @@ public interface FeatureStore extends FF4jRepository < String, Feature > {
      * @param uid
      *            unique feature identifier
      */
-    void enable(String uid);
+    void toggleOn(String uid);
 
     /**
      * Toggle off a feature by its identifier.
@@ -26,7 +26,7 @@ public interface FeatureStore extends FF4jRepository < String, Feature > {
      * @param uid
      *            unique feature identifier
      */
-    void disable(String uid);
+    void toggleOff(String uid);
    
     /**
      * Grant role on target feature.

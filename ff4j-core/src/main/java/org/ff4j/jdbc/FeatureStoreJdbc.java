@@ -146,14 +146,14 @@ public class FeatureStoreJdbc extends AbstractFeatureStore {
 
     /** {@inheritDoc} */
     @Override
-    public void enable(String uid) {
+    public void toggleOn(String uid) {
     	assertFeatureExist(uid);
         update(getQueryBuilder().enableFeature(), uid);
     }
 
     /** {@inheritDoc} */
     @Override
-    public void disable(String uid) {
+    public void toggleOff(String uid) {
     	assertFeatureExist(uid);
         update(getQueryBuilder().disableFeature(), uid);
     }

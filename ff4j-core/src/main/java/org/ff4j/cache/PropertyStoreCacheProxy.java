@@ -74,6 +74,12 @@ public class PropertyStoreCacheProxy extends CacheProxy< String, Property<?>> im
         return getTargetPropertyStore().listPropertyNames();
     }
     
+    /** {@inheritDoc} */
+    @Override
+    public boolean isEmpty() {
+        return getTargetPropertyStore().isEmpty();
+    } 
+    
     /**
      * Getter accessor for attribute 'target'.
      * 

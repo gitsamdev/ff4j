@@ -104,12 +104,12 @@ public class FeatureServices {
 
     public void enableFeature(String featureUID) {
         featureValidator.assertFeatureExists(featureUID);
-        ff4j.getFeatureStore().enable(featureUID);
+        ff4j.getFeatureStore().toggleOn(featureUID);
     }
 
     public void disableFeature(String featureUID) {
         featureValidator.assertFeatureExists(featureUID);
-        ff4j.getFeatureStore().disable(featureUID);
+        ff4j.getFeatureStore().toggleOff(featureUID);
     }
 
     public void grantRoleToFeature(String featureUID, String role) {

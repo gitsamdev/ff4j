@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.ff4j.FF4jExecutionContext;
+import org.ff4j.feature.FlippingStrategy;
 import org.ff4j.store.FeatureStore;
 import org.ff4j.utils.IOUtil;
 
@@ -34,7 +35,7 @@ import org.ff4j.utils.IOUtil;
  * 
  * @author Cedrick Lunven (@clunven)
  */
-public class ServerFilterStrategy extends AbstractFlipStrategy {
+public class ServerFilterStrategy extends AbstractExecutionStrategy implements FlippingStrategy {
 
     /** Threshold. */
     private static final String PARAM_SERVERLIST = "grantedServers";

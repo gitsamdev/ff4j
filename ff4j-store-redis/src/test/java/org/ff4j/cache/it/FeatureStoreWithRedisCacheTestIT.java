@@ -109,7 +109,7 @@ public class FeatureStoreWithRedisCacheTestIT extends FeatureStoreTestSupport {
     @Ignore
     public void testEnableGroup() {
         // Given
-        testedStore.disable(F2);
+        testedStore.toggleOff(F2);
         testedStore.addToGroup(F2, G0);
         assertFf4j.assertThatFeatureIsDisabled(F2);
         assertFf4j.assertThatFeatureIsInGroup(F2, G0);
@@ -118,7 +118,7 @@ public class FeatureStoreWithRedisCacheTestIT extends FeatureStoreTestSupport {
         // Then
         assertFf4j.assertThatFeatureIsEnabled(F2);
         // Reinit
-        testedStore.disable(F2);
+        testedStore.toggleOff(F2);
     }
 
     /**
@@ -129,7 +129,7 @@ public class FeatureStoreWithRedisCacheTestIT extends FeatureStoreTestSupport {
     @Ignore
     public void testDisableGroup() {
         // Given
-        testedStore.enable(F4);
+        testedStore.toggleOn(F4);
         assertFf4j.assertThatFeatureIsEnabled(F4);
         assertFf4j.assertThatFeatureIsInGroup(F4, G1);
         // When
@@ -137,7 +137,7 @@ public class FeatureStoreWithRedisCacheTestIT extends FeatureStoreTestSupport {
         // Then
         assertFf4j.assertThatFeatureIsDisabled(F4);
         // Rollback modifications
-        testedStore.enable(F4);
+        testedStore.toggleOn(F4);
         assertFf4j.assertThatFeatureIsEnabled(F4);
     }
     

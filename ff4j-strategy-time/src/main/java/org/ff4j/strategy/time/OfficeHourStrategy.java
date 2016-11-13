@@ -31,7 +31,7 @@ import java.util.Map;
 
 import org.ff4j.FlippingExecutionContext;
 import org.ff4j.store.FeatureStore;
-import org.ff4j.strategy.AbstractFlipStrategy;
+import org.ff4j.strategy.AbstractExecutionStrategy;
 
 /**
  * Implemenetation of an office hour strategy.
@@ -40,7 +40,7 @@ import org.ff4j.strategy.AbstractFlipStrategy;
  *
  * @author Cedrick Lunven (@clunven)
  */
-public class OfficeHourStrategy extends AbstractFlipStrategy {
+public class OfficeHourStrategy extends AbstractExecutionStrategy {
     
     /** Parsing date expression. */
     private static final DateFormat SDF_DATE = new SimpleDateFormat("yyyy-MM-dd");

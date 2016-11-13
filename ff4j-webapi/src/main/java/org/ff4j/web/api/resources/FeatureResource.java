@@ -196,7 +196,7 @@ public class FeatureResource extends AbstractResource {
             String errMsg = new FeatureNotFoundException(id).getMessage();
             return Response.status(Response.Status.NOT_FOUND).entity(errMsg).build();
         }
-        getFeatureStore().enable(id);
+        getFeatureStore().toggleOn(id);
         return Response.noContent().build();
     }
 
@@ -217,7 +217,7 @@ public class FeatureResource extends AbstractResource {
             String errMsg = new FeatureNotFoundException(id).getMessage();
             return Response.status(Response.Status.NOT_FOUND).entity(errMsg).build();
         }
-        getFeatureStore().disable(id);
+        getFeatureStore().toggleOff(id);
         return Response.noContent().build();
     }
 

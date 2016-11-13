@@ -25,6 +25,7 @@ import java.io.Serializable;
 import java.util.Map;
 
 import org.ff4j.FF4jExecutionContext;
+import org.ff4j.feature.FlippingStrategy;
 import org.ff4j.store.FeatureStore;
 
 /**
@@ -32,7 +33,7 @@ import org.ff4j.store.FeatureStore;
  * 
  * @author Cedrick Lunven (@clunven)
  */
-public class PonderationStrategy extends AbstractFlipStrategy implements Serializable {
+public class PonderationStrategy extends AbstractExecutionStrategy implements FlippingStrategy, Serializable {
 
     /** Serial number. */
     private static final long serialVersionUID = -2353911851539414159L;
@@ -41,7 +42,7 @@ public class PonderationStrategy extends AbstractFlipStrategy implements Seriali
     private static final double HALF = 0.5;
 
     /** Threshold. */
-    private static final String PARAM_WEIGHT = "weight";
+    public static final String PARAM_WEIGHT = "weight";
 
     /** Change threshold. */
     private double weight = HALF;
@@ -67,9 +68,8 @@ public class PonderationStrategy extends AbstractFlipStrategy implements Seriali
     @Override
     public void init(String featureName, Map<String, String> initParams) {
         super.init(featureName, initParams);
-        if (initParams != null && initParams.containsKey(PARAM_WEIGHT)) {
-            this.weight = Double.parseDouble(initParams.get(PARAM_WEIGHT));
-        }
+        assertRequiredParameter(PARAM_WEIGHT);
+        this.weight = Double.parseDouble(initParams.get(PARAM_WEIGHT));
         checkWeight();
     }
 

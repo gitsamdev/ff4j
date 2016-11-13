@@ -45,12 +45,12 @@ public class MockFeatureStore implements FeatureStore {
     private boolean empty = false;
     
     /** {@inheritDoc} */
-    public void enable(String featureID) {
+    public void toggleOn(String featureID) {
     	LOGGER.debug("MOCK [enable]" + featureID);
     }
 
     /** {@inheritDoc} */
-    public void disable(String featureID) {
+    public void toggleOff(String featureID) {
     	LOGGER.debug("MOCK [disable]" + featureID);
     }
 
