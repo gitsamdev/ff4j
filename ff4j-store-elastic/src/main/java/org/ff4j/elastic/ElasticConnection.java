@@ -21,7 +21,9 @@ package org.ff4j.elastic;
  */
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -30,9 +32,10 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.node.NodeBuilder;
-import org.ff4j.core.Feature;
 import org.ff4j.exception.FeatureAccessException;
+import org.ff4j.feature.Feature;
 import org.ff4j.property.Property;
+import org.ff4j.utils.FF4jUtils;
 import org.ff4j.utils.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,7 +85,7 @@ public class ElasticConnection {
 		Util.assertParamHasNotNull(url, "url");
 		this.indexName = indexName;
 		this.connectionMode = mode;
-		this.urlSet = Util.set(url);
+		this.urlSet = FF4jUtils.setOf(url);
 
 		try {
 			switch (mode) {
@@ -104,10 +107,16 @@ public class ElasticConnection {
 	}
 
 	private void initTransportClient() {
-		TransportClient tClient = new TransportClient();
+		TransportClient tClient = TransportClient.builder().build();
 		if (!Util.isEmpty(urlSet)) {
 			for (URL url : urlSet) {
-				tClient.addTransportAddress(new InetSocketTransportAddress(url.getHost(), url.getPort()));
+				try {
+					tClient.addTransportAddress(
+							new InetSocketTransportAddress(InetAddress.getByName(url.getHost()), url.getPort()));
+				} catch (UnknownHostException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		}
 		esClient = tClient;
