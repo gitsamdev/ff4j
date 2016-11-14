@@ -30,6 +30,7 @@ import org.ff4j.security.AuthorizationsManager;
 import org.ff4j.store.EventRepository;
 import org.ff4j.store.FeatureStore;
 import org.ff4j.store.PropertyStore;
+import org.ff4j.strategy.FF4jExecutionStrategy;
 
 /**
  * Main class and public api to work with framework FF4j.
@@ -184,7 +185,8 @@ public class FF4j {
                 featureToggled = strats.evaluate(uid, getFeatureStore(), 
                         FF4jExecutionContextHolder.getContext());
             } else if (feature.getFlippingStrategy().isPresent()) {
-                featureToggled = feature.getFlippingStrategy().get().evaluate(uid, getFeatureStore(), executionContext);
+                featureToggled = feature.getFlippingStrategy().get()
+                        .evaluate(uid, getFeatureStore(), executionContext);
             }
         }
         

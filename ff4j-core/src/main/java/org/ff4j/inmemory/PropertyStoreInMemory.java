@@ -32,6 +32,7 @@ import org.ff4j.conf.XmlParser;
 import org.ff4j.property.Property;
 import org.ff4j.store.AbstractPropertyStore;
 import org.ff4j.store.PropertyStore;
+import org.ff4j.utils.Util;
 /**
  * Implementation of {@link PropertyStore} to keep properties in memory.
  *
@@ -112,15 +113,10 @@ public class PropertyStoreInMemory extends AbstractPropertyStore {
     /** {@inheritDoc} */
     @Override
     public Optional < Property<?> > findById(String uid) {
+        Util.assertHasLength(uid);
         return Optional.ofNullable(properties.get(uid));
     }
-
-    /** {@inheritDoc} */
-    @Override
-    public long count() {
-        return findAll().count();
-    }   
-
+    
     /** {@inheritDoc} */
     @Override
     public void deleteAll() {
@@ -130,6 +126,7 @@ public class PropertyStoreInMemory extends AbstractPropertyStore {
     /** {@inheritDoc} */
     @Override
     public Stream<Property<?>> findAll() {
+        if (properties == null) return null;
         return properties.values().stream();
     }
     

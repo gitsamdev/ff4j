@@ -321,7 +321,8 @@ public abstract class AbstractEventRepositoryTest {
         Thread.sleep(100);
         // Then
         Assert.assertEquals(0, repo.getFeatureUsageTotalHitCount(new EventQueryDefinition(start, System.currentTimeMillis())));
-        Assert.assertEquals(0, repo.getAuditTrail(new EventQueryDefinition(start, System.currentTimeMillis())).size());
+        EventSeries es = repo.getAuditTrail(new EventQueryDefinition(start, System.currentTimeMillis()));
+        Assert.assertEquals(0, es.size());
     }
     
     /** TDD. */

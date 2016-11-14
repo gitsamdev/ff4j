@@ -233,6 +233,8 @@ public class PropertyStoreJdbc extends AbstractPropertyStore {
     /** {@inheritDoc} */
     @Override
     public void update(Property<?> prop) {
+        Util.assertNotNull(prop);
+        Util.assertHasLength(prop.getUid());
         delete(prop.getUid());
         create(prop);
     }

@@ -30,6 +30,8 @@ import java.util.Set;
 
 import org.ff4j.exception.ItemNotFoundException;
 import org.ff4j.feature.FlippingStrategy;
+import org.ff4j.utils.JsonUtils;
+import org.ff4j.utils.Util;
 
 /**
  * Pojo holding an execution context to perform {@link FlippingStrategy} evaluations.
@@ -46,6 +48,12 @@ public class FF4jExecutionContext implements Map < String, Object > {
      */
     public FF4jExecutionContext() {
         init();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return JsonUtils.mapAsJson(parameters);
     }
     
     /**
@@ -247,6 +255,7 @@ public class FF4jExecutionContext implements Map < String, Object > {
      *            target key
      */
     public Optional <String> getString(String key) {
+        Util.assertNotNull(key);
         return Optional.ofNullable(getString(key, false));
     }
 
@@ -277,6 +286,7 @@ public class FF4jExecutionContext implements Map < String, Object > {
     /** {@inheritDoc} */
     @Override
     public Object get(Object key) {
+        Util.assertNotNull(key);
         return (parameters == null) ? null : parameters.get(key);
     }
 

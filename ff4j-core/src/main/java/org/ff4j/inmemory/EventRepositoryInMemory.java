@@ -103,12 +103,13 @@ public class EventRepositoryInMemory extends AbstractEventRepository {
             saveEvent(e, featureUsageEvents);
         } else if (EventConstants.ACTION_CHECK_OFF.equalsIgnoreCase(e.getAction())) {
             saveEvent(e, checkOffEvents);
+        } else {
+            String key = getKeyDate(e.getTimestamp());
+            if (!auditTrailEvents.containsKey(key)) {
+                auditTrailEvents.put(key, new EventSeries(this.queueCapacity));
+            }
+            auditTrailEvents.get(key).add(e);
         }
-        String key = getKeyDate(e.getTimestamp());
-        if (!auditTrailEvents.containsKey(key)) {
-            auditTrailEvents.put(key, new EventSeries(this.queueCapacity));
-        }
-        auditTrailEvents.get(key).add(e);
     }
     
     /** {@inheritDoc} */

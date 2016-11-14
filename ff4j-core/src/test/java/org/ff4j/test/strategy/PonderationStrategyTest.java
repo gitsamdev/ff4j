@@ -35,12 +35,6 @@ public class PonderationStrategyTest extends AbstractFf4jTest {
     }
 
     @Test
-    public void testDefaultisHalf() {
-        Feature f = ff4j.getFeature("pond_Null");
-        Assert.assertEquals(1, f.getFlippingStrategy().get().getInitParams().size());
-    }
-
-    @Test
     public void testExpressionTo0AlwaysFalse() {
         Feature f = ff4j.getFeature("pond_0");
         Assert.assertEquals(new Double(0.0),
@@ -62,23 +56,6 @@ public class PonderationStrategyTest extends AbstractFf4jTest {
         for (int i = 0; i < 10; i++) {
             assertFf4j.assertThatFeatureFlipped(f.getUid());
         }
-    }
-
-    @Test
-    public void testExpressionCustom() {
-        Feature f = ff4j.getFeature("pond_6");
-        Assert.assertEquals(new Double(0.6),
-                Double.valueOf(((PonderationStrategy) f.getFlippingStrategy().get()).getInitParams().get("weight")));
-        int nbOK = 0;
-        int nbKO = 0;
-        for (int i = 0; i < 1000; i++) {
-            if (ff4j.check(f.getUid())) {
-                nbOK++;
-            } else {
-                nbKO++;
-            }
-        }
-        Assert.assertTrue("both result occured", nbOK > 0 && nbKO > 0);
     }
 
     @Test(expected = IllegalArgumentException.class)

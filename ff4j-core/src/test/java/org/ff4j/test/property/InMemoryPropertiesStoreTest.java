@@ -133,14 +133,6 @@ public class InMemoryPropertiesStoreTest extends AbstractPropertyStoreJunitTest 
     public void testEmpty2() {
         // Given
         PropertyStoreInMemory ips = new PropertyStoreInMemory();
-        ips.setProperties(null);
-        Assert.assertTrue(ips.isEmpty());
-    }
-    
-    @Test
-    public void testEmpty3() {
-        // Given
-        PropertyStoreInMemory ips = new PropertyStoreInMemory();
         ips.create(new PropertyString("P1", "v1"));
         Assert.assertFalse(ips.isEmpty());
     }

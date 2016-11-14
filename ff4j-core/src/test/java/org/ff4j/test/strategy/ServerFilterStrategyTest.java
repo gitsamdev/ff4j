@@ -22,13 +22,12 @@ package org.ff4j.test.strategy;
 
 import java.text.ParseException;
 
-import org.junit.Assert;
-
 import org.ff4j.FF4j;
 import org.ff4j.FF4jExecutionContext;
 import org.ff4j.feature.Feature;
 import org.ff4j.strategy.ServerFilterStrategy;
 import org.ff4j.test.AbstractFf4jTest;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class ServerFilterStrategyTest extends AbstractFf4jTest {
@@ -38,16 +37,15 @@ public class ServerFilterStrategyTest extends AbstractFf4jTest {
         return new FF4j("test-serverFilterStrategy.xml");
     }
 
-
     @Test
     public void testFilterOK() throws ParseException {
-        // Given
         Feature f1 = ff4j.getFeature(F1);
+        Assert.assertTrue(f1.isEnable());
         Assert.assertNotNull(f1.getFlippingStrategy());
         ServerFilterStrategy cStra = (ServerFilterStrategy) f1.getFlippingStrategy().get();
         Assert.assertNotNull(cStra.getInitParams());
         Assert.assertEquals(1, cStra.getInitParams().size());
-        Assert.assertTrue(f1.isEnable());
+        Assert.assertFalse(ff4j.check(F1));
 
         // When (add correct client name)
         FF4jExecutionContext fex = new FF4jExecutionContext();

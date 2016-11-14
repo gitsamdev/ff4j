@@ -59,13 +59,13 @@ public class FF4jBaseObject<T extends FF4jBaseObject<?>> implements Comparable<T
     public String baseJson() {
         StringBuilder json = new StringBuilder("\"uid\":" + valueAsJson(uid));
         description.ifPresent(
-                d -> attributeAsJson("description", d));
+                d -> json.append(attributeAsJson("description", d)));
         owner.ifPresent(
-                d -> attributeAsJson("owner", d));
+                d -> json.append(attributeAsJson("owner", d)));
         creationDate.ifPresent(
-                d -> attributeAsJson("creationDate", d.format(FORMATTER)));
+                d -> json.append(attributeAsJson("creationDate", d.format(FORMATTER))));
         lastModifiedDate.ifPresent(
-                d -> attributeAsJson("lastModifiedDate", d.format(FORMATTER)));
+                d -> json.append(attributeAsJson("lastModifiedDate", d.format(FORMATTER))));
         return json.toString();   
     }
     

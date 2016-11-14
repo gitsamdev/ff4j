@@ -83,11 +83,11 @@ public class ClientFilterStrategy extends AbstractExecutionStrategy implements F
     /** {@inheritDoc} */
     @Override
     public boolean evaluate(String featureName, FeatureStore store, FF4jExecutionContext executionContext) {
-        if (null == executionContext || !executionContext.containsKey(CLIENT_HOSTNAME)) {
+        if (null == executionContext || !executionContext.getString(CLIENT_HOSTNAME).isPresent()) {
             throw new IllegalArgumentException("To work with " + getClass().getCanonicalName() + " you must provide '"
                     + CLIENT_HOSTNAME + "' parameter in execution context");
         }
-        return setOfGrantedClient.contains(executionContext.getString(CLIENT_HOSTNAME));
+        return setOfGrantedClient.contains(executionContext.getString(CLIENT_HOSTNAME).get());
     }
 
 

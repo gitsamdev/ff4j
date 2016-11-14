@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.ff4j.FF4jExecutionContext;
+import org.ff4j.exception.ItemNotFoundException;
 import org.ff4j.feature.Feature;
 import org.ff4j.property.Property;
 import org.ff4j.property.PropertyString;
@@ -144,7 +145,7 @@ public class FeatureTest {
         fec.getValue("DONOT", true);
     }
     
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = ItemNotFoundException.class)
     public void testFlipExecContext6() {
         FF4jExecutionContext fec = new FF4jExecutionContext();
         fec.getValue("DONOT", true);

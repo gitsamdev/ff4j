@@ -32,6 +32,7 @@ import static org.ff4j.utils.JdbcUtils.executeUpdate;
 import static org.ff4j.utils.JdbcUtils.isTableExist;
 import static org.ff4j.utils.JdbcUtils.rollback;
 import static org.ff4j.utils.Util.assertHasLength;
+import static org.ff4j.utils.Util.assertNotNull;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -183,6 +184,7 @@ public class FeatureStoreJdbc extends AbstractFeatureStore {
     /** {@inheritDoc} */
    @Override
    public Optional < Feature > findById(String uid) {
+        assertNotNull(uid);
     	Connection          sqlConn = null;
         PreparedStatement   ps = null;
         ResultSet           rs = null;

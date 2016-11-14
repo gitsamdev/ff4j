@@ -222,9 +222,17 @@ public abstract class AbstractPropertyStoreJunitTest {
     @Test(expected = IllegalArgumentException.class)
     public void readKOempty() {
         // Given
-        testedStore.findById("");
+        testedStore.read("");
         // Expected error
         Assert.fail();
+    }
+    
+    /** TDD. */
+    public void findByIdOnotExist() {
+        // Given
+        Assert.assertFalse(testedStore.exists("invalid"));
+        // When
+        Assert.assertFalse(testedStore.findById("invalid").isPresent());
     }
     
     /** TDD. */
@@ -233,9 +241,7 @@ public abstract class AbstractPropertyStoreJunitTest {
         // Given
         Assert.assertFalse(testedStore.exists("invalid"));
         // When
-        testedStore.findById("invalid");
-        // Expected error
-        Assert.fail();
+        testedStore.read("invalid");
     }
     
     // ------------------ update --------------------
@@ -393,10 +399,9 @@ public abstract class AbstractPropertyStoreJunitTest {
         // Given
         Assert.assertNotNull(testedStore);
         // When
-        Stream < Property<?>> mapsOf = testedStore.findAll();
+        Stream < String > mapsOf = testedStore.findAll().map(Property::getUid);
         // When
-        Assert.assertTrue(mapsOf.anyMatch(s -> "a".equals(s)));
-        Assert.assertTrue(mapsOf.anyMatch(s -> "b".equals(s)));
+        Assert.assertTrue(mapsOf.anyMatch("a"::equals));
     }
     
     /** TDD. */
@@ -410,9 +415,6 @@ public abstract class AbstractPropertyStoreJunitTest {
         testedStore.deleteAll();
         // Then
         Assert.assertEquals(0, testedStore.findAll().count());
-        
-        /// Reinit
-        before.forEach(testedStore::create);
     }
     
     /** TDD. */

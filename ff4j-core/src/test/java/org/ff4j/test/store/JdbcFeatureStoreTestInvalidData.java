@@ -24,6 +24,7 @@ import java.util.HashMap;
 
 
 import org.ff4j.exception.FeatureAccessException;
+import org.ff4j.exception.InvalidStrategyTypeException;
 import org.ff4j.feature.FlippingStrategy;
 import org.ff4j.jdbc.FeatureStoreJdbc;
 import org.junit.After;
@@ -59,12 +60,12 @@ public class JdbcFeatureStoreTestInvalidData {
         jdbcStore.setDataSource(db);
     }
 
-    @Test(expected = FeatureAccessException.class)
+    @Test(expected = InvalidStrategyTypeException.class)
     public void testReadInvalid() {
         jdbcStore.findById("forth");
     }
     
-    @Test(expected = FeatureAccessException.class)
+    @Test(expected = InvalidStrategyTypeException.class)
     public void testInvalidStrategy() {
         FlippingStrategy.instanciate("ID", "com.KO", new HashMap<String, String>());
     }

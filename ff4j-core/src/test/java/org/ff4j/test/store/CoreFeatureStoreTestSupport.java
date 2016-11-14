@@ -16,6 +16,7 @@ import static org.ff4j.utils.Util.setOf;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.ff4j.FF4j;
@@ -92,7 +93,7 @@ public abstract class CoreFeatureStoreTestSupport implements TestConstantsFF4j {
         // Then
         Assert.assertEquals(EXPECTED_FEATURES_NUMBERS, features.count());
         // Then testing whole structure
-        Feature f = features.filter(x -> F4.equals(x.getUid())).findFirst().get();
+        Feature f = testedStore.findAll().filter(x -> F4.equals(x.getUid())).findFirst().get();
         Assert.assertEquals(F4 + " does not exist", f.getUid(), F4);
         Assert.assertTrue("no description", f.getDescription().isPresent());
         Assert.assertTrue("no authorizations", f.getPermissions().isPresent());
@@ -118,7 +119,7 @@ public abstract class CoreFeatureStoreTestSupport implements TestConstantsFF4j {
     public void testReadEmpty() {
         // Given
         // When
-        testedStore.findById("");
+        testedStore.read("");
         // Then, expected error...
     }
 
@@ -143,7 +144,7 @@ public abstract class CoreFeatureStoreTestSupport implements TestConstantsFF4j {
     public void testReadDoesNotExist() {
         // Given
         assertFf4j.assertThatFeatureDoesNotExist("INVALID");
-        testedStore.findById("INVALID");
+        testedStore.read("INVALID");
     }
 
     /**
@@ -739,11 +740,11 @@ public abstract class CoreFeatureStoreTestSupport implements TestConstantsFF4j {
         assertFf4j.assertThatFeatureIsInGroup(F3, G1);
         assertFf4j.assertThatFeatureIsInGroup(F4, G1);
         // When
-        Stream <Feature> group = testedStore.readGroup(G1);
+        Set <Feature> group = testedStore.readGroup(G1).collect(Collectors.toSet());
         // Then
-        Assert.assertEquals(2, group.count());
-        Assert.assertTrue(group.anyMatch(f -> F3.equals(f)));
-        Assert.assertTrue(group.anyMatch(f -> F4.equals(f)));
+        Assert.assertEquals(2, group.size());
+        Assert.assertTrue(testedStore.readGroup(G1).anyMatch(f -> F3.equals(f.getUid())));
+        Assert.assertTrue(testedStore.readGroup(G1).anyMatch(f -> F4.equals(f.getUid())));
     }
 
     /**
@@ -957,11 +958,11 @@ public abstract class CoreFeatureStoreTestSupport implements TestConstantsFF4j {
         assertFf4j.assertThatGroupExist(G0);
         assertFf4j.assertThatGroupExist(G1);
         // When
-        Stream<String> groups = testedStore.readAllGroups();
+        Set<String> groups = testedStore.readAllGroups().collect(Collectors.toSet());
         // Then
-        Assert.assertEquals(2, groups.count());
-        Assert.assertTrue(groups.anyMatch(g -> G0.equals(g)));
-        Assert.assertTrue(groups.anyMatch(g -> G1.equals(g)));
+        Assert.assertEquals(2, groups.size());
+        Assert.assertTrue(groups.contains(G0));
+        Assert.assertTrue(groups.contains(G1));
     }
     
     /**
@@ -1039,8 +1040,6 @@ public abstract class CoreFeatureStoreTestSupport implements TestConstantsFF4j {
         testedStore.deleteAll();
         // Then
         Assert.assertTrue(testedStore.findAll().count() == 0);
-        /// Reinit
-        before.forEach(testedStore::create);
     }
     
     /**

@@ -101,6 +101,7 @@ public class FeatureStoreInMemory extends AbstractFeatureStore {
     /** {@inheritDoc} */
     @Override
     public Optional < Feature > findById(String uid) {
+        assertHasLength(uid);
         return Optional.ofNullable(featuresMap.get(uid));
     }
     
@@ -221,8 +222,8 @@ public class FeatureStoreInMemory extends AbstractFeatureStore {
     @Override
     public void addToGroup(String uid, String groupName) {
         assertHasLength(uid);
-        assertHasLength(groupName);        
-        Feature feat = findById(uid).get();
+        assertHasLength(groupName);
+        Feature feat = read(uid);
         feat.setGroup(groupName);
         update(feat);
     }
@@ -246,6 +247,7 @@ public class FeatureStoreInMemory extends AbstractFeatureStore {
      *            xml filename
      */
     public void loadConfFile(String conf) {
+        assertHasLength(conf);
         this.fileName = conf;
         loadConf(getClass().getClassLoader().getResourceAsStream(conf));
     }

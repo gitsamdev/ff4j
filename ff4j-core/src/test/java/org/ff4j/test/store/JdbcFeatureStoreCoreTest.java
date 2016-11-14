@@ -79,7 +79,7 @@ public class JdbcFeatureStoreCoreTest extends CoreFeatureStoreTestSupport {
     
     @Test(expected = FeatureNotFoundException.class)
     public void readDoesNotExist() {
-        testedStore.findById("dont-exist");
+        testedStore.read("dont-exist");
     }
     
     @Test

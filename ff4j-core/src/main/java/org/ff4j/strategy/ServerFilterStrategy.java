@@ -1,6 +1,7 @@
 package org.ff4j.strategy;
 
-import java.util.Arrays;
+import static org.ff4j.utils.Util.inetAddressHostName;
+
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -8,8 +9,6 @@ import java.util.Set;
 import org.ff4j.FF4jExecutionContext;
 import org.ff4j.feature.FlippingStrategy;
 import org.ff4j.store.FeatureStore;
-
-import static org.ff4j.utils.Util.inetAddressHostName;
 
 /*
  * #%L
@@ -79,14 +78,17 @@ public class ServerFilterStrategy extends AbstractExecutionStrategy implements F
         if (initParams != null && initParams.containsKey(PARAM_SERVERLIST)) {
             this.rawServerList = initParams.get(PARAM_SERVERLIST);
         }
-        setOfTargetServer.addAll(Arrays.asList(rawServerList.split(SPLITTER)));
+        for (String server : rawServerList.split(SPLITTER)) {
+            setOfTargetServer.add(server.trim());
+        }
     }
 
     /** {@inheritDoc} */
     @Override
     public boolean evaluate(String featureName, FeatureStore store, FF4jExecutionContext ctx) {
-        if (null != ctx && ctx.containsKey(SERVER_HOSTNAME)) {
-            return setOfTargetServer.contains(ctx.getString(SERVER_HOSTNAME));
+        if (null != ctx && ctx.getValue(SERVER_HOSTNAME).isPresent()) {
+            System.out.println(ctx.getValue(SERVER_HOSTNAME).get());
+            return setOfTargetServer.contains(ctx.getString(SERVER_HOSTNAME).get());
         }
         return setOfTargetServer.contains(inetAddressHostName());
     }

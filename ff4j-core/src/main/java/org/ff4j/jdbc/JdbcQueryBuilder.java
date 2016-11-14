@@ -529,7 +529,7 @@ public class JdbcQueryBuilder {
     // ------- AUDIT -------------
 	
 	public String sqlStartCreateEvent() {
-	    StringBuilder sb = new StringBuilder("INSERT INTO " + getTableNameAudit() + "(");
+	    StringBuilder sb = new StringBuilder("INSERT INTO " + getTableNameAudit());
 	    sb.append("(" + COL_EVENT_UID + "," + COL_EVENT_TIME   + "," + COL_EVENT_TYPE);
 	    sb.append("," + COL_EVENT_NAME + "," + COL_EVENT_ACTION + "," + COL_EVENT_HOSTNAME);
 	    sb.append("," + COL_EVENT_SOURCE + "," + COL_EVENT_DURATION);

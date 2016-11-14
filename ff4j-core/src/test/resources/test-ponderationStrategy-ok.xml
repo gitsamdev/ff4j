@@ -23,12 +23,6 @@
      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	 xsi:schemaLocation="http://www.ff4j.org/schema/ff4j ../../main/resources/ff4j-1.2.0.xsd">
 
-
-	<!-- No Expression -->
-	<feature uid="pond_Null" enable="true" description="some desc">
-		<flipstrategy class="org.ff4j.strategy.PonderationStrategy" />
-	</feature>
-
 	<!-- Ponderation to 0 -->
 	<feature uid="pond_0"  enable="true" description="some desc">
 		<flipstrategy class="org.ff4j.strategy.PonderationStrategy" >

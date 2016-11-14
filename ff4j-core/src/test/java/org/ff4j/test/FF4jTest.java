@@ -83,7 +83,7 @@ public class FF4jTest extends AbstractFf4jTest {
     @Test
     public void testDisableWithAudit() {
         // Given
-        FF4j ff4j = new FF4j(getClass().getClassLoader().getResourceAsStream("ff4j.xml"));
+        FF4j ff4j = new FF4j("ff4j.xml");
         ff4j.audit(true);
         Assert.assertTrue(ff4j.getFeatureStore().exists(F1));
         Assert.assertTrue(ff4j.getFeature(F1).isEnable());

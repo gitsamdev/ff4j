@@ -70,7 +70,6 @@ public class JdbcEventMapper implements EventMapper < PreparedStatement, ResultS
             Map < Integer, String > statementParams = new HashMap<Integer, String>();
             
             StringBuilder sb = new StringBuilder(queryBuilder.sqlStartCreateEvent());
-            
             evt.getOwner().ifPresent(user -> {
                 sb.append(", " + JdbcConstants.COL_EVENT_USER);
                 statementParams.put(idx.get(), user);

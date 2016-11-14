@@ -29,7 +29,7 @@ import java.util.Set;
 
 import org.ff4j.cache.CacheManagerInMemory;
 import org.ff4j.cache.FeatureStoreCacheProxy;
-import org.ff4j.exception.FeatureAccessException;
+import org.ff4j.exception.InvalidStrategyTypeException;
 import org.ff4j.feature.Feature;
 import org.ff4j.feature.FlippingStrategy;
 import org.ff4j.inmemory.FeatureStoreInMemory;
@@ -76,7 +76,7 @@ public class MappingUtilsTest {
         Util.assertNull(null);
     }
     
-    @Test(expected = FeatureAccessException.class)
+    @Test(expected = InvalidStrategyTypeException.class)
     public void testIntanciateInvalidFlippingStrategy() {
        FlippingStrategy.instanciate("f1", "com.class.invalid", new HashMap<String, String>());
     }
