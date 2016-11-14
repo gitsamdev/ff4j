@@ -2,6 +2,7 @@ package org.ff4j.audit;
 
 import static org.ff4j.utils.JsonUtils.attributeAsJson;
 import static org.ff4j.utils.JsonUtils.objectAsJson;
+import static org.ff4j.utils.Util.inetAddressHostName;
 
 /*
  * #%L
@@ -32,7 +33,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.ff4j.FF4jBaseObject;
-import org.ff4j.utils.IOUtil;
 
 /**
  * Audit information relevant to features.
@@ -86,7 +86,7 @@ public class Event extends FF4jBaseObject<Event> implements Serializable, Compar
     public Event(String uid) {
         super(uid);
         timestamp    = creationDate.get().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-        hostName     = IOUtil.resolveHostName();
+        hostName     = inetAddressHostName();
     }
     
     /** {@inheritDoc} */

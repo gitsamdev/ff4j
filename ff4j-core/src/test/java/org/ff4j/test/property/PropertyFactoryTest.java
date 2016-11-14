@@ -29,7 +29,7 @@ import org.ff4j.property.Property;
 import org.ff4j.property.PropertyFactory;
 import org.ff4j.property.PropertyLogLevel;
 import org.ff4j.property.PropertyString;
-import org.ff4j.utils.FF4jUtils;
+import org.ff4j.utils.Util;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -53,7 +53,7 @@ public class PropertyFactoryTest {
         PropertyFactory.createProperty("p1", "sample");
         PropertyFactory.createProperty("p1", Calendar.getInstance());
         
-        Property<?> pList = PropertyFactory.createProperty("p1", FF4jUtils.listOf("a","b","c"));
+        Property<?> pList = PropertyFactory.createProperty("p1", Util.listOf("a","b","c"));
         Assert.assertTrue(pList.getClass().equals(PropertyString.class));
     }
     
@@ -95,7 +95,7 @@ public class PropertyFactoryTest {
     @Test(expected = IllegalArgumentException.class)
     public void testPropertyFactory9() {
         PropertyFactory.createProperty("p1", PropertyString.class.getName(), 
-                "s1", "desc", FF4jUtils.setOf("s3", "s2"));
+                "s1", "desc", Util.setOf("s3", "s2"));
     }
    
 }

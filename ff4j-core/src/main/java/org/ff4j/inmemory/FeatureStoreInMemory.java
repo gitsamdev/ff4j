@@ -1,6 +1,7 @@
 package org.ff4j.inmemory;
 
 import static org.ff4j.utils.Util.assertHasLength;
+import static org.ff4j.utils.Util.setOf;
 
 /*
  * #%L ff4j-core $Id:$ $HeadURL:$ %% Copyright (C) 2013 Ff4J %% Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,7 +29,6 @@ import java.util.stream.Stream;
 import org.ff4j.conf.XmlParser;
 import org.ff4j.feature.Feature;
 import org.ff4j.store.AbstractFeatureStore;
-import org.ff4j.utils.FF4jUtils;
 
 /**
  * Storing states of feature inmemory with initial values. Could be used mostly for testing purpose.
@@ -245,7 +245,7 @@ public class FeatureStoreInMemory extends AbstractFeatureStore {
      * @param conf
      *            xml filename
      */
-    private void loadConfFile(String conf) {
+    public void loadConfFile(String conf) {
         this.fileName = conf;
         loadConf(getClass().getClassLoader().getResourceAsStream(conf));
     }
@@ -256,7 +256,7 @@ public class FeatureStoreInMemory extends AbstractFeatureStore {
      * @param conf
      *            xml filename
      */
-    private void loadConf(InputStream xmlIN) {
+    public void loadConf(InputStream xmlIN) {
         if (xmlIN == null) {
             throw new IllegalArgumentException("Cannot parse feature stream");
         }
@@ -274,7 +274,7 @@ public class FeatureStoreInMemory extends AbstractFeatureStore {
             .filter(item -> item.getGroup().isPresent())
             .collect(Collectors.< Feature, String, Set<String>>toMap(
                     f -> f.getGroup().get(), 
-                    f -> FF4jUtils.setOf(f.getUid()),
+                    f -> setOf(f.getUid()),
                     //Merged but could we add ?
                     (uid1, uid2) -> { return uid1; }));
         

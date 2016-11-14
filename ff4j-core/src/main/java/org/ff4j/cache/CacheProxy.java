@@ -108,8 +108,13 @@ public class CacheProxy < K extends Serializable, V extends FF4jBaseObject<?> > 
     /** {@inheritDoc} */
     @Override
     public long count() {
-        // Cache cannot help you
         return getTargetStore().count();
+    }
+    
+    /** {@inheritDoc} */
+    @Override
+    public boolean isEmpty() {
+        return getTargetStore().isEmpty();
     }
 
     /** {@inheritDoc} */

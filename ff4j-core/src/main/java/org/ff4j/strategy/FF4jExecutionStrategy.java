@@ -5,8 +5,6 @@ import static org.ff4j.utils.JsonUtils.valueAsJson;
 
 import java.util.Map;
 
-import org.ff4j.exception.InvalidStrategyTypeException;
-
 /**
  * Pattern strategy, implementing evaluation at runtime (status or value).
  *

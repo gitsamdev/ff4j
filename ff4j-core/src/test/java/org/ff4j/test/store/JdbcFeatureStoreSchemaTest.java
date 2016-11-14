@@ -22,6 +22,7 @@ package org.ff4j.test.store;
 
 
 import static org.ff4j.utils.JdbcUtils.isTableExist;
+import static org.ff4j.utils.Util.setOf;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -35,7 +36,6 @@ import org.ff4j.jdbc.JdbcQueryBuilder;
 import org.ff4j.property.Property;
 import org.ff4j.property.PropertyString;
 import org.ff4j.strategy.PonderationStrategy;
-import org.ff4j.utils.FF4jUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -102,16 +102,16 @@ public class JdbcFeatureStoreSchemaTest {
     public void testworkWithSchema() {
         // Given
         testedStore.createSchema();
-        Assert.assertFalse(testedStore.exist("fx"));
+        Assert.assertFalse(testedStore.exists("fx"));
         // When
         Feature fullFeature = new Feature("fx").toggleOn();
-        fullFeature.setPermissions(FF4jUtils.setOf("toto", "tata"));
+        fullFeature.setPermissions(setOf("toto", "tata"));
         fullFeature.setFlippingStrategy(new PonderationStrategy(0.5d));
         Map < String , Property<?>> customProperties = new HashMap< String , Property<?>>();
         fullFeature.setCustomProperties(customProperties);
         testedStore.create(fullFeature);
         // Then
-        Assert.assertTrue(testedStore.exist("fx"));
+        Assert.assertTrue(testedStore.exists("fx"));
     }
     
     @Test
@@ -120,7 +120,7 @@ public class JdbcFeatureStoreSchemaTest {
         
         // When
         Feature fullFeature = new Feature("fx").toggleOn();
-        fullFeature.setPermissions(FF4jUtils.setOf("toto", "tata"));
+        fullFeature.setPermissions(setOf("toto", "tata"));
         fullFeature.setFlippingStrategy(new PonderationStrategy(0.5d));
         Map < String , Property<?>> customProperties = new HashMap< String , Property<?>>();
         fullFeature.setCustomProperties(customProperties);
@@ -131,7 +131,7 @@ public class JdbcFeatureStoreSchemaTest {
         Property<?> p1 = new PropertyString("p1");
         
         Property<String> p2 = new PropertyString("p2");
-        p2.setFixedValues(FF4jUtils.setOf("v1","v3"));
+        p2.setFixedValues(setOf("v1","v3"));
         
         testedStore.createCustomProperties("fx", Arrays.asList(p2,p1));
         testedStore.createCustomProperties("fx", null);

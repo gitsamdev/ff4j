@@ -1,5 +1,7 @@
 package org.ff4j.test.property;
 
+import static org.ff4j.utils.Util.setOf;
+
 /*
  * #%L
  * ff4j-core
@@ -41,7 +43,6 @@ import org.ff4j.property.PropertyLogLevel;
 import org.ff4j.property.PropertyLong;
 import org.ff4j.property.PropertyShort;
 import org.ff4j.property.PropertyString;
-import org.ff4j.utils.FF4jUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -56,7 +57,7 @@ public class PropertyTest {
     public void tesInitPropertyString() {
         PropertyString p1 = new PropertyString("p1");
         p1.setReadOnly(p1.isReadOnly());
-        PropertyString p2 = new PropertyString("p2", "EAST", FF4jUtils.setOf("EAST","WEST","SOUTH","NORTH"));
+        PropertyString p2 = new PropertyString("p2", "EAST", setOf("EAST","WEST","SOUTH","NORTH"));
         Assert.assertNotNull(p1.getUid());
         Assert.assertNotNull(p2.getFixedValues());
     }
@@ -116,7 +117,7 @@ public class PropertyTest {
         PropertyInt d1 = new PropertyInt("d1");
         PropertyInt d2 = new PropertyInt("d2", 1);
         PropertyInt d3 = new PropertyInt("d3", "2");
-        PropertyInt d4 = new PropertyInt("d4", 2, FF4jUtils.setOf(0,1,2));
+        PropertyInt d4 = new PropertyInt("d4", 2, setOf(0,1,2));
         Assert.assertNotNull(d1.getUid());
         Assert.assertNotNull(d2.getFixedValues());
         Assert.assertNotNull(d3.getUid());
@@ -225,7 +226,7 @@ public class PropertyTest {
     
     @Test(expected = IllegalArgumentException.class)
     public void testPropertyString() {
-        new PropertyString("p1", "v1", FF4jUtils.setOf("v0", "v2"));
+        new PropertyString("p1", "v1", setOf("v0", "v2"));
     }
     
     @Test

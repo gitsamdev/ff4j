@@ -29,6 +29,7 @@ import org.ff4j.FF4jExecutionContext;
 import org.ff4j.feature.Feature;
 import org.ff4j.feature.FlippingStrategy;
 import org.ff4j.store.FeatureStore;
+import org.ff4j.strategy.FF4jExecutionStrategy;
 import org.ff4j.test.TestConstantsFF4j;
 import org.ff4j.utils.JdbcUtils;
 import org.ff4j.utils.JsonUtils;
@@ -136,7 +137,7 @@ public class FeatureJsonMarshallTest implements TestConstantsFF4j {
             public Map<String, String> getInitParams() { return null; }
             public boolean evaluate(String fn, FeatureStore s, FF4jExecutionContext ex) {  return false; }
         };
-        JsonUtils.flippingStrategyAsJson(ps);
+        FF4jExecutionStrategy.asJson(ps);
     }
     
     /** TDD. */

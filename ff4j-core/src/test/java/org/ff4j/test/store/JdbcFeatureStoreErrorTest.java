@@ -69,7 +69,7 @@ public class JdbcFeatureStoreErrorTest {
         doThrow(new SQLException()).when(mockDS).getConnection();
         FeatureStoreJdbc jrepo = new FeatureStoreJdbc(mockDS);
         jrepo.setDataSource(mockDS);
-        jrepo.exist("xx");
+        jrepo.exists("xx");
     }
     
     @Test(expected = FeatureAccessException.class)
@@ -124,7 +124,7 @@ public class JdbcFeatureStoreErrorTest {
         doThrow(new SQLException()).when(mockDS).getConnection();
         FeatureStoreJdbc jrepo = new FeatureStoreJdbc(mockDS);
         jrepo.setDataSource(mockDS);
-        jrepo.clear();
+        jrepo.deleteAll();
     }
     
     @Test(expected = FeatureAccessException.class)

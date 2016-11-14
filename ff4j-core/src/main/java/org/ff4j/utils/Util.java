@@ -2,6 +2,8 @@ package org.ff4j.utils;
 
 import java.awt.Color;
 import java.lang.reflect.Constructor;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 /*
  * #%L
@@ -30,11 +32,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.lang.model.type.NullType;
 
-import java.util.Set;
-
+import org.ff4j.FF4jBaseObject;
 import org.ff4j.audit.Event;
 
 /**
@@ -51,6 +56,52 @@ public class Util {
     private static final String END_COLOR = "EEFFEE";
 
     private Util() {
+    }
+
+    /**
+     * Find a feature or property in a stream
+     * @param stream
+     * @param uid
+     * @return
+     */
+    public static < T extends FF4jBaseObject<?> > Optional<T> find(Stream <T> stream, String uid) {
+        if (stream == null || uid == null) return Optional.empty();
+        return stream.filter(t -> uid.equals(t.getUid())).findFirst();
+    }
+    
+    /**
+     * Create an HashSet.
+     *
+     * @param els
+     *            enumeration of elements
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> Set<T> setOf(T... els) {
+         return (els == null) ? null : new HashSet<T>(Arrays.asList(els));
+    }
+    
+    /**
+     * Create an HashSet.
+     *
+     * @param els
+     *            enumeration of elements
+     * @return
+     */
+    public static <T> Set<T> setOf(Stream < T > elements) {
+        return (elements == null) ? null : elements.collect(Collectors.toSet());
+    }
+    
+    /**
+     * Create an HashSet.
+     *
+     * @param els
+     *            enumeration of elements
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> List<T> listOf(T... els) {
+        return (els == null) ? null : new ArrayList<T>(Arrays.asList(els));
     }
     
     /**
@@ -94,6 +145,54 @@ public class Util {
     public static void assertNull(Object object) {
         if (object != null) {
             throw new IllegalArgumentException("[Assertion failed] - the object argument must be null");
+        }
+    }
+    
+    /**
+     * Check that object is not null.
+     * 
+     * @param object
+     *            target object
+     */
+    public static void assertNotNull(Object object) {
+        if (object == null) {
+            throw new IllegalArgumentException("Object must not be null");
+        }
+    }
+    
+    /**
+     * Check that object is not null.
+     * 
+     * @param object
+     *            target object
+     */
+    public static void assertNotNull(Object object, String objectName) {
+        if (object == null) {
+            throw new IllegalArgumentException(objectName + " must not be null");
+        }
+    }
+    
+    /**
+     * Check that object is not null.
+     * 
+     * @param object
+     *            target object
+     */
+    public static void assertHasLength(String string) {
+        if (!hasLength(string)) {
+            throw new IllegalArgumentException("String must not be null nor empty");
+        }
+    }
+    
+    /**
+     * Check that object is not null.
+     * 
+     * @param object
+     *            target object
+     */
+    public static void assertHasLength(String string, String objectName) {
+        if (!hasLength(string)) {
+            throw new IllegalArgumentException(objectName + " must not be null nor empty");
         }
     }
     
@@ -191,6 +290,21 @@ public class Util {
             throw new IllegalArgumentException("Missing Parameter '" + paramName + "' must not be null nor empty");
         }
     }
+    
+    /**
+     * Read hostName from JDK.
+     * 
+     * @return
+     *      current hostname
+     */
+    public static String inetAddressHostName() {
+        try {
+            return InetAddress.getLocalHost().getHostName();
+        } catch (UnknownHostException e) {
+            throw new IllegalArgumentException("Cannot find the target host by itself", e);
+        }
+    }
+
 
    
     

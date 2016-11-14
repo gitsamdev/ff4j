@@ -37,7 +37,6 @@ import org.ff4j.property.Property;
 import org.ff4j.property.PropertyInt;
 import org.ff4j.property.PropertyLong;
 import org.ff4j.property.PropertyString;
-import org.ff4j.utils.FF4jUtils;
 import org.ff4j.utils.JdbcUtils;
 import org.ff4j.utils.JsonUtils;
 import org.ff4j.utils.MappingUtil;
@@ -71,7 +70,7 @@ public class MappingUtilsTest {
     @Test
     public void testUtil() {
         Util.assertParamHasLength("toto", "tata");
-        Set < String> ss = FF4jUtils.setOf("one", "two");
+        Set < String> ss = Util.setOf("one", "two");
         Assert.assertNotNull(ss);
         Util.assertTrue(true);
         Util.assertNull(null);

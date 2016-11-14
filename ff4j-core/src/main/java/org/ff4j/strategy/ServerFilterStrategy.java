@@ -8,7 +8,8 @@ import java.util.Set;
 import org.ff4j.FF4jExecutionContext;
 import org.ff4j.feature.FlippingStrategy;
 import org.ff4j.store.FeatureStore;
-import org.ff4j.utils.IOUtil;
+
+import static org.ff4j.utils.Util.inetAddressHostName;
 
 /*
  * #%L
@@ -87,7 +88,7 @@ public class ServerFilterStrategy extends AbstractExecutionStrategy implements F
         if (null != ctx && ctx.containsKey(SERVER_HOSTNAME)) {
             return setOfTargetServer.contains(ctx.getString(SERVER_HOSTNAME));
         }
-        return setOfTargetServer.contains(IOUtil.resolveHostName());
+        return setOfTargetServer.contains(inetAddressHostName());
     }
 
 }

@@ -1,5 +1,7 @@
 package org.ff4j.test.audit;
 
+import static org.ff4j.utils.Util.setOf;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,7 +40,6 @@ import org.ff4j.audit.PieChart;
 import org.ff4j.audit.Serie;
 import org.ff4j.audit.TimeSeriesChart;
 import org.ff4j.test.DefinedPermissionSecurityManager;
-import org.ff4j.utils.FF4jUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -62,7 +63,7 @@ public class AuditBeanTest {
     public void testEventBuider() {
         FF4j ff4j = new FF4j();
         ff4j.setAuthorizationsManager(
-                new DefinedPermissionSecurityManager("a", FF4jUtils.setOf("1", "2")));
+                new DefinedPermissionSecurityManager("a", setOf("1", "2")));
         EventBuilder eb = new EventBuilder(ff4j);
         eb.name("FeatureX");
         Assert.assertEquals("a", eb.build().getOwner());
@@ -90,10 +91,10 @@ public class AuditBeanTest {
         EventQueryDefinition eqd = new EventQueryDefinition();
         eqd.setFrom(System.currentTimeMillis() - 100);
         eqd.setTo(System.currentTimeMillis() + 100);
-        eqd.setHostFilters(FF4jUtils.setOf("localhost"));
-        eqd.setSourceFilters(FF4jUtils.setOf("JAVA_API"));
-        eqd.setActionFilters(FF4jUtils.setOf(EventConstants.ACTION_CHECK_OK));
-        eqd.setNamesFilter(FF4jUtils.setOf("F1"));
+        eqd.setHostFilters(setOf("localhost"));
+        eqd.setSourceFilters(setOf("JAVA_API"));
+        eqd.setActionFilters(setOf(EventConstants.ACTION_CHECK_OK));
+        eqd.setNamesFilter(setOf("F1"));
         eqd.setFrom(new Long(eqd.getFrom()));
         eqd.setTo(new Long(eqd.getTo()));
         eqd.addFilterAction(EventConstants.ACTION_CLEAR);

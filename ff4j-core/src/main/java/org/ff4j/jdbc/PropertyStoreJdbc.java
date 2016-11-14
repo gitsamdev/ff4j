@@ -56,6 +56,9 @@ import org.ff4j.utils.Util;
  */
 public class PropertyStoreJdbc extends AbstractPropertyStore {
 
+    /** serialVersionUID. */
+    private static final long serialVersionUID = -1746222910983624609L;
+
     /** Access to storage. */
     private DataSource dataSource;
     

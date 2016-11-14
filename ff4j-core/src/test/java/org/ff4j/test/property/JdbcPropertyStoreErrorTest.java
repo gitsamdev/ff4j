@@ -75,7 +75,7 @@ public class JdbcPropertyStoreErrorTest {
         doThrow(new SQLException()).when(mockDS).getConnection();
         PropertyStoreJdbc jrepo = new PropertyStoreJdbc(mockDS);
         jrepo.setDataSource(mockDS);
-        jrepo.updateProperty(null);
+        jrepo.update(null);
     }
     
     @Test(expected = PropertyAccessException.class)
@@ -84,7 +84,7 @@ public class JdbcPropertyStoreErrorTest {
         doThrow(new SQLException()).when(mockDS).getConnection();
         PropertyStoreJdbc jrepo = new PropertyStoreJdbc(mockDS);
         jrepo.setDataSource(mockDS);
-        jrepo.updateProperty("p1", "v1");
+        jrepo.update("p1", "v1");
     }
     
     @Test(expected = PropertyAccessException.class)
@@ -111,7 +111,7 @@ public class JdbcPropertyStoreErrorTest {
         doThrow(new SQLException()).when(mockDS).getConnection();
         PropertyStoreJdbc jrepo = new PropertyStoreJdbc(mockDS);
         jrepo.setDataSource(mockDS);
-        jrepo.clear();
+        jrepo.deleteAll();
     }
 
 }

@@ -1,6 +1,6 @@
 package org.ff4j.store;
 
-import static org.ff4j.utils.FF4jUtils.assertHasLength;
+import static org.ff4j.utils.Util.assertHasLength;
 import static org.ff4j.utils.Util.assertNotNull;
 
 import java.io.Serializable;
@@ -33,6 +33,12 @@ public abstract class AbstractFF4jRepository < V extends FF4jBaseObject<?>> impl
     @Override
     public long count() {
         return findAll().count();
+    }
+    
+    /** {@inheritDoc} */
+    @Override
+    public boolean isEmpty() {
+        return count() == 0;
     }
     
     /** {@inheritDoc} */

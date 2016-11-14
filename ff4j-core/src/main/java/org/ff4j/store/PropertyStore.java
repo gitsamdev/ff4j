@@ -72,12 +72,4 @@ public interface PropertyStore extends FF4jRepository < String, Property<?> > {
      * Initialize target database with expected schema if needed.
      */
     void createSchema();
-    
-    /**
-     * Tell if a target store is empty
-     *
-     * @return
-     *      if the store is empty or not
-     */
-    boolean isEmpty();
 }

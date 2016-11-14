@@ -44,8 +44,11 @@ import org.ff4j.utils.Util;
  *
  * @author Cedrick Lunven (@clunven)
  */
-public abstract class AbstractPropertyStore implements PropertyStore {
+public abstract class AbstractPropertyStore extends AbstractFF4jRepository<Property<?>> implements PropertyStore {
     
+    /** serialVersionUID. */
+    private static final long serialVersionUID = -5638535944745337074L;
+
     /** {@inheritDoc} */
     @Override
     public void createSchema() {
@@ -209,12 +212,6 @@ public abstract class AbstractPropertyStore implements PropertyStore {
         List < Property<?> > targets  = new ArrayList<>();
         candidates.forEach(id -> targets.add(read(id)));
         return targets.stream();
-    }
-    
-    /** {@inheritDoc} */
-    @Override
-    public boolean isEmpty() {
-        return count() == 0;
     }
     
 }

@@ -42,7 +42,7 @@ public class InMemoryFeatureStoreTest extends CoreFeatureStoreTestSupport {
                 .toggleOn().setGroup("grp1")
                 .setDescription("desc")
                 .setFlippingStrategy(new PonderationStrategy()));
-        Assert.assertEquals(1, imfs.findAll().size());
+        Assert.assertEquals(1, imfs.findAll().count());
     }
 
     @Test
@@ -50,8 +50,8 @@ public class InMemoryFeatureStoreTest extends CoreFeatureStoreTestSupport {
         LinkedHashMap<String, Feature> map1 = new LinkedHashMap<String, Feature>();
         map1.put("new", new Feature("new").toggleOn().setDescription("description"));
         map1.put("old", new Feature("old").toggleOn().setDescription("description"));
-        FeatureStoreInMemory imfs = new FeatureStoreInMemory(map1);
-        Assert.assertEquals(2, imfs.findAll().size());
+        FeatureStoreInMemory imfs = new FeatureStoreInMemory(map1.values());
+        Assert.assertEquals(2, imfs.findAll().count());
         Assert.assertNotNull(imfs.findById("old"));
     }
 
@@ -81,28 +81,28 @@ public class InMemoryFeatureStoreTest extends CoreFeatureStoreTestSupport {
     @Test(expected = IllegalArgumentException.class)
     public void testDonotImportEmpty() {
         FeatureStoreInMemory f = new FeatureStoreInMemory();
-        f.importFeaturesFromXmlFile("");
+        f.loadConfFile("");
     }
     
     
     @Test(expected = IllegalArgumentException.class)
     public void testDonotImportNull() {
         FeatureStoreInMemory f = new FeatureStoreInMemory();
-        f.importFeaturesFromXmlFile(null);
+        f.loadConfFile(null);
     }
     
     @Test(expected = IllegalArgumentException.class)
     public void testDonotImportInvalid() {
         FeatureStoreInMemory f = new FeatureStoreInMemory();
-        f.importFeaturesFromXmlFile("invalid.xml");
+        f.loadConfFile("invalid.xml");
     }
     
     @Test
     public void testImportTwice() {
         FeatureStoreInMemory f = new FeatureStoreInMemory();
-        f.importFeaturesFromXmlFile("ff4j.xml");
-        f.importFeaturesFromXmlFile("ff4j.xml");
-        Assert.assertFalse(f.findAll().isEmpty());
+        f.loadConfFile("ff4j.xml");
+        f.loadConfFile("ff4j.xml");
+        Assert.assertFalse(f.findAll().count() == 0);
     }
     
 }

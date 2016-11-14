@@ -3,6 +3,7 @@ package org.ff4j.feature;
 import static org.ff4j.utils.JsonUtils.attributeAsJson;
 import static org.ff4j.utils.JsonUtils.collectionAsJson;
 import static org.ff4j.utils.JsonUtils.customPropertiesAsJson;
+import static org.ff4j.utils.Util.setOf;
 
 /*
  * #%L ff4j-core %% Copyright (C) 2013 - 2016 FF4J %% Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -29,7 +30,6 @@ import org.ff4j.FF4jBaseObject;
 import org.ff4j.property.Property;
 import org.ff4j.property.PropertyFactory;
 import org.ff4j.strategy.FF4jExecutionStrategy;
-import org.ff4j.utils.FF4jUtils;
 import org.ff4j.utils.Util;
 
 /**
@@ -127,7 +127,7 @@ public class Feature extends FF4jBaseObject < Feature > {
     }
 
     public Feature setPermissions(String... perms) {
-        return setPermissions(FF4jUtils.setOf(perms));
+        return setPermissions(setOf(perms));
     }
 
     public Feature setPermissions(Set<String> perms) {
@@ -174,14 +174,14 @@ public class Feature extends FF4jBaseObject < Feature > {
 
     public Feature removePermissions(String... perms) {
         if (perms != null && permissions.isPresent()) {
-            permissions.get().removeAll(FF4jUtils.setOf(perms));
+            permissions.get().removeAll(setOf(perms));
         }
         return this;
     }
 
     public Feature addPermissions(String... perms) {
         if (perms != null) {
-            Set<String> setPermission = FF4jUtils.setOf(perms);
+            Set<String> setPermission = setOf(perms);
             if (permissions.isPresent()) {
                 permissions.get().addAll(setPermission);
             } else {

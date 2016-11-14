@@ -138,4 +138,12 @@ public interface FF4jRepository < ID extends Serializable, ENTITY > {
      */
     void save(Collection<ENTITY> entities);
     
+    /**
+     * Tell if a target store is empty
+     *
+     * @return
+     *      if the store is empty or not
+     */
+    boolean isEmpty();
+    
 }

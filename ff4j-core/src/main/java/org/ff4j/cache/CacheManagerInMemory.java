@@ -1,5 +1,8 @@
 package org.ff4j.cache;
 
+import static org.ff4j.utils.Util.assertHasLength;
+import static org.ff4j.utils.Util.assertNotNull;
+
 /*
  * #%L
  * ff4j-core
@@ -26,7 +29,6 @@ import java.util.WeakHashMap;
 import java.util.stream.Stream;
 
 import org.ff4j.FF4jBaseObject;
-import org.ff4j.utils.FF4jUtils;
 
 /**
  * Proposition of inmemory cache implementation.
@@ -76,8 +78,8 @@ public class CacheManagerInMemory<V extends FF4jBaseObject<?>> implements CacheM
     /** {@inheritDoc} */
     @Override
     public void put(String key, V value) {
-        FF4jUtils.assertNotNull(value);
-        FF4jUtils.assertHasLength(value.getUid());
+        assertNotNull(value);
+        assertHasLength(value.getUid());
         customCache.put(key, new InMemoryCacheEntry<V>(value));
     }
     
@@ -88,8 +90,8 @@ public class CacheManagerInMemory<V extends FF4jBaseObject<?>> implements CacheM
     
     /** {@inheritDoc} */
     public void put(V feat, long timeToLive) {
-        FF4jUtils.assertNotNull(feat);
-        FF4jUtils.assertHasLength(feat.getUid());
+        assertNotNull(feat);
+        assertHasLength(feat.getUid());
         customCache.put(feat.getUid(), new InMemoryCacheEntry<V>(feat, timeToLive));
     }
 

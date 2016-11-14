@@ -10,6 +10,7 @@ package org.ff4j.property;
  * BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License. #L%
  */
+import static org.ff4j.utils.Util.setOf;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.HashSet;
@@ -20,7 +21,6 @@ import java.util.function.Supplier;
 import org.ff4j.FF4jBaseObject;
 import org.ff4j.FF4jExecutionContext;
 import org.ff4j.strategy.PropertyEvaluationStrategy;
-import org.ff4j.utils.FF4jUtils;
 import org.ff4j.utils.JsonUtils;
 
 /**
@@ -231,7 +231,7 @@ public abstract class Property<T> extends FF4jBaseObject<Property<T>> implements
 
     @SuppressWarnings("unchecked")
     public Property<T> setFixedValues(T... perms) {
-        return setFixedValues(FF4jUtils.setOf(perms));
+        return setFixedValues(setOf(perms));
     }
 
     public Property<T> setFixedValues(Set<T> perms) {
@@ -254,7 +254,7 @@ public abstract class Property<T> extends FF4jBaseObject<Property<T>> implements
             if (fixedValues == null) {
                 fixedValues = new HashSet<>();
             }
-            fixedValues.addAll(FF4jUtils.setOf(fixed));
+            fixedValues.addAll(setOf(fixed));
         }
         return this;
     }

@@ -1,6 +1,6 @@
 package org.ff4j.inmemory;
 
-import static org.ff4j.utils.FF4jUtils.assertHasLength;
+import static org.ff4j.utils.Util.assertHasLength;
 
 /*
  * #%L
@@ -38,6 +38,9 @@ import org.ff4j.store.PropertyStore;
  * @author Cedrick Lunven (@clunven)
  */
 public class PropertyStoreInMemory extends AbstractPropertyStore {
+
+    /** serialVersionUID. */
+    private static final long serialVersionUID = 5829690784801420235L;
 
     /** InMemory Feature Map */
     private Map<String, Property<?>> properties = new LinkedHashMap<String, Property<?>>();

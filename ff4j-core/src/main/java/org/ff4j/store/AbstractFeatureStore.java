@@ -1,10 +1,11 @@
 package org.ff4j.store;
 
-import static org.ff4j.utils.FF4jUtils.assertHasLength;
-import static org.ff4j.utils.FF4jUtils.assertNotNull;
 import static org.ff4j.utils.JsonUtils.attributeAsJson;
 import static org.ff4j.utils.JsonUtils.cacheJson;
 import static org.ff4j.utils.JsonUtils.collectionAsJson;
+import static org.ff4j.utils.Util.assertHasLength;
+import static org.ff4j.utils.Util.assertNotNull;
+import static org.ff4j.utils.Util.setOf;
 
 /*
  * #%L
@@ -39,7 +40,6 @@ import org.ff4j.exception.GroupNotFoundException;
 import org.ff4j.exception.ItemAlreadyExistException;
 import org.ff4j.exception.ItemNotFoundException;
 import org.ff4j.feature.Feature;
-import org.ff4j.utils.FF4jUtils;
 import org.ff4j.utils.Util;
 
 /**
@@ -74,7 +74,7 @@ public abstract class AbstractFeatureStore extends AbstractFF4jRepository<Featur
         StringBuilder sb = new StringBuilder("{");
         sb.append(attributeAsJson("type", this.getClass().getCanonicalName()));
         sb.append(cacheJson(this));
-        Set<String> myFeatures = FF4jUtils.setOf(findAll().map(Feature::getUid));
+        Set<String> myFeatures = setOf(findAll().map(Feature::getUid));
         sb.append(attributeAsJson("numberOfFeatures", myFeatures.size()));
         sb.append(",\"features\":" + collectionAsJson(myFeatures));
         Set<String> groups = readAllGroups().collect(Collectors.toSet());

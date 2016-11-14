@@ -7,9 +7,9 @@ import java.util.HashMap;
 import org.ff4j.FF4j;
 import org.ff4j.inmemory.PropertyStoreInMemory;
 import org.ff4j.property.Property;
+import org.ff4j.property.PropertyDate;
 import org.ff4j.property.PropertyString;
 import org.ff4j.store.PropertyStore;
-import org.ff4j.property.PropertyDate;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -59,7 +59,7 @@ public class InMemoryPropertiesStoreTest extends AbstractPropertyStoreJunitTest 
     public void valueFixed() {
         // When-Then
         Assert.assertTrue(testedStore.exists("a"));
-        Assert.assertEquals("AMER", testedStore.findById("a").getValue());
+        Assert.assertEquals("AMER", testedStore.read("a").getValue());
     }
     
     public void testProperty() {
@@ -68,10 +68,10 @@ public class InMemoryPropertiesStoreTest extends AbstractPropertyStoreJunitTest 
         
         ff4j.getPropertiesStore().create(new PropertyDate("property_3", new Date()));
        
-        Property<?> ap = ff4j.getPropertiesStore().findById("property_3");
+        Property<?> ap = ff4j.getPropertiesStore().read("property_3");
         PropertyDate pDate = (PropertyDate) ap;
         pDate.setValue(new Date());
-        ff4j.getPropertiesStore().updateProperty(pDate);
+        ff4j.getPropertiesStore().update(pDate);
         ff4j.getPropertiesStore().delete("property_3");
     }
     

@@ -43,6 +43,12 @@ public class FeatureStoreAuditProxy implements FeatureStore {
     
     /** {@inheritDoc} */
     @Override
+    public boolean isEmpty() {
+        return false;
+    }  
+    
+    /** {@inheritDoc} */
+    @Override
     public void createSchema() {
         target.createSchema();
         publish(builder(ACTION_CREATESCHEMA).feature("For Features"));
@@ -266,7 +272,6 @@ public class FeatureStoreAuditProxy implements FeatureStore {
 	 */
 	public FeatureStore getTarget() {
 		return target;
-	}    
-
+	}
     
 }

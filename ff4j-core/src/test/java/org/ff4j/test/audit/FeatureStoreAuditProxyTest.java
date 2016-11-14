@@ -1,5 +1,7 @@
 package org.ff4j.test.audit;
 
+import static org.ff4j.utils.Util.listOf;
+
 /*
  * #%L
  * ff4j-core
@@ -26,7 +28,6 @@ import org.ff4j.feature.Feature;
 import org.ff4j.inmemory.FeatureStoreInMemory;
 import org.ff4j.store.FeatureStore;
 import org.ff4j.test.store.CoreFeatureStoreTestSupport;
-import org.ff4j.utils.FF4jUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -54,9 +55,9 @@ public class FeatureStoreAuditProxyTest extends CoreFeatureStoreTestSupport {
         
         Feature fx1 = new Feature("fx1").toggleOn();
         Feature fx2 = new Feature("fx2").toggleOn();
-        testedStore.save(FF4jUtils.listOf(fx1, fx2));
+        testedStore.save(listOf(fx1, fx2));
         Assert.assertTrue(testedStore.exists("fx1"));
-        testedStore.save(FF4jUtils.listOf(fx1, fx2));
+        testedStore.save(listOf(fx1, fx2));
         
     }
 

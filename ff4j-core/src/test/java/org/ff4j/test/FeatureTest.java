@@ -30,7 +30,7 @@ import org.ff4j.feature.Feature;
 import org.ff4j.property.Property;
 import org.ff4j.property.PropertyString;
 import org.ff4j.strategy.PonderationStrategy;
-import org.ff4j.utils.FF4jUtils;
+import org.ff4j.utils.Util;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -78,7 +78,7 @@ public class FeatureTest {
         f.addPermissions("USER");
         f.setFlippingStrategy(new PonderationStrategy(0.5d));
         f.addCustomProperties(new PropertyString("p1","v1"));
-        f.addCustomProperties(new PropertyString("p2","v1", FF4jUtils.setOf("v1", "v2")));
+        f.addCustomProperties(new PropertyString("p2","v1", Util.setOf("v1", "v2")));
         
         Feature f2 = new Feature(f);
         Assert.assertEquals(f2.getUid(),  f.getUid());

@@ -1,5 +1,8 @@
 package org.ff4j.test.property;
 
+import static org.ff4j.utils.Util.listOf;
+import static org.ff4j.utils.Util.setOf;
+
 /*
  * #%L
  * ff4j-core
@@ -31,7 +34,6 @@ import java.util.Set;
 import org.ff4j.property.AbstractPropertyList;
 import org.ff4j.property.AbstractPropertyMap;
 import org.ff4j.property.AbstractPropertySet;
-import org.ff4j.utils.FF4jUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -76,7 +78,7 @@ public class MultiValuedPropertyTest {
     public void testMultiSet() {
         DemoSet ds = new DemoSet("P1");
         new DemoSet("P2", "val1,val2");
-        new DemoSet("P3", FF4jUtils.setOf("val1", "val2"));
+        new DemoSet("P3", setOf("val1", "val2"));
         String vals = "val1,val2,val3";
         ds.setListDelimiter(",");
         ds.fromString(vals);
@@ -87,7 +89,7 @@ public class MultiValuedPropertyTest {
         DemoList ds = new DemoList("p1");
         new DemoList("P2", "val1,val2");
         new DemoList("P3", "val1", "val2");
-        new DemoList("P3", FF4jUtils.listOf("val1", "val2"));
+        new DemoList("P3", listOf("val1", "val2"));
         String vals = "val1,val2,val3";
         ds.setListDelimiter(",");
         ds.fromString(vals);
@@ -95,12 +97,12 @@ public class MultiValuedPropertyTest {
         // Enhance coverage, do not assert on existing JDK methods through
         ds.add("val");
         ds.add(0, "val2");
-        ds.addAll(0, FF4jUtils.listOf("val3", "val4"));
+        ds.addAll(0, listOf("val3", "val4"));
         ds.addAll("val3", "val4");
         ds.addAll((String[]) null);
         ds.addAll("");
         
-        ds.addAll(FF4jUtils.listOf("val3", "val4"));
+        ds.addAll(listOf("val3", "val4"));
         ds.set(1, "val2");
         ds.subList(1, 1);
         ds.get(0);
@@ -124,7 +126,7 @@ public class MultiValuedPropertyTest {
         ds.setValue(null);
         ds.add(0, "");
         ds.setValue(null);
-        ds.addAll(0, FF4jUtils.listOf("val3", "val4"));
+        ds.addAll(0, listOf("val3", "val4"));
         ds.listIterator();
         ds.listIterator(0);
         ds.clear();
@@ -133,24 +135,24 @@ public class MultiValuedPropertyTest {
         ds.fromString(null);
         ds.setValue(null);
         ds.remove("val3");
-        ds.addAll(0, FF4jUtils.listOf("val3", "val4"));
+        ds.addAll(0, listOf("val3", "val4"));
         ds.remove("val3");
         ds.clear();
         ds.setValue(null);
-        ds.containsAll(FF4jUtils.listOf("val3", "val4"));
+        ds.containsAll(listOf("val3", "val4"));
         ds.remove("val3");
-        ds.retainAll(FF4jUtils.listOf("val3", "val4"));
+        ds.retainAll(listOf("val3", "val4"));
         ds.size();
         ds.iterator();
         ds.toArray();
-        ds.addAll(FF4jUtils.listOf("val3", "val4"));
-        ds.removeAll(FF4jUtils.listOf("val3"));
-        ds.containsAll(FF4jUtils.listOf("val3", "val4"));
+        ds.addAll(listOf("val3", "val4"));
+        ds.removeAll(listOf("val3"));
+        ds.containsAll(listOf("val3", "val4"));
         ds.toArray();
         ds.setValue(null);
-        ds.removeAll(FF4jUtils.listOf("val3"));
+        ds.removeAll(listOf("val3"));
         ds.contains("val");
-        ds.addAll(FF4jUtils.listOf("val3", "val4"));
+        ds.addAll(listOf("val3", "val4"));
         ds.remove("val3");
         ds.clear();
     }
@@ -196,9 +198,9 @@ public class MultiValuedPropertyTest {
         DemoSet ds =  new DemoSet("P2", "val1,val2");
         Assert.assertNotNull(ds.iterator());
         ds.removeAll(new ArrayList<String>());
-        ds.retainAll(FF4jUtils.listOf("val1"));
+        ds.retainAll(listOf("val1"));
         ds.add("val2");
-        ds.addAll(FF4jUtils.listOf("val3", "val4"));
+        ds.addAll(listOf("val3", "val4"));
         ds.toArray(new String[0]);
         ds.size();
         ds.isEmpty();

@@ -45,7 +45,7 @@ import org.ff4j.inmemory.FeatureStoreInMemory;
 import org.ff4j.property.Property;
 import org.ff4j.property.PropertyString;
 import org.ff4j.strategy.PonderationStrategy;
-import org.ff4j.utils.FF4jUtils;
+import org.ff4j.utils.Util;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -166,7 +166,7 @@ public class FF4jTest extends AbstractFf4jTest {
         ff4j.setPropertiesStore(null);
         ff4j.setEventRepository(null);
         ff4j.setEventPublisher(null);
-        ff4j.setAuthorizationsManager(new DefinedPermissionSecurityManager(FF4jUtils.setOf("val1")));
+        ff4j.setAuthorizationsManager(new DefinedPermissionSecurityManager(Util.setOf("val1")));
         ff4j.toString();
     }
 
@@ -298,14 +298,14 @@ public class FF4jTest extends AbstractFf4jTest {
         ff4j.setAuthorizationsManager(new DefinedPermissionSecurityManager(new HashSet<String>()));
         ff4j.getAuthorizationsManager().toString();
         
-        ff4j.setAuthorizationsManager(new DefinedPermissionSecurityManager(FF4jUtils.setOf("S1", "S2")));
+        ff4j.setAuthorizationsManager(new DefinedPermissionSecurityManager(Util.setOf("S1", "S2")));
         ff4j.getAuthorizationsManager().toString();
     }
     
     @Test
     public void testAllowed() {
         FF4j ff4j = new FF4j();
-        ff4j.setAuthorizationsManager(new DefinedPermissionSecurityManager(FF4jUtils.setOf("USER")));
+        ff4j.setAuthorizationsManager(new DefinedPermissionSecurityManager(Util.setOf("USER")));
         Feature f1 = new Feature("f1").toggleOn().setPermissions("USER");
         ff4j.createFeature(f1);
         ff4j.check(f1.getUid());
