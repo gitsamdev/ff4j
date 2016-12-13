@@ -5,7 +5,7 @@ import java.io.Serializable;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import org.ff4j.FF4jBaseObject;
+import org.ff4j.FF4jEntity;
 import org.ff4j.exception.FeatureNotFoundException;
 import org.ff4j.feature.Feature;
 
@@ -21,7 +21,7 @@ import org.ff4j.feature.Feature;
  *      
  * @since 2.x
  */
-public interface CacheManager < K extends Serializable , V extends FF4jBaseObject<?>> {
+public interface CacheManager < K extends Serializable , V extends FF4jEntity<?>> {
     
     /**
      * Get name of expected cache.

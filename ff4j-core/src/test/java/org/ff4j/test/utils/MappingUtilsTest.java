@@ -34,30 +34,16 @@ import org.ff4j.feature.Feature;
 import org.ff4j.feature.FlippingStrategy;
 import org.ff4j.inmemory.FeatureStoreInMemory;
 import org.ff4j.property.Property;
-import org.ff4j.property.PropertyInt;
-import org.ff4j.property.PropertyLong;
 import org.ff4j.property.PropertyString;
 import org.ff4j.utils.JdbcUtils;
 import org.ff4j.utils.JsonUtils;
-import org.ff4j.utils.MappingUtil;
 import org.ff4j.utils.Util;
 import org.junit.Assert;
 import org.junit.Test;
 
 
 public class MappingUtilsTest {
-    
-    @Test
-    public void testMapping() {
-        Map< String, String > map = new HashMap<String, String>();
-        MappingUtil.fromMap(null);
-        MappingUtil.toMap(null);
-        MappingUtil.toMap("");
-        MappingUtil.fromMap(map);
-        map.put("1", "1");
-        map.put("2", "2");
-        MappingUtil.fromMap(map);
-    }
+ 
     
     @Test
     public void testJsonMapping() {
@@ -102,11 +88,6 @@ public class MappingUtilsTest {
     }
     
     @Test(expected = IllegalArgumentException.class)
-    public void testAssert5() {
-        Util.assertNotEmpty(null);
-    }
-    
-    @Test(expected = IllegalArgumentException.class)
     public void testAssert6() {
         Util.assertNotEmpty(new ArrayList<String>());
     }
@@ -126,30 +107,6 @@ public class MappingUtilsTest {
         String expression = JsonUtils.customPropertiesAsJson(props);
         // Then
         Assert.assertNotNull(expression);
-    }
-    
-    @Test
-    public void testMappingPropertyToPrimitive() {
-        // Primitive -> Property
-        Assert.assertEquals(PropertyInt.class.getName(), MappingUtil.mapPropertyType("int"));
-        Assert.assertEquals("unknown", MappingUtil.mapPropertyType("unknown"));
-        Assert.assertNull(MappingUtil.mapPropertyType(null));
-        
-        // Property -> Primitive
-        Assert.assertEquals(PropertyInt.class.getName(), MappingUtil.mapPropertyType("int"));
-    }
-    
-    @Test
-    public void testMapSimpleClass() {
-        String className = null;
-        Assert.assertNull(MappingUtil.mapSimpleType(className));
-        Assert.assertEquals(Property.class.getName(), MappingUtil.mapSimpleType(Property.class.getName()));
-        Assert.assertEquals("long", MappingUtil.mapSimpleType(PropertyLong.class.getName()));
-        
-        Class<?> classType = null;
-        Assert.assertNull(MappingUtil.mapSimpleType(classType));
-        Assert.assertEquals(Property.class.getName(), MappingUtil.mapSimpleType(Property.class));
-        Assert.assertEquals("long", MappingUtil.mapSimpleType(PropertyLong.class));
     }
 
 }

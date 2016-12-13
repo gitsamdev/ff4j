@@ -1,8 +1,5 @@
 package org.ff4j;
 
-import static org.ff4j.audit.EventConstants.ACTION_CHECK_OFF;
-import static org.ff4j.audit.EventConstants.ACTION_CHECK_OK;
-import static org.ff4j.audit.EventConstants.SOURCE_JAVA;
 import static org.ff4j.utils.JsonUtils.attributeAsJson;
 import static org.ff4j.utils.JsonUtils.objectAsJson;
 
@@ -10,42 +7,43 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.Optional;
 
-import org.ff4j.audit.EventBuilder;
-import org.ff4j.audit.EventPublisher;
 import org.ff4j.audit.FeatureStoreAuditProxy;
+import org.ff4j.audit.FeatureUsageTracking;
 import org.ff4j.audit.PropertyStoreAuditProxy;
 import org.ff4j.cache.CacheManager;
 import org.ff4j.cache.FeatureStoreCacheProxy;
 import org.ff4j.cache.PropertyStoreCacheProxy;
 import org.ff4j.conf.XmlConfig;
 import org.ff4j.conf.XmlParser;
+import org.ff4j.event.Event;
+import org.ff4j.event.EventPublisher;
 import org.ff4j.exception.FeatureNotFoundException;
 import org.ff4j.feature.Feature;
 import org.ff4j.feature.FlippingStrategy;
-import org.ff4j.inmemory.EventRepositoryInMemory;
 import org.ff4j.inmemory.FeatureStoreInMemory;
+import org.ff4j.inmemory.FeatureUsageTrackingInMemory;
 import org.ff4j.inmemory.PropertyStoreInMemory;
+import org.ff4j.observable.AbstractObservableMixin;
+import org.ff4j.observable.FeatureUsageListener;
 import org.ff4j.property.Property;
 import org.ff4j.security.AuthorizationsManager;
-import org.ff4j.store.EventRepository;
 import org.ff4j.store.FeatureStore;
 import org.ff4j.store.PropertyStore;
-import org.ff4j.strategy.FF4jExecutionStrategy;
 
 /**
  * Main class and public api to work with framework FF4j.
  * 
  * <ul>It proposes a few underlying elements :
- * <li>{@link FeatureStore} is used to store status of manipulated features.
- * <li>{@link PropertyStore} is used to store properties values.
- * <li>{@link EventRepository} is used to store audit information.
- * <li>{@link AuthorizationsManager} to limit access to features is relevant (permissions).
+ *  <li>{@link FeatureStore} is used to store status of manipulated features.
+ *  <li>{@link PropertyStore} is used to store properties values.
+ *  <li>{@link FeatureUsageTracking} is used to store audit information.
+ *  <li>{@link AuthorizationsManager} to limit access to features is relevant (permissions).
  * </ul>
  *
  * @author Cedrick Lunven (@clunven)
  * @since 1.0
  */
-public class FF4j {
+public class FF4j extends AbstractObservableMixin < FeatureUsageListener > {
     
     /** Intialisation. */
     private final long startTime = System.currentTimeMillis();
@@ -53,28 +51,28 @@ public class FF4j {
     /** Version of ff4j. */
     private final String version = getClass().getPackage().getImplementationVersion();
     
+    // -- §§ Handle Features §§ ---
+    
     /** Storage to persist feature within {@link FeatureStore}. */
     private FeatureStore featureStore = new FeatureStoreInMemory();
+     
+    /** Flag to ask for automatically create the feature if not found in the store. */
+    private boolean autoCreateFeatures = false;
+    
+    // -- §§ Handle Properties §§ ---
     
     /** Storage to persist properties within {@link PropertyStore}. */
     private PropertyStore propertyStore = new PropertyStoreInMemory();
-   
+    
+    // -- §§ Configuration §§ ---
+    
+    /** Source. */
+    private String source = Event.Source.JAVA_API.name();
+    
     /** Security policy to limit access through ACL with {@link AuthorizationsManager}. */
     private AuthorizationsManager authorizationsManager = null;
     
-    /** Source of initialization (JAVA_API, WEBAPI, SSH, CONSOLE...). */
-    private String source = SOURCE_JAVA;
-    
-    /** Do not through {@link FeatureNotFoundException} exception and but feature is required. */
-    private boolean autocreate = false;
-    
-    /** Capture informations relative to audit. */
-    private boolean enableAudit = false;
-   
-    /** Repository for audit event. */
-    private EventRepository eventRepository = new EventRepositoryInMemory();
-
-    /** Event Publisher (threadpool, executor) to send data into {@link EventRepository} */
+    /** Event Publisher (threadpool, executor) to send data into {@link FeatureUsageTracking} */
     private EventPublisher eventPublisher = null;
    
     /** This attribute indicates to stop the event publisher. */
@@ -88,6 +86,7 @@ public class FF4j {
      * Default stores are created and will work in memory.
      */
     public FF4j() {
+        registerListener("DefaultUsageTracking", new FeatureUsageTrackingInMemory());
     }
 
     /**
@@ -190,13 +189,8 @@ public class FF4j {
             }
         }
         
-        // Publish audit
-        if (isEnableAudit()) {
-            getEventPublisher().publish(new EventBuilder(this)
-                        .feature(uid)
-                        .action(featureToggled ? ACTION_CHECK_OK : ACTION_CHECK_OFF)
-                        .build());
-        }
+        // 
+        this.notify((listener) -> listener.onFeatureExecuted(uid));
         return featureToggled;
     }
     
@@ -225,7 +219,7 @@ public class FF4j {
         try {
             getFeatureStore().toggleOn(uid);
         } catch (FeatureNotFoundException fnfe) {
-            if (this.autocreate) {
+            if (this.autoCreateFeatures) {
                 getFeatureStore().create(new Feature(uid).toggleOn());
             } else {
                 throw fnfe;
@@ -244,7 +238,7 @@ public class FF4j {
         try {
             getFeatureStore().toggleOff(uid);
         } catch (FeatureNotFoundException fnfe) {
-             if (this.autocreate) {
+             if (this.autoCreateFeatures) {
                  getFeatureStore().create(new Feature(uid).toggleOff());
              } else {
                 throw fnfe;
@@ -307,7 +301,7 @@ public class FF4j {
     public Feature getFeature(String uid) {
         Optional <Feature > oFeature = getFeatureStore().findById(uid);
         if (!oFeature.isPresent()) {
-            if (autocreate) {
+            if (autoCreateFeatures) {
                 Feature autoFeature = new Feature(uid).toggleOff();
                 getFeatureStore().create(autoFeature);
                 return autoFeature;
@@ -369,18 +363,6 @@ public class FF4j {
         setAutocreate(flag);
         return this;
     }
-            
-    /**
-     * Enable auditing of features when not found.
-     * 
-     * @param flag
-     *            target value for autocreate flag
-     * @return current instance
-     */
-    public FF4j audit(boolean val) {
-         setEnableAudit(val);
-         return this;
-    }
     
     /**
      * Enable a cache proxy.
@@ -429,16 +411,14 @@ public class FF4j {
         sb.append(hourNumber + " hours(s) ");
         sb.append(minutenumber + " minute(s) ");
         sb.append(secondnumber + " seconds\"");
-        sb.append(attributeAsJson("autocreate", isAutocreate()));
+        sb.append(attributeAsJson("autocreate", autoCreateFeatures));
+        sb.append(attributeAsJson("source", source));
         sb.append(attributeAsJson("version", version));
         if (getFeatureStore() != null) {
             sb.append(objectAsJson("featuresStore", getFeatureStore().toString()));
         }
         if (getPropertiesStore() != null) {
             sb.append(objectAsJson("propertiesStore", getPropertiesStore().toString()));
-        }
-        if (getEventRepository() != null) {
-            sb.append(objectAsJson("eventRepository", getEventRepository().toString()));
         }
         if (getAuthorizationsManager() != null) {
             sb.append(objectAsJson("authorizationsManager", getAuthorizationsManager().toString()));
@@ -468,7 +448,7 @@ public class FF4j {
      *            new value for 'autocreate '
      */
     public void setAutocreate(boolean autocreate) {
-        this.autocreate = autocreate;
+        this.autoCreateFeatures = autocreate;
     }
 
     /**
@@ -491,25 +471,6 @@ public class FF4j {
     }
 
     /**
-     * Getter accessor for attribute 'eventRepository'.
-     * 
-     * @return current value of 'eventRepository'
-     */
-    public EventRepository getEventRepository() {
-        return eventRepository;
-    }
-
-    /**
-     * Setter accessor for attribute 'eventRepository'.
-     * 
-     * @param eventRepository
-     *            new value for 'eventRepository '
-     */
-    public void setEventRepository(EventRepository eventRepository) {
-        this.eventRepository = eventRepository;
-    }
-
-    /**
      * Setter accessor for attribute 'eventPublisher'.
      *
      * @param eventPublisher
@@ -525,31 +486,8 @@ public class FF4j {
     private synchronized void init() {
         
         // Event Publisher
-        eventPublisher = new EventPublisher(eventRepository);
+        eventPublisher = new EventPublisher(null);
         this.shutdownEventPublisher = true;
-        
-        // Audit is enabled, proxified stores for auditing
-        if (isEnableAudit()) {
-        	
-        	if (featureStore != null && !(featureStore instanceof FeatureStoreAuditProxy)) {
-                this.featureStore = new FeatureStoreAuditProxy(this, featureStore);
-            }
-            if (propertyStore != null && !(propertyStore instanceof PropertyStoreAuditProxy)) { 
-                this.propertyStore = new PropertyStoreAuditProxy(this, propertyStore);
-            }
-        } else {
-        	
-        	 // Audit is disabled but could have been enabled before... removing PROXY if relevant
-        	 if (featureStore != null && featureStore instanceof FeatureStoreAuditProxy) {
-        		 this.featureStore = ((FeatureStoreAuditProxy) featureStore).getTarget();
-        	 }
-        	 if (propertyStore != null && propertyStore instanceof PropertyStoreAuditProxy) { 
-        		 this.propertyStore = ((PropertyStoreAuditProxy) propertyStore).getTarget();
-             }
-        }
-        
-        // Flag as OK
-        this.initialized = true;
     }
     
     /**
@@ -562,9 +500,9 @@ public class FF4j {
         if (null != getPropertiesStore()) {
             getPropertiesStore().createSchema();
         }
-        if (null != getEventRepository()) {
-            getEventRepository().createSchema();
-        }
+        // AuditTrail
+        // Feature Usage
+        // User
     }
     
     /**
@@ -605,15 +543,6 @@ public class FF4j {
     }
 
     /**
-     * Getter accessor for attribute 'autocreate'.
-     *
-     * @return current value of 'autocreate'
-     */
-    public boolean isAutocreate() {
-        return autocreate;
-    }
-
-    /**
      * Getter accessor for attribute 'startTime'.
      *
      * @return
@@ -640,29 +569,6 @@ public class FF4j {
      */
     public void setPropertiesStore(PropertyStore pStore) {
         this.propertyStore = pStore;
-    }
-
-    /**
-     * Getter accessor for attribute 'enableAudit'.
-     *
-     * @return
-     *       current value of 'enableAudit'
-     */
-    public boolean isEnableAudit() {
-        return enableAudit;
-    }
-
-    /**
-     * Setter accessor for attribute 'enableAudit'.
-     *
-     * @param enableAudit
-     * 		new value for 'enableAudit '
-     */
-    public void setEnableAudit(boolean enableAudit) {
-    	this.enableAudit = enableAudit;
-    	
-    	// if you disable the audit : the auditProxy must be destroy and use targets
-    	initialized = false;
     }
     
     /**

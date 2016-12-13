@@ -1,5 +1,7 @@
 package org.ff4j.jdbc;
 
+import static org.ff4j.utils.Util.asLocalDateTime;
+
 /*
  * #%L
  * ff4j-core
@@ -20,18 +22,6 @@ package org.ff4j.jdbc;
  * #L%
  */
 
-import static org.ff4j.jdbc.JdbcConstants.COL_EVENT_ACTION;
-import static org.ff4j.jdbc.JdbcConstants.COL_EVENT_DURATION;
-import static org.ff4j.jdbc.JdbcConstants.COL_EVENT_HOSTNAME;
-import static org.ff4j.jdbc.JdbcConstants.COL_EVENT_KEYS;
-import static org.ff4j.jdbc.JdbcConstants.COL_EVENT_NAME;
-import static org.ff4j.jdbc.JdbcConstants.COL_EVENT_SOURCE;
-import static org.ff4j.jdbc.JdbcConstants.COL_EVENT_TIME;
-import static org.ff4j.jdbc.JdbcConstants.COL_EVENT_TYPE;
-import static org.ff4j.jdbc.JdbcConstants.COL_EVENT_USER;
-import static org.ff4j.jdbc.JdbcConstants.COL_EVENT_UID;
-import static org.ff4j.jdbc.JdbcConstants.COL_EVENT_VALUE;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -39,26 +29,22 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.ff4j.audit.Event;
-import org.ff4j.audit.MutableHitCount;
+import org.ff4j.event.Event;
 import org.ff4j.exception.AuditAccessException;
+import org.ff4j.jdbc.JdbcConstants.MetricsColumns;
 import org.ff4j.mapper.EventMapper;
-import org.ff4j.utils.MappingUtil;
+import org.ff4j.utils.JsonUtils;
+import org.ff4j.utils.MutableHitCount;
 
 /**
  * Map resultset into {@link Event}
  *
  * @author Cedrick Lunven (@clunven)
  */
-public class JdbcEventMapper implements EventMapper < PreparedStatement, ResultSet> {
-  
-    private Connection sqlConn = null;
-            
-    private JdbcQueryBuilder queryBuilder = null;
+public class JdbcEventMetricsMapper extends AbstractJdbcMapper implements EventMapper < PreparedStatement, ResultSet> {
     
-    public JdbcEventMapper(Connection sqlConn, JdbcQueryBuilder qbd) {
-        this.sqlConn      = sqlConn;
-        this.queryBuilder = qbd;
+    public JdbcEventMetricsMapper(Connection sqlConn, JdbcQueryBuilder qbd) {
+       super(sqlConn, qbd);
     }
     
     /** {@inheritDoc} */
@@ -68,21 +54,21 @@ public class JdbcEventMapper implements EventMapper < PreparedStatement, ResultS
         try {
             MutableHitCount idx = new MutableHitCount(9);
             Map < Integer, String > statementParams = new HashMap<Integer, String>();
-            
-            StringBuilder sb = new StringBuilder(queryBuilder.sqlStartCreateEvent());
+            // Audit ou Metrics ?
+            StringBuilder sb = new StringBuilder(queryBuilder.sqlInsertAudit());
             evt.getOwner().ifPresent(user -> {
-                sb.append(", " + JdbcConstants.COL_EVENT_USER);
+                sb.append(", " + MetricsColumns.OWNER.colname());
                 statementParams.put(idx.get(), user);
                 idx.inc();
             });
             evt.getValue().ifPresent(value -> {
-                sb.append(", " + JdbcConstants.COL_EVENT_VALUE);
+                sb.append(", " +  MetricsColumns.VALUE.colname());
                 statementParams.put(idx.get(), value);
                 idx.inc();
             });
             evt.getCustomKeys().ifPresent(cp -> {
-                sb.append(", " + JdbcConstants.COL_EVENT_KEYS);
-                statementParams.put(idx.get(), MappingUtil.fromMap(cp));
+                sb.append(", " + MetricsColumns.KEYS.colname());
+                statementParams.put(idx.get(), JsonUtils.mapAsJson(cp));
                 idx.inc();
             });       
             sb.append(") VALUES (?");
@@ -121,17 +107,22 @@ public class JdbcEventMapper implements EventMapper < PreparedStatement, ResultS
     @Override
     public Event fromStore(ResultSet rs) {
         try {
-            Event evt = new Event(rs.getString(COL_EVENT_UID));
-            evt.setTimestamp(rs.getTimestamp(COL_EVENT_TIME).getTime());
-            evt.setType(rs.getString(COL_EVENT_TYPE));
-            evt.setName(rs.getString(COL_EVENT_NAME));
-            evt.setAction(rs.getString(COL_EVENT_ACTION));
-            evt.setHostName(rs.getString(COL_EVENT_HOSTNAME));
-            evt.setSource(rs.getString(COL_EVENT_SOURCE));
-            evt.setDuration(rs.getLong(COL_EVENT_DURATION));
-            evt.setOwner(rs.getString(COL_EVENT_USER));
-            evt.setValue(rs.getString(COL_EVENT_VALUE));
-            evt.setCustomKeys(MappingUtil.toMap(rs.getString(COL_EVENT_KEYS)));
+            Event evt = new Event(rs.getString(MetricsColumns.UID.colname()));
+            evt.setTimestamp(rs.getTimestamp(MetricsColumns.TIMESTAMP.colname()).getTime());
+            evt.setType(rs.getString(MetricsColumns.TYPE.colname()));
+            evt.setName(rs.getString(MetricsColumns.NAME.colname()));
+            evt.setAction(rs.getString(MetricsColumns.ACTION.colname()));
+            evt.setHostName(rs.getString(MetricsColumns.HOSTNAME.colname()));
+            evt.setSource(rs.getString(MetricsColumns.SOURCE.colname()));
+            evt.setDuration(rs.getLong(MetricsColumns.DURATION.colname()));
+            evt.setOwner(rs.getString(MetricsColumns.OWNER.colname()));
+            evt.setValue(rs.getString(MetricsColumns.VALUE.colname()));
+            evt.setCustomKeys(
+                    JsonUtils.jsonAsMap(rs.getString(MetricsColumns.KEYS.colname())));
+            evt.setCreationDate(
+                    asLocalDateTime(rs.getTimestamp(MetricsColumns.CREATED.colname())));
+            evt.setLastModified(
+                    asLocalDateTime(rs.getTimestamp(MetricsColumns.LASTMODIFIED.colname())));
             return evt;
         } catch(SQLException sqlEx) {
             throw new AuditAccessException("Cannot map result to Event", sqlEx);

@@ -1,4 +1,4 @@
-package org.ff4j.audit;
+package org.ff4j.event;
 
 import static org.ff4j.utils.JsonUtils.attributeAsJson;
 import static org.ff4j.utils.JsonUtils.objectAsJson;
@@ -32,14 +32,14 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.ff4j.FF4jBaseObject;
+import org.ff4j.FF4jEntity;
 
 /**
  * Audit information relevant to features.
  * 
  * @author Cedrick Lunven (@clunven)
  */
-public class Event extends FF4jBaseObject<Event> implements Serializable, Comparable < Event > {
+public class Event extends FF4jEntity<Event> implements Serializable, Comparable < Event > {
 
     /** Serial. */
     private static final long serialVersionUID = 6490780530212257217L;
@@ -47,20 +47,20 @@ public class Event extends FF4jBaseObject<Event> implements Serializable, Compar
     /** Time of event creation. */
     private long timestamp = 0;
    
-    /** HostName. */
-    private String hostName;
-    
     /** feature or property. */
-    private String type;
+    private String scope = Scope.UNKNOWN.name();
     
     /** Action performed. */
-    private String action;
-    
-    /** feature or property name. */
-    private String name;
+    private String action = Action.UNKNOWN.name();
     
     /** Source. */
-    private String source;
+    private String source = Source.UNKNOWN.name();
+    
+    /** feature or property name. */
+    private String targetUid;
+   
+    /** HostName. */
+    private String hostName;
     
     /** Duration of action. */
     private Optional < Long > duration = Optional.empty();
@@ -70,6 +70,18 @@ public class Event extends FF4jBaseObject<Event> implements Serializable, Compar
     
     /** Specific parameters. */
     private Optional < Map < String, String > > customKeys = Optional.empty();
+    
+    public enum Action {
+        UNKNOWN, CONNECT, DISCONNECT, TOGGLE_ON, TOGGLE_OFF, CREATE, DELETE, UPDATE, CLEAR, EXECUTE_FEATURE, CREATE_SCHEMA;
+    }
+    
+    public enum Scope {
+        UNKNOWN, FEATURE, FEATURE_GROUP, PROPERTY, FEATURESTORE, PROPERTYSTORE, USER;
+    }
+    
+    public enum Source {
+        UNKNOWN, JAVA_API, WEB_CONSOLE, WEB_API, JMX, SSH;
+    }
     
     /**
      * Default constructor.
@@ -107,8 +119,8 @@ public class Event extends FF4jBaseObject<Event> implements Serializable, Compar
         sb.append(objectAsJson("timestamp", timestamp));
         sb.append(attributeAsJson("hostName", hostName));
         sb.append(attributeAsJson("action", action));
-        sb.append(attributeAsJson("type", type));
-        sb.append(attributeAsJson("name", name));
+        sb.append(attributeAsJson("scope", scope));
+        sb.append(attributeAsJson("targetUid", targetUid));
         sb.append(attributeAsJson("source", source));
         value.ifPresent( d -> sb.append(attributeAsJson("value", d)));
         duration.ifPresent( d -> sb.append(objectAsJson("duration", d)));
@@ -172,14 +184,10 @@ public class Event extends FF4jBaseObject<Event> implements Serializable, Compar
     public String getHostName() {
         return hostName;
     }
-
-    /**
-     * Setter accessor for attribute 'hostName'.
-     * @param hostName
-     * 		new value for 'hostName '
-     */
-    public void setHostName(String hostName) {
-        this.hostName = hostName;
+    
+    public Event hostName(String host) {
+        this.hostName = host;
+        return this;
     }
 
     /**
@@ -190,56 +198,39 @@ public class Event extends FF4jBaseObject<Event> implements Serializable, Compar
      */
     public String getSource() {
         return source;
-    }
-
-    /**
-     * Setter accessor for attribute 'source'.
-     * @param source
-     * 		new value for 'source '
-     */
-    public Event setSource(String source) {
+    }   
+    
+    public Event source(String source) {
         this.source = source;
         return this;
     }
-
-    /**
-     * Getter accessor for attribute 'name'.
-     *
-     * @return
-     *       current value of 'name'
-     */
-    public String getName() {
-        return name;
+    
+    public Event source(Source source) {
+        return source(source.name());
     }
 
-    /**
-     * Setter accessor for attribute 'name'.
-     * @param name
-     * 		new value for 'name '
-     */
-    public Event setName(String name) {
-        this.name = name;
+    public Event targetUid(String uid) {
+        this.targetUid = uid;
         return this;
     }
-
+    
     /**
-     * Getter accessor for attribute 'type'.
+     * Getter accessor for attribute 'scope'.
      *
      * @return
      *       current value of 'type'
      */
-    public String getType() {
-        return type;
+    public String getScope() {
+        return scope;
     }
 
-    /**
-     * Setter accessor for attribute 'type'.
-     * @param type
-     * 		new value for 'type '
-     */
-    public Event setType(String type) {
-        this.type = type;
+    public Event scope(String scope) {
+        this.scope = scope;
         return this;
+    }
+    
+    public Event scope(Scope scope) {
+        return this.scope(scope.name());
     }
     
     /**
@@ -252,14 +243,13 @@ public class Event extends FF4jBaseObject<Event> implements Serializable, Compar
         return action;
     }
 
-    /**
-     * Setter accessor for attribute 'action'.
-     * @param action
-     * 		new value for 'action '
-     */
-    public Event setAction(String action) {
+    public Event action(String action) {
         this.action = action;
         return this;
+    }
+    
+    public Event action(Action action) {
+        return action(action.name());
     }
 
     /**
@@ -338,6 +328,16 @@ public class Event extends FF4jBaseObject<Event> implements Serializable, Compar
         int myTime = new Long(this.getTimestamp() - evt.getTimestamp()).intValue();
         // Not equals even if same timestamp (of course...)
         return (myTime != 0) ? myTime : evt.getUid().compareTo(getUid());
+    }
+
+    /**
+     * Getter accessor for attribute 'targetUid'.
+     *
+     * @return
+     *       current value of 'targetUid'
+     */
+    public String getTargetUid() {
+        return targetUid;
     }
 
 }

@@ -1,12 +1,12 @@
 package org.ff4j.test.audit;
 
-import static org.ff4j.audit.EventConstants.ACTION_CHECK_OFF;
-import static org.ff4j.audit.EventConstants.ACTION_CHECK_OK;
-import static org.ff4j.audit.EventConstants.ACTION_CREATE;
-import static org.ff4j.audit.EventConstants.SOURCE_JAVA;
-import static org.ff4j.audit.EventConstants.SOURCE_WEB;
-import static org.ff4j.audit.EventConstants.SOURCE_WEBAPI;
-import static org.ff4j.audit.EventConstants.TARGET_FEATURE;
+import static org.ff4j.event.EventConstants.ACTION_CHECK_OFF;
+import static org.ff4j.event.EventConstants.ACTION_CHECK_OK;
+import static org.ff4j.event.EventConstants.ACTION_CREATE;
+import static org.ff4j.event.EventConstants.SOURCE_JAVA;
+import static org.ff4j.event.EventConstants.SOURCE_WEB;
+import static org.ff4j.event.EventConstants.SOURCE_WEBAPI;
+import static org.ff4j.event.EventConstants.TARGET_FEATURE;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -34,18 +34,18 @@ import java.util.concurrent.TimeUnit;
  */
 
 import org.ff4j.FF4j;
-import org.ff4j.audit.BarChart;
-import org.ff4j.audit.Event;
-import org.ff4j.audit.EventConstants;
-import org.ff4j.audit.EventPublisher;
-import org.ff4j.audit.EventQueryDefinition;
-import org.ff4j.audit.EventSeries;
-import org.ff4j.audit.MutableHitCount;
-import org.ff4j.audit.TimeSeriesChart;
+import org.ff4j.audit.FeatureUsageTracking;
+import org.ff4j.chart.BarChart;
+import org.ff4j.chart.TimeSeriesChart;
+import org.ff4j.event.Event;
+import org.ff4j.event.EventConstants;
+import org.ff4j.event.EventPublisher;
+import org.ff4j.event.EventQueryDefinition;
+import org.ff4j.event.EventSeries;
 import org.ff4j.feature.Feature;
 import org.ff4j.inmemory.FeatureStoreInMemory;
 import org.ff4j.inmemory.PropertyStoreInMemory;
-import org.ff4j.store.EventRepository;
+import org.ff4j.utils.MutableHitCount;
 import org.ff4j.utils.Util;
 import org.junit.Assert;
 import org.junit.Before;
@@ -64,8 +64,8 @@ public abstract class EventRepositoryTestSupport {
 	/** Feature List. */
 	protected ArrayList<Feature> features;
 
-	/** Target {@link EventRepository}. */
-	protected EventRepository repo;
+	/** Target {@link FeatureUsageTracking}. */
+	protected FeatureUsageTracking repo;
 
 	/** Target publisher. */
 	protected EventPublisher publisher;
@@ -152,7 +152,7 @@ public abstract class EventRepositoryTestSupport {
 	 * @throws Exception
 	 *             error during building feature store
 	 */
-	protected abstract EventRepository initRepository();
+	protected abstract FeatureUsageTracking initRepository();
 
 	/** TDD. */
 	@Test

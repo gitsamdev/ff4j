@@ -1,4 +1,4 @@
-package org.ff4j.audit;
+package org.ff4j.event;
 
 /*
  * #%L
@@ -29,8 +29,10 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.ff4j.inmemory.EventRepositoryInMemory;
-import org.ff4j.store.EventRepository;
+import org.ff4j.audit.AuditTrail;
+import org.ff4j.audit.FeatureUsageTracking;
+import org.ff4j.audit.PublisherThreadFactory;
+import org.ff4j.inmemory.FeatureUsageTrackingInMemory;
 
 /**
  * Default implementation of repository.
@@ -52,7 +54,10 @@ public class EventPublisher {
     private ExecutorService executor;
 
     /** Repository to save events. */
-    private EventRepository repository;
+    private FeatureUsageTracking featureUsageStore;
+    
+    /** Repository to save events. */
+    private AuditTrail auditTrail;
 
     /** the amount of time to wait after submitting for the task to complete. */
     private final long submitTimeout;
@@ -64,34 +69,33 @@ public class EventPublisher {
      * Default constructor.
      */
     public EventPublisher() {
-        this(DEFAULT_QUEUE_CAPACITY, DEFAULT_POOL_SIZE, new EventRepositoryInMemory());
+        this(DEFAULT_QUEUE_CAPACITY, DEFAULT_POOL_SIZE, new FeatureUsageTrackingInMemory());
     }
     
     /**
      * Default constructor.
      */
-    public EventPublisher(EventRepository er) {
+    public EventPublisher(FeatureUsageTracking er) {
         this(DEFAULT_QUEUE_CAPACITY, DEFAULT_POOL_SIZE, er);
     }
         
     /**
      * Default constructor.
      */
-    public EventPublisher(int queueCapacity, int poolSize, EventRepository er) {
+    public EventPublisher(int queueCapacity, int poolSize, FeatureUsageTracking er) {
         this(queueCapacity, poolSize, er, timeout);
     }
 
     /**
      * Default constructor.
      */
-    public EventPublisher(int queueCapacity, int poolSize, EventRepository er, long submitTimeout) {
+    public EventPublisher(int queueCapacity, int poolSize, FeatureUsageTracking er, long submitTimeout) {
         // Initializing queue
         final BlockingQueue<Runnable> queue = new ArrayBlockingQueue<Runnable>(queueCapacity);
         // Executor with worker to process threads
         RejectedExecutionHandler rej = new EventRejectedExecutionHandler();
         ThreadFactory tFactorty = new PublisherThreadFactory();
-        this.executor = 
-                new ThreadPoolExecutor(poolSize, poolSize, 0L, TimeUnit.MILLISECONDS, queue, tFactorty, rej);
+        this.executor = new ThreadPoolExecutor(poolSize, poolSize, 0L, TimeUnit.MILLISECONDS, queue, tFactorty, rej);
         // Override repository
         this.repository = er;
         this.submitTimeout = submitTimeout;
@@ -102,7 +106,7 @@ public class EventPublisher {
      * @param er the event repository to use
      * @param executorService the executor service
      */
-    public EventPublisher(EventRepository er, ExecutorService executorService) {
+    public EventPublisher(FeatureUsageTracking er, ExecutorService executorService) {
         this(er, executorService, timeout);
     }
 
@@ -111,7 +115,7 @@ public class EventPublisher {
      * @param executorService the executor service
      * @param submitTimeout
      */
-    public EventPublisher(EventRepository er, ExecutorService executorService, long submitTimeout) {
+    public EventPublisher(FeatureUsageTracking er, ExecutorService executorService, long submitTimeout) {
         repository = er;
         executor = executorService;
         this.submitTimeout = submitTimeout;
@@ -151,7 +155,7 @@ public class EventPublisher {
      * @param repository
      *            new value for 'repository '
      */
-    public void setRepository(EventRepository repository) {
+    public void setRepository(FeatureUsageTracking repository) {
         this.repository = repository;
     }
 
@@ -160,7 +164,7 @@ public class EventPublisher {
      * 
      * @return current value of 'repository'
      */
-    public EventRepository getRepository() {
+    public FeatureUsageTracking getRepository() {
         return repository;
     }
 

@@ -1,4 +1,6 @@
-package org.ff4j.audit;
+package org.ff4j.event;
+
+import static org.ff4j.event.EventConstants.*;
 
 /*
  * #%L
@@ -21,8 +23,6 @@ package org.ff4j.audit;
  */
 
 import org.ff4j.FF4j;
-
-import static org.ff4j.audit.EventConstants.*;
 
 public class EventBuilder {
     
@@ -66,6 +66,8 @@ public class EventBuilder {
     }
     
     public EventBuilder feature(String uid) {
+        event.setScope(EventConstants.Scope.FEATURE);
+        
         event.setType(TARGET_FEATURE);
         event.setName(uid);
         return this;

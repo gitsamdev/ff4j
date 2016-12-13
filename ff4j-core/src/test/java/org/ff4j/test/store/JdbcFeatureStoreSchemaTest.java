@@ -128,9 +128,9 @@ public class JdbcFeatureStoreSchemaTest {
         
         testedStore.createCustomProperties("fx", null);
         
-        Property<?> p1 = new PropertyString("p1");
+        Property<?> p1 = new PropertyString("p1", "v1");
         
-        Property<String> p2 = new PropertyString("p2");
+        Property<String> p2 = new PropertyString("p2", "v2");
         p2.setFixedValues(setOf("v1","v3"));
         
         testedStore.createCustomProperties("fx", Arrays.asList(p2,p1));

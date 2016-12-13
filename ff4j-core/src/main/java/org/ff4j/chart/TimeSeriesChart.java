@@ -1,4 +1,4 @@
-package org.ff4j.audit;
+package org.ff4j.chart;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -8,7 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import org.ff4j.event.Event;
 import org.ff4j.utils.JsonUtils;
+import org.ff4j.utils.MutableHitCount;
 
 /*
  * #%L

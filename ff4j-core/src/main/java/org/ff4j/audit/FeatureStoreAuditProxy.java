@@ -1,20 +1,22 @@
 package org.ff4j.audit;
 
-import static org.ff4j.audit.EventConstants.ACTION_CLEAR;
-import static org.ff4j.audit.EventConstants.ACTION_CREATE;
-import static org.ff4j.audit.EventConstants.ACTION_CREATESCHEMA;
-import static org.ff4j.audit.EventConstants.ACTION_DELETE;
-import static org.ff4j.audit.EventConstants.ACTION_TOGGLE_OFF;
-import static org.ff4j.audit.EventConstants.ACTION_TOGGLE_ON;
-import static org.ff4j.audit.EventConstants.ACTION_UPDATE;
-import static org.ff4j.audit.EventConstants.TARGET_FEATURE;
-import static org.ff4j.audit.EventConstants.TARGET_FSTORE;
+import static org.ff4j.event.EventConstants.ACTION_CLEAR;
+import static org.ff4j.event.EventConstants.ACTION_CREATE;
+import static org.ff4j.event.EventConstants.ACTION_CREATESCHEMA;
+import static org.ff4j.event.EventConstants.ACTION_DELETE;
+import static org.ff4j.event.EventConstants.ACTION_TOGGLE_OFF;
+import static org.ff4j.event.EventConstants.ACTION_TOGGLE_ON;
+import static org.ff4j.event.EventConstants.ACTION_UPDATE;
+import static org.ff4j.event.EventConstants.TARGET_FEATURE;
+import static org.ff4j.event.EventConstants.TARGET_FSTORE;
 
 import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.ff4j.FF4j;
+import org.ff4j.event.EventBuilder;
+import org.ff4j.event.EventPublisher;
 import org.ff4j.feature.Feature;
 import org.ff4j.store.FeatureStore;
 
@@ -102,7 +104,6 @@ public class FeatureStoreAuditProxy implements FeatureStore {
     /** {@inheritDoc} */
     @Override
     public void grantRoleOnFeature(String uid, String roleName) {
-        System.out.println("GRANT");
         long start = System.nanoTime();
         target.grantRoleOnFeature(uid, roleName);
         long duration = System.nanoTime() - start;

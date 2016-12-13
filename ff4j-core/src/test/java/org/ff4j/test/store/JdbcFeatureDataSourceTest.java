@@ -1,6 +1,5 @@
 package org.ff4j.test.store;
 
-import static org.ff4j.jdbc.JdbcConstants.*;
 import static org.ff4j.utils.JdbcUtils.closeConnection;
 import static org.ff4j.utils.JdbcUtils.closeResultSet;
 import static org.ff4j.utils.JdbcUtils.closeStatement;
@@ -72,7 +71,7 @@ public class JdbcFeatureDataSourceTest extends CoreFeatureStoreTestSupport {
             sqlConn = sqlDataSource.getConnection();
             
             // Query Exist
-            ps = JdbcUtils.buildStatement(sqlConn, SQL_EXIST, F1);
+            ps = JdbcUtils.buildStatement(sqlConn, "SELECT COUNT(*) FROM FF4J_FEATURES WHERE FEAT_UID LIKE ?", F1);
             JdbcUtils.rollback(sqlConn);
             ps.close();
             ps.executeQuery();
@@ -93,7 +92,7 @@ public class JdbcFeatureDataSourceTest extends CoreFeatureStoreTestSupport {
             sqlConn = sqlDataSource.getConnection();
             
             // Query Exist
-            ps = JdbcUtils.buildStatement(sqlConn, SQL_EXIST, F1);
+            ps = JdbcUtils.buildStatement(sqlConn, "SELECT COUNT(*) FROM FF4J_FEATURES WHERE FEAT_UID LIKE ?", F1);
             JdbcUtils.rollback(sqlConn);
             ps.close();
             //rs = ps.executeQuery();

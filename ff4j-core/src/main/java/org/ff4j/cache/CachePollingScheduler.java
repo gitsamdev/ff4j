@@ -6,7 +6,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
-import org.ff4j.FF4jBaseObject;
+import org.ff4j.FF4jEntity;
 
 /**
  * Polling target store and populate relevant cache.
@@ -16,7 +16,7 @@ import org.ff4j.FF4jBaseObject;
  *
  * @param <WORKER>
  */
-public class CachePollingScheduler< V extends FF4jBaseObject<?> > implements Serializable {
+public class CachePollingScheduler< V extends FF4jEntity<?> > implements Serializable {
     
     /** Serial. */
     private static final long serialVersionUID = -1198719730422859724L;

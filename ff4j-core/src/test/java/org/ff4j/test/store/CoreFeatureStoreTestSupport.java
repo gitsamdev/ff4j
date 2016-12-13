@@ -1161,5 +1161,20 @@ public abstract class CoreFeatureStoreTestSupport implements TestConstantsFF4j {
                 .getFixedValues().get();
         Assert.assertEquals(2, fixValues2.size());
     }
+    
+    public void testUpdateLastModifiedWhenToggle() {
+    }
+    
+    public void testUpdateLastModifiedWhenEditGroup() {
+    }
+    
+    public void testUpdateLastModifiedWhenEditPermissions() {
+    }
+    
+    public void testUpdateLastModifiedWhenEditProperties() {
+    }
+    
+    
+    
 
 }

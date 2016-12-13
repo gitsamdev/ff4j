@@ -1,5 +1,7 @@
 package org.ff4j.test.store;
 
+import org.ff4j.audit.FeatureUsageTracking;
+
 /*
  * #%L
  * ff4j-test
@@ -20,8 +22,7 @@ package org.ff4j.test.store;
  * #L%
  */
 
-import org.ff4j.inmemory.EventRepositoryInMemory;
-import org.ff4j.store.EventRepository;
+import org.ff4j.inmemory.FeatureUsageTrackingInMemory;
 import org.ff4j.test.audit.EventRepositoryTestSupport;
 
 /**
@@ -32,8 +33,8 @@ public class InMemoryEventStoreTest extends EventRepositoryTestSupport {
     
     /** {@inheritDoc} */
     @Override
-    protected EventRepository initRepository() {
-        return new EventRepositoryInMemory(60);
+    protected FeatureUsageTracking initRepository() {
+        return new FeatureUsageTrackingInMemory(60);
     }
 
 }

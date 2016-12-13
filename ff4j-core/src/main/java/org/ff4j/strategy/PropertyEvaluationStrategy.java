@@ -54,9 +54,10 @@ public interface PropertyEvaluationStrategy <T> extends FF4jExecutionStrategy {
      * @return
      *      the flipping strategy
      */
-    public static PropertyEvaluationStrategy<?> instanciate(String uid, String className,  Map<String, String> initparams) {
+    @SuppressWarnings("unchecked")
+    public static <T> PropertyEvaluationStrategy<T> instanciate(String uid, String className,  Map<String, String> initparams) {
         try {
-            PropertyEvaluationStrategy<?> evalStrategy = (PropertyEvaluationStrategy<?>) Class.forName(className).newInstance();
+            PropertyEvaluationStrategy<T> evalStrategy = (PropertyEvaluationStrategy<T>) Class.forName(className).newInstance();
             evalStrategy.init(uid, initparams);
             return evalStrategy;
         } catch (Exception ie) {

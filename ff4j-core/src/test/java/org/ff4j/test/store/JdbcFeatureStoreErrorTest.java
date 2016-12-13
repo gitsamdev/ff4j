@@ -31,7 +31,6 @@ import javax.sql.DataSource;
 import org.ff4j.exception.FeatureAccessException;
 import org.ff4j.feature.Feature;
 import org.ff4j.jdbc.FeatureStoreJdbc;
-import org.ff4j.jdbc.JdbcConstants;
 import org.ff4j.property.Property;
 import org.ff4j.property.PropertyString;
 import org.ff4j.utils.JdbcUtils;
@@ -187,7 +186,7 @@ public class JdbcFeatureStoreErrorTest {
         doThrow(new SQLException()).when(mockDS).getConnection();
         FeatureStoreJdbc jrepo = new FeatureStoreJdbc(mockDS);
         jrepo.setDataSource(mockDS);
-        jrepo.update(JdbcConstants.SQL_DISABLE, "F4");
+        jrepo.update("UPDATE FF4J_FEATURE SET ENABLE = 1 WHERE FEAT_UID LIKE ?", "F4");
     }
 
 

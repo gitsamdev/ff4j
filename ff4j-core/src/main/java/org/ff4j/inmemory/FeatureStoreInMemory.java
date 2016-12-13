@@ -28,7 +28,9 @@ import java.util.stream.Stream;
 
 import org.ff4j.conf.XmlParser;
 import org.ff4j.feature.Feature;
+import org.ff4j.security.FF4jPermission;
 import org.ff4j.store.AbstractFeatureStore;
+import org.hsqldb.rights.Grantee;
 
 /**
  * Storing states of feature inmemory with initial values. Could be used mostly for testing purpose.
@@ -123,6 +125,7 @@ public class FeatureStoreInMemory extends AbstractFeatureStore {
         Set<String> toBeAdded = new HashSet<String>();
         fp.getPermissions().ifPresent(perms -> toBeAdded.addAll(perms));
         fpExist.getPermissions().ifPresent(perms -> toBeAdded.removeAll(perms));
+        
         toBeAdded.stream().forEach(p -> grantRoleOnFeature(fpExist.getUid(), p));
         updateFeature(fp);
     }
@@ -154,22 +157,6 @@ public class FeatureStoreInMemory extends AbstractFeatureStore {
     }    
     
     // --- FeatureStore Methods ---
-    
-    /** {@inheritDoc} */
-    @Override
-    public void grantRoleOnFeature(String uid, String roleName) {
-        assertFeatureExist(uid);
-        assertHasLength(roleName);
-        featuresMap.get(uid).getPermissions().get().add(roleName);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void removeRoleFromFeature(String uid, String roleName) {
-        assertFeatureExist(uid);
-        assertHasLength(roleName);
-        featuresMap.get(uid).getPermissions().get().remove(roleName);
-    }    
     
     /** {@inheritDoc} */
     @Override
@@ -331,6 +318,24 @@ public class FeatureStoreInMemory extends AbstractFeatureStore {
      */
     public String getFileName() {
         return fileName;
+    }
+
+    @Override
+    public Map<FF4jPermission, Set<Grantee>> getPermissions() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void grantUser(String userName, FF4jPermission... perm) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void grantGroup(String groupName, FF4jPermission... perm) {
+        // TODO Auto-generated method stub
+        
     }
     
 }

@@ -1,8 +1,5 @@
 package org.ff4j.jdbc;
 
-import static org.ff4j.jdbc.JdbcConstants.COL_FEAT_GROUPNAME;
-import static org.ff4j.jdbc.JdbcConstants.COL_ROLE_FEATID;
-import static org.ff4j.jdbc.JdbcConstants.COL_ROLE_ROLENAME;
 import static org.ff4j.utils.JdbcUtils.buildStatement;
 
 /*
@@ -26,11 +23,8 @@ import static org.ff4j.utils.JdbcUtils.buildStatement;
  */
 
 import static org.ff4j.utils.JdbcUtils.closeConnection;
-import static org.ff4j.utils.JdbcUtils.closeResultSet;
-import static org.ff4j.utils.JdbcUtils.closeStatement;
 import static org.ff4j.utils.JdbcUtils.executeUpdate;
 import static org.ff4j.utils.JdbcUtils.isTableExist;
-import static org.ff4j.utils.JdbcUtils.rollback;
 import static org.ff4j.utils.Util.assertHasLength;
 import static org.ff4j.utils.Util.assertNotNull;
 
@@ -38,6 +32,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -49,12 +44,13 @@ import javax.sql.DataSource;
 
 import org.ff4j.exception.FeatureAccessException;
 import org.ff4j.feature.Feature;
-import org.ff4j.feature.FlippingStrategy;
+import org.ff4j.jdbc.JdbcConstants.CustomPropertyColumns;
+import org.ff4j.jdbc.JdbcConstants.FeaturesColumns;
+import org.ff4j.jdbc.JdbcConstants.RolesColumns;
 import org.ff4j.property.Property;
 import org.ff4j.store.AbstractFeatureStore;
 import org.ff4j.store.FeatureStore;
 import org.ff4j.utils.JdbcUtils;
-import org.ff4j.utils.MappingUtil;
 import org.ff4j.utils.Util;
 
 /**
@@ -80,9 +76,6 @@ public class FeatureStoreJdbc extends AbstractFeatureStore {
 
     /** Query builder. */
     private JdbcQueryBuilder queryBuilder;
-
-    /** Mapper. */
-    private JdbcPropertyMapper JDBC_PROPERTY_MAPPER = new JdbcPropertyMapper();
 
     /** Default Constructor. */
     public FeatureStoreJdbc() {}
@@ -114,217 +107,185 @@ public class FeatureStoreJdbc extends AbstractFeatureStore {
         DataSource       ds = getDataSource();
         JdbcQueryBuilder qb = getQueryBuilder();
         if (!isTableExist(ds, qb.getTableNameFeatures())) {
-            executeUpdate(ds, qb.sqlCreateTableFeatures());
+            executeUpdate(ds, qb.sqlCreateTableFeature());
         }
         if (!isTableExist(ds, qb.getTableNameCustomProperties())) {
             executeUpdate(ds, qb.sqlCreateTableCustomProperties());
         }
         if (!isTableExist(ds, qb.getTableNameRoles())) {
-            executeUpdate(ds, qb.sqlCreateTableRoles());
-        }
-    }
-    
-    /** {@inheritDoc} */
-    @Override
-    public long count() {
-        Connection          sqlConn = null;
-        PreparedStatement   ps = null;
-        ResultSet           rs = null;
-        try {
-            sqlConn = getDataSource().getConnection();
-            ps = JdbcUtils.buildStatement(sqlConn, getQueryBuilder().sqlCountFeatures());
-            rs = ps.executeQuery();
-            rs.next();
-            return rs.getInt(1);
-        } catch (SQLException sqlEX) {
-            throw new FeatureAccessException(CANNOT_CHECK_FEATURE_EXISTENCE_ERROR_RELATED_TO_DATABASE, sqlEX);
-        } finally {
-            closeResultSet(rs);
-            closeStatement(ps);
-            closeConnection(sqlConn);
+            executeUpdate(ds, qb.sqlCreateTableRole());
         }
     }
 
     /** {@inheritDoc} */
     @Override
     public void toggleOn(String uid) {
-    	assertFeatureExist(uid);
-        update(getQueryBuilder().enableFeature(), uid);
+        assertFeatureExist(uid);
+        update(getQueryBuilder().sqlEditFeatureStatus(), 1, uid);
     }
 
     /** {@inheritDoc} */
     @Override
     public void toggleOff(String uid) {
-    	assertFeatureExist(uid);
-        update(getQueryBuilder().disableFeature(), uid);
+        assertFeatureExist(uid);
+        update(getQueryBuilder().sqlEditFeatureStatus(), 0, uid);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void enableGroup(String groupName) {
+        assertGroupExist(groupName);
+        update(getQueryBuilder().sqlEditGroupStatus(), 1, groupName);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void disableGroup(String groupName) {
+        assertGroupExist(groupName);
+        update(getQueryBuilder().sqlEditGroupStatus(), 0, groupName);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void addToGroup(String uid, String groupName) {
+        assertFeatureExist(uid);
+        assertHasLength(groupName);
+        update(getQueryBuilder().sqlEditFeatureToGroup(), groupName, uid);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void removeFromGroup(String uid, String groupName) {
+        assertFeatureExist(uid);
+        assertGroupExist(groupName);
+        Feature feat = read(uid);
+        if (feat.getGroup().isPresent() && !feat.getGroup().get().equals(groupName)) {
+            throw new IllegalArgumentException("'" + uid + "' is not in group '" + groupName + "'");
+        }
+        update(getQueryBuilder().sqlEditFeatureToGroup(), "", uid);
+    }
+    
+    /** {@inheritDoc} */
+    @Override
+    public long count() {
+        try (Connection sqlConn = getDataSource().getConnection()) {
+            try (PreparedStatement ps = JdbcUtils.buildStatement(sqlConn, getQueryBuilder().sqlCountFeatures())) {
+                try (ResultSet rs = ps.executeQuery()) {
+                    //Query count always have return
+                    rs.next();
+                    return rs.getInt(1);
+                }
+            }
+        } catch (SQLException sqlEX) {
+            throw new FeatureAccessException(CANNOT_CHECK_FEATURE_EXISTENCE_ERROR_RELATED_TO_DATABASE, sqlEX);
+        }
     }
 
     /** {@inheritDoc} */
     @Override
     public boolean exists(String uid) {
     	assertHasLength(uid);
-        Connection          sqlConn = null;
-        PreparedStatement   ps = null;
-        ResultSet           rs = null;
-        try {
-            sqlConn = getDataSource().getConnection();
-            ps = JdbcUtils.buildStatement(sqlConn, getQueryBuilder().existFeature(), uid);
-            rs = ps.executeQuery();
-            rs.next();
-            return 1 == rs.getInt(1);
-        } catch (SQLException sqlEX) {
+    	try (Connection sqlConn = getDataSource().getConnection()) {
+    	    try(PreparedStatement ps1 = JdbcUtils.buildStatement(sqlConn, getQueryBuilder().sqlExistFeature(), uid)) {
+    	        try (ResultSet rs1 = ps1.executeQuery()) {
+    	            // Query count always have return a value
+                    rs1.next();
+    	            return 1 == rs1.getInt(1);
+    	        }
+    	    }
+    	} catch (SQLException sqlEX) {
             throw new FeatureAccessException(CANNOT_CHECK_FEATURE_EXISTENCE_ERROR_RELATED_TO_DATABASE, sqlEX);
-        } finally {
-            closeResultSet(rs);
-            closeStatement(ps);
-            closeConnection(sqlConn);
         }
     }
 
-    /** {@inheritDoc} */
-   @Override
-   public Optional < Feature > findById(String uid) {
-        assertNotNull(uid);
-    	Connection          sqlConn = null;
-        PreparedStatement   ps = null;
-        ResultSet           rs = null;
-        try {
-            sqlConn = getDataSource().getConnection();
-            ps = sqlConn.prepareStatement(getQueryBuilder().getFeature());
-            ps.setString(1, uid);
-            rs = ps.executeQuery();
-            if (!rs.next()) return Optional.empty();
-            
-            Feature f = new JdbcFeatureMapper(sqlConn, getQueryBuilder()).fromStore(rs);
-            closeResultSet(rs);
-            rs = null;
-            closeStatement(ps);
-            ps = null;
-
-            // Enrich to get roles 2nd request
-            ps = sqlConn.prepareStatement(getQueryBuilder().getRoles());
-            ps.setString(1, uid);
-            rs = ps.executeQuery();
-            while (rs.next()) {
-                f.addPermissions(rs.getString("ROLE_NAME"));
-            }
-            closeResultSet(rs);
-            rs = null;
-            closeStatement(ps);
-            ps = null;
-
-            // Enrich with properties 3d request to get custom properties by uid
-            ps = sqlConn.prepareStatement(getQueryBuilder().getFeatureProperties());
-            ps.setString(1, uid);
-            rs = ps.executeQuery();
-            while (rs.next()) {
-               f.addCustomProperty(JDBC_PROPERTY_MAPPER.fromStore(rs));
-            }
-            return Optional.of(f);
-        } catch (SQLException sqlEX) {
-            throw new FeatureAccessException(CANNOT_CHECK_FEATURE_EXISTENCE_ERROR_RELATED_TO_DATABASE, sqlEX);
-        } finally {
-            closeResultSet(rs);
-            closeStatement(ps);
-            closeConnection(sqlConn);
-        }
-    }
-   
     /** {@inheritDoc} */
     @Override
-    public Feature read(String uid) {
-        assertFeatureExist(uid);
-        Connection          sqlConn = null;
-        PreparedStatement   ps = null;
-        ResultSet           rs = null;
-        try {
-            sqlConn = getDataSource().getConnection();
-            ps = sqlConn.prepareStatement(getQueryBuilder().getFeature());
-            ps.setString(1, uid);
-            rs = ps.executeQuery();
-            rs.next();
-            
-            Feature f = new JdbcFeatureMapper(sqlConn, getQueryBuilder()).fromStore(rs);
-            closeResultSet(rs);
-            rs = null;
-            closeStatement(ps);
-            ps = null;
-
-            // Enrich to get roles 2nd request
-            ps = sqlConn.prepareStatement(getQueryBuilder().getRoles());
-            ps.setString(1, uid);
-            rs = ps.executeQuery();
-            while (rs.next()) {
-                f.addPermissions(rs.getString("ROLE_NAME"));
+    public Optional < Feature > findById(String uid) {
+        assertNotNull(uid);
+        // Closeable sql connection
+        Feature f = null;
+        try (Connection sqlConn = getDataSource().getConnection()) {
+            JdbcFeatureMapper  fmapper = new JdbcFeatureMapper(sqlConn, getQueryBuilder());
+            JdbcPropertyMapper pmapper = new JdbcPropertyMapper(sqlConn, getQueryBuilder());
+            // Get core feature
+            try(PreparedStatement ps1 = sqlConn.prepareStatement(
+                    getQueryBuilder().sqlSelectFeatureById())) {
+                ps1.setString(1, uid);
+                try (ResultSet rs1 = ps1.executeQuery()) {
+                    if (!rs1.next()) {
+                        return Optional.empty();
+                    } else {
+                        f = fmapper.fromStore(rs1);
+                    }
+                }
             }
-            closeResultSet(rs);
-            rs = null;
-            closeStatement(ps);
-            ps = null;
-
-            // Enrich with properties 3d request to get custom properties by uid
-            ps = sqlConn.prepareStatement(getQueryBuilder().getFeatureProperties());
-            ps.setString(1, uid);
-            rs = ps.executeQuery();
-            while (rs.next()) {
-               f.addCustomProperty(JDBC_PROPERTY_MAPPER.fromStore(rs));
+            // Get Roles related to features
+            try(PreparedStatement ps2 = sqlConn.prepareStatement(getQueryBuilder().sqlSelectRolesOfFeature())) {
+                ps2.setString(1, uid);
+                try (ResultSet rs2 = ps2.executeQuery()) {
+                    while (rs2.next()) {
+                        f.addPermissions(rs2.getString(RolesColumns.ROLE.colname()));
+                    }   
+                }
             }
-            return f;
+            // Get Custom properties related to features
+            try(PreparedStatement ps3 = sqlConn.prepareStatement(getQueryBuilder().sqlSelectCustomPropertiesOfFeature())) {
+                ps3.setString(1, uid);
+                try (ResultSet rs3 = ps3.executeQuery()) {
+                    while (rs3.next()) {
+                        f.addCustomProperty(pmapper.fromStore(rs3));
+                    }   
+                }
+            } 
         } catch (SQLException sqlEX) {
             throw new FeatureAccessException(CANNOT_CHECK_FEATURE_EXISTENCE_ERROR_RELATED_TO_DATABASE, sqlEX);
-        } finally {
-            closeResultSet(rs);
-            closeStatement(ps);
-            closeConnection(sqlConn);
         }
+        return Optional.ofNullable(f);
     }
-
+    
     /** {@inheritDoc} */
     @Override
     public void create(Feature feature) {
     	assertFeatureNotNull(feature);
     	assertFeatureNotExist(feature.getUid());
     	Connection sqlConn = null;
-        PreparedStatement ps = null;
-        try {
-
+    	try {
             // Create connection
             sqlConn = getDataSource().getConnection();
-            sqlConn.setAutoCommit(false);
-
-            // Create core Feature
-            try (PreparedStatement ps1 = new JdbcFeatureMapper(sqlConn, getQueryBuilder()).toStore(feature)) {
+    	    sqlConn.setAutoCommit(false);
+    	    // Create core Feature
+            JdbcFeatureMapper mapper = new JdbcFeatureMapper(sqlConn, getQueryBuilder());
+            try (PreparedStatement ps1 = mapper.toStore(feature)) {
                 ps1.executeUpdate();
             }
-            
             // Create roles
             if (feature.getPermissions().isPresent()) {
                 // Do not use Lambda/Streams for exceptions
                 for(String role : feature.getPermissions().get()) {
                     // Preparestament is closable
-                    try(PreparedStatement ps2 = sqlConn.prepareStatement(getQueryBuilder().addRoleToFeature())) {
+                    try(PreparedStatement ps2 = sqlConn.prepareStatement(getQueryBuilder().sqlInsertRoles())) {
                         ps2.setString(1, feature.getUid());
                         ps2.setString(2, role);
-                        ps2.executeUpdate();
+                        ps2.executeUpdate();  
                     }
                 }
             }
-            
             // Create customproperties
             if (feature.getCustomProperties().isPresent()) {
+                JdbcPropertyMapper pmapper = new JdbcPropertyMapper(sqlConn, getQueryBuilder());
                 for(Property<?> property : feature.getCustomProperties().get().values()) {
-                    createCustomProperty(sqlConn, feature.getUid(), property);
+                    try(PreparedStatement ps = pmapper.customPropertytoStore(property, feature.getUid())) {
+                        ps.executeUpdate();
+                    }
                 }
             }
-
             // Commit
             sqlConn.commit();
-
+            sqlConn.setAutoCommit(true);
+            
         } catch (SQLException sqlEX) {
-            rollback(sqlConn);
             throw new FeatureAccessException(CANNOT_UPDATE_FEATURES_DATABASE_SQL_ERROR, sqlEX);
         } finally {
-            closeStatement(ps);
             closeConnection(sqlConn);
         }
     }
@@ -333,51 +294,34 @@ public class FeatureStoreJdbc extends AbstractFeatureStore {
     @Override
     public void delete(String uid) {
     	assertFeatureExist(uid);
-        Connection sqlConn = null;
-        PreparedStatement ps = null;
-        try {
-            // Create connection
-            sqlConn = getDataSource().getConnection();
+        try (Connection sqlConn = getDataSource().getConnection()) {
             sqlConn.setAutoCommit(false);
             Feature fp = read(uid);
-
-            // Delete Properties
             if (fp.getCustomProperties().isPresent()) {
-                for (String property : fp.getCustomProperties().get().keySet()) {
-                    try (PreparedStatement ps1 = sqlConn.prepareStatement(getQueryBuilder().deleteFeatureProperty())) {
-                        ps1.setString(1, property);
-                        ps1.setString(2, fp.getUid());
-                        ps1.executeUpdate();
-                    }
+                try (PreparedStatement ps1 = 
+                        sqlConn.prepareStatement(getQueryBuilder().sqlDeleteAllCustomPropertiesOfFeature())) {
+                    ps1.setString(1, fp.getUid());
+                    ps1.executeUpdate();
                 }
             }
-
             // Delete Roles
             if (fp.getPermissions().isPresent()) {
-                for (String role : fp.getPermissions().get()) {
-                    try (PreparedStatement ps1 = sqlConn.prepareStatement(getQueryBuilder().deleteFeatureRole())) {
-                        ps1.setString(1, fp.getUid());
-                        ps1.setString(2, role);
-                        ps1.executeUpdate();
-                    }
+                try (PreparedStatement ps1 = 
+                        sqlConn.prepareStatement(getQueryBuilder().sqlDeleteAllRolesOfFeature())) {
+                    ps1.setString(1, fp.getUid());
+                    ps1.executeUpdate();
                 }
             }
-
             // Delete Feature
-            try (PreparedStatement ps1 = sqlConn.prepareStatement(getQueryBuilder().deleteFeature())) {
+            try (PreparedStatement ps1 = sqlConn.prepareStatement(getQueryBuilder().sqlDeleteFeature())) {
                 ps1.setString(1, fp.getUid());
                 ps1.executeUpdate();
             }
-
             // Commit
             sqlConn.commit();
-
+            sqlConn.setAutoCommit(true);
         } catch (SQLException sqlEX) {
-            rollback(sqlConn);
             throw new FeatureAccessException(CANNOT_UPDATE_FEATURES_DATABASE_SQL_ERROR, sqlEX);
-        } finally {
-            closeStatement(ps);
-            closeConnection(sqlConn);
         }
     }
 
@@ -386,7 +330,7 @@ public class FeatureStoreJdbc extends AbstractFeatureStore {
     public void grantRoleOnFeature(String uid, String roleName) {
     	assertFeatureExist(uid);
         assertHasLength(roleName);
-        update(getQueryBuilder().addRoleToFeature(), uid, roleName);
+        update(getQueryBuilder().sqlInsertRoles(), uid, roleName);
     }
 
     /** {@inheritDoc} */
@@ -394,64 +338,47 @@ public class FeatureStoreJdbc extends AbstractFeatureStore {
     public void removeRoleFromFeature(String uid, String roleName) {
     	assertFeatureExist(uid);
         assertHasLength(roleName);
-        update(getQueryBuilder().deleteFeatureRole(), uid, roleName);
+        update(getQueryBuilder().sqlDeleteRoleOfFeature(), uid, roleName);
     }
 
     /** {@inheritDoc} */
     @Override
     public Stream < Feature > findAll() {
         LinkedHashMap<String, Feature> mapFP = new LinkedHashMap<String, Feature>();
-        Connection sqlConn = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        try {
-
-        	// Returns features
-            sqlConn = dataSource.getConnection();
-            ps = sqlConn.prepareStatement(getQueryBuilder().getAllFeatures());
-            rs = ps.executeQuery();
-            while (rs.next()) {
-                Feature f = new JdbcFeatureMapper(sqlConn, getQueryBuilder()).fromStore(rs);
-                mapFP.put(f.getUid(), f);
-            }
-            closeResultSet(rs);
-            rs = null;
-            closeStatement(ps);
-            ps = null;
-
-            // Returns Roles
-            ps = sqlConn.prepareStatement(getQueryBuilder().getAllRoles());
-            rs = ps.executeQuery();
-            while (rs.next()) {
-                String uid = rs.getString(COL_ROLE_FEATID);
-                mapFP.get(uid).addPermission(rs.getString(COL_ROLE_ROLENAME));
-            }
-            closeResultSet(rs);
-            rs = null;
-            closeStatement(ps);
-            ps = null;
-
-            // Read custom properties for each feature
-            for (Feature f : mapFP.values()) {
-                ps = sqlConn.prepareStatement(getQueryBuilder().getFeatureProperties());
-                ps.setString(1, f.getUid());
-                rs = ps.executeQuery();
-                while (rs.next()) {
-                    f.addCustomProperty(JDBC_PROPERTY_MAPPER.fromStore(rs));
+        // Closeable sql connection
+        try (Connection sqlConn = getDataSource().getConnection()) {
+            // Get core feature
+            JdbcFeatureMapper  fmapper = new JdbcFeatureMapper(sqlConn, getQueryBuilder());
+            try(PreparedStatement ps1 = sqlConn.prepareStatement(getQueryBuilder().sqlSelectAllFeatures())) {
+                try (ResultSet rs1 = ps1.executeQuery()) {
+                    while (rs1.next()) {
+                        Feature f = fmapper.fromStore(rs1);
+                        mapFP.put(f.getUid(), f);
+                    }
                 }
-                closeResultSet(rs);
-                rs = null;
-                closeStatement(ps);
-                ps = null;
+            }
+            // Get Roles related to features
+            try(PreparedStatement ps2 = sqlConn.prepareStatement(getQueryBuilder().sqlSelectAllRoles())) {
+                try (ResultSet rs2 = ps2.executeQuery()) {
+                    while (rs2.next()) {
+                        mapFP.get(rs2.getString(RolesColumns.FEATURE_UID.colname()))
+                            .addPermission(rs2.getString(RolesColumns.ROLE.colname()));
+                    }   
+                }
+            }
+            // Get Custom properties related to features
+            JdbcPropertyMapper pmapper = new JdbcPropertyMapper(sqlConn, getQueryBuilder());
+            try(PreparedStatement ps3 = sqlConn.prepareStatement(getQueryBuilder().sqlSelectAllCustomProperties())) {
+                try (ResultSet rs3 = ps3.executeQuery()) {
+                    while (rs3.next()) {
+                        mapFP.get(rs3.getString(CustomPropertyColumns.FEATURE_UID.colname()))
+                             .addCustomProperty(pmapper.fromStore(rs3));
+                    }   
+                }
             }
             return mapFP.values().stream();
-
         } catch (SQLException sqlEX) {
             throw new FeatureAccessException(CANNOT_CHECK_FEATURE_EXISTENCE_ERROR_RELATED_TO_DATABASE, sqlEX);
-        } finally {
-            closeResultSet(rs);
-            closeStatement(ps);
-            closeConnection(sqlConn);
         }
     }
 
@@ -459,116 +386,38 @@ public class FeatureStoreJdbc extends AbstractFeatureStore {
     @Override
     public Stream<String> readAllGroups() {
         Set<String> setOFGroup = new HashSet<String>();
-        Connection sqlConn = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        try {
-            // Returns features
-            sqlConn = dataSource.getConnection();
-            ps = sqlConn.prepareStatement(getQueryBuilder().getAllGroups());
-            rs = ps.executeQuery();
-            while (rs.next()) {
-                String groupName = rs.getString(COL_FEAT_GROUPNAME);
-                if (Util.hasLength(groupName)) {
-                    setOFGroup.add(groupName);
+        try (Connection sqlConn = getDataSource().getConnection()) {
+            try(PreparedStatement ps1 = sqlConn.prepareStatement(getQueryBuilder().sqlSelectAllGroups())) {
+                try (ResultSet rs1 = ps1.executeQuery()) {
+                    while (rs1.next()) {
+                        String groupName = rs1.getString(FeaturesColumns.GROUPNAME.colname());
+                        if (Util.hasLength(groupName)) {
+                            setOFGroup.add(groupName);
+                        }  
+                    }
                 }
             }
             return setOFGroup.stream();
         } catch (SQLException sqlEX) {
             throw new FeatureAccessException("Cannot list groups, error related to database", sqlEX);
-        } finally {
-            closeResultSet(rs);
-            closeStatement(ps);
-            closeConnection(sqlConn);
         }
     }
 
     /** {@inheritDoc} */
     @Override
-    public void update(Feature fp) {
-    	assertFeatureNotNull(fp);
-        Connection sqlConn = null;
-        PreparedStatement ps = null;
-
-        try {
-            sqlConn = dataSource.getConnection();
-            Feature fpExist = read(fp.getUid());
-            String enable = "0";
-            if (fp.isEnable()) {
-                enable = "1";
-            }
-            String fStrategy = null;
-            String fExpression = null;
-            if (fp.getFlippingStrategy().isPresent()) {
-                FlippingStrategy fs = fp.getFlippingStrategy().get();
-                fStrategy = fs.getClass().getCanonicalName();
-                fExpression = MappingUtil.fromMap(fs.getInitParams());
-            }
-            update(getQueryBuilder().updateFeature(), enable, 
-                    fp.getDescription().orElse(null), 
-            		fStrategy, fExpression, 
-            		fp.getGroup().orElse(null), fp.getUid());
-
-            // ROLES
-
-            // To be deleted (not in new value but was at first)
-            Set<String> toBeDeleted = new HashSet<String>();
-            fpExist.getPermissions().ifPresent(pexist -> toBeDeleted.addAll(pexist));
-            fp.getPermissions().ifPresent(p -> toBeDeleted.removeAll(p));
-            toBeDeleted.stream().forEach(role -> removeRoleFromFeature(fpExist.getUid(), role));
-
-            // To be created : in second but not in first
-            Set<String> toBeAdded = new HashSet<String>();
-            fp.getPermissions().ifPresent(toBeAdded::addAll);
-            fpExist.getPermissions().ifPresent(toBeAdded::removeAll);
-            toBeAdded.stream().forEach(role -> grantRoleOnFeature(fpExist.getUid(), role));
-
-            // REMOVE EXISTING CUSTOM PROPERTIES
-            ps = sqlConn.prepareStatement(getQueryBuilder().deleteAllFeatureCustomProperties());
-            ps.setString(1, fpExist.getUid());
-            ps.executeUpdate();
-
-            // CREATE PROPERTIES
-            fp.getCustomProperties().ifPresent(cp -> 
-                    createCustomProperties(fp.getUid(), cp.values()));
-           
-            } catch (SQLException sqlEX) {
-                throw new FeatureAccessException(CANNOT_CHECK_FEATURE_EXISTENCE_ERROR_RELATED_TO_DATABASE, sqlEX);
-            } finally {
-                closeStatement(ps);
-                closeConnection(sqlConn);
-            }
-    }
-
-    /** {@inheritDoc} */
-    @Override
     public void deleteAll() {
-        Connection sqlConn = null;
-        PreparedStatement ps = null;
-        try {
-
-            sqlConn = dataSource.getConnection();
-
-            ps = sqlConn.prepareStatement(getQueryBuilder().deleteAllCustomProperties());
-            ps.executeUpdate();
-            closeStatement(ps);
-            ps = null;
-
-            ps = sqlConn.prepareStatement(getQueryBuilder().deleteAllRoles());
-            ps.executeUpdate();
-            closeStatement(ps);
-            ps = null;
-
-            ps = sqlConn.prepareStatement(getQueryBuilder().deleteAllFeatures());
-            ps.executeUpdate();
-            closeStatement(ps);
-            ps = null;
-
+        try (Connection sqlConn = getDataSource().getConnection()) {
+            try(PreparedStatement ps1 = sqlConn.prepareStatement(getQueryBuilder().sqlDeleteAllCustomProperties())) {
+                ps1.executeUpdate();
+            }
+            try(PreparedStatement ps2 = sqlConn.prepareStatement(getQueryBuilder().sqlDeleteAllRoles())) {
+                ps2.executeUpdate();
+            }
+            try(PreparedStatement ps3 = sqlConn.prepareStatement(getQueryBuilder().sqlDeleteAllFeatures())) {
+                ps3.executeUpdate();
+            }
         } catch (SQLException sqlEX) {
             throw new FeatureAccessException(CANNOT_CHECK_FEATURE_EXISTENCE_ERROR_RELATED_TO_DATABASE, sqlEX);
-        } finally {
-            closeStatement(ps);
-            closeConnection(sqlConn);
         }
     }
 
@@ -583,186 +432,102 @@ public class FeatureStoreJdbc extends AbstractFeatureStore {
     public void createCustomProperties(String uid, Collection <Property<?> > props) {
         Util.assertNotNull(uid);
         if (props == null) return;
-
-        Connection sqlConn = null;
-        PreparedStatement ps = null;
-
-        try {
-            sqlConn = dataSource.getConnection();
-
+        try (Connection sqlConn = getDataSource().getConnection()) {
             // Begin TX
             sqlConn.setAutoCommit(false);
-
             // Queries
             for (Property<?> pp : props) {
-                ps = createCustomProperty(sqlConn, uid, pp);
-                closeStatement(ps);
-                ps = null;
+                JdbcPropertyMapper mapper = new JdbcPropertyMapper(sqlConn, getQueryBuilder());
+                try(PreparedStatement ps = mapper.customPropertytoStore(pp, uid)) {
+                    ps.executeUpdate();
+                }
             }
-
             // End TX
             sqlConn.commit();
-
+            sqlConn.setAutoCommit(true);
         } catch (SQLException sqlEX) {
             throw new FeatureAccessException(CANNOT_CHECK_FEATURE_EXISTENCE_ERROR_RELATED_TO_DATABASE, sqlEX);
-        } finally {
-            closeStatement(ps);
-            closeConnection(sqlConn);
         }
-    }
-
-    /**
-     * Create SQL statement to create property.
-     *
-     * @param sqlConn
-     * 		current sql connection
-     * @param featureId
-     * 		current unique feature identifier
-     * @param pp
-     * 		pojo property
-     * @return
-     * 		statement sql to be executed
-     * @throws SQLException
-     * 		error during sql operation
-     */
-    private PreparedStatement createCustomProperty(Connection sqlConn, String featureId, Property<?> pp)
-    throws SQLException {
-        PreparedStatement ps = sqlConn.prepareStatement(getQueryBuilder().createFeatureProperty());
-        ps.setString(1, pp.getUid());
-        ps.setString(2, pp.getType());
-        ps.setString(3, pp.asString());
-        ps.setString(4, pp.getDescription().orElse(null));
-        if (pp.getFixedValues().isPresent()) {
-            String fixedValues = pp.getFixedValues().get().toString();
-            ps.setString(5, fixedValues.substring(1, fixedValues.length() - 1));
-        } else {
-            ps.setString(5, null);
-        }
-        ps.setString(6, featureId);
-        ps.executeUpdate();
-        return ps;
     }
 
     /** {@inheritDoc} */
     @Override
     public boolean existGroup(String groupName) {
     	assertHasLength(groupName);
-        Connection sqlConn = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        try {
-            sqlConn = dataSource.getConnection();
-            ps = sqlConn.prepareStatement(getQueryBuilder().existGroup());
-            ps.setString(1, groupName);
-            rs = ps.executeQuery();
-            rs.next();
-            return rs.getInt(1) > 0;
+        try (Connection sqlConn = dataSource.getConnection()) {
+            try(PreparedStatement ps = sqlConn.prepareStatement(getQueryBuilder().sqlExistGroup())) {
+                ps.setString(1, groupName);
+                try(ResultSet rs = ps.executeQuery()) {
+                    rs.next();
+                    return rs.getInt(1) > 0;
+                }
+            }   
         } catch (SQLException sqlEX) {
             throw new FeatureAccessException(CANNOT_CHECK_FEATURE_EXISTENCE_ERROR_RELATED_TO_DATABASE, sqlEX);
-        } finally {
-            closeResultSet(rs);
-            closeStatement(ps);
-            closeConnection(sqlConn);
         }
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void enableGroup(String groupName) {
-    	assertGroupExist(groupName);
-        update(getQueryBuilder().enableGroup(), groupName);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void disableGroup(String groupName) {
-    	assertGroupExist(groupName);
-        update(getQueryBuilder().disableGroup(), groupName);
     }
 
     /** {@inheritDoc} */
     @Override
     public Stream <Feature> readGroup(String groupName) {
     	assertGroupExist(groupName);
-        LinkedHashMap<String, Feature> mapFP = new LinkedHashMap<String, Feature>();
-        Connection sqlConn = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        try {
-            // Returns features
-            sqlConn = dataSource.getConnection();
-            ps = sqlConn.prepareStatement(getQueryBuilder().getFeatureOfGroup());
-            ps.setString(1, groupName);
-            rs = ps.executeQuery();
-            while (rs.next()) {
-                Feature f = new JdbcFeatureMapper(sqlConn, getQueryBuilder()).fromStore(rs);
-                mapFP.put(f.getUid(), f);
-            }
-            closeResultSet(rs);
-            rs = null;
-            closeStatement(ps);
-            ps = null;
-
-            // Returns Roles
-            ps = sqlConn.prepareStatement(getQueryBuilder().getAllRoles());
-            rs = ps.executeQuery();
-            while (rs.next()) {
-                String uid = rs.getString(COL_ROLE_FEATID);
-                // only feature in the group must be processed
-                if (mapFP.containsKey(uid)) {
-                    mapFP.get(uid).addPermission(rs.getString(COL_ROLE_ROLENAME));
+    	LinkedHashMap<String, Feature> mapFP = new LinkedHashMap<String, Feature>();
+    	try (Connection sqlConn = dataSource.getConnection()) {
+            // Feature Core
+    	    JdbcFeatureMapper mapper = new JdbcFeatureMapper(sqlConn, getQueryBuilder());
+    	    try(PreparedStatement ps = sqlConn.prepareStatement(getQueryBuilder().sqlSelectFeaturesOfGroup())) {
+                ps.setString(1, groupName);
+                try(ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        Feature f = mapper.fromStore(rs);
+                        mapFP.put(f.getUid(), f);
+                    }
                 }
             }
-            closeResultSet(rs);
-            rs = null;
-            closeStatement(ps);
-            ps = null;
-
-            // Read custom properties for each feature
-            for (Feature f : mapFP.values()) {
-                ps = sqlConn.prepareStatement(getQueryBuilder().getFeatureProperties());
-                ps.setString(1, f.getUid());
-                rs = ps.executeQuery();
-                while (rs.next()) {
-                    f.addCustomProperty(JDBC_PROPERTY_MAPPER.fromStore(rs));
+    	    // Get Roles related to features
+            try(PreparedStatement ps2 = sqlConn.prepareStatement(getQueryBuilder().sqlSelectAllRoles())) {
+                try (ResultSet rs2 = ps2.executeQuery()) {
+                    while (rs2.next()) {
+                        String featureId = rs2.getString(RolesColumns.FEATURE_UID.colname());
+                        if (mapFP.containsKey(featureId)) {
+                            mapFP.get(featureId).addPermission(rs2.getString(RolesColumns.ROLE.colname()));
+                        }
+                    }   
                 }
-                closeResultSet(rs);
-                rs = null;
-                closeStatement(ps);
-                ps = null;
             }
-
+            // Get Custom properties related to features
+            JdbcPropertyMapper pmapper = new JdbcPropertyMapper(sqlConn, getQueryBuilder());
+            try(PreparedStatement ps3 = sqlConn.prepareStatement(getQueryBuilder().sqlSelectAllCustomProperties())) {
+                try (ResultSet rs3 = ps3.executeQuery()) {
+                    while (rs3.next()) {
+                        String featureId = rs3.getString(CustomPropertyColumns.FEATURE_UID.colname());
+                        if (mapFP.containsKey(featureId)) {
+                            mapFP.get(featureId).addCustomProperty(pmapper.fromStore(rs3));
+                        }
+                    }   
+                }
+            }
             return mapFP.values().stream();
-
-        } catch (SQLException sqlEX) {
+    	} catch (SQLException sqlEX) {
             throw new FeatureAccessException(CANNOT_CHECK_FEATURE_EXISTENCE_ERROR_RELATED_TO_DATABASE, sqlEX);
-        } finally {
-            closeResultSet(rs);
-            closeStatement(ps);
-            closeConnection(sqlConn);
         }
     }
 
     /** {@inheritDoc} */
     @Override
-    public void addToGroup(String uid, String groupName) {
-    	assertFeatureExist(uid);
-        assertHasLength(groupName);
-        update(getQueryBuilder().addFeatureToGroup(), groupName, uid);
+    public void update(Feature entity) {
+        assertNotNull(entity);
+        assertHasLength(entity.getUid());
+        assertItemExist(entity.getUid());
+        
+        entity.setLastModified(LocalDateTime.now());
+        entity.setCreationDate(entity.getCreationDate().orElse(entity.getLastModifiedDate().get()));
+        delete(entity);
+        assertFeatureNotExist(entity.getUid());
+        create(entity);
+        
     }
-
-    /** {@inheritDoc} */
-    @Override
-    public void removeFromGroup(String uid, String groupName) {
-    	assertFeatureExist(uid);
-        assertGroupExist(groupName);
-        Feature feat = read(uid);
-        if (feat.getGroup().isPresent() && !feat.getGroup().get().equals(groupName)) {
-            throw new IllegalArgumentException("'" + uid + "' is not in group '" + groupName + "'");
-        }
-        update(getQueryBuilder().addFeatureToGroup(), "", uid);
-    }
-
+    
     /**
      * Utility method to perform UPDATE and DELETE operations.
      *
@@ -771,18 +536,13 @@ public class FeatureStoreJdbc extends AbstractFeatureStore {
      * @param params
      *            sql query params
      */
-    public void update(String query, String... params) {
-        Connection sqlConnection = null;
-        PreparedStatement ps = null;
-        try {
-            sqlConnection = dataSource.getConnection();
-            ps = buildStatement(sqlConnection, query, params);
-            ps.executeUpdate();
+    public void update(String query, Object... params) {
+        try (Connection sqlConn = dataSource.getConnection()) {
+            try (PreparedStatement ps = buildStatement(sqlConn, query, params)) {
+                ps.executeUpdate();
+            }
         } catch (SQLException sqlEX) {
             throw new FeatureAccessException(CANNOT_UPDATE_FEATURES_DATABASE_SQL_ERROR, sqlEX);
-        } finally {
-            closeStatement(ps);
-            closeConnection(sqlConnection);
         }
     }
 

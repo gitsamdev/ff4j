@@ -1,6 +1,8 @@
 package org.ff4j.utils;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 
 /*
  * #%L
@@ -107,6 +109,33 @@ public class JsonUtils {
         }
         json.append("}");
         return json.toString();
+    }
+    
+    /**
+     * Serialize a map of objects as Json. Elements should override <code>toString()</code> to produce JSON.
+     *
+     * @param customProperties
+     *      target properties
+     * @return
+     *      target json expression
+     */
+    public static final Map <String, String> jsonAsMap(String jsonString) {
+      if (jsonString == null) {
+          return null;
+      } else if (jsonString.charAt(0) != '{' || jsonString.charAt(jsonString.length()-1) != '}') {
+          throw new IllegalArgumentException("Invalid String expected {...}");
+      } else if ("{}".equals(jsonString)) {
+          return new HashMap<>();
+      }
+      Map <String, String> response = new HashMap<>();
+      // trim { and }
+      jsonString = jsonString.substring(1, jsonString.length()-1);
+      // Will fail if a string value ends by ','
+      Arrays.stream(jsonString.split(",\"")).forEach(chunk -> {
+          String[] pair = chunk.split("\":");
+          response.put(pair[0].replaceAll("\"", ""), pair[1].replaceAll("\"", ""));
+      });
+      return response;
     }
     
     /**

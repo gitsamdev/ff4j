@@ -1,11 +1,6 @@
 package org.ff4j.jdbc;
 
-import static org.ff4j.jdbc.JdbcConstants.COL_PROPERTY_DESCRIPTION;
-import static org.ff4j.jdbc.JdbcConstants.COL_PROPERTY_FIXED;
-import static org.ff4j.jdbc.JdbcConstants.COL_PROPERTY_ID;
-import static org.ff4j.jdbc.JdbcConstants.COL_PROPERTY_TYPE;
-import static org.ff4j.jdbc.JdbcConstants.COL_PROPERTY_VALUE;
-
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 
 /*
@@ -31,24 +26,103 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Map;
 
+import org.ff4j.exception.FeatureAccessException;
 import org.ff4j.exception.PropertyAccessException;
+import org.ff4j.jdbc.JdbcConstants.PropertyColumns;
 import org.ff4j.mapper.PropertyMapper;
 import org.ff4j.property.Property;
 import org.ff4j.property.PropertyFactory;
 import org.ff4j.property.PropertyString;
+import org.ff4j.strategy.PropertyEvaluationStrategy;
+import org.ff4j.utils.JsonUtils;
+import org.ff4j.utils.Util;
 
 /**
  * Convert resultset into {@link PropertyString}.
  *
  * @author Cedrick Lunven (@clunven)
  */
-public class JdbcPropertyMapper implements PropertyMapper < PreparedStatement, ResultSet > {
+public class JdbcPropertyMapper extends AbstractJdbcMapper  implements PropertyMapper < PreparedStatement, ResultSet > {
+    
+    /**
+     * Constructor with parameters.
+     *
+     * @param sqlConn
+     *      connection sql
+     * @param qbd
+     *      query builder
+     */
+    public JdbcPropertyMapper(Connection sqlConn, JdbcQueryBuilder qbd) {
+        super(sqlConn, qbd);
+    }
     
     /** {@inheritDoc} */
+    public PreparedStatement customPropertytoStore(Property<?> property, String featureId) {
+        PreparedStatement ps;
+        try {
+            ps = sqlConn.prepareStatement(queryBuilder.sqlInsertCustomProperties());
+            populatePrepareStatement(property, ps);
+            ps.setString(12, featureId);
+        } catch (SQLException sqlEx) {
+            throw new FeatureAccessException("Cannot create statement to create feature", sqlEx);
+        }
+        return ps;
+    }
+    
+    /**
+     * Propvision user to generate query.
+     * @param property
+     * @param ps
+     * @throws SQLException
+     */
+    private void populatePrepareStatement(Property<?> property, PreparedStatement ps)
+    throws SQLException {
+        // PROPERTY_ID
+        ps.setString(1, property.getUid());
+        // ReadOnly
+        ps.setInt(2, property.isReadOnly() ? 1 : 0);
+        // Creation Date
+        ps.setTimestamp(3, Util.asSqlTimeStamp(property.getCreationDate().get()));
+        // Last Modified Date
+        ps.setTimestamp(4, Util.asSqlTimeStamp(property.getLastModifiedDate().get()));
+        // Owner
+        ps.setString(5, property.getOwner().orElse(null));
+        // Description
+        ps.setString(6, property.getDescription().orElse(null));
+        // Clazz
+        ps.setString(7, property.getType());
+        // Value
+        ps.setString(8, property.asString());
+        // Evaluation Strategy + InitParams
+        String strategy  = null;
+        String initParam = null;
+        if (property.getEvaluationStrategy().isPresent()) {
+            PropertyEvaluationStrategy<?> pes = property.getEvaluationStrategy().get();
+            strategy  = pes.getClass().getCanonicalName();
+            initParam = JsonUtils.mapAsJson(pes.getInitParams());
+        }
+        ps.setString(9, strategy);
+        ps.setString(10, initParam);
+        if (property.getFixedValues().isPresent()) {
+            String fixedValues = property.getFixedValues().get().toString();
+            ps.setString(11, fixedValues.substring(1, fixedValues.length() - 1));
+        } else {
+            ps.setString(11, null);
+        }
+    }
+    /** {@inheritDoc} */
     @Override
-    public PreparedStatement toStore(Property<?> bean) {
-        return null;
+    public PreparedStatement toStore(Property<?> property) {
+        PreparedStatement ps;
+        try {
+            ps = sqlConn.prepareStatement(queryBuilder.sqlInsertProperty());
+            populatePrepareStatement(property, ps);
+        } catch (SQLException sqlEx) {
+            throw new FeatureAccessException("Cannot create statement to create feature", sqlEx);
+        }
+        return ps;
     }
 
     /** {@inheritDoc} */
@@ -56,19 +130,28 @@ public class JdbcPropertyMapper implements PropertyMapper < PreparedStatement, R
     public Property<?> fromStore(ResultSet rs) {
         try {
             Property<?> p = PropertyFactory.createProperty(
-                    rs.getString(COL_PROPERTY_ID),  
-                    rs.getString(COL_PROPERTY_TYPE), 
-                    rs.getString(COL_PROPERTY_VALUE));
-            p.setDescription(rs.getString(COL_PROPERTY_DESCRIPTION));
-            // TODO
-            //p.setCreationDate(currentDate);
-            //p.setLastModified(currentDate);
-            //p.setOwner(owner)
-            //p.setReadOnly(readOnly)
+                    rs.getString(PropertyColumns.UID.colname()),  
+                    rs.getString(PropertyColumns.CLAZZ.colname()), 
+                    rs.getString(PropertyColumns.VALUE.colname()));
             
-            String fixedValues  = rs.getString(COL_PROPERTY_FIXED);
-            if (fixedValues != null) {
+            p.setDescription(rs.getString(PropertyColumns.DESCRIPTION.colname()));
+            p.setOwner(rs.getString(PropertyColumns.OWNER.colname()));
+            p.setReadOnly(rs.getInt(PropertyColumns.READONLY.colname()) == 1);
+            p.setCreationDate(Util.asLocalDateTime(
+                    rs.getTimestamp(PropertyColumns.CREATED.colname())));
+            p.setLastModified(Util.asLocalDateTime(
+                    rs.getTimestamp(PropertyColumns.LASTMODIFIED.colname())));
+            
+            String fixedValues  = rs.getString(PropertyColumns.FIXEDVALUES.colname());
+            if (Util.hasLength(fixedValues)) {
                 Arrays.stream(fixedValues.split(",")).forEach(v-> p.add2FixedValueFromString(v.trim()) );
+            }
+            
+            // FlippingStrategy
+            String strategy = rs.getString(PropertyColumns.STRATEGY.colname());
+            if (Util.hasLength(strategy)) {
+                Map < String, String > initParams = JsonUtils.jsonAsMap(rs.getString(PropertyColumns.INITPARAMS.colname()));
+                p.setEvaluationStrategy(PropertyEvaluationStrategy.instanciate(p.getUid(), strategy, initParams));
             }
             return p;
         } catch (SQLException sqlEx) {

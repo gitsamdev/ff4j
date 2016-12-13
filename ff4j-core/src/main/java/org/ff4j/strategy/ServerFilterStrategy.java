@@ -87,7 +87,6 @@ public class ServerFilterStrategy extends AbstractExecutionStrategy implements F
     @Override
     public boolean evaluate(String featureName, FeatureStore store, FF4jExecutionContext ctx) {
         if (null != ctx && ctx.getValue(SERVER_HOSTNAME).isPresent()) {
-            System.out.println(ctx.getValue(SERVER_HOSTNAME).get());
             return setOfTargetServer.contains(ctx.getString(SERVER_HOSTNAME).get());
         }
         return setOfTargetServer.contains(inetAddressHostName());

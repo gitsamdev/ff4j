@@ -1,18 +1,20 @@
 package org.ff4j.audit;
 
-import static org.ff4j.audit.EventConstants.ACTION_CLEAR;
-import static org.ff4j.audit.EventConstants.ACTION_CREATE;
-import static org.ff4j.audit.EventConstants.ACTION_CREATESCHEMA;
-import static org.ff4j.audit.EventConstants.ACTION_DELETE;
-import static org.ff4j.audit.EventConstants.ACTION_UPDATE;
-import static org.ff4j.audit.EventConstants.TARGET_PROPERTY;
-import static org.ff4j.audit.EventConstants.TARGET_PSTORE;
+import static org.ff4j.event.EventConstants.ACTION_CLEAR;
+import static org.ff4j.event.EventConstants.ACTION_CREATE;
+import static org.ff4j.event.EventConstants.ACTION_CREATESCHEMA;
+import static org.ff4j.event.EventConstants.ACTION_DELETE;
+import static org.ff4j.event.EventConstants.ACTION_UPDATE;
+import static org.ff4j.event.EventConstants.TARGET_PROPERTY;
+import static org.ff4j.event.EventConstants.TARGET_PSTORE;
 
 import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.ff4j.FF4j;
+import org.ff4j.event.EventBuilder;
+import org.ff4j.event.EventPublisher;
 import org.ff4j.property.Property;
 import org.ff4j.store.PropertyStore;
 

@@ -29,17 +29,17 @@ import java.util.concurrent.TimeUnit;
  */
 
 import org.ff4j.FF4j;
-import org.ff4j.audit.BarChart;
-import org.ff4j.audit.Event;
-import org.ff4j.audit.EventBuilder;
-import org.ff4j.audit.EventConstants;
-import org.ff4j.audit.EventQueryDefinition;
-import org.ff4j.audit.EventSeries;
-import org.ff4j.audit.MutableHitCount;
-import org.ff4j.audit.PieChart;
-import org.ff4j.audit.Serie;
-import org.ff4j.audit.TimeSeriesChart;
+import org.ff4j.chart.BarChart;
+import org.ff4j.chart.PieChart;
+import org.ff4j.chart.Serie;
+import org.ff4j.chart.TimeSeriesChart;
+import org.ff4j.event.Event;
+import org.ff4j.event.EventBuilder;
+import org.ff4j.event.EventConstants;
+import org.ff4j.event.EventQueryDefinition;
+import org.ff4j.event.EventSeries;
 import org.ff4j.test.DefinedPermissionSecurityManager;
+import org.ff4j.utils.MutableHitCount;
 import org.junit.Assert;
 import org.junit.Test;
 

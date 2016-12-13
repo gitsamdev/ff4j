@@ -34,7 +34,7 @@ import java.util.Set;
 
 import javax.lang.model.type.NullType;
 
-import org.ff4j.audit.EventConstants;
+import org.ff4j.event.EventConstants;
 import org.ff4j.jdbc.JdbcConstants;
 import org.ff4j.utils.TimeUtils;
 import org.ff4j.utils.Util;
@@ -66,11 +66,6 @@ public class UtilTest {
     @Test(expected = IllegalArgumentException.class)
     public void testAssertsHasLength() {
         Util.assertHasLength((String[]) null);
-    }
-    
-    @Test(expected = IllegalArgumentException.class)
-    public void testAssertsNotEmpty() {
-        Util.assertNotEmpty(null);
     }
     
     @Test(expected = IllegalArgumentException.class)

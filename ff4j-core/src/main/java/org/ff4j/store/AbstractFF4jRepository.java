@@ -4,14 +4,17 @@ import static org.ff4j.utils.Util.assertHasLength;
 import static org.ff4j.utils.Util.assertNotNull;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
 
-import org.ff4j.FF4jBaseObject;
+import org.ff4j.FF4jEntity;
 import org.ff4j.exception.ItemAlreadyExistException;
 import org.ff4j.exception.ItemNotFoundException;
+import org.ff4j.observable.AbstractObservableMixin;
+import org.ff4j.observable.FF4jRepositoryListener;
 
 /**
  * Support implementations for CRUD.
@@ -20,7 +23,9 @@ import org.ff4j.exception.ItemNotFoundException;
  *
  * @param <V>
  */
-public abstract class AbstractFF4jRepository < V extends FF4jBaseObject<?>> implements FF4jRepository<String, V>, Serializable {
+public abstract class AbstractFF4jRepository < V extends FF4jEntity<?>> 
+                    extends AbstractObservableMixin < FF4jRepositoryListener < V > > 
+                    implements FF4jRepository<String, V>, Serializable {
 
     /** serial number. */
     private static final long serialVersionUID = -2865266843791651125L;
@@ -45,6 +50,9 @@ public abstract class AbstractFF4jRepository < V extends FF4jBaseObject<?>> impl
     @Override
     public void delete(V entity) {
         this.delete(entity.getUid());
+        
+        // Notify all listeners registered (like AuditTrail)
+        this.notify(l -> l.onDelete(entity));
     }
 
     /** {@inheritDoc} */
@@ -80,8 +88,12 @@ public abstract class AbstractFF4jRepository < V extends FF4jBaseObject<?>> impl
         assertNotNull(entity);
         assertHasLength(entity.getUid());
         assertItemExist(entity.getUid());
+        entity.setLastModified(LocalDateTime.now());
+        entity.setCreationDate(entity.getCreationDate().orElse(entity.getLastModifiedDate().get()));
         delete(entity);
         create(entity);
+        // Notify all listeners registered (like AuditTrail)
+        this.notify(l -> l.onUpdate(entity));
     }
     
     /** {@inheritDoc} */
@@ -104,6 +116,7 @@ public abstract class AbstractFF4jRepository < V extends FF4jBaseObject<?>> impl
          * But not always (JDBC, Mongo, Cassandra)... this is the reason why the dedicated store must 
          * override this method. It a default implementation (Pattern Adapter).
          */
+        this.notify(FF4jRepositoryListener::onCreateSchema);
         return;
     }
     

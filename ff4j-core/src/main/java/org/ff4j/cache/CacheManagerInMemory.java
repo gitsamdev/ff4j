@@ -28,7 +28,7 @@ import java.util.Optional;
 import java.util.WeakHashMap;
 import java.util.stream.Stream;
 
-import org.ff4j.FF4jBaseObject;
+import org.ff4j.FF4jEntity;
 
 /**
  * Proposition of inmemory cache implementation.
@@ -38,7 +38,7 @@ import org.ff4j.FF4jBaseObject;
  * 
  * @author Cedrick Lunven (@clunven)
  */
-public class CacheManagerInMemory<V extends FF4jBaseObject<?>> implements CacheManager< String, V > {
+public class CacheManagerInMemory<V extends FF4jEntity<?>> implements CacheManager< String, V > {
     
     /** Cached Feature Map */
     private final Map<String, InMemoryCacheEntry<V>> customCache = new WeakHashMap<String, InMemoryCacheEntry<V>>();

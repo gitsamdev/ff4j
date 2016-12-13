@@ -1,7 +1,7 @@
 package org.ff4j.test;
 
-import static org.ff4j.audit.EventConstants.ACTION_CHECK_OK;
-import static org.ff4j.audit.EventConstants.SOURCE_JAVA;
+import static org.ff4j.event.EventConstants.ACTION_CHECK_OK;
+import static org.ff4j.event.EventConstants.SOURCE_JAVA;
 
 /*
  * #%L
@@ -33,14 +33,14 @@ import java.util.List;
 
 import org.ff4j.FF4j;
 import org.ff4j.FF4jExecutionContext;
-import org.ff4j.audit.Event;
-import org.ff4j.audit.EventBuilder;
-import org.ff4j.audit.EventPublisher;
 import org.ff4j.audit.PropertyStoreAuditProxy;
 import org.ff4j.cache.CacheManagerInMemory;
+import org.ff4j.event.Event;
+import org.ff4j.event.EventBuilder;
+import org.ff4j.event.EventPublisher;
 import org.ff4j.exception.FeatureNotFoundException;
 import org.ff4j.feature.Feature;
-import org.ff4j.inmemory.EventRepositoryInMemory;
+import org.ff4j.inmemory.FeatureUsageTrackingInMemory;
 import org.ff4j.inmemory.FeatureStoreInMemory;
 import org.ff4j.property.Property;
 import org.ff4j.property.PropertyString;
@@ -109,7 +109,7 @@ public class FF4jTest extends AbstractFf4jTest {
         // Given
         FF4j ff4j = new FF4j();
         ff4j.setEventPublisher(new EventPublisher());
-        ff4j.setEventRepository(new EventRepositoryInMemory());
+        ff4j.setEventRepository(new FeatureUsageTrackingInMemory());
         // When
         ff4j.stop();
         
@@ -126,7 +126,7 @@ public class FF4jTest extends AbstractFf4jTest {
         // When
         EventPublisher ep = new EventPublisher();
         new EventPublisher(ep.getRepository(), null);
-        ep.setRepository(new EventRepositoryInMemory());
+        ep.setRepository(new FeatureUsageTrackingInMemory());
         // Then
         Assert.assertNotNull(ep.getRepository());
     }

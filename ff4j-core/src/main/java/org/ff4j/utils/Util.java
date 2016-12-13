@@ -4,6 +4,10 @@ import java.awt.Color;
 import java.lang.reflect.Constructor;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 
 /*
  * #%L
@@ -28,6 +32,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -39,8 +44,8 @@ import java.util.stream.Stream;
 
 import javax.lang.model.type.NullType;
 
-import org.ff4j.FF4jBaseObject;
-import org.ff4j.audit.Event;
+import org.ff4j.FF4jEntity;
+import org.ff4j.event.Event;
 
 /**
  * Tips and tricks to be less verbose.
@@ -64,9 +69,18 @@ public class Util {
      * @param uid
      * @return
      */
-    public static < T extends FF4jBaseObject<?> > Optional<T> find(Stream <T> stream, String uid) {
+    public static < T extends FF4jEntity<?> > Optional<T> find(Stream <T> stream, String uid) {
         if (stream == null || uid == null) return Optional.empty();
         return stream.filter(t -> uid.equals(t.getUid())).findFirst();
+    }
+    
+    public static LocalDateTime asLocalDateTime(java.sql.Timestamp sqlTimeStamp) {
+        return LocalDateTime.ofInstant(Instant.ofEpochMilli(sqlTimeStamp.getTime()), ZoneId.systemDefault());
+    }
+    
+    public static java.sql.Timestamp asSqlTimeStamp(LocalDateTime jdk8Date) {
+        ZoneOffset zof = ZoneId.systemDefault().getRules().getOffset(jdk8Date);
+        return new java.sql.Timestamp(jdk8Date.toEpochSecond(zof));
     }
     
     /**
@@ -79,6 +93,21 @@ public class Util {
     @SuppressWarnings("unchecked")
     public static <T> Set<T> setOf(T... els) {
          return (els == null) ? null : new HashSet<T>(Arrays.asList(els));
+    }
+    
+    /**
+     * Creation of a map from a single Value.
+     * @param key
+     *      map key
+     * @param value
+     *      map value
+     * @return
+     *      the populated map
+     */
+    public static <K,V> Map < K, V > mapOf(K key, V value) {
+        Map <K, V> mapOfValues = new HashMap<>();
+        mapOfValues.put(key, value);
+        return mapOfValues;
     }
     
     /**
@@ -198,8 +227,8 @@ public class Util {
     
     public static void assertEvent(Event evt) {
         assertNotNull(evt);
-        assertHasLength(evt.getType());
-        assertHasLength(evt.getName());
+        assertNotNull(evt.getScope());
+        assertHasLength(evt.getTargetUid());
         assertHasLength(evt.getAction());
     }
 
@@ -260,6 +289,18 @@ public class Util {
     public static void assertNotEmpty(Collection<?> collec) {
         if (null == collec || collec.isEmpty()) {
             throw new IllegalArgumentException("[Assertion failed] - Target COLLECTION must not be null nor empty");
+        }
+    }
+    
+    /**
+     * Check that string is not null
+     * 
+     * @param object
+     *            target object
+     */
+    public static <T> void assertNotEmpty(T[] collec) {
+        if (null == collec || collec.length == 0) {
+            throw new IllegalArgumentException("[Assertion failed] - Target ARRAY must not be null nor empty");
         }
     }
     

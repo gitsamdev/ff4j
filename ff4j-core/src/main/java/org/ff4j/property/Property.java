@@ -13,25 +13,31 @@ package org.ff4j.property;
 import static org.ff4j.utils.Util.setOf;
 
 import java.lang.reflect.ParameterizedType;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import org.ff4j.FF4jBaseObject;
+import org.ff4j.FF4jEntity;
 import org.ff4j.FF4jExecutionContext;
 import org.ff4j.strategy.PropertyEvaluationStrategy;
 import org.ff4j.utils.JsonUtils;
+import org.ff4j.utils.Util;
 
 /**
  * Abstraction of Property.
  *
  * @author Cedrick Lunven (@clunven)
  */
-public abstract class Property<T> extends FF4jBaseObject<Property<T>> implements Supplier<T> {
+public abstract class Property<T> extends FF4jEntity<Property<T>> implements Supplier<T> {
 
     /** serialVersionUID. */
     private static final long serialVersionUID = -2484426537747694712L;
+    
+    /** Mapping of some property. */
+    private static Map < String, String > PROPERTY_TYPES;
 
     /** Canonical name for JSON serialization. */
     protected String type = getClass().getCanonicalName();
@@ -95,7 +101,66 @@ public abstract class Property<T> extends FF4jBaseObject<Property<T>> implements
     public Class<T> parameterizedType() {
         ParameterizedType pt = (ParameterizedType) getClass().getGenericSuperclass();
         return (Class<T>) pt.getActualTypeArguments()[0];
-    }    
+    }
+    
+    /**
+     * Initialisation of substitution types
+     */
+    static {
+        PROPERTY_TYPES = new HashMap<String, String >();
+        PROPERTY_TYPES.put("byte",       PropertyByte.class.getName());
+        PROPERTY_TYPES.put("boolean",    PropertyBoolean.class.getName());
+        PROPERTY_TYPES.put("bigdecimal", PropertyBigDecimal.class.getName());
+        PROPERTY_TYPES.put("biginteger", PropertyBigInteger.class.getName());
+        PROPERTY_TYPES.put("calendar",   PropertyCalendar.class.getName());
+        PROPERTY_TYPES.put("date",       PropertyDate.class.getName());
+        PROPERTY_TYPES.put("double",     PropertyDouble.class.getName());
+        PROPERTY_TYPES.put("float",      PropertyFloat.class.getName());
+        PROPERTY_TYPES.put("int",        PropertyInt.class.getName());
+        PROPERTY_TYPES.put("loglevel",   PropertyLogLevel.class.getName());
+        PROPERTY_TYPES.put("short",      PropertyShort.class.getName());
+        PROPERTY_TYPES.put("long",       PropertyLong.class.getName());
+        PROPERTY_TYPES.put("string",     PropertyString.class.getName());
+    }
+    
+    /**
+     * Substitution of primitive into PropertyXXX.
+     *
+     * @param pType
+     * @return
+     */
+    public static String mapPropertyType(String pType) {
+        if (pType == null) return null;
+        if (PROPERTY_TYPES.containsKey(pType.toLowerCase())) {
+           return PROPERTY_TYPES.get(pType.toLowerCase());
+        }
+        return pType;
+    }
+    
+    /**
+     * Substitution of PropertyXXX intoPrimitive.
+     *
+     * @param pType
+     * @return
+     */
+    public static String mapSimpleType(String className) {
+        if (className == null) return className;
+        if (PROPERTY_TYPES.containsValue(className)) {
+           return Util.getFirstKeyByValue(PROPERTY_TYPES, className);
+        }
+        return className;
+    }
+
+    /**
+     * Substitution of primitive into PropertyXXX.
+     *
+     * @param pType
+     * @return
+     */
+    public static String mapSimpleType(Class<?> pType) {
+        if (pType == null) return null;
+        return mapSimpleType(pType.getName());
+    }
 
     /**
      * Unmarshalling of value for serailized string expression.
@@ -297,6 +362,25 @@ public abstract class Property<T> extends FF4jBaseObject<Property<T>> implements
     public Property<T> setReadOnly(boolean readOnly) {
         this.readOnly = readOnly;
         return this;
+    }
+
+    /**
+     * Getter accessor for attribute 'evaluationStrategy'.
+     *
+     * @return
+     *       current value of 'evaluationStrategy'
+     */
+    public Optional < PropertyEvaluationStrategy<T> > getEvaluationStrategy() {
+        return Optional.ofNullable(evaluationStrategy);
+    }
+
+    /**
+     * Setter accessor for attribute 'evaluationStrategy'.
+     * @param evaluationStrategy
+     * 		new value for 'evaluationStrategy '
+     */
+    public void setEvaluationStrategy(PropertyEvaluationStrategy<T> evaluationStrategy) {
+        this.evaluationStrategy = evaluationStrategy;
     }
 
 }

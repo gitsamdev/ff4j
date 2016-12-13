@@ -22,6 +22,7 @@ package org.ff4j.test.utils;
 
 import java.io.ByteArrayOutputStream;
 import java.lang.reflect.Constructor;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.ff4j.FF4j;
@@ -33,7 +34,6 @@ import org.ff4j.strategy.FF4jExecutionStrategy;
 import org.ff4j.test.TestConstantsFF4j;
 import org.ff4j.utils.JdbcUtils;
 import org.ff4j.utils.JsonUtils;
-import org.ff4j.utils.MappingUtil;
 import org.ff4j.utils.Util;
 import org.junit.Assert;
 import org.junit.Before;
@@ -100,15 +100,28 @@ public class FeatureJsonMarshallTest implements TestConstantsFF4j {
         assertMarshalling(f4);
     }
     
-    @Test
-    public void testInstance() throws Exception {
-        Constructor<MappingUtil> ce = MappingUtil.class.getDeclaredConstructor();
-        ce.setAccessible(true);
-        ce.newInstance();
-        Assert.assertNull(MappingUtil.mapPropertyType(null));
-        MappingUtil.toMap("A&B");
-    }
     
+    @Test
+    public void toJson() {
+        Map<String, Double> myMap = new HashMap<>();
+        myMap.put("id1", 1D);
+        myMap.put("id2", 2D);
+        myMap.put("id3", 3D);
+        String target = JsonUtils.mapAsJson(myMap);
+        Map<String, String > out1 = JsonUtils.jsonAsMap(target);
+        Assert.assertTrue(out1.containsKey("id3"));
+        Assert.assertTrue(out1.containsValue("2.0"));
+
+        Map<String, String> myMap2 = new HashMap<>();
+        myMap2.put("id1", "val1");
+        myMap2.put("id2", "val2");
+        myMap2.put("id3", "val3");
+        String target2 = JsonUtils.mapAsJson(myMap2);
+        Map<String, String > out2 = JsonUtils.jsonAsMap(target2);
+        Assert.assertTrue(out2.containsKey("id3"));
+        Assert.assertTrue(out2.containsValue("val2"));
+    }
+
     @Test
     public void testInstance2() throws Exception {
         Constructor<Util> ce = Util.class.getDeclaredConstructor();

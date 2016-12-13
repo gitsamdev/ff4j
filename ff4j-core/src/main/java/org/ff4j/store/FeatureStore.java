@@ -11,7 +11,7 @@ import org.ff4j.feature.Feature;
  * @author Cedrick Lunven (@clunven)
  */
 public interface FeatureStore extends FF4jRepository < String, Feature > {
-
+    
     /**
      * Toggle ON a feature by its identifier.
      * 
@@ -29,25 +29,13 @@ public interface FeatureStore extends FF4jRepository < String, Feature > {
     void toggleOff(String uid);
    
     /**
-     * Grant role on target feature.
+     * Check if current group exist or not.
      * 
-     * @param uid
-     *      feature unique identifier
-     * @param roleName
-     *      current role name
+     * @param groupName
+     *            target group name
      */
-    void grantRoleOnFeature(String uid, String roleName);
-
-    /**
-     * Remove role on target feature.
-     *
-       * @param uid
-     *      feature unique identifier
-     * @param roleName
-     *      current role name
-     */
-    void removeRoleFromFeature(String uid, String roleName);
-
+    boolean existGroup(String groupName);
+    
     /**
      * Enable all features related to the parameter group
      * 
@@ -63,14 +51,6 @@ public interface FeatureStore extends FF4jRepository < String, Feature > {
      *            target group name
      */
     void disableGroup(String groupName);
-
-    /**
-     * Check if current group exist or not.
-     * 
-     * @param groupName
-     *            target group name
-     */
-    boolean existGroup(String groupName);
 
     /**
      * Read all features within target group.

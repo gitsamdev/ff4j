@@ -20,26 +20,19 @@ package org.ff4j.jdbc;
  * #L%
  */
 
-
-import static org.ff4j.jdbc.JdbcConstants.COL_FEAT_DESCRIPTION;
-import static org.ff4j.jdbc.JdbcConstants.COL_FEAT_ENABLE;
-import static org.ff4j.jdbc.JdbcConstants.COL_FEAT_EXPRESSION;
-import static org.ff4j.jdbc.JdbcConstants.COL_FEAT_GROUPNAME;
-import static org.ff4j.jdbc.JdbcConstants.COL_FEAT_STRATEGY;
-import static org.ff4j.jdbc.JdbcConstants.COL_FEAT_UID;
-import static org.ff4j.utils.MappingUtil.toMap;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.Map;
 
 import org.ff4j.exception.FeatureAccessException;
 import org.ff4j.feature.Feature;
 import org.ff4j.feature.FlippingStrategy;
+import org.ff4j.jdbc.JdbcConstants.FeaturesColumns;
 import org.ff4j.mapper.FeatureMapper;
-import org.ff4j.utils.MappingUtil;
+import org.ff4j.utils.JsonUtils;
 import org.ff4j.utils.Util;
 
 /**
@@ -47,37 +40,53 @@ import org.ff4j.utils.Util;
  *
  * @author Cedrick Lunven (@clunven)
  */
-public class JdbcFeatureMapper implements FeatureMapper< PreparedStatement, ResultSet > {
+public class JdbcFeatureMapper extends AbstractJdbcMapper implements FeatureMapper< PreparedStatement, ResultSet > {
     
-    private Connection sqlConn = null;
-    
-    private JdbcQueryBuilder queryBuilder = null;
-    
+    /**
+     * Constructor with parameters.
+     *
+     * @param sqlConn
+     *      connection sql
+     * @param qbd
+     *      query builder
+     */
     public JdbcFeatureMapper(Connection sqlConn, JdbcQueryBuilder qbd) {
-        this.sqlConn      = sqlConn;
-        this.queryBuilder = qbd;
+        super(sqlConn, qbd);
     }
     
     /** {@inheritDoc} */
     @Override
     public PreparedStatement toStore(Feature feature) {
-        // Create feature
         PreparedStatement ps;
         try {
-            ps = sqlConn.prepareStatement(queryBuilder.createFeature());
+            ps = sqlConn.prepareStatement(queryBuilder.sqlInsertFeature());
+            // Feature uid
             ps.setString(1, feature.getUid());
-            ps.setInt(2, feature.isEnable() ? 1 : 0);
-            ps.setString(3, feature.getDescription().orElse(null));
-            String strategyColumn = null;
-            String expressionColumn = null;
+            // Creation Date
+            ps.setTimestamp(2, Util.asSqlTimeStamp(feature.getCreationDate().get()));
+            // Last Modified Date
+            ps.setTimestamp(3, Util.asSqlTimeStamp(feature.getLastModifiedDate().get()));
+            // Owner
+            ps.setString(4, feature.getOwner().orElse(null));
+            // Description
+            ps.setString(5, feature.getDescription().orElse(null));
+            // Enable
+            ps.setInt(6, feature.isEnable() ? 1 : 0);
+            // Flipping Strategy + InitParams
+            String strategy  = null;
+            String initParam = null;
             if (feature.getFlippingStrategy().isPresent()) {
                 FlippingStrategy fs = feature.getFlippingStrategy().get();
-                strategyColumn   = fs.getClass().getCanonicalName();
-                expressionColumn = MappingUtil.fromMap(fs.getInitParams());
+                strategy  = fs.getClass().getCanonicalName();
+                initParam = JsonUtils.mapAsJson(fs.getInitParams());
             }
-            ps.setString(4, strategyColumn);
-            ps.setString(5, expressionColumn);
-            ps.setString(6, feature.getGroup().orElse(null));
+            // Classname for flipping strategy
+            ps.setString(7, strategy);
+            // Init param for flipping strategy
+            ps.setString(8, initParam);
+            // GroupName
+            ps.setString(9, feature.getGroup().orElse(null));
+            
         } catch (SQLException sqlEx) {
             throw new FeatureAccessException("Cannot create statement to create feature", sqlEx);
         }
@@ -96,24 +105,26 @@ public class JdbcFeatureMapper implements FeatureMapper< PreparedStatement, Resu
     @Override
     public Feature fromStore(ResultSet rs) {
         try {
-            boolean enabled = rs.getInt(COL_FEAT_ENABLE) > 0;
-            String featUid = rs.getString(COL_FEAT_UID);
-            Feature f = new Feature(featUid).setEnable(enabled)
-                    .setDescription(rs.getString(COL_FEAT_DESCRIPTION))
-                    .setGroup(rs.getString(COL_FEAT_GROUPNAME));
+            Feature f = new Feature(rs.getString(FeaturesColumns.UID.colname()))
+                    .setEnable(rs.getInt(FeaturesColumns.ENABLE.colname()) > 0)
+                    .setOwner(rs.getString(FeaturesColumns.OWNER.colname()))
+                    .setDescription(rs.getString(FeaturesColumns.DESCRIPTION.colname()))
+                    .setGroup(rs.getString(FeaturesColumns.GROUPNAME.colname()));
             
-            // TODO
-            //p.setCreationDate(currentDate);
-            //p.setLastModified(currentDate);
-            //p.setOwner(owner)
+            // Creation Date
+            Timestamp sqlDate = rs.getTimestamp(FeaturesColumns.CREATED.colname());
+            f.setCreationDate(Util.asLocalDateTime(sqlDate));
             
-            // Strategy
-            String strategy = rs.getString(COL_FEAT_STRATEGY);
+            // Last Modified Date
+            Timestamp sqlLastDate = rs.getTimestamp(FeaturesColumns.LASTMODIFIED.colname());
+            f.setLastModified(Util.asLocalDateTime(sqlLastDate));
+           
+            // FlippingStrategy
+            String strategy = rs.getString(FeaturesColumns.STRATEGY.colname());
             if (Util.hasLength(strategy)) {
-                Map < String, String > initParams = toMap(rs.getString(COL_FEAT_EXPRESSION));
-                f.setFlippingStrategy(FlippingStrategy.instanciate(featUid, strategy, initParams));
+                Map < String, String > initParams = JsonUtils.jsonAsMap(rs.getString(FeaturesColumns.INITPARAMS.colname()));
+                f.setFlippingStrategy(FlippingStrategy.instanciate(f.getUid(), strategy, initParams));
             }
-            // Role & Custom Properties after
             return f;
         } catch(SQLException sqlEx) {
             throw new FeatureAccessException("Cannot create statement to create event", sqlEx);

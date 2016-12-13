@@ -1,49 +1,18 @@
 package org.ff4j.jdbc;
 
-import static org.ff4j.audit.EventConstants.ACTION_CHECK_OK;
-import static org.ff4j.audit.EventConstants.ACTION_CLEAR;
-import static org.ff4j.audit.EventConstants.ACTION_CONNECT;
-import static org.ff4j.audit.EventConstants.ACTION_CREATE;
-import static org.ff4j.audit.EventConstants.ACTION_DELETE;
-import static org.ff4j.audit.EventConstants.ACTION_DISCONNECT;
-import static org.ff4j.audit.EventConstants.ACTION_TOGGLE_OFF;
-import static org.ff4j.audit.EventConstants.ACTION_TOGGLE_ON;
-import static org.ff4j.audit.EventConstants.ACTION_UPDATE;
-import static org.ff4j.jdbc.JdbcConstants.COL_EVENT_ACTION;
-import static org.ff4j.jdbc.JdbcConstants.COL_EVENT_DURATION;
-import static org.ff4j.jdbc.JdbcConstants.COL_EVENT_HOSTNAME;
-import static org.ff4j.jdbc.JdbcConstants.COL_EVENT_NAME;
-import static org.ff4j.jdbc.JdbcConstants.COL_EVENT_SOURCE;
-import static org.ff4j.jdbc.JdbcConstants.COL_EVENT_TIME;
-import static org.ff4j.jdbc.JdbcConstants.COL_EVENT_TYPE;
-import static org.ff4j.jdbc.JdbcConstants.COL_EVENT_UID;
-import static org.ff4j.jdbc.JdbcConstants.COL_EVENT_USER;
+import java.util.Arrays;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
-import java.util.Collection;
-
-/*
- * #%L
- * ff4j-core
- * %%
- * Copyright (C) 2013 - 2016 FF4J
- * %%
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *      http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * #L%
- */
-
-
-import org.ff4j.audit.EventConstants;
-import org.ff4j.audit.EventQueryDefinition;
+import org.ff4j.jdbc.JdbcConstants.AuditColumns;
+import org.ff4j.jdbc.JdbcConstants.CustomPropertyColumns;
+import org.ff4j.jdbc.JdbcConstants.FeaturesColumns;
+import org.ff4j.jdbc.JdbcConstants.MetricsColumns;
+import org.ff4j.jdbc.JdbcConstants.PropertyColumns;
+import org.ff4j.jdbc.JdbcConstants.RolesColumns;
+import org.ff4j.jdbc.JdbcConstants.SQLTypes;
+import org.ff4j.jdbc.JdbcConstants.SqlTableColumns;
+import org.ff4j.utils.Util;
 
 /**
  * Create JDBC queries for FF4J with capabilities to 
@@ -77,6 +46,10 @@ public class JdbcQueryBuilder {
 		this.tableSuffix = suffix;
 	}
 	
+    // ---------------------------------
+    // ---------- TABLES  --------------
+    // ---------------------------------
+	
 	/**
 	 * Prefix and suffix table Names.
 	 * 
@@ -85,19 +58,9 @@ public class JdbcQueryBuilder {
 	 * @return
 	 *         new table name
 	 */
-	public String getTableName(String coreName) {
+	protected String getTableName(String coreName) {
 		return tablePrefix + coreName + tableSuffix;
 	}
-	
-	/**
-	 * Table name for audit.
-	 *
-	 * @return
-	 *     Table name for audit
-	 */
-	public String getTableNameAudit() {
-        return getTableName("AUDIT");
-    }
 	
 	/**
      * Table name for features.
@@ -105,28 +68,48 @@ public class JdbcQueryBuilder {
      * @return
      *     Table name for features
      */
-	public String getTableNameFeatures() {
-        return getTableName("FEATURES");
+    public String getTableNameFeatures() {
+        return getTableName(FeaturesColumns.UID.tableName());
     }
-	
-	/**
+    
+    /**
+     * Table name for audit.
+     *
+     * @return
+     *     Table name for audit
+     */
+    public String getTableNameAudit() {
+        return getTableName(AuditColumns.UID.tableName());
+    }
+    
+    /**
+     * Table name for audit.
+     *
+     * @return
+     *     Table name for audit
+     */
+    public String getTableNameMetrics() {
+        return getTableName(MetricsColumns.UID.tableName());
+    }
+    
+    /**
      * Table name for roles.
      *
      * @return
      *     Table name for roles
      */
-	public String getTableNameRoles() {
-        return getTableName("ROLES");
+    public String getTableNameRoles() {
+        return getTableName(RolesColumns.FEATURE_UID.tableName());
     }
 
-	/**
+    /**
      * Table name for custom properties.
      *
      * @return
      *     Table name for custom properties.
      */
     public String getTableNameCustomProperties() {
-        return getTableName("CUSTOM_PROPERTIES");
+        return getTableName(CustomPropertyColumns.UID.tableName());
     }
     
     /**
@@ -136,397 +119,390 @@ public class JdbcQueryBuilder {
      *     Table name for properties.
      */
     public String getTableNameProperties() {
-        return getTableName("PROPERTIES");
+        return getTableName(PropertyColumns.UID.tableName());
     }
     
     /**
-     * SQL to create Tables (won't work for all DB).
-     *
+     * Create the SQL Query to produce table from a set of {@link SqlTableColumns}.
+     * 
+     * @param columns
+     *      columns of the table
      * @return
-     *      sql to create features table
+     *      the SQL query
      */
-    public String sqlCreateTableFeatures() {
+    private String sqlCreateTable(SqlTableColumns... columns) {
+        Util.assertNotEmpty(columns);
+        SqlTableColumns tableColumn = columns[0];
         StringBuilder sb = new StringBuilder("CREATE TABLE ");
-        sb.append(getTableNameFeatures());
-        sb.append("( FEAT_UID    VARCHAR(100), "
-                  + "ENABLE      INTEGER NOT NULL, "
-                  + "DESCRIPTION VARCHAR(1000), "
-                  + "STRATEGY    VARCHAR(1000), "
-                  + "EXPRESSION  VARCHAR(255), "
-                  + "GROUPNAME   VARCHAR(100), "
-                  + "PRIMARY KEY(FEAT_UID));");
+        sb.append(getTableName(tableColumn.tableName()));
+        sb.append(" ( \n");
+        Arrays.stream(columns).forEach(col -> { 
+            sb.append(" " + col.colname() + " \t" + col.type().name());
+            if (col.size() !=0 ) {
+                sb.append("(" + col.size() + ")");
+            }
+            if (!col.nullable()) {
+                sb.append(" NOT NULL");
+            }
+            sb.append(",\n");
+        });
+        sb.append(" PRIMARY KEY ");
+        sb.append(tableColumn.primaryKey()
+                    .stream().map(SqlTableColumns::colname)
+                    .collect(Collectors.joining(",","(",")")));
+        
+        tableColumn.foreignKey().ifPresent(map -> {
+            map.entrySet().stream().forEach(entry -> {
+                sb.append(",\n FOREIGN KEY (");
+                sb.append(entry.getKey().colname());
+                sb.append(") REFERENCES ");
+                sb.append(getTableName(entry.getValue().tableName()));
+                sb.append("(" + entry.getValue().colname() + ")");
+            });
+        });
+        sb.append("\n);");
         return sb.toString();
     }
     
-    /**
-     * SQL to create Tables (won't work for all DB).
-     *
-     * @return
-     *      sql to create roles table
-     */
-    public String sqlCreateTableRoles() {
-        StringBuilder sb = new StringBuilder("CREATE TABLE ");
-        sb.append(getTableNameRoles());
-        sb.append("( FEAT_UID VARCHAR(100) REFERENCES " 
-                + getTableNameFeatures() + "(FEAT_UID), "
-                + "ROLE_NAME  VARCHAR(100), "
-                + "PRIMARY KEY(FEAT_UID, ROLE_NAME));");
-        return sb.toString();
+    /** Create table features. */
+    public String sqlCreateTableFeature() {
+        return sqlCreateTable(FeaturesColumns.values());
     }
     
-    /**
-     * SQL to create Tables (won't work for all DB).
-     *
-     * @return
-     *      sql to create customproperties table
-     */
+    /** Create table role. */
+    public String sqlCreateTableRole() {
+        return sqlCreateTable(RolesColumns.values());
+    }
+    
+    /** Create table custom properties. */
     public String sqlCreateTableCustomProperties() {
-        StringBuilder sb = new StringBuilder("CREATE TABLE ");
-        sb.append(getTableNameCustomProperties());
-        sb.append("( PROPERTY_ID   VARCHAR(100) NOT NULL,"
-                 + " CLAZZ          VARCHAR(255) NOT NULL,"
-                 + " CURRENTVALUE  VARCHAR(255),"
-                 + " FIXEDVALUES   VARCHAR(1000),"
-                 + " DESCRIPTION   VARCHAR(1000),"
-                 + " FEAT_UID      VARCHAR(100) REFERENCES " + getTableNameFeatures() + "(FEAT_UID),"
-                 + " PRIMARY KEY(PROPERTY_ID, FEAT_UID));");
-        return sb.toString();
+        return sqlCreateTable(CustomPropertyColumns.values());
     }
     
-    /**
-     * SQL to create Tables (won't work for all JDBC implementations).
-     *
-     * @return
-     *      sql to create audit properties
-     */
+    /** Create table custom properties. */
     public String sqlCreateTableProperties() {
-        StringBuilder sb = new StringBuilder("CREATE TABLE ");
-        sb.append(getTableNameProperties());
-        sb.append("( PROPERTY_ID  VARCHAR(100) NOT NULL,"
-                 + " CLAZZ        VARCHAR(255) NOT NULL,"
-                 + " CURRENTVALUE VARCHAR(255),"
-                 + " FIXEDVALUES  VARCHAR(1000),"
-                 + " DESCRIPTION  VARCHAR(1000),"
-                 + " PRIMARY KEY(PROPERTY_ID));");
+        return sqlCreateTable(PropertyColumns.values());
+    }
+    
+    /** Create table audit. */
+    public String sqlCreateTableAudit() {
+        return sqlCreateTable(AuditColumns.values());
+    }
+    
+    /** Create table metrics. */
+    public String sqlCreateTableMetrics() {
+        return sqlCreateTable(MetricsColumns.values());
+    }
+    
+    /** All SQL Script. */
+    public String sqlCreateSchema() {
+        return new StringBuilder()
+                .append(sqlCreateTableFeature())
+                .append("\n")
+                .append(sqlCreateTableRole())
+                .append("\n")
+                .append(sqlCreateTableCustomProperties())
+                .append("\n")
+                .append(sqlCreateTableProperties())
+                .append("\n")
+                .append(sqlCreateTableAudit())
+                .append("\n")
+                .append(sqlCreateTableMetrics())
+                .append("\n")
+                .toString();
+    }
+
+    // ---------------------------------
+    // ---------   CREATE    -----------
+    // ---------------------------------
+    
+    /**
+     * Utility to initiate an INSERT query.
+     *
+     * @param tableName
+     *      current table name
+     * @param columns
+     *      list of columns
+     * @return
+     *      the sql statement
+     */
+    private String sqlInsert(SqlTableColumns... columns) {
+        Util.assertNotEmpty(columns);
+        StringBuilder sb = new StringBuilder().append("INSERT INTO ");
+        sb.append(getTableName(columns[0].tableName()));
+        sb.append(Arrays.stream(columns)
+                    .map(SqlTableColumns::colname)
+                    .collect(Collectors.joining(",","(\n",")\n")));
+        sb.append(" VALUES");
+        sb.append(IntStream.range(0, columns.length)
+                    .mapToObj(i-> '?').map(o-> o.toString())
+                    .collect(Collectors.joining(",","(",")")));
         return sb.toString();
     }
     
-    /**
-     * SQL to create Tables (won't work for all DB).
-     *
-     * @return
-     *      sql to create audit table
-     */
-    public String sqlCreateTableAudit() {
-        StringBuilder sb = new StringBuilder("CREATE TABLE ");
-        sb.append(getTableNameAudit());
-        sb.append("( EVT_UUID    VARCHAR(40)  NOT NULL,"
-                + " EVT_TIME     TIMESTAMP    NOT NULL,"
-                + " EVT_TYPE     VARCHAR(30)  NOT NULL,"
-                + " EVT_NAME     VARCHAR(30)  NOT NULL,"
-                + " EVT_ACTION   VARCHAR(30)  NOT NULL,"
-                + " EVT_HOSTNAME VARCHAR(100) NOT NULL,"
-                + " EVT_SOURCE   VARCHAR(30)  NOT NULL,"
-                + " EVT_DURATION INTEGER,"
-                + " EVT_USER     VARCHAR(30),"
-                + " EVT_VALUE    VARCHAR(100),"
-                + " EVT_KEYS     VARCHAR(255),"
-                + "PRIMARY KEY(EVT_UUID, EVT_TIME));");
-         return sb.toString();
+    public String sqlInsertFeature() {
+        return sqlInsert(FeaturesColumns.values());
     }
     
-    /**
-     * Count features.
-     *
-     * @return
-     *      number or features
-     */
+    public String sqlInsertRoles() {
+        return sqlInsert(RolesColumns.values());
+    }
+    
+    public String sqlInsertAudit() {
+        return sqlInsert(AuditColumns.values());
+    }
+    
+    public String sqlInsertMetrics() {
+        return sqlInsert(MetricsColumns.values());
+    }
+    
+    public String sqlInsertProperty() {
+        return sqlInsert(PropertyColumns.values());
+    }
+    
+    public String sqlInsertCustomProperties() {
+        return sqlInsert(CustomPropertyColumns.values());
+    }
+    
+    // ---------------------------------
+    // -------     READ     -----------
+    // ---------------------------------
+    
+    /** Select all element for a table. */
+    private String sqlSelect(boolean distinct, SqlTableColumns... columns) {
+        Util.assertNotEmpty(columns);
+        SqlTableColumns tableColumn = columns[0];
+        return new StringBuilder("SELECT ")
+                .append(distinct ? "DISTINCT (" : "")
+                .append(Arrays.stream(columns).map(SqlTableColumns::colname).collect(Collectors.joining(",")))
+                .append(distinct ? ")" : "")
+                .append(" FROM ")
+                .append(getTableName(tableColumn.tableName())).toString();
+    }
+    
+    private String sqlWhere(SqlTableColumns... condition) {
+        if (condition == null || condition.length == 0) return "";
+        StringBuilder sb =  new StringBuilder(" WHERE " + sqlWhereCondition(condition[0]));
+        for (int i = 1; i < condition.length; i++) {
+            sb.append(" AND ").append(sqlWhereCondition(condition[i]));
+        }
+        return sb.toString();
+    }
+    
+    private String sqlWhereCondition(SqlTableColumns condition) {
+        StringBuilder sb = new StringBuilder("(");
+        sb.append(condition.colname());
+        sb.append(condition.type().equals(SQLTypes.VARCHAR) ? " LIKE ?" : " = ?");
+        return sb.append(")").toString();
+    }
+    
+    /** Select all elements with where condition. */
+    private String sqlSelectWhere(boolean distinct, SqlTableColumns condition, SqlTableColumns... columns) {
+        return sqlSelect(distinct, columns) + sqlWhere(condition);
+    }
+    
+    // ----- Features -----
+    
+    /** Get all features. */
+    public String sqlSelectAllFeatures() {
+        return sqlSelect(false, FeaturesColumns.values());
+    }
+    
+    /** Get all features. */
+    public String sqlSelectAllCustomProperties() {
+        return sqlSelect(false, CustomPropertyColumns.values());
+    }
+    
+    /** Get all features. */
+    public String sqlSelectFeaturesOfGroup() {
+        return sqlSelectWhere(false, FeaturesColumns.GROUPNAME, FeaturesColumns.values());
+    }
+    
+    /** Get a feature by its id. */
+    public String sqlSelectFeatureById() {
+       return sqlSelectWhere(false, FeaturesColumns.UID, FeaturesColumns.values());
+    }
+    
+    /** Get all groups. */
+    public String sqlSelectAllGroups() {
+        return sqlSelect(true, FeaturesColumns.GROUPNAME);
+    }
+    
+    /** Roles for a feature. */
+    public String sqlSelectRolesOfFeature() {
+        return sqlSelectWhere(true, RolesColumns.FEATURE_UID, RolesColumns.ROLE);
+    }
+    
+    /** Get all groups. */
+    public String sqlSelectAllRoles() {
+        return sqlSelect(false, RolesColumns.values());
+    }
+    
+    /** Roles for a feature. */
+    public String sqlSelectCustomPropertiesOfFeature() {
+        return sqlSelectWhere(false, CustomPropertyColumns.FEATURE_UID, CustomPropertyColumns.values());
+    }
+    
+    /** Roles for a feature. */
+    public String sqlSelectCustomPropertyOfFeature() {
+        return sqlSelect(false, CustomPropertyColumns.values()) + 
+               sqlWhere(CustomPropertyColumns.UID) + " AND " +
+               CustomPropertyColumns.FEATURE_UID + " = ?";
+    }
+    
+    // ----- Properties -----
+    
+    /** Get all properties. */
+    public String sqlSelectAllProperties() {
+        return sqlSelect(false, PropertyColumns.values());
+    }
+    
+    /** Check if property exist. */
+    public String sqlExistProperty() {
+        return sqlCountWhere(PropertyColumns.UID, PropertyColumns.UID);
+    }
+    
+    /** Get an event by its id. */
+    public String sqlSelectPropertyById() {
+        return sqlSelectWhere(false, PropertyColumns.UID, PropertyColumns.values());
+    }
+    
+    /** Get all property names. */
+    public String sqlSelectAllPropertyNames() {
+        return sqlSelect(true, PropertyColumns.UID);
+    }
+    
+    /** Get an event by its id. */
+    public String sqlSelectAuditById() {
+        return sqlSelectWhere(false, AuditColumns.UID, AuditColumns.values());
+    }
+    
+    /** Count element of a table. */
+    private String sqlCount(SqlTableColumns column) {
+        return "SELECT COUNT(" + column.colname() + ") FROM " + getTableName(column.tableName());
+    }
+    
+    /** Count element of a table. */
+    private String sqlCountWhere(SqlTableColumns column, SqlTableColumns condition) {
+        return sqlCount(column) + sqlWhere(condition);
+    }
+    
+    // ----- Features -----
+    
+    /** Count Features. */
     public String sqlCountFeatures() {
-        return "SELECT COUNT(FEAT_UID) FROM " + getTableNameFeatures();
+        return sqlCount(FeaturesColumns.UID);
     }
     
-	public String getAllFeatures() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("SELECT FEAT_UID,ENABLE,DESCRIPTION,STRATEGY,EXPRESSION,GROUPNAME FROM ");
-		sb.append(getTableNameFeatures());
-		return sb.toString();
-	}
-	
-	public String getAllGroups() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("SELECT DISTINCT(GROUPNAME) FROM ");
-		sb.append(getTableNameFeatures());
-		return sb.toString();
-	}
-	
-	public String getFeatureOfGroup() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("SELECT FEAT_UID,ENABLE,DESCRIPTION,STRATEGY,EXPRESSION,GROUPNAME FROM ");
-		sb.append(getTableNameFeatures());
-		sb.append(" WHERE GROUPNAME = ?");
-		return sb.toString();
-	}
-	
-	public String getFeature() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("SELECT FEAT_UID,ENABLE,DESCRIPTION,STRATEGY,EXPRESSION,GROUPNAME FROM ");
-		sb.append(getTableNameFeatures());
-		sb.append(" WHERE FEAT_UID = ?");
-		return sb.toString();
-	}
-	
-	public String existFeature() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("SELECT COUNT(FEAT_UID) FROM ");
-		sb.append(getTableNameFeatures());
-		sb.append(" WHERE FEAT_UID = ?");
-		return sb.toString();
-	}
-	
-	public String existGroup() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("SELECT COUNT(FEAT_UID) FROM ");
-		sb.append(getTableNameFeatures());
-		sb.append(" WHERE GROUPNAME = ?");
-		return sb.toString();
-	}
-	
-	public String enableFeature() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("UPDATE ");
-		sb.append(getTableNameFeatures());
-		sb.append(" SET ENABLE = 1 WHERE FEAT_UID = ?");
-		return sb.toString();
-	}
-	
-	public String enableGroup() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("UPDATE ");
-		sb.append(getTableNameFeatures());
-		sb.append(" SET ENABLE = 1 WHERE GROUPNAME = ?");
-		return sb.toString();
-	}
-	
-	public String disableFeature() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("UPDATE ");
-		sb.append(getTableNameFeatures());
-		sb.append(" SET ENABLE = 0 WHERE FEAT_UID = ?");
-		return sb.toString();
-	}
-	
-	public String disableGroup() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("UPDATE ");
-		sb.append(getTableNameFeatures());
-		sb.append(" SET ENABLE = 0 WHERE GROUPNAME = ?");
-		return sb.toString();
-	}
-	
-	public String addFeatureToGroup() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("UPDATE ");
-		sb.append(getTableNameFeatures());
-		sb.append(" SET GROUPNAME = ? WHERE FEAT_UID = ?");
-		return sb.toString();
-	}
-	
-	public String removeFeatureFromGroup() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("UPDATE ");
-		sb.append(getTableNameFeatures());
-		sb.append(" SET GROUPNAME = NULL WHERE FEAT_UID = ?");
-		return sb.toString();
-	}
-	
-	public String createFeature() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("INSERT INTO ");
-		sb.append(getTableNameFeatures());
-		sb.append("(FEAT_UID, ENABLE, DESCRIPTION, STRATEGY,EXPRESSION, GROUPNAME) VALUES(?, ?, ?, ?, ?, ?)");
-		return sb.toString();
-	}
-	
-	public String deleteFeature() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("DELETE FROM ");
-		sb.append(getTableNameFeatures());
-		sb.append(" WHERE FEAT_UID = ?");
-		return sb.toString();
-	}
-
-	public String updateFeature() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("UPDATE ");
-		sb.append(getTableNameFeatures());
-		sb.append(" SET ENABLE=?,DESCRIPTION=?,STRATEGY=?,EXPRESSION=?,GROUPNAME=? WHERE FEAT_UID = ?");
-		return sb.toString();
-	}
-	
-	public String addRoleToFeature() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("INSERT INTO ");
-		sb.append(getTableNameRoles());
-		sb.append(" (FEAT_UID, ROLE_NAME) VALUES (?,?)");
-		return sb.toString();
-	}
-	
-	public String deleteRoles() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("DELETE FROM ");
-		sb.append(getTableNameRoles());
-        sb.append(" WHERE FEAT_UID = ?");
-		return sb.toString();
-	}
-	
-	public String deleteFeatureRole() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("DELETE FROM ");
-		sb.append(getTableNameRoles());
-        sb.append(" WHERE FEAT_UID = ? AND ROLE_NAME = ?");
-		return sb.toString();
-	}
-	
-	public String getRoles() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("SELECT ROLE_NAME FROM ");
-		sb.append(getTableNameRoles());
-		sb.append(" WHERE FEAT_UID = ?");
-		return sb.toString();
-	}
-	
-	public String getAllRoles() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("SELECT FEAT_UID,ROLE_NAME FROM ");
-		sb.append(getTableNameRoles());
-		return sb.toString(); 
-	}
-	
-    // ------- Properties -------------
+    /** Check if feature exist. */
+    public String sqlExistFeature() {
+        return sqlCountWhere(FeaturesColumns.UID, FeaturesColumns.UID);
+    }
     
-	public String getFeatureProperties() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("SELECT PROPERTY_ID,CLAZZ,CURRENTVALUE,DESCRIPTION,FIXEDVALUES,FEAT_UID FROM ");
-		sb.append(getTableNameCustomProperties());
-		sb.append(" WHERE FEAT_UID = ?");
-		return sb.toString();
-	}
-	
-	public String getFeatureProperty() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("SELECT PROPERTY_ID,CLAZZ,CURRENTVALUE,FIXEDVALUES,FEAT_UID FROM ");
-		sb.append(getTableNameCustomProperties());
-		sb.append(" WHERE PROPERTY_ID = ? AND FEAT_UID = ?");
-		return sb.toString();
-	}
-	
-	public String deleteFeatureProperty() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("DELETE FROM ");
-		sb.append(getTableNameCustomProperties());
-		sb.append(" WHERE PROPERTY_ID = ? AND FEAT_UID = ?");
-		return sb.toString();
+    /** Check if feature exist. */
+    public String sqlExistGroup() {
+        return sqlCountWhere(FeaturesColumns.UID, FeaturesColumns.GROUPNAME);
+    }
+    
+    // ---------------------------------
+    // -------     UPDATE    -----------
+    // ---------------------------------
+    
+    /** Update a table . */
+    private String sqlUpdate(SqlTableColumns condition, SqlTableColumns... tobeUpdated) {
+        Util.assertNotEmpty(tobeUpdated);
+        StringBuilder fields = new StringBuilder();
+        Arrays.stream(tobeUpdated).map(SqlTableColumns::colname).forEach(colname -> {
+            fields.append(" AND " + colname + " = ?");
+        });
+        return "UPDATE " + getTableName(condition.tableName()) + " SET " + fields.substring(4) + sqlWhere(condition);
+    }
+    
+    public String updateProperty() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("UPDATE ");
+        sb.append(getTableNameProperties());
+        sb.append(" SET CURRENTVALUE = ? WHERE PROPERTY_ID = ?");
+        return sb.toString();
+    }
+    
+    // ----- Features -----
+    
+    /** Enable a feature. */
+    public String sqlEditFeatureStatus() {
+        return sqlUpdate(FeaturesColumns.UID, FeaturesColumns.ENABLE);
 	}
     
-	public String deleteAllFeatureCustomProperties() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("DELETE FROM ");
-		sb.append(getTableNameCustomProperties());
-		sb.append(" WHERE FEAT_UID = ?");
-		return sb.toString();
+    /** Enable a group. */
+    public String sqlEditGroupStatus() {
+        return sqlUpdate(FeaturesColumns.GROUPNAME, FeaturesColumns.ENABLE);
+    }
+    
+    /** Update group name for dedicated feature uid. */
+	public String sqlEditFeatureToGroup() {
+	    return sqlUpdate(FeaturesColumns.UID, FeaturesColumns.GROUPNAME);
 	}
 	
-	public String deleteAllCustomProperties() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("DELETE FROM ");
-		sb.append(getTableNameCustomProperties());
-		return sb.toString();
-	}
-	
-	public String deleteAllRoles() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("DELETE FROM ");
-		sb.append(getTableNameRoles());
-		return sb.toString();
-	}
-	
-	public String deleteAllFeatures() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("DELETE FROM ");
-		sb.append(getTableNameFeatures());
-		return sb.toString();
-	}
-	
-	public String createFeatureProperty() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("INSERT INTO ");
-		sb.append(getTableNameCustomProperties());
-		sb.append("(PROPERTY_ID, CLAZZ, CURRENTVALUE, DESCRIPTION, FIXEDVALUES, FEAT_UID) VALUES(?, ?, ?, ?, ?, ?)");
-		return sb.toString();
-	}
-	
-	public String createProperty() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("INSERT INTO ");
-		sb.append(getTableNameProperties());
-		sb.append("(PROPERTY_ID, CLAZZ, CURRENTVALUE, DESCRIPTION, FIXEDVALUES) VALUES(?, ?, ?, ?, ?)");
-		return sb.toString();
-	}
+	// ---------------------------------
+    // -------     DELETE    -----------
+    // ---------------------------------
+ 
+    private String sqlDeleteAll(SqlTableColumns column) {
+        Util.assertNotNull(column);
+        StringBuilder sb =  new StringBuilder().append("DELETE FROM ");
+        sb.append(getTableName(column.tableName()));
+        return sb.toString();
+    }
+    
+    private String sqlDeleteWhere(SqlTableColumns... condition) {
+        return sqlDeleteAll(condition[0]) + sqlWhere(condition);
+    }
 
-	public String deleteProperty() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("DELETE FROM ");
-		sb.append(getTableNameProperties());
-		sb.append(" WHERE PROPERTY_ID = ?");
-		return sb.toString();
-	}
+    public String sqlDeleteFeature() {
+        return sqlDeleteWhere(FeaturesColumns.UID);
+    }
+    
+    public String sqlDeleteAllFeatures() {
+        return sqlDeleteAll(FeaturesColumns.UID);
+    }
+    
+    public String sqlDeleteRoleOfFeature() {
+        return sqlDeleteWhere(RolesColumns.FEATURE_UID, RolesColumns.ROLE);
+    }
+    
+    public String sqlDeleteAllRolesOfFeature() {
+        return sqlDeleteWhere(RolesColumns.FEATURE_UID);
+    }
+    
+    public String sqlDeleteAllRoles() {
+        return sqlDeleteAll(RolesColumns.FEATURE_UID);
+    }
+    
+    public String sqlDeleteAllCustomPropertiesOfFeature() {
+        return sqlDeleteWhere(CustomPropertyColumns.FEATURE_UID);
+    }
+    
+    public String sqlDeletePropertyOfFeature() {
+        return sqlDeleteWhere(CustomPropertyColumns.UID, CustomPropertyColumns.FEATURE_UID);
+    }
+    
+    public String sqlDeleteAllCustomProperties() {
+        return sqlDeleteAll(CustomPropertyColumns.FEATURE_UID);
+    }
+    
+    public String sqlDeleteProperty() {
+        return sqlDeleteWhere(PropertyColumns.UID);
+    }
+    
+    public String sqlDeleteAllProperties() {
+        return sqlDeleteAll(PropertyColumns.UID);
+    }
+    
+    public String sqlDeleteAuditEvent() {
+        return sqlDeleteWhere(AuditColumns.UID);
+    }
 	
-	public String deleteAllProperties() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("DELETE FROM ");
-		sb.append(getTableName("PROPERTIES"));
-		return sb.toString();
-	}
-	
-	public String existProperty() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("SELECT COUNT(*) FROM ");
-		sb.append(getTableNameProperties());
-		sb.append(" WHERE PROPERTY_ID = ?");
-		return sb.toString();
-	}
-	
-	public String getProperty() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("SELECT PROPERTY_ID,CLAZZ,CURRENTVALUE,DESCRIPTION,FIXEDVALUES FROM ");
-		sb.append(getTableNameProperties());
-		sb.append(" WHERE PROPERTY_ID = ?");
-		return sb.toString();
-	}
-	
-	public String updateProperty() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("UPDATE ");
-		sb.append(getTableNameProperties());
-		sb.append(" SET CURRENTVALUE = ? WHERE PROPERTY_ID = ?");
-		return sb.toString();
-	}
-	
-	public String getAllProperties() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("SELECT PROPERTY_ID,CLAZZ,CURRENTVALUE,DESCRIPTION,FIXEDVALUES FROM ");
-		sb.append(getTableNameProperties());
-		return sb.toString();
-	}
-	
-	public String getAllPropertiesNames() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("SELECT PROPERTY_ID FROM ");
-		sb.append(getTableNameProperties());
-		return sb.toString();
-	}
-	
-    // ------- AUDIT -------------
+    /* ------- AUDIT -------------
 	
 	public String sqlStartCreateEvent() {
 	    StringBuilder sb = new StringBuilder("INSERT INTO " + getTableNameAudit());
@@ -548,13 +524,7 @@ public class JdbcQueryBuilder {
         return sb.toString();
     }
     
-    public String sqldeleteEvent() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("DELETE FROM ");
-        sb.append(getTableNameAudit());
-        sb.append(" WHERE " + COL_EVENT_UID + " = ?");
-        return sb.toString();
-    }
+   
 	
 	public String getEventByUuidQuery() {
 	     StringBuilder sb = new StringBuilder();
@@ -617,7 +587,7 @@ public class JdbcQueryBuilder {
     }
 	
 	public String getUserHitCount() {
-	    return getHitCount(COL_EVENT_USER);
+	    return getHitCount(COL_OWNER);
     }
 	
 	public String getSourceHitCount() {
@@ -637,7 +607,6 @@ public class JdbcQueryBuilder {
         sb.append(" GROUP BY " + COL_EVENT_ACTION);
         return sb.toString();
     }
-   
     
 	private String buildClauseIn(Collection < String> elements) {
 	    boolean first = true;
@@ -697,6 +666,6 @@ public class JdbcQueryBuilder {
             sb.append(")");
         }
         return sb.toString();
-    }
+    }*/
 	
 }

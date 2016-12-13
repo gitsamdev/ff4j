@@ -1,33 +1,11 @@
 package org.ff4j.test.audit;
 
-import static org.ff4j.audit.EventConstants.ACTION_CHECK_OFF;
-
-/*
- * #%L
- * ff4j-core
- * %%
- * Copyright (C) 2013 - 2016 FF4J
- * %%
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * 
- *      http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * #L%
- */
-
-
-import static org.ff4j.audit.EventConstants.ACTION_CHECK_OK;
-import static org.ff4j.audit.EventConstants.ACTION_CREATE;
-import static org.ff4j.audit.EventConstants.SOURCE_JAVA;
-import static org.ff4j.audit.EventConstants.SOURCE_WEB;
-import static org.ff4j.audit.EventConstants.SOURCE_WEBAPI;
+import static org.ff4j.event.EventConstants.ACTION_CHECK_OFF;
+import static org.ff4j.event.EventConstants.ACTION_CHECK_OK;
+import static org.ff4j.event.EventConstants.ACTION_CREATE;
+import static org.ff4j.event.EventConstants.SOURCE_JAVA;
+import static org.ff4j.event.EventConstants.SOURCE_WEB;
+import static org.ff4j.event.EventConstants.SOURCE_WEBAPI;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -35,24 +13,24 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import org.ff4j.audit.BarChart;
-import org.ff4j.audit.Event;
-import org.ff4j.audit.EventBuilder;
-import org.ff4j.audit.EventPublisher;
-import org.ff4j.audit.EventQueryDefinition;
-import org.ff4j.audit.EventSeries;
-import org.ff4j.audit.MutableHitCount;
-import org.ff4j.audit.TimeSeriesChart;
+import org.ff4j.audit.FeatureUsageTracking;
+import org.ff4j.chart.BarChart;
+import org.ff4j.chart.TimeSeriesChart;
+import org.ff4j.event.Event;
+import org.ff4j.event.EventBuilder;
+import org.ff4j.event.EventPublisher;
+import org.ff4j.event.EventQueryDefinition;
+import org.ff4j.event.EventSeries;
 import org.ff4j.feature.Feature;
 import org.ff4j.inmemory.FeatureStoreInMemory;
-import org.ff4j.store.EventRepository;
+import org.ff4j.utils.MutableHitCount;
 import org.ff4j.utils.Util;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Superclass to test {@link EventRepository}.
+ * Superclass to test {@link FeatureUsageTracking}.
  * 
  * @author Cedrick Lunven (@clunven)
  */
@@ -61,8 +39,8 @@ public abstract class AbstractEventRepositoryTest {
     /** Feature List. */
     protected ArrayList<Feature> features;
 
-    /** Target {@link EventRepository}. */
-    protected EventRepository repo;
+    /** Target {@link FeatureUsageTracking}. */
+    protected FeatureUsageTracking repo;
     
     /** Target publisher. */
     protected EventPublisher publisher;
@@ -117,7 +95,7 @@ public abstract class AbstractEventRepositoryTest {
      * @throws Exception
      *             error during building feature store
      */
-    protected abstract EventRepository initRepository();
+    protected abstract FeatureUsageTracking initRepository();
     
     @Test
     public void testSaveEventUnit() throws InterruptedException {

@@ -2,7 +2,7 @@ package org.ff4j.cache;
 
 import java.io.Serializable;
 
-import org.ff4j.FF4jBaseObject;
+import org.ff4j.FF4jEntity;
 import org.ff4j.store.FF4jRepository;
 
 /**
@@ -15,7 +15,7 @@ import org.ff4j.store.FF4jRepository;
  * @param <V>
  *      cache value
  */
-public class CacheWorker< V extends FF4jBaseObject<?> > implements Runnable, Serializable {
+public class CacheWorker< V extends FF4jEntity<?> > implements Runnable, Serializable {
     
     /** serialVersionUID. */
     private static final long serialVersionUID = 7679893286791023790L;

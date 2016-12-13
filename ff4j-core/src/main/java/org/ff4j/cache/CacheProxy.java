@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import org.ff4j.FF4jBaseObject;
+import org.ff4j.FF4jEntity;
 import org.ff4j.store.FF4jRepository;
 
 /**
@@ -21,7 +21,7 @@ import org.ff4j.store.FF4jRepository;
  * @param <V>
  *      cache value
  */
-public class CacheProxy < K extends Serializable, V extends FF4jBaseObject<?> > implements FF4jRepository< String, V > {
+public class CacheProxy < K extends Serializable, V extends FF4jEntity<?> > implements FF4jRepository< String, V > {
     
     /** cache manager. */
     protected CacheManager< String , V > cacheManager;

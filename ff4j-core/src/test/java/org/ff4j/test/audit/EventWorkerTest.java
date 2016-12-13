@@ -1,8 +1,8 @@
 package org.ff4j.test.audit;
 
-import static org.ff4j.audit.EventConstants.ACTION_CHECK_OFF;
-import static org.ff4j.audit.EventConstants.ACTION_CHECK_OK;
-import static org.ff4j.audit.EventConstants.SOURCE_JAVA;
+import static org.ff4j.event.EventConstants.ACTION_CHECK_OFF;
+import static org.ff4j.event.EventConstants.ACTION_CHECK_OK;
+import static org.ff4j.event.EventConstants.SOURCE_JAVA;
 import static org.mockito.Mockito.doThrow;
 
 /*
@@ -27,13 +27,13 @@ import static org.mockito.Mockito.doThrow;
 
 import static org.mockito.Mockito.mock;
 
-import org.ff4j.audit.Event;
-import org.ff4j.audit.EventBuilder;
-import org.ff4j.audit.EventPublisher;
-import org.ff4j.audit.EventRejectedExecutionHandler;
-import org.ff4j.audit.EventWorker;
-import org.ff4j.inmemory.EventRepositoryInMemory;
-import org.ff4j.store.EventRepository;
+import org.ff4j.audit.FeatureUsageTracking;
+import org.ff4j.event.Event;
+import org.ff4j.event.EventBuilder;
+import org.ff4j.event.EventPublisher;
+import org.ff4j.event.EventRejectedExecutionHandler;
+import org.ff4j.event.EventWorker;
+import org.ff4j.inmemory.FeatureUsageTrackingInMemory;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -42,7 +42,7 @@ public class EventWorkerTest {
     @Test
     public void testEventWorker() {
         // Given
-        EventRepository er = new EventRepositoryInMemory();
+        FeatureUsageTracking er = new FeatureUsageTrackingInMemory();
         Event evt = new EventBuilder().source(SOURCE_JAVA).feature("F1").action(ACTION_CHECK_OFF).build();
         EventWorker ew = new EventWorker(evt, er);
         // When
@@ -54,7 +54,7 @@ public class EventWorkerTest {
     @Test
     public void testEventWorkerCall() throws Exception {
         // Given
-        EventRepository er = mock(EventRepository.class);
+        FeatureUsageTracking er = mock(FeatureUsageTracking.class);
         Event evt = new EventBuilder().source(SOURCE_JAVA).feature("F1").action(ACTION_CHECK_OK).build();
         er.create(evt);
         EventWorker ew = new EventWorker(evt, er);
@@ -65,7 +65,7 @@ public class EventWorkerTest {
     @Test
     public void testErrorOnSubmitEventPublisher() {
         // Given
-        EventRepository er = mock(EventRepository.class);
+        FeatureUsageTracking er = mock(FeatureUsageTracking.class);
         Event evt = new EventBuilder().source(SOURCE_JAVA).feature("F1").action(ACTION_CHECK_OFF).build();
         doThrow(new RuntimeException("Erreur")).when(er).create(evt);
         EventPublisher evtPublisher = new EventPublisher(er);

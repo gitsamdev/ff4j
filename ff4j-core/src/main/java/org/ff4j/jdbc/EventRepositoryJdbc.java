@@ -1,11 +1,5 @@
 package org.ff4j.jdbc;
 
-
-import static org.ff4j.jdbc.JdbcConstants.COL_EVENT_HOSTNAME;
-import static org.ff4j.jdbc.JdbcConstants.COL_EVENT_NAME;
-import static org.ff4j.jdbc.JdbcConstants.COL_EVENT_SOURCE;
-import static org.ff4j.jdbc.JdbcConstants.COL_EVENT_USER;
-
 /*
  * #%L ff4j-core %% Copyright (C) 2013 - 2015 Ff4J %% Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of the License at
@@ -41,20 +35,20 @@ import java.util.stream.Stream;
 
 import javax.sql.DataSource;
 
-import org.ff4j.audit.Event;
-import org.ff4j.audit.EventQueryDefinition;
-import org.ff4j.audit.EventSeries;
-import org.ff4j.audit.MutableHitCount;
-import org.ff4j.audit.TimeSeriesChart;
+import org.ff4j.audit.AbstractEventRepository;
+import org.ff4j.audit.FeatureUsageTracking;
+import org.ff4j.chart.TimeSeriesChart;
+import org.ff4j.event.Event;
+import org.ff4j.event.EventQueryDefinition;
+import org.ff4j.event.EventSeries;
 import org.ff4j.exception.AuditAccessException;
 import org.ff4j.exception.FeatureAccessException;
-import org.ff4j.store.AbstractEventRepository;
-import org.ff4j.store.EventRepository;
 import org.ff4j.utils.JdbcUtils;
+import org.ff4j.utils.MutableHitCount;
 import org.ff4j.utils.Util;
 
 /**
- * Implementation of in memory {@link EventRepository} with limited events.
+ * Implementation of in memory {@link FeatureUsageTracking} with limited events.
  * 
  * @author Cedrick Lunven (@clunven)
  */
@@ -90,8 +84,12 @@ public class EventRepositoryJdbc extends AbstractEventRepository {
     public void createSchema() {
         DataSource       ds = getDataSource();
         JdbcQueryBuilder qb = getQueryBuilder();
+        // Split AuditTrail information & Feature usage
         if (!isTableExist(ds, qb.getTableNameAudit())) {
             executeUpdate(ds, qb.sqlCreateTableAudit());
+        }
+        if (!isTableExist(ds, qb.getTableNameMetrics())) {
+            executeUpdate(ds, qb.sqlCreateTableMetrics());
         }
     }
     
@@ -99,17 +97,13 @@ public class EventRepositoryJdbc extends AbstractEventRepository {
     @Override
     public void create(Event evt) {
         Util.assertEvent(evt);
-        Connection sqlConn = null;
-        PreparedStatement stmt = null;
-        try {
-            sqlConn = dataSource.getConnection();
-            stmt = new JdbcEventMapper(sqlConn, getQueryBuilder()).toStore(evt);
-            stmt.executeUpdate();
+        try (Connection sqlConn = dataSource.getConnection()) {
+            JdbcEventAuditMapper auditMapper = new JdbcEventAuditMapper(sqlConn, getQueryBuilder());
+            try(PreparedStatement stmt = auditMapper.toStore(evt)) {
+                stmt.executeUpdate();
+            }
         } catch(Exception exc) {
             throw new AuditAccessException("Cannot insert event into DB (" + exc.getClass() + ") "+ exc.getCause(), exc);
-        } finally {
-           closeStatement(stmt);
-           closeConnection(sqlConn);
         }
     }
     
@@ -117,24 +111,16 @@ public class EventRepositoryJdbc extends AbstractEventRepository {
     @Override
     public Optional < Event > findById(String uuid, Long timestamp) {
         Util.assertHasLength(uuid);
-        Connection          sqlConn = null;
-        PreparedStatement   ps = null;
-        ResultSet           rs = null;
-        try {
-            sqlConn = getDataSource().getConnection();
-            ps = sqlConn.prepareStatement(getQueryBuilder().getEventByUuidQuery());
-            ps.setString(1, uuid);
-            rs = ps.executeQuery();
-            if (rs.next()) {
-               return Optional.of(new JdbcEventMapper(sqlConn, getQueryBuilder()).fromStore(rs));
+        try (Connection sqlConn = dataSource.getConnection()) {
+            try(PreparedStatement ps = sqlConn.prepareStatement(getQueryBuilder().sqlSelectAuditById())) {
+                ps.setString(1, uuid);
+                JdbcEventAuditMapper auditMapper = new JdbcEventAuditMapper(sqlConn, getQueryBuilder());
+                try(ResultSet rs = ps.executeQuery()) {
+                    return rs.next() ? Optional.of(auditMapper.fromStore(rs)) : Optional.empty();
+                }
             }
-            return Optional.empty();
         } catch (SQLException sqlEX) {
             throw new IllegalStateException("CANNOT_READ_AUDITTABLE", sqlEX);
-        } finally {
-            closeResultSet(rs);
-            closeStatement(ps);
-            closeConnection(sqlConn);
         }
     }
 
@@ -142,20 +128,13 @@ public class EventRepositoryJdbc extends AbstractEventRepository {
     @Override
     public void delete(String entityId) {
         assertItemExist(entityId);
-        Connection sqlConn = null;
-        PreparedStatement ps = null;
-        try {
-            sqlConn = getDataSource().getConnection();
-            ps = sqlConn.prepareStatement(getQueryBuilder().sqldeleteEvent());
-            ps.setString(1, entityId);
-            ps.executeUpdate();
-            sqlConn.commit();
+        try (Connection sqlConn = getDataSource().getConnection()) {
+            try(PreparedStatement ps = sqlConn.prepareStatement(getQueryBuilder().sqlDeleteAuditEvent())) {
+                ps.setString(1, entityId);
+                ps.executeUpdate();
+            }
         } catch (SQLException sqlEX) {
-            rollback(sqlConn);
             throw new AuditAccessException("CANNOT DELETE EVENT", sqlEX);
-        } finally {
-            closeStatement(ps);
-            closeConnection(sqlConn);
         }
     }
     
@@ -193,7 +172,7 @@ public class EventRepositoryJdbc extends AbstractEventRepository {
             rs = ps.executeQuery();
             List<Event> events = new ArrayList<>();
             while (rs.next()) {
-                events.add(new JdbcEventMapper(sqlConn, getQueryBuilder()).fromStore(rs));
+                events.add(new JdbcEventAuditMapper(sqlConn, getQueryBuilder()).fromStore(rs));
             }
             return events.stream();
         } catch (SQLException sqlEX) {
@@ -262,7 +241,7 @@ public class EventRepositoryJdbc extends AbstractEventRepository {
             ps.setTimestamp(2, new Timestamp(to));
             rs = ps.executeQuery();
             while (rs.next()) {
-                es.add(new JdbcEventMapper(sqlConn, getQueryBuilder()).fromStore(rs));
+                es.add(new JdbcEventAuditMapper(sqlConn, getQueryBuilder()).fromStore(rs));
             }
         } catch (SQLException sqlEX) {
             throw new IllegalStateException("CANNOT_READ_AUDITTABLE", sqlEX);
@@ -327,7 +306,7 @@ public class EventRepositoryJdbc extends AbstractEventRepository {
     /** {@inheritDoc} */
     @Override
     public Map<String, MutableHitCount> getUserHitCount(EventQueryDefinition query) {
-        return computeHitCount(getQueryBuilder().getUserHitCount(), COL_EVENT_USER, query.getFrom(), query.getTo());
+        return computeHitCount(getQueryBuilder().getUserHitCount(), COL_OWNER, query.getFrom(), query.getTo());
     }
 
     /** {@inheritDoc} */

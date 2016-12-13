@@ -33,7 +33,7 @@ import java.util.Optional;
  *
  * @author Cedrick LUNVEN (@clunven)
  */
-public class FF4jBaseObject<T extends FF4jBaseObject<?>> implements Comparable<T>, Serializable {
+public class FF4jEntity<T extends FF4jEntity<?>> implements Comparable<T>, Serializable {
 
     /** serial number. */
     private static final long serialVersionUID = -6001829116967488353L;
@@ -80,7 +80,7 @@ public class FF4jBaseObject<T extends FF4jBaseObject<?>> implements Comparable<T
      *
      * @param uid
      */
-    protected FF4jBaseObject(String uid) {
+    protected FF4jEntity(String uid) {
         this.uid         = uid;
         creationDate     = Optional.of(LocalDateTime.now());
         lastModifiedDate = creationDate;

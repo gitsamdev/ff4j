@@ -26,9 +26,11 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.ff4j.FF4jBaseObject;
+import org.ff4j.FF4jEntity;
 import org.ff4j.property.Property;
 import org.ff4j.property.PropertyFactory;
+import org.ff4j.security.FF4jGrantees;
+import org.ff4j.security.FF4jPermission;
 import org.ff4j.strategy.FF4jExecutionStrategy;
 import org.ff4j.utils.Util;
 
@@ -46,7 +48,7 @@ import org.ff4j.utils.Util;
  *
  * @author Cedrick Lunven (@clunven)
  */
-public class Feature extends FF4jBaseObject < Feature > {
+public class Feature extends FF4jEntity < Feature > {
 
     /** serial of the class. */
     private static final long serialVersionUID = -1345806526991179050L;
@@ -65,7 +67,10 @@ public class Feature extends FF4jBaseObject < Feature > {
 
     /** Add you own attributes to a feature. */
     private Optional<Map<String, Property<?>>> customProperties = Optional.empty();
-
+    
+    /** People allow to perform dedicated operation. */
+    private Optional < Map < FF4jPermission, Set < FF4jGrantees > > > grantees = Optional.empty();
+    
     /**
      * Initialize {@link Feature} with id;
      * 
@@ -279,6 +284,16 @@ public class Feature extends FF4jBaseObject < Feature > {
     public Optional<Map<String, Property<?>>> getCustomProperties() {
         return customProperties;
     }
+    
+    /**
+     * Getter accessor for attribute 'grantees'.
+     *
+     * @return
+     *       current value of 'grantees'
+     */
+    public Optional <Map<FF4jPermission, Set<FF4jGrantees>>> getGrantees() {
+        return grantees;
+    }
 
     /**
      * Accessor to read a custom property from Feature.
@@ -294,5 +309,4 @@ public class Feature extends FF4jBaseObject < Feature > {
         }
         return Optional.empty();
     }
-
 }

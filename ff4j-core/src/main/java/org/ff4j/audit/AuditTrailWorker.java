@@ -22,23 +22,14 @@ package org.ff4j.audit;
 
 import java.util.concurrent.Callable;
 
-import org.ff4j.store.EventRepository;
+import org.ff4j.event.Event;
 
 /**
- * Worker to save {@link Event} into {@link EventRepository} asynchronously.
+ * Worker to save {@link Event} into {@link FeatureUsageTracking} asynchronously.
  * 
  * @author Cedrick Lunven (@clunven)
  */
-public class EventWorker implements Callable<Boolean> {
-
-    /** Target event to insert. */
-    private Event event = null;
-    
-    /** current thread name if relevant. */
-    private String name = null;
-
-    /** Repository to store event. */
-    private EventRepository eventRepository = null;
+public class AuditTrailWorker implements Callable<Boolean> {
 
     /** retry count if not available. */
     private static final int MAX_RETRY = 3;
@@ -46,6 +37,15 @@ public class EventWorker implements Callable<Boolean> {
     /** retry delay. */
     private static final long RETRY_DELAY = 500L;
 
+    /** current thread name if relevant. */
+    private String threadName = null;
+
+    /** Target event to insert. */
+    private Event event = null;
+    
+    /** Repository to store event. */
+    private AuditTrail auditTrail = null;
+    
     /**
      * Worker constructor.
      * 
@@ -54,12 +54,21 @@ public class EventWorker implements Callable<Boolean> {
      * @param repo
      *            event repository to store events
      */
-    public EventWorker(Event e, EventRepository repo) {
-        this.event = e;
-        this.eventRepository = repo;
-        if (e != null) {
-            this.name = e.getTimestamp() + "-" + e.getAction() + "-" + e.getName();
+    public AuditTrailWorker(AuditTrail auditTrail, Event evt) {
+        this.event = evt;
+        this.auditTrail = auditTrail;
+        if (evt != null) {
+            this.threadName = evt.getScope().name() + "-" + evt.getName() + "-" + evt.getAction();
         }
+    }
+    
+    /**
+     * Name for this worker.
+     *
+     * @return
+     */
+    public String getThreadName() {
+        return this.threadName;
     }
 
     /** {@inheritDoc} */
@@ -69,7 +78,7 @@ public class EventWorker implements Callable<Boolean> {
         int retryCount = 0;
         while (!ok && retryCount < MAX_RETRY) {
             try {
-                eventRepository.create(event);
+                auditTrail.log(event);
                 ok = true;
             } catch(Throwable t) {
                 retryCount++;
@@ -78,24 +87,5 @@ public class EventWorker implements Callable<Boolean> {
         }
         return ok;
     }
-
-    /**
-     * Getter accessor for attribute 'name'.
-     *
-     * @return
-     *       current value of 'name'
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * Setter accessor for attribute 'name'.
-     * @param name
-     * 		new value for 'name '
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
-
+    
 }

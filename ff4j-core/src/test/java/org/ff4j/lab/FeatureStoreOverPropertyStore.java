@@ -1,11 +1,15 @@
 package org.ff4j.lab;
 
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import org.ff4j.feature.Feature;
+import org.ff4j.security.FF4jPermission;
 import org.ff4j.store.AbstractFeatureStore;
 import org.ff4j.store.PropertyStore;
+import org.hsqldb.rights.Grantee;
 
 /**
  * Leverage on {@link PropertyStore} to handle features. Feature will
@@ -71,18 +75,6 @@ public class FeatureStoreOverPropertyStore extends AbstractFeatureStore {
         assertFeatureNotNull(feature);
         assertFeatureNotExist(feature.getUid());
         propertyStore.create(new PropertyFeature(feature));
-    }
-
-    @Override
-    public void grantRoleOnFeature(String uid, String roleName) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public void removeRoleFromFeature(String uid, String roleName) {
-        // TODO Auto-generated method stub
-        
     }
 
     @Override
@@ -159,6 +151,24 @@ public class FeatureStoreOverPropertyStore extends AbstractFeatureStore {
 
     @Override
     public void update(Feature entity) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public Map<FF4jPermission, Set<Grantee>> getPermissions() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void grantUser(String userName, FF4jPermission... perm) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void grantGroup(String groupName, FF4jPermission... perm) {
         // TODO Auto-generated method stub
         
     }

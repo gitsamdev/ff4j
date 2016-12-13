@@ -1,4 +1,4 @@
-package org.ff4j.audit;
+package org.ff4j.chart;
 
 /*
  * #%L
@@ -20,27 +20,50 @@ package org.ff4j.audit;
  * #L%
  */
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Bean representing a histogram graph.
+ * Bean representing a pie chart.
  *
  * @author Cedrick Lunven (@clunven)
  */
-public class BarChart extends AbstractChart {
+public class PieChart extends AbstractChart implements Serializable {
     
     /** serial. */
-    private static final long serialVersionUID = -7438492625518407540L;
-    
+    private static final long serialVersionUID = -6019282228665603275L;
+   
     /** sector for the graph. */
-    private List < Serie < Integer > > chartBars = new ArrayList< Serie < Integer > >();
-    
+    private List < Serie < Integer > > sectors = new ArrayList<Serie < Integer >>();
+
     /**
-     * Default constructor.
+     * Constructor with title.
+     *
+     * @param t
+     *      target title.
      */
-    public BarChart(String title) {
-        super(title);
+    public PieChart(String t) {
+        super(t);
+    }
+
+    /** {@inheritDoc} */
+    public String toJson() {
+        StringBuilder sb = new StringBuilder("{");
+        sb.append(" \"title\" : \"" +  getTitle() + "\", ");
+        sb.append(" \"sectors\" : [");
+        if (null != sectors) {
+            boolean first = true;
+            for (Serie < Integer > pieSector : sectors) {
+                if (!first) {
+                    sb.append(", ");
+                }
+                sb.append(pieSector.toString());
+                first = false;
+            }
+        }
+        sb.append("] }");
+        return sb.toString();
     }
     
     /** {@inheritDoc} */
@@ -48,35 +71,14 @@ public class BarChart extends AbstractChart {
     public String toString() {
         return toJson();
     }
-    
-    /** {@inheritDoc} */
-    public String toJson() {
-        StringBuilder sb = new StringBuilder("{");
-        sb.append(" \"title\" : \"" +  getTitle() + "\", ");
-        sb.append(" \"bars\" : [");
-        if (null != chartBars) {
-            boolean first = true;
-            for (Serie<Integer> bar : chartBars) {
-                if (!first) {
-                    sb.append(", ");
-                }
-                sb.append(bar.toString());
-                first = false;
-            }
-        }
-        sb.append("] }");
-        return sb.toString();
-    }
 
     /**
-     * Getter accessor for attribute 'chartBars'.
+     * Getter accessor for attribute 'sectors'.
      *
      * @return
-     *       current value of 'chartBars'
+     *       current value of 'sectors'
      */
-    public List< Serie < Integer > > getChartBars() {
-        return chartBars;
+    public List<Serie < Integer >> getSectors() {
+        return sectors;
     }
- 
-    
 }

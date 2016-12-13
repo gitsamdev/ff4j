@@ -1,5 +1,11 @@
 package org.ff4j.jdbc;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import org.ff4j.utils.Util;
+
 /*
  * #%L ff4j-core %% Copyright (C) 2013 Ff4J %% Licensed under the Apache License, Version 2.0 (the "License"); you may not use
  * this file except in compliance with the License. You may obtain a copy of the License at
@@ -17,204 +23,492 @@ package org.ff4j.jdbc;
  * @author Cedrick Lunven (@clunven)
  */
 public class JdbcConstants {
-	
-	/** sql query expression *
-    public static final String SQLQUERY_ALLFEATURES = "SELECT FEAT_UID,ENABLE,DESCRIPTION,STRATEGY,EXPRESSION,GROUPNAME FROM FF4J_FEATURES";
-	
-    /** sql query expression *
-    public static final String SQLQUERY_ALLGROUPS = "SELECT DISTINCT(GROUPNAME) FROM FF4J_FEATURES";
-
-    /** sql query expression *
-    public static final String SQLQUERY_GET_FEATURE_GROUP = "SELECT FEAT_UID,ENABLE,DESCRIPTION,STRATEGY,EXPRESSION,GROUPNAME FROM FF4J_FEATURES WHERE GROUPNAME = ?";
-
-    /** sql query expression *
-    public static final String SQL_GETFEATUREBYID = "SELECT FEAT_UID,ENABLE,DESCRIPTION,STRATEGY,EXPRESSION,GROUPNAME FROM FF4J_FEATURES WHERE FEAT_UID = ?";
-
-    /** sql query expression */
-    public static final String SQL_EXIST = "SELECT COUNT(FEAT_UID) FROM FF4J_FEATURES WHERE FEAT_UID = ?";
-
-    /** sql query expression */
-    public static final String SQL_DISABLE = "UPDATE FF4J_FEATURES SET ENABLE = 0 WHERE FEAT_UID = ?";
-
-    /** sql query expression */
-    public static final String SQL_ADD_TO_GROUP = "UPDATE FF4J_FEATURES SET GROUPNAME = ? WHERE FEAT_UID = ?";
-
-    /** sql query expression */
-    public static final String SQL_REMOVE_FROM_GROUP = "UPDATE FF4J_FEATURES SET GROUPNAME = NULL WHERE FEAT_UID = ?";
-
-    /** sql query expression */
-    public static final String SQL_ENABLE = "UPDATE FF4J_FEATURES SET ENABLE = 1 WHERE FEAT_UID = ?";
-
-    /** sql query expression */
-    public static final String SQL_ENABLE_GROUP = "UPDATE FF4J_FEATURES SET ENABLE = 1 WHERE GROUPNAME = ?";
-
-    /** sql query expression */
-    public static final String SQL_DISABLE_GROUP = "UPDATE FF4J_FEATURES SET ENABLE = 0 WHERE GROUPNAME = ?";
-
-    /** sql query expression */
-    public static final String SQL_EXIST_GROUP = "SELECT COUNT(*) FROM FF4J_FEATURES WHERE GROUPNAME = ?";
-
-    /** sql query expression */
-    public static final String SQL_CREATE = "INSERT INTO FF4J_FEATURES(FEAT_UID, ENABLE, DESCRIPTION, STRATEGY,EXPRESSION, GROUPNAME) VALUES(?, ?, ?, ?, ?, ?)";
-
-    /** sql query expression */
-    public static final String SQL_DELETE = "DELETE FROM FF4J_FEATURES WHERE FEAT_UID = ?";
-
-    /** sql query expression */
-    public static final String SQL_UPDATE = "UPDATE FF4J_FEATURES SET ENABLE=?,DESCRIPTION=?,STRATEGY=?,EXPRESSION=?,GROUPNAME=? WHERE FEAT_UID = ?";
-
-    /** sql query expression */
-    public static final String SQL_ADD_ROLE = "INSERT INTO FF4J_ROLES(FEAT_UID, ROLE_NAME) VALUES (?,?)";
     
-    /** sql query expression */
-    public static final String SQL_DELETE_ROLES = "DELETE FROM FF4J_ROLES WHERE FEAT_UID = ?";
-
-    /** sql query expression */
-    public static final String SQL_DELETE_ROLE = "DELETE FROM FF4J_ROLES WHERE FEAT_UID = ? AND ROLE_NAME = ?";
-
-    /** sql query expression */
-    public static final String SQL_GET_ROLES = "SELECT ROLE_NAME FROM FF4J_ROLES WHERE FEAT_UID = ?";
+    /**
+     * Representation of the JDBC Table FEATURES.
+     */
+    public static enum SQLTypes {
+        VARCHAR, DATE, DATETIME, INTEGER, TIMESTAMP;
+    }
     
-    /** sql query expression */
-    public static final String SQL_GET_ALLROLES = "SELECT FEAT_UID,ROLE_NAME FROM FF4J_ROLES";
-   
-    // ------- Properties -------------
+    /**
+     * Template to be expected by a colum.
+     * 
+     * @author Cedrick LUNVEN  (@clunven)
+     */
+    public interface SqlTableColumns {
+        
+        /** identifier for the column. */
+        String colname();
+        
+        /** sql type. */
+        SQLTypes type();
+        
+        /** size of column or null. */
+        int size();
+        
+        /** if nullable. */
+        boolean nullable();
+        
+        /** underlying table name. */
+        String tableName();
+        
+        /** underlying table primary. */
+        List < SqlTableColumns > primaryKey();
+        
+        /** underlying foreign keys. */
+        Optional <Map < SqlTableColumns,SqlTableColumns >> foreignKey();
+    }
     
-    /** sql query expression */
-    public static final String SQL_GETREFPROPERTIESBYID = "SELECT PROPERTY_ID,CLAZZ,CURRENTVALUE,DESCRIPTION,FIXEDVALUES,FEAT_UID "
-            + "FROM FF4J_CUSTOM_PROPERTIES "
-            + "WHERE FEAT_UID = ?";
+    // ----------------------------------
+    // ------- TABLE FEATURES -----------
+    // ----------------------------------
     
-    /** sql query expression */
-    public static final String SQL_GET_CUSTOMPROPERTY_BYID = "SELECT PROPERTY_ID,CLAZZ,CURRENTVALUE,FIXEDVALUES,FEAT_UID "
-            + "FROM FF4J_CUSTOM_PROPERTIES "
-            + "WHERE PROPERTY_ID = ? AND FEAT_UID = ?";
-    
-    /** sql query expression */
-    public static final String SQL_DELETE_CUSTOMPROPERTY = "DELETE FROM FF4J_CUSTOM_PROPERTIES WHERE PROPERTY_ID = ? AND FEAT_UID = ?";
-    
-    /** sql query expression */
-    public static final String SQL_DELETE_CUSTOMPROPERTIES = "DELETE FROM FF4J_CUSTOM_PROPERTIES WHERE FEAT_UID = ?";
-    
-    /** sql query expression */
-    public static final String SQL_DELETE_ALL_CUSTOMPROPERTIES = "DELETE FROM FF4J_CUSTOM_PROPERTIES";
-    
-    /** sql query expression */
-    public static final String SQL_DELETE_ALL_ROLES = "DELETE FROM FF4J_ROLES";
-    
-    /** sql query expression */
-    public static final String SQL_DELETE_ALL_FEATURES = "DELETE FROM FF4J_FEATURES";
-    
-    /** sql query expression */
-    public static final String SQL_CREATE_CUSTOMPROPERTY =
-            "INSERT INTO FF4J_CUSTOM_PROPERTIES (" + 
-            "PROPERTY_ID, CLAZZ, CURRENTVALUE, DESCRIPTION, FIXEDVALUES, FEAT_UID) " + 
-            "VALUES(?, ?, ?, ?, ?, ?)";
-    
-    /** Create property. */
-    public static final String SQL_PROPERTY_CREATE = "INSERT INTO FF4J_PROPERTIES(PROPERTY_ID, CLAZZ, CURRENTVALUE, DESCRIPTION, FIXEDVALUES) VALUES(?, ?, ?, ?, ?)";
-    
-    /** Delete property. */
-    public static final String SQL_PROPERTY_DELETE = "DELETE FROM FF4J_PROPERTIES WHERE PROPERTY_ID = ?";
-    
-    /** Delete property. */
-    public static final String SQL_PROPERTY_DELETE_ALL = "DELETE FROM FF4J_PROPERTIES";
-    
-    /** Test if property exist. */
-    public static final String SQL_PROPERTY_EXIST = "SELECT COUNT(*) FROM FF4J_PROPERTIES WHERE PROPERTY_ID = ?";
-    
-    /** Test if property exist. */
-    public static final String SQL_PROPERTY_READ = "SELECT PROPERTY_ID,CLAZZ,CURRENTVALUE,DESCRIPTION,FIXEDVALUES FROM FF4J_PROPERTIES WHERE PROPERTY_ID = ?";
-    
-    /** sql query expression */
-    public static final String SQL_PROPERTY_UPDATE = "UPDATE FF4J_PROPERTIES SET CURRENTVALUE = ? WHERE PROPERTY_ID = ?";
-
-    /** sql query expression */
-    public static final String SQL_PROPERTY_READALL = "SELECT PROPERTY_ID,CLAZZ,CURRENTVALUE,DESCRIPTION,FIXEDVALUES FROM FF4J_PROPERTIES";
-    
-    /** sql query expression */
-    public static final String SQL_PROPERTY_READNAMES = "SELECT PROPERTY_ID FROM FF4J_PROPERTIES";
-    
-    // ---------------------------------
-    // ------- TABLE AUDIT -------------
-    // ---------------------------------
-    
-    /** sql column name for table AUDIT. */
-    public static final String TABLENAME_AUDIT      = "AUDIT";
-    /** sql column name for table AUDIT. */
-    public static final String COL_EVENT_UID        = "UID";
-    /** sql column name for table AUDIT. */
-    public static final String COL_EVENT_USER       = "OWNER";
-    /** sql column name for table AUDIT. */
-    public static final String COL_EVENT_CREATIONDATE   = "CREATED";
-    /** sql column name for table AUDIT. */
-    public static final String COL_EVENT_LASTMODIFIED   = "LASTMODIFIED";
-    /** sql column name for table AUDIT. */
-    public static final String COL_EVENT_DESCRIPTION    = "DESCRIPTION";
-    /** sql column name for table AUDIT. */
-    public static final String COL_EVENT_TIME       = "EVT_TIME";
-    /** sql column name for table AUDIT. */
-    public static final String COL_EVENT_TYPE       = "EVT_TYPE";
-    /** sql column name for table AUDIT. */
-    public static final String COL_EVENT_NAME       = "NAME";
-    /** sql column name for table AUDIT. */
-    public static final String COL_EVENT_ACTION     = "ACTION";
-    /** sql column name for table AUDIT. */
-    public static final String COL_EVENT_HOSTNAME   = "HOSTNAME";
-    /** sql column name for table AUDIT. */
-    public static final String COL_EVENT_SOURCE     = "SOURCE";
-    /** sql column name for table AUDIT. */
-    public static final String COL_EVENT_DURATION   = "DURATION";
-    /** sql column name for table AUDIT. */
-    public static final String COL_EVENT_VALUE      = "EVT_VALUE";
-    /** sql column name for table AUDIT. */
-    public static final String COL_EVENT_KEYS       = "KEYS";
-    
-    // ---------------------------------
-    // ------- TABLE FEATURES ----------
-    // ---------------------------------
-
-    /** sql column name from table FF4J_FEATURES. */
-    public static final String COL_FEAT_UID = "FEAT_UID";
-    /** sql column name from table FF4J_FEATURES. */
-    public static final String COL_FEAT_ENABLE = "ENABLE";
-    /** sql column name from table FF4J_FEATURES. */
-    public static final String COL_FEAT_DESCRIPTION = "DESCRIPTION";
-    /** sql column name from table FF4J_FEATURES. */
-    public static final String COL_FEAT_GROUPNAME = "GROUPNAME";
-    /** sql column name from table FF4J_FEATURES. */
-    public static final String COL_FEAT_STRATEGY = "STRATEGY";
-    /** sql column name from table FF4J_FEATURES. */
-    public static final String COL_FEAT_EXPRESSION = "EXPRESSION";
+    /**
+     * Representation of the JDBC Table FEATURES.
+     */
+    public static enum FeaturesColumns implements SqlTableColumns {
+        
+        UID("FEAT_UID", SQLTypes.VARCHAR, 100, true),
+        CREATED("CREATED", SQLTypes.DATETIME, 0, true),
+        LASTMODIFIED("LASTMODIFIED", SQLTypes.DATETIME, 0, true),
+        OWNER("OWNER", SQLTypes.VARCHAR,   100, false),
+        DESCRIPTION("DESCRIPTION", SQLTypes.VARCHAR, 255, false),
+        ENABLE("ENABLE", SQLTypes.INTEGER, 0, true),
+        STRATEGY("STRATCLASS", SQLTypes.VARCHAR,1000, false),
+        INITPARAMS("STRATPARAM", SQLTypes.VARCHAR, 1000, false),
+        GROUPNAME("GROUPNAME", SQLTypes.VARCHAR, 100, false);
+        
+        /** Column attribute */
+        private final String name;
+        
+        /** Column attribute */
+        private final SQLTypes type;
+        
+        /** Column attribute */
+        private final int size;
+        
+        /** Column attribute */
+        private final boolean required;
+        
+        /**
+         * Private constructor.
+         *
+         * @param pname
+         *      column name
+         * @param ptype
+         *      column type (depends on underlying JDBC DB NUMBER, INTEGER, but still useful 
+         * @param psize
+         *      column size
+         * @param pnullabz
+         */
+        private FeaturesColumns(String pname, SQLTypes ptype, int psize, boolean pnullable) {
+            name = pname;
+            type = ptype;
+            size = psize;
+            required = pnullable;
+        }
+        
+        /** {@inheritDoc} */
+        public String colname() { return name; }
+        
+        /** {@inheritDoc} */
+        public SQLTypes type()  { return type; }
+        
+        /** {@inheritDoc} */
+        public int size()       { return size; }
+        
+        /** {@inheritDoc} */
+        public boolean nullable()  { return !required; }
+        
+        /** {@inheritDoc} */
+        public String tableName() { return "FEATURES"; }
+        
+        /** {@inheritDoc} */
+        public List < SqlTableColumns > primaryKey() { return Util.listOf(UID); }
+        
+        /** {@inheritDoc} */
+        public Optional <Map < SqlTableColumns,SqlTableColumns >> foreignKey() { return Optional.empty(); }
+    }
     
     // ---------------------------------
     // ------- TABLE ROLES -------------
     // ---------------------------------
     
-    /** sql column name from table FF4J_ROLES. */
-    public static final String COL_ROLE_FEATID = "FEAT_UID";
-    /** sql column name from table FF4J_ROLES. */
-    public static final String COL_ROLE_ROLENAME = "ROLE_NAME";
+    /**
+     * Representation of the JDBC Table ROLE.
+     */
+    public static enum RolesColumns  implements SqlTableColumns {
+        
+        FEATURE_UID("FEAT_UID",   SQLTypes.VARCHAR, 100, true),
+        ROLE("ROLE_NAME", SQLTypes.VARCHAR, 100, true);
+        
+        /** Column attribute */
+        private final String name;
+        
+        /** Column attribute */
+        private final SQLTypes type;
+        
+        /** Column attribute */
+        private final int size;
+        
+        /** Column attribute */
+        private final boolean required;
+        
+        /**
+         * Private constructor.
+         *
+         * @param pname
+         *      column name
+         * @param ptype
+         *      column type (depends on underlying JDBC DB NUMBER, INTEGER, but still useful 
+         * @param psize
+         *      column size
+         * @param pnullabz
+         */
+        private RolesColumns(String pname, SQLTypes ptype, int psize, boolean pnullable) {
+            name = pname;
+            type = ptype;
+            size = psize;
+            required = pnullable;
+        }
+        
+        /** {@inheritDoc} */
+        public String colname() { return name; }
+        
+        /** {@inheritDoc} */
+        public SQLTypes type()  { return type; }
+        
+        /** {@inheritDoc} */
+        public int size()       { return size; }
+        
+        /** {@inheritDoc} */
+        public boolean nullable()  { return !required; }
+        
+        /** {@inheritDoc} */
+        public String tableName() { return "ROLES"; }
+        
+        /** {@inheritDoc} */
+        public List < SqlTableColumns > primaryKey() { 
+            return Util.listOf(FEATURE_UID, ROLE); 
+        }
+        
+        /** {@inheritDoc} */
+        public Optional <Map < SqlTableColumns, SqlTableColumns >> foreignKey() { 
+            return Optional.of(Util.mapOf(FEATURE_UID, FeaturesColumns.UID)); 
+        }
+    }
 
     // ---------------------------------
     // ----- TABLE PROPERTIES ----------
     // ---------------------------------
-    
-    /** sql column name from table FF4J_PROPERTIES. */
-    public static final String COL_PROPERTY_ID          = "PROPERTY_ID";
-    /** sql column name from table FF4J_PROPERTIES. */
-    public static final String COL_PROPERTY_TYPE        = "CLAZZ";
-    /** sql column name from table FF4J_PROPERTIES. */
-    public static final String COL_PROPERTY_VALUE       = "CURRENTVALUE";
-    /** sql column name from table FF4J_PROPERTIES. */
-    public static final String COL_PROPERTY_FIXED       = "FIXEDVALUES";
-    /** sql column name from table FF4J_PROPERTIES. */
-    public static final String COL_PROPERTY_FEATID      = "FEAT_UID";
-    /** sql column name from table FF4J_PROPERTIES. */
-    public static final String COL_PROPERTY_DESCRIPTION = "DESCRIPTION";
+   
+    /** Representation of the JDBC Table FEATURES. */
+    public static enum PropertyColumns implements SqlTableColumns {
+        
+        UID("PROPERTY_ID", SQLTypes.VARCHAR, 100, true),
+        READONLY("READONLY", SQLTypes.INTEGER, 0, true),
+        CREATED("CREATED", SQLTypes.DATETIME, 0, true),
+        LASTMODIFIED("LASTMODIFIED", SQLTypes.DATETIME, 0, true),
+        OWNER("OWNER", SQLTypes.VARCHAR,   100, false),
+        DESCRIPTION("DESCRIPTION", SQLTypes.VARCHAR, 255, false),        
+        CLAZZ("CLAZZ", SQLTypes.VARCHAR, 255, true),
+        VALUE("CURRENTVALUE", SQLTypes.VARCHAR, 255, true),
+        STRATEGY("STRATCLASS", SQLTypes.VARCHAR,1000, false),
+        INITPARAMS("STRATPARAM", SQLTypes.VARCHAR, 1000, false),
+        FIXEDVALUES("FIXEDVALUES", SQLTypes.VARCHAR, 1000, false);
+        
+        /** Column attribute */
+        private final String name;
+        /** Column attribute */
+        private final SQLTypes type;
+        /** Column attribute */
+        private final int size;
+        /** Column attribute */
+        private final boolean required;
+        
+        /**
+         * Private constructor.
+         *
+         * @param pname
+         *      column name
+         * @param ptype
+         *      column type (depends on underlying JDBC DB NUMBER, INTEGER, but still useful 
+         * @param psize
+         *      column size
+         * @param pnullabz
+         */
+        private PropertyColumns(String pname, SQLTypes ptype, int psize, boolean pnullable) {
+            name = pname;
+            type = ptype;
+            size = psize;
+            required = pnullable;
+        }
 
+        /** {@inheritDoc} */
+        public String colname() { return name; }
+        
+        /** {@inheritDoc} */
+        public SQLTypes type()  { return type; }
+        
+        /** {@inheritDoc} */
+        public int size()       { return size; }
+        
+        /** {@inheritDoc} */
+        public boolean nullable()  { return !required; }
+        
+        /** {@inheritDoc} */
+        public String tableName() { return "PROPERTIES"; }
+        
+        /** {@inheritDoc} */
+        public List < SqlTableColumns > primaryKey() { 
+            return Util.listOf(UID); 
+        }
+        
+        /** {@inheritDoc} */
+        public Optional <Map < SqlTableColumns, SqlTableColumns >> foreignKey() { 
+            return Optional.empty(); 
+        }
+    }
+    
+    // ---------------------------------
+    // --- TABLE CUSTOM PROPERTIES  ----
+    // ---------------------------------
+    
+    /**
+     * Representation of the JDBC Table FEATURES.
+     */
+    public static enum CustomPropertyColumns implements SqlTableColumns {
+        
+        UID("PROPERTY_ID", SQLTypes.VARCHAR, 100, true),
+        READONLY("READONLY", SQLTypes.INTEGER, 0, true),
+        CREATED("CREATED", SQLTypes.DATETIME, 0, true),
+        LASTMODIFIED("LASTMODIFIED", SQLTypes.DATETIME, 0, true),
+        OWNER("OWNER", SQLTypes.VARCHAR,   100, false),
+        DESCRIPTION("DESCRIPTION", SQLTypes.VARCHAR, 255, false),        
+        CLAZZ("CLAZZ", SQLTypes.VARCHAR, 255, true),
+        CURRENTVALUE("CURRENTVALUE", SQLTypes.VARCHAR, 255, true),
+        STRATEGY("STRATCLASS", SQLTypes.VARCHAR,1000, false),
+        INITPARAMS("STRATPARAM", SQLTypes.VARCHAR, 1000, false),
+        FIXEDVALUES("FIXEDVALUES", SQLTypes.VARCHAR, 1000, false),
+        FEATURE_UID("FEAT_UID", SQLTypes.VARCHAR, 100, true);
+        
+        /** Column attribute */
+        private final String name;
+        /** Column attribute */
+        private final SQLTypes type;
+        /** Column attribute */
+        private final int size;
+        /** Column attribute */
+        private final boolean required;
+        
+        /**
+         * Private constructor.
+         *
+         * @param pname
+         *      column name
+         * @param ptype
+         *      column type (depends on underlying JDBC DB NUMBER, INTEGER, but still useful 
+         * @param psize
+         *      column size
+         * @param pnullabz
+         */
+        private CustomPropertyColumns(String pname, SQLTypes ptype, int psize, boolean pnullable) {
+            name = pname;
+            type = ptype;
+            size = psize;
+            required = pnullable;
+        }
+
+        /** {@inheritDoc} */
+        public String colname() { return name; }
+        
+        /** {@inheritDoc} */
+        public SQLTypes type()  { return type; }
+        
+        /** {@inheritDoc} */
+        public int size()       { return size; }
+        
+        /** {@inheritDoc} */
+        public boolean nullable()  { return !required; }
+        
+        /** {@inheritDoc} */
+        public String tableName() { return "CUSTOM_PROPERTIES"; }
+        
+        /** {@inheritDoc} */
+        public List < SqlTableColumns > primaryKey() { 
+            return Util.listOf(UID, FEATURE_UID); 
+        }
+        
+        /** {@inheritDoc} */
+        public Optional <Map < SqlTableColumns, SqlTableColumns >> foreignKey() { 
+            return Optional.of(Util.mapOf(FEATURE_UID, FeaturesColumns.UID)); 
+        }
+    }
+    
+    // ---------------------------------
+    // ------- TABLE AUDIT -------------
+    // ---------------------------------
+    
+    /**
+     * Representation of the JDBC Table FEATURES.
+     */
+    public static enum AuditColumns implements SqlTableColumns {
+        
+        UID("UID", SQLTypes.VARCHAR, 100, true),
+        CREATED("CREATED", SQLTypes.DATETIME, 0, true),
+        LASTMODIFIED("LASTMODIFIED", SQLTypes.DATETIME, 0, true),
+        OWNER("OWNER", SQLTypes.VARCHAR, 100, false),
+        DESCRIPTION("DESCRIPTION", SQLTypes.VARCHAR, 255, false),
+        TIMESTAMP("EVT_TIME", SQLTypes.TIMESTAMP, 0, true),
+        TYPE("EVT_TYPE", SQLTypes.VARCHAR, 30, true),
+        NAME("NAME", SQLTypes.VARCHAR, 30, true),
+        ACTION("ACTION", SQLTypes.VARCHAR, 30, true),
+        HOSTNAME("HOSTNAME", SQLTypes.VARCHAR, 100, false),
+        SOURCE("SOURCE", SQLTypes.VARCHAR, 100, false),
+        DURATION("DURATION", SQLTypes.INTEGER, 0, true),
+        VALUE("EVT_VALUE", SQLTypes.VARCHAR, 100, true),
+        KEYS("EVT_KEYS", SQLTypes.VARCHAR, 1000, true);
+        
+        /** Column attribute */
+        private final String name;
+        
+        /** Column attribute */
+        private final SQLTypes type;
+        
+        /** Column attribute */
+        private final int size;
+        
+        /** Column attribute */
+        private final boolean required;
+        
+        /**
+         * Private constructor.
+         *
+         * @param pname
+         *      column name
+         * @param ptype
+         *      column type (depends on underlying JDBC DB NUMBER, INTEGER, but still useful 
+         * @param psize
+         *      column size
+         * @param pnullabz
+         */
+        private AuditColumns(String pname, SQLTypes ptype, int psize, boolean pnullable) {
+            name = pname;
+            type = ptype;
+            size = psize;
+            required = pnullable;
+        }
+        
+        /** {@inheritDoc} */
+        public String colname() { return name; }
+        
+        /** {@inheritDoc} */
+        public SQLTypes type()  { return type; }
+        
+        /** {@inheritDoc} */
+        public int size()       { return size; }
+        
+        /** {@inheritDoc} */
+        public boolean nullable()  { return !required; }
+        
+        /** {@inheritDoc} */
+        public String tableName() { return "AUDIT"; }
+        
+        /** {@inheritDoc} */
+        public List < SqlTableColumns > primaryKey() { 
+            return Util.listOf(UID, TIMESTAMP); 
+        }
+        
+        /** {@inheritDoc} */
+        public Optional <Map < SqlTableColumns, SqlTableColumns >> foreignKey() { 
+            return Optional.empty(); 
+        }
+    }
+
+    // ---------------------------------
+    // ------- TABLE METRICS -----------
+    // ---------------------------------
+    
+    /**
+     * Representation of the JDBC Table FEATURES.
+     */
+    public static enum MetricsColumns implements SqlTableColumns {
+        
+        UID("UID", SQLTypes.VARCHAR, 100, true),
+        CREATED("CREATED", SQLTypes.DATETIME, 0, true),
+        LASTMODIFIED("LASTMODIFIED", SQLTypes.DATETIME, 0, true),
+        OWNER("OWNER", SQLTypes.VARCHAR, 100, false),
+        DESCRIPTION("DESCRIPTION", SQLTypes.VARCHAR, 255, false),
+        TIMESTAMP("EVT_TIME", SQLTypes.TIMESTAMP, 0, true),
+        TYPE("EVT_TYPE", SQLTypes.VARCHAR, 30, true),
+        NAME("NAME", SQLTypes.VARCHAR, 30, true),
+        ACTION("ACTION", SQLTypes.VARCHAR, 30, true),
+        HOSTNAME("HOSTNAME", SQLTypes.VARCHAR, 100, false),
+        SOURCE("SOURCE", SQLTypes.VARCHAR, 100, false),
+        DURATION("DURATION", SQLTypes.INTEGER, 0, true),
+        VALUE("EVT_VALUE", SQLTypes.VARCHAR, 100, true),
+        KEYS("EVT_KEYS", SQLTypes.VARCHAR, 1000, true);
+        
+        /** Column attribute */
+        private final String name;
+        
+        /** Column attribute */
+        private final SQLTypes type;
+        
+        /** Column attribute */
+        private final int size;
+        
+        /** Column attribute */
+        private final boolean required;
+        
+        /**
+         * Private constructor.
+         *
+         * @param pname
+         *      column name
+         * @param ptype
+         *      column type (depends on underlying JDBC DB NUMBER, INTEGER, but still useful 
+         * @param psize
+         *      column size
+         * @param pnullabz
+         */
+        private MetricsColumns(String pname, SQLTypes ptype, int psize, boolean pnullable) {
+            name = pname;
+            type = ptype;
+            size = psize;
+            required = pnullable;
+        }
+        
+        /** {@inheritDoc} */
+        public String colname() { return name; }
+        
+        /** {@inheritDoc} */
+        public SQLTypes type()  { return type; }
+        
+        /** {@inheritDoc} */
+        public int size()       { return size; }
+        
+        /** {@inheritDoc} */
+        public boolean nullable()  { return !required; }
+        
+        /** {@inheritDoc} */
+        public String tableName() { return "METRICS"; }
+        
+        /** {@inheritDoc} */
+        public List < SqlTableColumns > primaryKey() { 
+            return Util.listOf(UID, TIMESTAMP); 
+        }
+        
+        /** {@inheritDoc} */
+        public Optional <Map < SqlTableColumns, SqlTableColumns >> foreignKey() { 
+            return Optional.empty(); 
+        }
+    }
+    
     /**
      * Hide constructor.
      */
     private JdbcConstants() {}
+    
 }

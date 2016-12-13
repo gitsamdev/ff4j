@@ -7,8 +7,8 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.ff4j.audit.EventRejectedExecutionHandler;
 import org.ff4j.audit.PublisherThreadFactory;
+import org.ff4j.event.EventRejectedExecutionHandler;
 
 /*
  * #%L

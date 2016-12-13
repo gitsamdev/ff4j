@@ -1,4 +1,4 @@
-package org.ff4j.store;
+package org.ff4j.audit;
 
 /*
  * #%L
@@ -24,20 +24,21 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-import org.ff4j.audit.BarChart;
-import org.ff4j.audit.Event;
-import org.ff4j.audit.EventQueryDefinition;
-import org.ff4j.audit.EventSeries;
-import org.ff4j.audit.MutableHitCount;
-import org.ff4j.audit.PieChart;
-import org.ff4j.audit.TimeSeriesChart;
+import org.ff4j.chart.BarChart;
+import org.ff4j.chart.PieChart;
+import org.ff4j.chart.TimeSeriesChart;
+import org.ff4j.event.Event;
+import org.ff4j.event.EventQueryDefinition;
+import org.ff4j.event.EventSeries;
+import org.ff4j.store.FF4jRepository;
+import org.ff4j.utils.MutableHitCount;
 
 /**
  * Persistence store for {@link Event} messages.
  * 
  * @author Cedrick Lunven (@clunven)
  */
-public interface EventRepository extends FF4jRepository < String, Event > {
+public interface FeatureUsageTracking extends FF4jRepository < String, Event > {
     
     /**
      * Retrieve an event by its unique identifer.
@@ -52,6 +53,13 @@ public interface EventRepository extends FF4jRepository < String, Event > {
     Optional < Event > findById(String uuid, Long timestamp);
     
     /**
+     * Get all events.
+     * 
+     * @return all event in the repository
+     */
+    int getTotalHitCount(EventQueryDefinition query);
+    
+    /**
      * Count hit ratio of features between 2 dates. This will be used for different charts.
      *
      * @param startTime
@@ -60,7 +68,7 @@ public interface EventRepository extends FF4jRepository < String, Event > {
      *          end time
      * @return
      */
-    Map < String, MutableHitCount > getFeatureUsageHitCount(EventQueryDefinition query);
+    Map < String, MutableHitCount > getHitCount(EventQueryDefinition query);
     
     /**
      * Draw a pie chart where each sector is for a feature. The value of each sector is the
@@ -74,7 +82,7 @@ public interface EventRepository extends FF4jRepository < String, Event > {
      *            end time of window
      * @return
      */
-    PieChart getFeatureUsagePieChart(EventQueryDefinition query);
+    PieChart getPieChart(EventQueryDefinition query);
     
     /**
      * Get hit curves.
@@ -89,7 +97,7 @@ public interface EventRepository extends FF4jRepository < String, Event > {
      *            endtime for measure
      * @return map of curves
      */
-    BarChart getFeatureUsageBarChart(EventQueryDefinition query);
+    BarChart getBarChart(EventQueryDefinition query);
     
     /**
      * Create measure over time.
@@ -104,14 +112,8 @@ public interface EventRepository extends FF4jRepository < String, Event > {
      *      if you want to filtered feature usage
      * @return
      */
-    TimeSeriesChart getFeatureUsageHistory(EventQueryDefinition query, TimeUnit tu);
-    
-    /**
-     * Get all events.
-     * 
-     * @return all event in the repository
-     */
-    int getFeatureUsageTotalHitCount(EventQueryDefinition query);
+    TimeSeriesChart getHistory(EventQueryDefinition query, TimeUnit tu);
+ 
     
     /**
      * Search over events.
@@ -119,7 +121,7 @@ public interface EventRepository extends FF4jRepository < String, Event > {
      * @return
      *      a list of events
      */
-    EventSeries searchFeatureUsageEvents(EventQueryDefinition query);
+    EventSeries search(EventQueryDefinition query);
     
     /**
      * Purge feature usage.
@@ -129,7 +131,7 @@ public interface EventRepository extends FF4jRepository < String, Event > {
      * @param endTime
      *      end time
      */
-    void purgeFeatureUsage(EventQueryDefinition query);
+    void purge(EventQueryDefinition query);
     
     /**
      * Count hit for each host.
@@ -229,27 +231,5 @@ public interface EventRepository extends FF4jRepository < String, Event > {
      * return target bar
      */
     BarChart getSourceBarChart(EventQueryDefinition query);
-  
-    /**
-     * Display audit trail as list of Event.
-     *
-     * @param startTime
-     *      time to begin measures
-     * @param endTime
-     *      time to end measures
-     * @return
-     *      target list of event
-     */
-    EventSeries getAuditTrail(EventQueryDefinition query);
-    
-    /**
-     * Purge audit trail.
-     *
-     * @param starTime
-     *      begin date
-     * @param endTime
-     *      end time
-     */
-    void purgeAuditTrail(EventQueryDefinition query);
     
 }

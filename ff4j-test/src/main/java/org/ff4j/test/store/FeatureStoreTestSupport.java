@@ -30,6 +30,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.ff4j.FF4j;
 import org.ff4j.exception.FeatureAlreadyExistException;
@@ -43,7 +44,6 @@ import org.ff4j.property.PropertyString;
 import org.ff4j.store.FeatureStore;
 import org.ff4j.strategy.PonderationStrategy;
 import org.ff4j.test.AssertFF4j;
-import org.ff4j.utils.FF4jUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -105,27 +105,27 @@ public abstract class FeatureStoreTestSupport {
 		assertFf4j.assertThatStoreHasSize(EXPECTED_FEATURES_NUMBERS);
 		assertFf4j.assertThatFeatureFlipped(F1);
 	}
-
+	
 	/**
-	 * TDD.
-	 */
-	@Test
-	public void testReadAllFeatures() {
-	    // Given
+     * TDD.
+     */
+    @Test
+    public void testReadAllFeatures() {
+        // Given
         assertFf4j.assertThatFeatureExist(F4);
         assertFf4j.assertThatStoreHasSize(EXPECTED_FEATURES_NUMBERS);
         // When
-        Map<String, Feature> features = testedStore.findAll();
+        Stream <Feature> features = testedStore.findAll();
         // Then
-        Assert.assertEquals(EXPECTED_FEATURES_NUMBERS, features.size());
+        Assert.assertEquals(EXPECTED_FEATURES_NUMBERS, features.count());
         // Then testing whole structure
-        Feature f = features.get(F4);
+        Feature f = testedStore.findAll().filter(x -> F4.equals(x.getUid())).findFirst().get();
         Assert.assertEquals(F4 + " does not exist", f.getUid(), F4);
         Assert.assertTrue("no description", f.getDescription().isPresent());
         Assert.assertTrue("no authorizations", f.getPermissions().isPresent());
         assertFf4j.assertThatFeatureHasRole(F4, ROLE_ADMIN);
         assertFf4j.assertThatFeatureIsInGroup(F4, G1);
-	}
+    }
 
 	/**
 	 * TDD.
@@ -168,7 +168,7 @@ public abstract class FeatureStoreTestSupport {
 	    // Given
         assertFf4j.assertThatFeatureExist(F4);
         // When
-        Feature f = testedStore.findById(F4);
+        Feature f = testedStore.read(F4);
         // Then
         Assert.assertEquals(f.getUid(), F4);
         Assert.assertTrue("no description", f.getDescription().isPresent());
@@ -330,7 +330,7 @@ public abstract class FeatureStoreTestSupport {
 	public void testDeleteNull() throws Exception {
 		// Given
 		// When
-		testedStore.delete(null);
+		testedStore.delete((String) null);
 		// Then, expected error...
 	}
 
@@ -341,8 +341,8 @@ public abstract class FeatureStoreTestSupport {
 	public void testDeleteFeature() throws Exception {
 		// Given
 		assertFf4j.assertThatFeatureExist(F1);
-		Feature tmpf1 = testedStore.findById(F1);
-		int initialNumber = testedStore.findAll().size();
+		Feature tmpf1 = testedStore.read(F1);
+		int initialNumber = new Long(testedStore.findAll().count()).intValue();
 		// When
 		testedStore.delete(F1);
 		// Then

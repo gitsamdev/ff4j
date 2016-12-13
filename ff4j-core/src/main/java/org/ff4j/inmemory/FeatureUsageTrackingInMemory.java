@@ -35,23 +35,25 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
-import org.ff4j.audit.Event;
-import org.ff4j.audit.EventConstants;
-import org.ff4j.audit.EventQueryDefinition;
-import org.ff4j.audit.EventSeries;
-import org.ff4j.audit.MutableHitCount;
-import org.ff4j.audit.Serie;
-import org.ff4j.audit.TimeSeriesChart;
-import org.ff4j.store.AbstractEventRepository;
-import org.ff4j.store.EventRepository;
+import org.ff4j.audit.AbstractEventRepository;
+import org.ff4j.audit.FeatureUsageTracking;
+import org.ff4j.chart.Serie;
+import org.ff4j.chart.TimeSeriesChart;
+import org.ff4j.event.Event;
+import org.ff4j.event.EventConstants;
+import org.ff4j.event.EventQueryDefinition;
+import org.ff4j.event.EventScope;
+import org.ff4j.event.EventSeries;
+import org.ff4j.observable.FeatureUsageListener;
+import org.ff4j.utils.MutableHitCount;
 import org.ff4j.utils.Util;
 
 /**
- * Implementation of in memory {@link EventRepository} with limited events.
+ * Implementation of in memory {@link FeatureUsageTracking} with limited events.
  * 
  * @author Cedrick Lunven (@clunven)
  */
-public class EventRepositoryInMemory extends AbstractEventRepository {
+public class FeatureUsageTrackingInMemory extends AbstractEventRepository implements FeatureUsageListener {
 
     /** serialVersionUID. */
     private static final long serialVersionUID = 5651555654265149964L;
@@ -63,18 +65,12 @@ public class EventRepositoryInMemory extends AbstractEventRepository {
     private int queueCapacity = DEFAULT_QUEUE_CAPACITY;
 
     /** Event <YYYYMMDD> / <featureUID> -> <Event> list (only action CHECK_ON) */
-    private Map<String, Map<String, EventSeries>> featureUsageEvents = new ConcurrentHashMap<String, Map<String, EventSeries>>();
-
-    /** Event <YYYYMMDD> -> <featureUID> -> <Event> list (only action CHECK_OFF) */
-    private Map<String, Map<String, EventSeries>> checkOffEvents = new ConcurrentHashMap<String, Map<String, EventSeries>>();
-
-    /** Event <YYYYMMDD> -> Event related to user action in console (not featureUsage, not check OFF). */
-    private Map<String, EventSeries> auditTrailEvents = new ConcurrentHashMap<String, EventSeries>();
+    private Map<String, Map<String, EventSeries>> events = new ConcurrentHashMap<String, Map<String, EventSeries>>();
 
     /**
      * Default constructor with default capacity to 100.000
      */
-    public EventRepositoryInMemory() {
+    public FeatureUsageTrackingInMemory() {
         this(DEFAULT_QUEUE_CAPACITY);
     }
 
@@ -84,7 +80,7 @@ public class EventRepositoryInMemory extends AbstractEventRepository {
      * @param queueCapacity
      *            default queue capacity
      */
-    public EventRepositoryInMemory(int queueCapacity) {
+    public FeatureUsageTrackingInMemory(int queueCapacity) {
         this.queueCapacity = queueCapacity;
     }
     
@@ -94,22 +90,21 @@ public class EventRepositoryInMemory extends AbstractEventRepository {
         // There is nothing to create for inMemeory store
         return;
     }
+    
+    /** {@inheritDoc} */
+    @Override
+    public void onFeatureExecuted(String uid) {
+    }
+    
+    private boolean match(Event e) {
+        return (e!= null) && e.getScope().equals(Event.Scope.FEATURE)
+                          && Event.Action.EXECUTE_FEATURE.name().equalsIgnoreCase(e.getAction());
+    }
 
     /** {@inheritDoc} */
     @Override
     public void create(Event e) {
-        Util.assertEvent(e);
-        if (EventConstants.ACTION_CHECK_OK.equalsIgnoreCase(e.getAction())) {
-            saveEvent(e, featureUsageEvents);
-        } else if (EventConstants.ACTION_CHECK_OFF.equalsIgnoreCase(e.getAction())) {
-            saveEvent(e, checkOffEvents);
-        } else {
-            String key = getKeyDate(e.getTimestamp());
-            if (!auditTrailEvents.containsKey(key)) {
-                auditTrailEvents.put(key, new EventSeries(this.queueCapacity));
-            }
-            auditTrailEvents.get(key).add(e);
-        }
+        if (match(e)) saveEvent(e, events);
     }
     
     /** {@inheritDoc} */
@@ -489,6 +484,8 @@ public class EventRepositoryInMemory extends AbstractEventRepository {
 
     @Override
     public void save(Collection<Event> entities) {
-    }    
+    }
+
+        
    
 }
