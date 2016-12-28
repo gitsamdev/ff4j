@@ -24,7 +24,7 @@ package org.ff4j.jdbc;
 import static org.ff4j.utils.JdbcUtils.buildStatement;
 import static org.ff4j.utils.JdbcUtils.executeUpdate;
 import static org.ff4j.utils.JdbcUtils.isTableExist;
-import static org.ff4j.utils.Util.assertHasLength;
+import static org.ff4j.utils.Util.requireHasLength;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -97,7 +97,7 @@ public class PropertyStoreJdbc extends AbstractPropertyStore {
     /** {@inheritDoc} */
     @Override
     public boolean exists(String name) {
-        assertHasLength(name);
+        requireHasLength(name);
         try (Connection sqlConn = getDataSource().getConnection()) {
             try(PreparedStatement ps1 = sqlConn.prepareStatement(getQueryBuilder().sqlExistProperty())) {
                 ps1.setString(1, name);
@@ -114,7 +114,7 @@ public class PropertyStoreJdbc extends AbstractPropertyStore {
     /** {@inheritDoc} */
     @Override
     public void create(Property<?> ap) {
-        Util.assertNotNull(ap);
+        Util.requireNotNull(ap);
         try (Connection sqlConn = getDataSource().getConnection()) {
             JdbcPropertyMapper pmapper = new JdbcPropertyMapper(sqlConn, getQueryBuilder());
             try(PreparedStatement ps1 = pmapper.toStore(ap)) {
@@ -134,7 +134,7 @@ public class PropertyStoreJdbc extends AbstractPropertyStore {
     /** {@inheritDoc} */
     @Override
     public Optional < Property<?> > findById(String name) {
-        Util.assertHasLength(name);
+        Util.requireHasLength(name);
         try (Connection sqlConn = getDataSource().getConnection()) {
             JdbcPropertyMapper pmapper = new JdbcPropertyMapper(sqlConn, getQueryBuilder());
             try(PreparedStatement ps1 = sqlConn.prepareStatement(getQueryBuilder().sqlSelectPropertyById())) {
@@ -152,7 +152,7 @@ public class PropertyStoreJdbc extends AbstractPropertyStore {
     /** {@inheritDoc} */
     @Override
     public void update(String name, String newValue) {
-        Util.assertHasLength(name);
+        Util.requireHasLength(name);
         try (Connection sqlConn = getDataSource().getConnection()) {
             // Check existence
             Property<?> ab = read(name);
@@ -169,8 +169,8 @@ public class PropertyStoreJdbc extends AbstractPropertyStore {
     /** {@inheritDoc} */
     @Override
     public void update(Property<?> prop) {
-        Util.assertNotNull(prop);
-        Util.assertHasLength(prop.getUid());
+        Util.requireNotNull(prop);
+        Util.requireHasLength(prop.getUid());
         delete(prop.getUid());
         create(prop);
     }
@@ -178,7 +178,7 @@ public class PropertyStoreJdbc extends AbstractPropertyStore {
     /** {@inheritDoc} */
     @Override
     public void delete(String name) {
-        Util.assertHasLength(name);
+        Util.requireHasLength(name);
         assertPropertyExist(name);
         try (Connection sqlConn = getDataSource().getConnection()) {
             try (PreparedStatement ps = buildStatement(sqlConn, getQueryBuilder().sqlDeleteProperty(), name)) {

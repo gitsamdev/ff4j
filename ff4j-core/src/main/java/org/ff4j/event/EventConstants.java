@@ -25,11 +25,7 @@ package org.ff4j.event;
  * 
  * @author clunven
  */
-public class EventConstants {
-	
-   
-
-    
+public class EventConstants {    
 	
 	/** ATTRIBUTES. */
 	public static final String ATTRIBUTE_ID       = "id";
@@ -48,7 +44,6 @@ public class EventConstants {
 
 	/** distribution. */
 	public static final String TITLE_BARCHAR_HIT = "HitCounts Distribution";
-
 
 	private EventConstants() {}
 }

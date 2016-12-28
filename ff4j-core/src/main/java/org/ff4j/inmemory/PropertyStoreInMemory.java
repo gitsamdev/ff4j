@@ -1,6 +1,6 @@
 package org.ff4j.inmemory;
 
-import static org.ff4j.utils.Util.assertHasLength;
+import static org.ff4j.utils.Util.requireHasLength;
 
 /*
  * #%L
@@ -91,7 +91,7 @@ public class PropertyStoreInMemory extends AbstractPropertyStore {
     /** {@inheritDoc} */
     @Override
     public boolean exists(String name) {
-        assertHasLength(name);
+        requireHasLength(name);
         return properties.containsKey(name);
     }
     
@@ -113,7 +113,7 @@ public class PropertyStoreInMemory extends AbstractPropertyStore {
     /** {@inheritDoc} */
     @Override
     public Optional < Property<?> > findById(String uid) {
-        Util.assertHasLength(uid);
+        Util.requireHasLength(uid);
         return Optional.ofNullable(properties.get(uid));
     }
     

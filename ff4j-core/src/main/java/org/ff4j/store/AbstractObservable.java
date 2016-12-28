@@ -1,4 +1,4 @@
-package org.ff4j.observable;
+package org.ff4j.store;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,7 +16,7 @@ import java.util.function.Consumer;
  * @param <LISTENER>
  *      target listener type
  */
-public class AbstractObservableMixin < LISTENER > {
+public class AbstractObservable < LISTENER > {
     
     /** My list of listener to test. */
     protected Map < String, LISTENER > listeners = new HashMap<>();
@@ -29,6 +29,14 @@ public class AbstractObservableMixin < LISTENER > {
     
     /** Write element. */
     protected final Lock writeLock = readWriteLock.writeLock();
+    
+    public boolean isExistListener(String uid) {
+        return listeners.containsKey(uid);
+    }
+    
+    public LISTENER getListener(String uid) {
+        return listeners.get(uid);
+    }
     
     /**
      * Register a listener in my observable strategy.

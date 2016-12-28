@@ -34,7 +34,7 @@ import java.util.concurrent.TimeUnit;
  */
 
 import org.ff4j.FF4j;
-import org.ff4j.audit.FeatureUsageTracking;
+import org.ff4j.audit.usage.FeatureUsageService;
 import org.ff4j.chart.BarChart;
 import org.ff4j.chart.TimeSeriesChart;
 import org.ff4j.event.Event;
@@ -64,8 +64,8 @@ public abstract class EventRepositoryTestSupport {
 	/** Feature List. */
 	protected ArrayList<Feature> features;
 
-	/** Target {@link FeatureUsageTracking}. */
-	protected FeatureUsageTracking repo;
+	/** Target {@link FeatureUsageService}. */
+	protected FeatureUsageService repo;
 
 	/** Target publisher. */
 	protected EventPublisher publisher;
@@ -152,7 +152,7 @@ public abstract class EventRepositoryTestSupport {
 	 * @throws Exception
 	 *             error during building feature store
 	 */
-	protected abstract FeatureUsageTracking initRepository();
+	protected abstract FeatureUsageService initRepository();
 
 	/** TDD. */
 	@Test
@@ -396,8 +396,8 @@ public abstract class EventRepositoryTestSupport {
 		repo.saveEvent(evtAudit);
 		repo.saveEvent(evtFeatureUsage);
 		Thread.sleep(100);
-		Assert.assertNotNull(repo.findById(evtAudit.getUuid(), System.currentTimeMillis()));
-		Assert.assertNotNull(repo.findById(evtFeatureUsage.getUuid(), System.currentTimeMillis()));
+		Assert.requireNotNull(repo.findById(evtAudit.getUuid(), System.currentTimeMillis()));
+		Assert.requireNotNull(repo.findById(evtFeatureUsage.getUuid(), System.currentTimeMillis()));
 		// When
 		EventQueryDefinition testQuery = new EventQueryDefinition(topStart - 100, System.currentTimeMillis());
 		repo.purgeAuditTrail(testQuery);

@@ -25,7 +25,7 @@ import static org.ff4j.utils.JdbcUtils.buildStatement;
 import static org.ff4j.utils.JdbcUtils.closeConnection;
 import static org.ff4j.utils.JdbcUtils.executeUpdate;
 import static org.ff4j.utils.JdbcUtils.isTableExist;
-import static org.ff4j.utils.Util.assertHasLength;
+import static org.ff4j.utils.Util.requireHasLength;
 import static org.ff4j.utils.Util.assertNotNull;
 
 import java.sql.Connection;
@@ -133,14 +133,14 @@ public class FeatureStoreJdbc extends AbstractFeatureStore {
 
     /** {@inheritDoc} */
     @Override
-    public void enableGroup(String groupName) {
+    public void toggleOnGroup(String groupName) {
         assertGroupExist(groupName);
         update(getQueryBuilder().sqlEditGroupStatus(), 1, groupName);
     }
 
     /** {@inheritDoc} */
     @Override
-    public void disableGroup(String groupName) {
+    public void toggleOffGroup(String groupName) {
         assertGroupExist(groupName);
         update(getQueryBuilder().sqlEditGroupStatus(), 0, groupName);
     }
@@ -149,7 +149,7 @@ public class FeatureStoreJdbc extends AbstractFeatureStore {
     @Override
     public void addToGroup(String uid, String groupName) {
         assertFeatureExist(uid);
-        assertHasLength(groupName);
+        requireHasLength(groupName);
         update(getQueryBuilder().sqlEditFeatureToGroup(), groupName, uid);
     }
 
@@ -184,7 +184,7 @@ public class FeatureStoreJdbc extends AbstractFeatureStore {
     /** {@inheritDoc} */
     @Override
     public boolean exists(String uid) {
-    	assertHasLength(uid);
+    	requireHasLength(uid);
     	try (Connection sqlConn = getDataSource().getConnection()) {
     	    try(PreparedStatement ps1 = JdbcUtils.buildStatement(sqlConn, getQueryBuilder().sqlExistFeature(), uid)) {
     	        try (ResultSet rs1 = ps1.executeQuery()) {
@@ -201,7 +201,7 @@ public class FeatureStoreJdbc extends AbstractFeatureStore {
     /** {@inheritDoc} */
     @Override
     public Optional < Feature > findById(String uid) {
-        assertNotNull(uid);
+        requireNotNull(uid);
         // Closeable sql connection
         Feature f = null;
         try (Connection sqlConn = getDataSource().getConnection()) {
@@ -329,7 +329,7 @@ public class FeatureStoreJdbc extends AbstractFeatureStore {
     @Override
     public void grantRoleOnFeature(String uid, String roleName) {
     	assertFeatureExist(uid);
-        assertHasLength(roleName);
+        requireHasLength(roleName);
         update(getQueryBuilder().sqlInsertRoles(), uid, roleName);
     }
 
@@ -337,7 +337,7 @@ public class FeatureStoreJdbc extends AbstractFeatureStore {
     @Override
     public void removeRoleFromFeature(String uid, String roleName) {
     	assertFeatureExist(uid);
-        assertHasLength(roleName);
+        requireHasLength(roleName);
         update(getQueryBuilder().sqlDeleteRoleOfFeature(), uid, roleName);
     }
 
@@ -430,7 +430,7 @@ public class FeatureStoreJdbc extends AbstractFeatureStore {
      *      target properties.
      */
     public void createCustomProperties(String uid, Collection <Property<?> > props) {
-        Util.assertNotNull(uid);
+        Util.requireNotNull(uid);
         if (props == null) return;
         try (Connection sqlConn = getDataSource().getConnection()) {
             // Begin TX
@@ -453,7 +453,7 @@ public class FeatureStoreJdbc extends AbstractFeatureStore {
     /** {@inheritDoc} */
     @Override
     public boolean existGroup(String groupName) {
-    	assertHasLength(groupName);
+    	requireHasLength(groupName);
         try (Connection sqlConn = dataSource.getConnection()) {
             try(PreparedStatement ps = sqlConn.prepareStatement(getQueryBuilder().sqlExistGroup())) {
                 ps.setString(1, groupName);
@@ -516,8 +516,8 @@ public class FeatureStoreJdbc extends AbstractFeatureStore {
     /** {@inheritDoc} */
     @Override
     public void update(Feature entity) {
-        assertNotNull(entity);
-        assertHasLength(entity.getUid());
+        requireNotNull(entity);
+        requireHasLength(entity.getUid());
         assertItemExist(entity.getUid());
         
         entity.setLastModified(LocalDateTime.now());

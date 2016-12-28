@@ -51,7 +51,7 @@ public class JdbcUtils {
      *      if the table exist or not
      */
     public static boolean isTableExist(DataSource ds, String tableName) {
-        Util.assertHasLength(tableName);
+        Util.requireHasLength(tableName);
         Connection          sqlConn = null;
         ResultSet           rs = null;
         try {
@@ -75,7 +75,7 @@ public class JdbcUtils {
      *      sql query
      */
     public static void executeUpdate(DataSource ds, String sqlQuery) {
-        Util.assertHasLength(sqlQuery);
+        Util.requireHasLength(sqlQuery);
         Connection sqlConn = null;
         Statement  sqlStmt = null;
         try {

@@ -255,7 +255,7 @@ public class FF4jExecutionContext implements Map < String, Object > {
      *            target key
      */
     public Optional <String> getString(String key) {
-        Util.assertNotNull(key);
+        Util.requireNotNull(key);
         return Optional.ofNullable(getString(key, false));
     }
 
@@ -286,7 +286,7 @@ public class FF4jExecutionContext implements Map < String, Object > {
     /** {@inheritDoc} */
     @Override
     public Object get(Object key) {
-        Util.assertNotNull(key);
+        Util.requireNotNull(key);
         return (parameters == null) ? null : parameters.get(key);
     }
 

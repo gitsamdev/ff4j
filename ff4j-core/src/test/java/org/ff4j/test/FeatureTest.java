@@ -52,7 +52,7 @@ public class FeatureTest {
 
         // Authorization filling
         empty.setPermissions("something");
-        Assert.assertNotNull(empty.getPermissions());
+        Assert.requireNotNull(empty.getPermissions());
 
         // Description setter
         empty.setDescription("OK");

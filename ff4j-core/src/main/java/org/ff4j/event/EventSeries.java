@@ -31,7 +31,7 @@ import org.ff4j.utils.MutableHitCount;
  *
  * @author Cedrick LUNVEN (@clunven)
  */
-public class EventSeries extends TreeSet< Event > {
+public class EventSeries extends TreeSet < Event > {
     
     /** Serial */
     private static final long serialVersionUID = 7093204704994389688L;
@@ -85,6 +85,16 @@ public class EventSeries extends TreeSet< Event > {
             return false;
         }
         return super.add(e);
+    }
+    
+    public boolean contains(String eventUid) {
+        return getById(eventUid).isPresent();
+    }
+    
+    public Optional < Event > getById(String eventUid) {
+        return this.stream()
+                .filter(evt -> evt.getUid().equals(eventUid))
+                .findFirst();
     }
 
 }

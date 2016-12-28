@@ -608,7 +608,7 @@ public abstract class CoreFeatureStoreTestSupport implements TestConstantsFF4j {
     public void testEnableGroupNull() throws Exception {
         // Given
         // When
-        testedStore.enableGroup(null);
+        testedStore.toggleOnGroup(null);
         // Then, expected error...
     }
 
@@ -619,7 +619,7 @@ public abstract class CoreFeatureStoreTestSupport implements TestConstantsFF4j {
     public void testEnableGroupEmpty() throws Exception {
         // Given
         // When
-        testedStore.enableGroup("");
+        testedStore.toggleOnGroup("");
         // Then, expected error...
     }
 
@@ -634,7 +634,7 @@ public abstract class CoreFeatureStoreTestSupport implements TestConstantsFF4j {
         assertFf4j.assertThatFeatureIsDisabled(F2);
         assertFf4j.assertThatFeatureIsInGroup(F2, G0);
         // When
-        testedStore.enableGroup(G0);
+        testedStore.toggleOnGroup(G0);
         // Then
         assertFf4j.assertThatFeatureIsEnabled(F2);
         // Reinit
@@ -649,7 +649,7 @@ public abstract class CoreFeatureStoreTestSupport implements TestConstantsFF4j {
         // Given
         assertFf4j.assertThatGroupDoesNotExist(G_DOESNOTEXIST);
         // When
-        testedStore.enableGroup(G_DOESNOTEXIST);
+        testedStore.toggleOnGroup(G_DOESNOTEXIST);
         // Then, expected error
     }
 
@@ -660,7 +660,7 @@ public abstract class CoreFeatureStoreTestSupport implements TestConstantsFF4j {
     public void testDisableGroupNull() throws Exception {
         // Given
         // When
-        testedStore.disableGroup(null);
+        testedStore.toggleOffGroup(null);
         // Then, expected error...
     }
 
@@ -671,7 +671,7 @@ public abstract class CoreFeatureStoreTestSupport implements TestConstantsFF4j {
     public void testDisableGroupEmpty() throws Exception {
         // Given
         // When
-        testedStore.disableGroup("");
+        testedStore.toggleOffGroup("");
         // Then, expected error...
     }
 
@@ -684,7 +684,7 @@ public abstract class CoreFeatureStoreTestSupport implements TestConstantsFF4j {
         assertFf4j.assertThatFeatureIsEnabled(F4);
         assertFf4j.assertThatFeatureIsInGroup(F4, G1);
         // When
-        testedStore.disableGroup(G1);
+        testedStore.toggleOffGroup(G1);
         // Then
         assertFf4j.assertThatFeatureIsDisabled(F4);
         // Rollback modifications
@@ -700,7 +700,7 @@ public abstract class CoreFeatureStoreTestSupport implements TestConstantsFF4j {
         // Given
         assertFf4j.assertThatGroupDoesNotExist(G_DOESNOTEXIST);
         // When
-        testedStore.disableGroup(G_DOESNOTEXIST);
+        testedStore.toggleOffGroup(G_DOESNOTEXIST);
         // Then, expected error
     }
 

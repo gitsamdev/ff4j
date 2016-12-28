@@ -59,7 +59,7 @@ public class MappingUtilsTest {
         Set < String> ss = Util.setOf("one", "two");
         Assert.assertNotNull(ss);
         Util.assertTrue(true);
-        Util.assertNull(null);
+        Util.requireNull(null);
     }
     
     @Test(expected = InvalidStrategyTypeException.class)
@@ -84,7 +84,7 @@ public class MappingUtilsTest {
     
     @Test(expected = IllegalArgumentException.class)
     public void testAssert2() {
-        Util.assertNull("");
+        Util.requireNull("");
     }
     
     @Test(expected = IllegalArgumentException.class)

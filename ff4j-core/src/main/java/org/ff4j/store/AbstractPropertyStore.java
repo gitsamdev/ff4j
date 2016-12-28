@@ -110,7 +110,7 @@ public abstract class AbstractPropertyStore extends AbstractFF4jRepository<Prope
      *      target uid
      */
     protected void assertPropertyExist(String name) {
-        Util.assertHasLength(name);
+        Util.requireHasLength(name);
         if (!exists(name)) {
             throw new PropertyNotFoundException(name);
         }
@@ -123,7 +123,7 @@ public abstract class AbstractPropertyStore extends AbstractFF4jRepository<Prope
      *      current feature identifier.s
      */
     protected void assertPropertyNotExist(String uid) {
-        Util.assertHasLength(uid);
+        Util.requireHasLength(uid);
         if (exists(uid)) {
             throw new PropertyAlreadyExistException(uid);
         }
@@ -144,7 +144,7 @@ public abstract class AbstractPropertyStore extends AbstractFF4jRepository<Prope
     /** {@inheritDoc} */
     @Override
     public void update(Property<?> prop) {
-        Util.assertNotNull(prop);
+        Util.requireNotNull(prop);
         // Delete
         delete(prop.getUid());
         // Create

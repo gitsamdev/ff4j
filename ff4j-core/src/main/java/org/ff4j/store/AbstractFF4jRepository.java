@@ -1,38 +1,38 @@
 package org.ff4j.store;
 
-import static org.ff4j.utils.Util.assertHasLength;
-import static org.ff4j.utils.Util.assertNotNull;
+import static org.ff4j.utils.Util.requireHasLength;
+import static org.ff4j.utils.Util.requireNotNull;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.ff4j.FF4jEntity;
 import org.ff4j.exception.ItemAlreadyExistException;
 import org.ff4j.exception.ItemNotFoundException;
-import org.ff4j.observable.AbstractObservableMixin;
-import org.ff4j.observable.FF4jRepositoryListener;
+import org.ff4j.utils.Util;
 
 /**
- * Support implementations for CRUD.
+ * Proposition of abstraction to perform operations on entities.
+ * 
+ * - It has been inspired by <a href="http://docs.spring.io/spring-data/commons/docs/current/api/org/springframework/data/repository/CrudRepository.html">
+ * spring data crud repository</a> and <a href="http://static.appfuse.org/appfuse-data/appfuse-ibatis/apidocs/org/appfuse/dao/GenericDao.html">App fuse.</a>
+ * - GoF Observable pattern allow to send notifications when entities are modified (audit Trail)
  * 
  * @author Cedrick LUNVEN  (@clunven)
  *
  * @param <V>
+ *      entity manipulated, its unique key is a STRING named 'uid'
  */
 public abstract class AbstractFF4jRepository < V extends FF4jEntity<?>> 
-                    extends AbstractObservableMixin < FF4jRepositoryListener < V > > 
+                    extends AbstractObservable < FF4jRepositoryListener < V > > 
                     implements FF4jRepository<String, V>, Serializable {
 
-    /** serial number. */
+    /** Denerated Serial Number . */
     private static final long serialVersionUID = -2865266843791651125L;
-    
-    // ---------------------------------------------------------------
-    // ---         Adapters to reduce boiler plate code            ---
-    // ---------------------------------------------------------------
     
     /** {@inheritDoc} */
     @Override
@@ -49,10 +49,8 @@ public abstract class AbstractFF4jRepository < V extends FF4jEntity<?>>
     /** {@inheritDoc} */
     @Override
     public void delete(V entity) {
+        Util.requireNotNull(entity);
         this.delete(entity.getUid());
-        
-        // Notify all listeners registered (like AuditTrail)
-        this.notify(l -> l.onDelete(entity));
     }
 
     /** {@inheritDoc} */
@@ -64,58 +62,60 @@ public abstract class AbstractFF4jRepository < V extends FF4jEntity<?>>
     /** {@inheritDoc} */
     @Override
     public void deleteAll() {
+        // This is a default implementation with N+1 select anti-pattern
+        // It's meant to be overriden (when possible and relevant)
         findAll().forEach(this::delete);
     }
     
     /** {@inheritDoc} */
     @Override
     public Stream<V> findAll(Iterable<String> ids) {
-        List<V> targetElements = new ArrayList<>();
-        ids.forEach(id -> this.findById(id).ifPresent(targetElements::add));
-        return targetElements.stream();
+        if (ids == null) return Stream.empty();
+        return StreamSupport
+                // Iterable to Stream \_(o^o')_/
+                .stream(ids.spliterator(),  false)
+                // N+1 Select 'find' 
+                .map(this::findById)
+                // Get only if found
+                .filter(Optional::isPresent)
+                // Access data
+                .map(Optional::get);
     }
     
     /** {@inheritDoc} */
     @Override
     public V read(String id) {
         assertItemExist(id);
+        // As the item exists, the get should not raise exception
         return findById(id).get();
     }
     
-    /** {@inheritDoc} */
-    @Override
-    public void update(V entity) {
-        assertNotNull(entity);
-        assertHasLength(entity.getUid());
+    /**
+     * Controls before updating and update modified date.
+     *
+     * @param entity
+     *      current entity
+     */
+    protected void preUpdate(V entity) {
+        requireNotNull(entity);
+        requireHasLength(entity.getUid());
         assertItemExist(entity.getUid());
         entity.setLastModified(LocalDateTime.now());
         entity.setCreationDate(entity.getCreationDate().orElse(entity.getLastModifiedDate().get()));
-        delete(entity);
-        create(entity);
-        // Notify all listeners registered (like AuditTrail)
-        this.notify(l -> l.onUpdate(entity));
     }
     
     /** {@inheritDoc} */
     @Override
     public void save(Collection<V> entities) {
         if (entities != null) {
-            entities.stream().forEach(entity -> {
-                if (exists(entity.getUid())) {
-                    delete(entity.getUid());
-                }
-                create(entity);
-            });
+            entities.stream().forEach(this::update);
         }
     }
     
     /** {@inheritDoc} */
     @Override
     public void createSchema() {
-        /* Most of the time there is nothing to do. The feature and properties are createdat runtime.
-         * But not always (JDBC, Mongo, Cassandra)... this is the reason why the dedicated store must 
-         * override this method. It a default implementation (Pattern Adapter).
-         */
+        // If not overrided, should notify subscriber anyway.
         this.notify(FF4jRepositoryListener::onCreateSchema);
         return;
     }
@@ -131,7 +131,7 @@ public abstract class AbstractFF4jRepository < V extends FF4jEntity<?>>
      *      target uid
      */
     protected void assertItemExist(String uid) {
-        assertHasLength(uid);
+        requireHasLength(uid);
         if (!exists(uid)) {
             throw new ItemNotFoundException(uid);
         }
@@ -144,7 +144,7 @@ public abstract class AbstractFF4jRepository < V extends FF4jEntity<?>>
      *      current feature identifier.s
      */
     protected void assertItemNotExist(String uid) {
-        assertHasLength(uid);
+        requireHasLength(uid);
         if (exists(uid)) {
             throw new ItemAlreadyExistException(uid);
         }

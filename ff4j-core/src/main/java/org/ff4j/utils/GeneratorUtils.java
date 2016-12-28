@@ -57,7 +57,7 @@ public class GeneratorUtils {
      *             error occu
      */
     public static String generateInterfaceConstantsSource(FF4j ff4j) {
-        Util.assertNotNull(ff4j);
+        Util.requireNotNull(ff4j);
         StringBuilder sb = new StringBuilder();
         sb.append("/**\r\n * Constants for ff4j features and properties.");
         sb.append("\r\n * Generated on : " + new SimpleDateFormat("yyyy-MM-DD HH:mm").format(new Date()));
@@ -102,7 +102,7 @@ public class GeneratorUtils {
     }
     
     public static void generateInterfaceConstantFile(FF4j ff4j, File folder) throws IOException {
-        Util.assertNotNull(folder);
+        Util.requireNotNull(folder);
         File outFile = new File(folder.getAbsolutePath() + File.separator + "FF4jConstants.java");
         FileWriter out = new FileWriter(outFile);
         out.write(generateInterfaceConstantsSource(ff4j));

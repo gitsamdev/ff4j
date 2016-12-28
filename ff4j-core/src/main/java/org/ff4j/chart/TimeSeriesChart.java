@@ -120,11 +120,11 @@ public class TimeSeriesChart extends AbstractChart {
      *      current event
      */
     public void addEvent(Event evt) {
-        if (!series.containsKey(evt.getName())) {
-            createNewSerie(evt.getName());
+        if (!series.containsKey(evt.getTargetUid())) {
+            createNewSerie(evt.getTargetUid());
         }
         String targetSlot = sdf.format(new Date(evt.getTimestamp()));
-        Serie < Map <String, MutableHitCount > > targetSerie = series.get(evt.getName());
+        Serie < Map <String, MutableHitCount > > targetSerie = series.get(evt.getTargetUid());
         if (targetSerie != null) {
             MutableHitCount mhc = targetSerie.getValue().get(targetSlot);
             if (mhc != null) {
@@ -153,10 +153,14 @@ public class TimeSeriesChart extends AbstractChart {
         series.put(idSerie, newSerie);
     }
     
-
     /** {@inheritDoc} */
     @Override
     public String toString() {
+        return toJson();
+    }
+
+    /** {@inheritDoc} */
+    public String toJson() {
         StringBuilder sb = new StringBuilder("{");
         sb.append("\"slots\" : " + JsonUtils.collectionAsJson(timeSlots));
         StringBuilder sbNames  = new StringBuilder("[");

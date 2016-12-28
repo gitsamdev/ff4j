@@ -42,7 +42,7 @@ public interface FeatureStore extends FF4jRepository < String, Feature > {
      * @param groupName
      *            target group name
      */
-    void enableGroup(String groupName);
+    void toggleOnGroup(String groupName);
 
     /**
      * Disable all features related to the parameter group
@@ -50,7 +50,7 @@ public interface FeatureStore extends FF4jRepository < String, Feature > {
      * @param groupName
      *            target group name
      */
-    void disableGroup(String groupName);
+    void toggleOffGroup(String groupName);
 
     /**
      * Read all features within target group.

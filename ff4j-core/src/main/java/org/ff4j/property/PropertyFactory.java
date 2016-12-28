@@ -70,8 +70,8 @@ public class PropertyFactory {
      * @return
      */
     public static Property<?> createProperty(String pName, Object value) {
-        Util.assertHasLength(pName);
-        Util.assertNotNull(value);
+        Util.requireHasLength(pName);
+        Util.requireNotNull(value);
         if (validPropertyPrimitives.containsKey(value.getClass())) {
             return PropertyFactory.createProperty(pName, 
                     validPropertyPrimitives.get(value.getClass()).getName(), 
@@ -127,8 +127,8 @@ public class PropertyFactory {
      * @return
      */
     public static Property<?> createProperty(String pName, String pType, String pValue, String desc, Set < String > fixedValues) {
-        Util.assertNotNull(pName);
-        Util.assertNotNull(pType);
+        Util.requireNotNull(pName);
+        Util.requireNotNull(pType);
         try {
             Constructor<?> constr = Class.forName(pType).getConstructor(String.class, String.class);
             final Property<?> ap = (Property<?>) constr.newInstance(pName, pValue);

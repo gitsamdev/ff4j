@@ -1,6 +1,6 @@
 package org.ff4j.test.audit;
 
-import org.ff4j.audit.FeatureUsageTracking;
+import org.ff4j.audit.usage.FeatureUsageService;
 
 /*
  * #%L
@@ -23,7 +23,7 @@ import org.ff4j.audit.FeatureUsageTracking;
  */
 
 
-import org.ff4j.inmemory.FeatureUsageTrackingInMemory;
+import org.ff4j.inmemory.FeatureUsageInMemory;
 
 /**
  * Test for publisher and InMemory Event repository.
@@ -34,8 +34,8 @@ public class InMemoryEventRepositoryTest extends AbstractEventRepositoryTest {
     
     /** {@inheritDoc} */
     @Override
-    protected FeatureUsageTracking initRepository() {
-        return new FeatureUsageTrackingInMemory(60);
+    protected FeatureUsageService initRepository() {
+        return new FeatureUsageInMemory(60);
     }
     
 }

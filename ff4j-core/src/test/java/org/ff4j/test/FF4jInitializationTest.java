@@ -25,7 +25,7 @@ import org.junit.Assert;
 
 import org.ff4j.FF4j;
 import org.ff4j.inmemory.FeatureStoreInMemory;
-import org.ff4j.security.AuthorizationsManager;
+import org.ff4j.security.FF4JSecurityManager;
 import org.junit.Test;
 
 /**
@@ -63,11 +63,11 @@ public class FF4jInitializationTest {
     @Test
     public void testInitConstructor3() {
         FF4j f3 = new FF4j();
-        f3.setAuthorizationsManager(mock(AuthorizationsManager.class));
+        f3.setAuthorizationsManager(mock(FF4JSecurityManager.class));
         f3.autoCreate(true);
 
         testingGeneratedFF4j(f3);
-        Assert.assertNotNull(f3.getAuthorizationsManager());
+        Assert.requireNotNull(f3.getAuthorizationsManager());
     }
 
 }

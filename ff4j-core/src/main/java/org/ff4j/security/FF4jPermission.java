@@ -7,6 +7,9 @@ package org.ff4j.security;
  */
 public enum FF4jPermission {
     
+    // You can use this feature
+    USE,
+    
     // You can create your features
     CREATE_FEATURE,
     
@@ -33,5 +36,4 @@ public enum FF4jPermission {
     
     // Can access and search audit
     VIEW_AUDIT;
-
 }

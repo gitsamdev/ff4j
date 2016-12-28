@@ -13,7 +13,7 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import org.ff4j.audit.FeatureUsageTracking;
+import org.ff4j.audit.usage.FeatureUsageService;
 import org.ff4j.chart.BarChart;
 import org.ff4j.chart.TimeSeriesChart;
 import org.ff4j.event.Event;
@@ -30,7 +30,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Superclass to test {@link FeatureUsageTracking}.
+ * Superclass to test {@link FeatureUsageService}.
  * 
  * @author Cedrick Lunven (@clunven)
  */
@@ -39,8 +39,8 @@ public abstract class AbstractEventRepositoryTest {
     /** Feature List. */
     protected ArrayList<Feature> features;
 
-    /** Target {@link FeatureUsageTracking}. */
-    protected FeatureUsageTracking repo;
+    /** Target {@link FeatureUsageService}. */
+    protected FeatureUsageService repo;
     
     /** Target publisher. */
     protected EventPublisher publisher;
@@ -95,7 +95,7 @@ public abstract class AbstractEventRepositoryTest {
      * @throws Exception
      *             error during building feature store
      */
-    protected abstract FeatureUsageTracking initRepository();
+    protected abstract FeatureUsageService initRepository();
     
     @Test
     public void testSaveEventUnit() throws InterruptedException {
@@ -128,14 +128,14 @@ public abstract class AbstractEventRepositoryTest {
         Thread.sleep(200);
         
         EventQueryDefinition eqd = new EventQueryDefinition(start-10, System.currentTimeMillis());
-        Assert.assertNotNull(repo.getFeatureUsagePieChart(eqd));
-        Assert.assertNotNull(repo.getHostPieChart(eqd));
-        Assert.assertNotNull(repo.getSourcePieChart(eqd));
-        Assert.assertNotNull(repo.getUserPieChart(eqd));
+        Assert.requireNotNull(repo.getFeatureUsagePieChart(eqd));
+        Assert.requireNotNull(repo.getHostPieChart(eqd));
+        Assert.requireNotNull(repo.getSourcePieChart(eqd));
+        Assert.requireNotNull(repo.getUserPieChart(eqd));
         
-        Assert.assertNotNull(repo.getHostBarChart(eqd));
-        Assert.assertNotNull(repo.getSourceBarChart(eqd));
-        Assert.assertNotNull(repo.getUserBarChart(eqd));
+        Assert.requireNotNull(repo.getHostBarChart(eqd));
+        Assert.requireNotNull(repo.getSourceBarChart(eqd));
+        Assert.requireNotNull(repo.getUserBarChart(eqd));
         
     }
     
@@ -354,8 +354,8 @@ public abstract class AbstractEventRepositoryTest {
         repo.create(evtAudit);
         repo.create(evtFeatureUsage);
         Thread.sleep(100);
-        Assert.assertNotNull(repo.findById(evtAudit.getUid(), System.currentTimeMillis()));
-        Assert.assertNotNull(repo.findById(evtFeatureUsage.getUid(), System.currentTimeMillis()));
+        Assert.requireNotNull(repo.findById(evtAudit.getUid(), System.currentTimeMillis()));
+        Assert.requireNotNull(repo.findById(evtFeatureUsage.getUid(), System.currentTimeMillis()));
         // When
         EventQueryDefinition testQuery = new EventQueryDefinition(topStart-100, System.currentTimeMillis());
         repo.purgeFeatureUsage(testQuery);

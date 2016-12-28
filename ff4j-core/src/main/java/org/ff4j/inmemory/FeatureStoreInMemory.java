@@ -1,6 +1,6 @@
 package org.ff4j.inmemory;
 
-import static org.ff4j.utils.Util.assertHasLength;
+import static org.ff4j.utils.Util.requireHasLength;
 import static org.ff4j.utils.Util.setOf;
 
 /*
@@ -28,9 +28,7 @@ import java.util.stream.Stream;
 
 import org.ff4j.conf.XmlParser;
 import org.ff4j.feature.Feature;
-import org.ff4j.security.FF4jPermission;
 import org.ff4j.store.AbstractFeatureStore;
-import org.hsqldb.rights.Grantee;
 
 /**
  * Storing states of feature inmemory with initial values. Could be used mostly for testing purpose.
@@ -46,10 +44,10 @@ public class FeatureStoreInMemory extends AbstractFeatureStore {
     private String fileName = null;
 
     /** InMemory Feature Map */
-    private Map<String, Feature> featuresMap = new LinkedHashMap<String, Feature>();
+    private Map<String, Feature> mapOfFeatures = new LinkedHashMap<>();
 
     /** Group structure for features. */
-    private Map<String, Set<String>> featureGroups = new HashMap<String, Set<String>>();
+    private Map<String, Set<String>> mapOfGroups = new HashMap<String, Set<String>>();
 
     /** Default constructor. */
     public FeatureStoreInMemory() {}
@@ -61,7 +59,7 @@ public class FeatureStoreInMemory extends AbstractFeatureStore {
      *            fileName present in classPath or on fileSystem.
      */
     public FeatureStoreInMemory(String fileName) {
-        assertHasLength(fileName);
+        requireHasLength(fileName);
         createSchema();
         loadConfFile(fileName);
     }
@@ -78,151 +76,95 @@ public class FeatureStoreInMemory extends AbstractFeatureStore {
     }
 
     /**
-     * Constructor with full set of feature.
+     * Constructor with features to be imported immediately.
      * 
-     * @param maps
+     * @param features
+     *      collection of features to be created
      */
     public FeatureStoreInMemory(Collection<Feature> features) {
         createSchema();
         if (null != features) {
-            this.featuresMap = features.stream().collect(
+            this.mapOfFeatures = features.stream().collect(
                     Collectors.toMap(Feature::getUid, Function.identity()));
             buildGroupsFromFeatures();
         }
     }
     
-    // --- FF4jRepository Methods ---
-    
     /** {@inheritDoc} */
     @Override
     public boolean exists(String uid) {
-        assertHasLength(uid);
-        return featuresMap.containsKey(uid);
+        requireHasLength(uid);
+        return mapOfFeatures.containsKey(uid);
     }
     
     /** {@inheritDoc} */
     @Override
     public Optional < Feature > findById(String uid) {
-        assertHasLength(uid);
-        return Optional.ofNullable(featuresMap.get(uid));
+        requireHasLength(uid);
+        return Optional.ofNullable(mapOfFeatures.get(uid));
+    }
+    
+    /** {@inheritDoc} */ 
+    @Override
+    public void updateFeature(Feature fp) {
+        mapOfFeatures.put(fp.getUid(), fp);
+        buildGroupsFromFeatures();
     }
     
     /** {@inheritDoc} */    
     @Override
-    public void create(Feature fp) {
-        assertFeatureNotNull(fp);
-        assertFeatureNotExist(fp.getUid());
+    public void createFeature(Feature fp) {
         updateFeature(fp);
     }
     
     /** {@inheritDoc} */
     @Override
-    public void update(Feature fp) {
-        assertFeatureNotNull(fp);
-        Feature fpExist = read(fp.getUid());
-        
-        // Checking new roles
-        Set<String> toBeAdded = new HashSet<String>();
-        fp.getPermissions().ifPresent(perms -> toBeAdded.addAll(perms));
-        fpExist.getPermissions().ifPresent(perms -> toBeAdded.removeAll(perms));
-        
-        toBeAdded.stream().forEach(p -> grantRoleOnFeature(fpExist.getUid(), p));
-        updateFeature(fp);
-    }
-    
-    /** {@inheritDoc} */
-    @Override
-    public void delete(String uid) {
-        assertFeatureExist(uid);
-        featuresMap.remove(uid);
+    public void deleteFeature(String uid) {
+        mapOfFeatures.remove(uid);
         buildGroupsFromFeatures();
     }
     
     /** {@inheritDoc} */
     @Override
-    public void deleteAll() {
-       featuresMap.clear();
+    public void deleteAllFeatures() {
+       mapOfFeatures.clear();
     }
     
     /** {@inheritDoc} */
     @Override
     public Stream <Feature> findAll() {
-        return featuresMap.values().stream();
-    }
-    
-    /** {@inheritDoc} */
-    @Override
-    public long count() {
-        return findAll().count();
-    }    
+        return mapOfFeatures.values().stream();
+    } 
     
     // --- FeatureStore Methods ---
     
     /** {@inheritDoc} */
     @Override
     public boolean existGroup(String groupName) {
-        assertHasLength(groupName);
-        return featureGroups.containsKey(groupName);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void enableGroup(String groupName) {
-        assertGroupExist(groupName);
-        for (String feat : featureGroups.get(groupName)) {
-            this.toggleOn(feat);
-        }
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void disableGroup(String groupName) {
-        assertGroupExist(groupName);
-        for (String feat : featureGroups.get(groupName)) {
-            this.toggleOff(feat);
-        }
+        requireHasLength(groupName);
+        return mapOfGroups.containsKey(groupName);
     }
     
     /** {@inheritDoc} */
     @Override
     public Stream<Feature> readGroup(String groupName) {
         assertGroupExist(groupName);
-        return featureGroups.get(groupName).stream()
-            .map(featureName -> findById(featureName))
-            .filter(Optional::isPresent)
-            .map(Optional::get)
-            .collect(Collectors.toSet())
-            .stream();
+        return mapOfGroups.get(groupName).stream()
+                .map(featureName -> findById(featureName))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toSet())
+                .stream();
     }
 
     /** {@inheritDoc} */
     @Override
     public Stream<String> readAllGroups() {
         Set<String> groups = new HashSet<String>();
-        groups.addAll(featureGroups.keySet());
+        groups.addAll(mapOfGroups.keySet());
         groups.remove(null);
         groups.remove("");
         return groups.stream();
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void addToGroup(String uid, String groupName) {
-        assertHasLength(uid);
-        assertHasLength(groupName);
-        Feature feat = read(uid);
-        feat.setGroup(groupName);
-        update(feat);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void removeFromGroup(String uid, String groupName) {
-        assertFeatureExist(uid);
-        assertGroupExist(groupName);
-        Feature feat = findById(uid).get();
-        feat.setGroup("");
-        update(feat);
     }
     
     // --- Utility Methods ---
@@ -234,7 +176,7 @@ public class FeatureStoreInMemory extends AbstractFeatureStore {
      *            xml filename
      */
     public void loadConfFile(String conf) {
-        assertHasLength(conf);
+        requireHasLength(conf);
         this.fileName = conf;
         loadConf(getClass().getClassLoader().getResourceAsStream(conf));
     }
@@ -249,7 +191,7 @@ public class FeatureStoreInMemory extends AbstractFeatureStore {
         if (xmlIN == null) {
             throw new IllegalArgumentException("Cannot parse feature stream");
         }
-        this.featuresMap = new XmlParser().parseConfigurationFile(xmlIN).getFeatures();
+        this.mapOfFeatures = new XmlParser().parseConfigurationFile(xmlIN).getFeatures();
         buildGroupsFromFeatures();
     }
 
@@ -259,7 +201,7 @@ public class FeatureStoreInMemory extends AbstractFeatureStore {
     private void buildGroupsFromFeatures() {
         
         // Create groups
-        featureGroups = featuresMap.values().stream()
+        mapOfGroups = mapOfFeatures.values().stream()
             .filter(item -> item.getGroup().isPresent())
             .collect(Collectors.< Feature, String, Set<String>>toMap(
                     f -> f.getGroup().get(), 
@@ -268,22 +210,13 @@ public class FeatureStoreInMemory extends AbstractFeatureStore {
                     (uid1, uid2) -> { return uid1; }));
         
         // Populate groups
-        featuresMap.values().stream()
+        mapOfFeatures.values().stream()
                 .filter(item -> item.getGroup().isPresent())
-                .forEach(feature -> featureGroups.get(
+                .forEach(feature -> mapOfGroups.get(
                          feature.getGroup().get()).add(feature.getUid()));
     }
 
-    /**
-     * Unique update point to force group construction.
-     * 
-     * @param fp
-     *            Target feature to update
-     */
-    private void updateFeature(Feature fp) {
-        featuresMap.put(fp.getUid(), fp);
-        buildGroupsFromFeatures();
-    }
+    
 
     /** {@inheritDoc} */
     @Override
@@ -318,24 +251,6 @@ public class FeatureStoreInMemory extends AbstractFeatureStore {
      */
     public String getFileName() {
         return fileName;
-    }
-
-    @Override
-    public Map<FF4jPermission, Set<Grantee>> getPermissions() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public void grantUser(String userName, FF4jPermission... perm) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public void grantGroup(String groupName, FF4jPermission... perm) {
-        // TODO Auto-generated method stub
-        
     }
     
 }

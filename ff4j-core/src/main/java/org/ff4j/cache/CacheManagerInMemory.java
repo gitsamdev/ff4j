@@ -1,7 +1,7 @@
 package org.ff4j.cache;
 
-import static org.ff4j.utils.Util.assertHasLength;
-import static org.ff4j.utils.Util.assertNotNull;
+import static org.ff4j.utils.Util.requireHasLength;
+import static org.ff4j.utils.Util.requireNotNull;
 
 /*
  * #%L
@@ -78,8 +78,8 @@ public class CacheManagerInMemory<V extends FF4jEntity<?>> implements CacheManag
     /** {@inheritDoc} */
     @Override
     public void put(String key, V value) {
-        assertNotNull(value);
-        assertHasLength(value.getUid());
+        requireNotNull(value);
+        requireHasLength(value.getUid());
         customCache.put(key, new InMemoryCacheEntry<V>(value));
     }
     
@@ -90,8 +90,8 @@ public class CacheManagerInMemory<V extends FF4jEntity<?>> implements CacheManag
     
     /** {@inheritDoc} */
     public void put(V feat, long timeToLive) {
-        assertNotNull(feat);
-        assertHasLength(feat.getUid());
+        requireNotNull(feat);
+        requireHasLength(feat.getUid());
         customCache.put(feat.getUid(), new InMemoryCacheEntry<V>(feat, timeToLive));
     }
 

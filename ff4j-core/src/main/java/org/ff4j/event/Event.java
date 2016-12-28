@@ -72,7 +72,9 @@ public class Event extends FF4jEntity<Event> implements Serializable, Comparable
     private Optional < Map < String, String > > customKeys = Optional.empty();
     
     public enum Action {
-        UNKNOWN, CONNECT, DISCONNECT, TOGGLE_ON, TOGGLE_OFF, CREATE, DELETE, UPDATE, CLEAR, EXECUTE_FEATURE, CREATE_SCHEMA;
+        UNKNOWN, ADD, REMOVE, CONNECT, DISCONNECT, TOGGLE_ON, TOGGLE_OFF, 
+        CREATE, DELETE, UPDATE, CLEAR, CREATE_SCHEMA,
+        HIT, ADD_TO_GROUP, REMOVE_FROM_GROUP;
     }
     
     public enum Scope {
@@ -141,11 +143,12 @@ public class Event extends FF4jEntity<Event> implements Serializable, Comparable
      * @param value
      *      current value
      */
-    public void put(String key, String value) {
+    public Event put(String key, String value) {
         if (!getCustomKeys().isPresent()) {
           setCustomKeys(new HashMap<String, String>());
         }
         getCustomKeys().get().put(key, value);
+        return this;
     }
     
     /**
@@ -207,6 +210,16 @@ public class Event extends FF4jEntity<Event> implements Serializable, Comparable
     
     public Event source(Source source) {
         return source(source.name());
+    }
+    
+    /**
+     * Getter accessor for attribute 'targetUid'.
+     *
+     * @return
+     *       current value of 'targetUid'
+     */
+    public String getTargetUid() {
+        return targetUid;
     }
 
     public Event targetUid(String uid) {
@@ -297,7 +310,7 @@ public class Event extends FF4jEntity<Event> implements Serializable, Comparable
      * @param duration
      * 		new value for 'duration '
      */
-    public Event setDuration(long duration) {
+    public Event duration(long duration) {
         this.duration = Optional.ofNullable(duration);
         return this;
     }
@@ -317,7 +330,7 @@ public class Event extends FF4jEntity<Event> implements Serializable, Comparable
      * @param value
      * 		new value for 'value '
      */
-    public Event setValue(String value) {
+    public Event value(String value) {
         this.value = Optional.ofNullable(value);
         return this;
     }
@@ -329,15 +342,23 @@ public class Event extends FF4jEntity<Event> implements Serializable, Comparable
         // Not equals even if same timestamp (of course...)
         return (myTime != 0) ? myTime : evt.getUid().compareTo(getUid());
     }
-
+    
     /**
-     * Getter accessor for attribute 'targetUid'.
+     * Utility.
      *
+     * @param evt
+     *      current evenement
+     * @param startTime
+     *      begin time
+     * @param endTime
+     *      end time
      * @return
-     *       current value of 'targetUid'
+     *      if the event is between dates
      */
-    public String getTargetUid() {
-        return targetUid;
-    }
+    public boolean isInInterval(long startTime, long endTime) {
+        return (getTimestamp() >= startTime) && (getTimestamp() <= endTime);
+    }   
+
+    
 
 }

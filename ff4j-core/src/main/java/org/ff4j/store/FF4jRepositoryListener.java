@@ -1,4 +1,4 @@
-package org.ff4j.observable;
+package org.ff4j.store;
 
 import org.ff4j.FF4jEntity;
 
@@ -27,7 +27,12 @@ public interface FF4jRepositoryListener < ENTITY extends FF4jEntity<?> > {
      * @param ENTITY
      *      object manipulated by the framework
      */
-    void onDelete(ENTITY bo);
+    void onDelete(String uid);
+    
+    /**
+     * Invoked when deleting all entities of a repository.
+     */
+    void onDeleteAll();
     
     /**
      * Invoked when an entity is updated within repository.
@@ -44,5 +49,17 @@ public interface FF4jRepositoryListener < ENTITY extends FF4jEntity<?> > {
      *      object manipulated by the framework
      */
     void onCreateSchema();
-   
+    
+    void onToggleOnFeature(String uid);
+    
+    void onToggleOffFeature(String uid);
+    
+    void onToggleOnGroup(String groupName);
+    
+    void onToggleOffGroup(String groupname);
+    
+    void onAddFeatureToGroup(String uid, String groupName);
+    
+    void onRemoveFeatureFromGroup(String uid, String groupName);
+    
 }

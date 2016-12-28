@@ -2,14 +2,10 @@ package org.ff4j.store;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Stream;
 
 import org.ff4j.FF4jEntity;
-import org.ff4j.security.FF4jPermission;
-import org.hsqldb.rights.Grantee;
 
 /**
  * Super Interface to work with features and properties.
@@ -150,28 +146,6 @@ public interface FF4jRepository < ID extends Serializable, ENTITY extends FF4jEn
      * @return
      *      if the store is empty or not
      */
-    boolean isEmpty();
-    
-    /**
-     * Get permissions of the store.
-     *
-     * @return
-     *      the store can allow profile to edit features.
-     */
-    Map < FF4jPermission, Set < Grantee> > getPermissions();
-    
-    /**
-     * Grant operation on user.
-     *
-     * @param userName
-     *      target userName
-     * @param perm
-     *      target permission
-     */
-    void grantUser(String userName, FF4jPermission... perm);
-    
-    void grantGroup(String groupName, FF4jPermission... perm);
-    
-    
+    boolean isEmpty(); 
     
 }

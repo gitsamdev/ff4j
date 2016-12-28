@@ -24,14 +24,14 @@ import java.io.IOException;
 
 import org.ff4j.FF4j;
 import org.ff4j.feature.Feature;
-import org.ff4j.security.AuthorizationsManager;
+import org.ff4j.security.FF4JSecurityManager;
 import org.ff4j.test.AbstractFf4jTest;
 import org.junit.Assert;
 import org.junit.Test;
 
 
 /**
- * Class to test component {@link AuthorizationsManager}
+ * Class to test component {@link FF4JSecurityManager}
  * 
  * @author <a href="mailto:cedrick.lunven@gmail.com">Cedrick LUNVEN</a>
  */
@@ -73,7 +73,7 @@ public class AuthorizationManagementTest extends AbstractFf4jTest {
     public void testToJson() {
         // Given
         Assert.assertNotNull(ff4j);
-        Assert.assertNotNull(ff4j.getAuthorizationsManager());
+        Assert.requireNotNull(ff4j.getAuthorizationsManager());
         // When
         String jsonExpr = ff4j.getAuthorizationsManager().toJson();
         // Then

@@ -100,12 +100,12 @@ public class MockFeatureStore implements FeatureStore {
     }
     
     /** {@inheritDoc} */
-    public void enableGroup(String groupName) {
+    public void toggleOnGroup(String groupName) {
     	LOGGER.debug("MOCK [enableGroup]" + groupName);
     }
     
     /** {@inheritDoc} */
-    public void disableGroup(String groupName) {
+    public void toggleOffGroup(String groupName) {
     	LOGGER.debug("MOCK [disableGroup]" + groupName);
     }
     

@@ -64,30 +64,16 @@ public class FeatureStoreCacheProxy extends CacheProxy< String, Feature> impleme
     
     /** {@inheritDoc} */
     @Override
-    public void grantRoleOnFeature(String featureId, String roleName) {
-        getTargetFeatureStore().grantRoleOnFeature(featureId, roleName);
-        cacheManager.evict(featureId);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void removeRoleFromFeature(String featureId, String roleName) {
-        getTargetFeatureStore().removeRoleFromFeature(featureId, roleName);
-        cacheManager.evict(featureId);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void enableGroup(String groupName) {
-        getTargetFeatureStore().enableGroup(groupName);
+    public void toggleOnGroup(String groupName) {
+        getTargetFeatureStore().toggleOnGroup(groupName);
         // Cannot know wich feature to work with (exceptional event) : flush cache
         cacheManager.clear();
     }
 
     /** {@inheritDoc} */
     @Override
-    public void disableGroup(String groupName) {
-        getTargetFeatureStore().disableGroup(groupName);
+    public void toggleOffGroup(String groupName) {
+        getTargetFeatureStore().toggleOffGroup(groupName);
         // Cannot know wich feature to work with (exceptional event) : flush cache
         cacheManager.clear();
     }

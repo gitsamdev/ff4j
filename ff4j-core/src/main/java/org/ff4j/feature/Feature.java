@@ -1,9 +1,6 @@
 package org.ff4j.feature;
 
 import static org.ff4j.utils.JsonUtils.attributeAsJson;
-import static org.ff4j.utils.JsonUtils.collectionAsJson;
-import static org.ff4j.utils.JsonUtils.customPropertiesAsJson;
-import static org.ff4j.utils.Util.setOf;
 
 /*
  * #%L ff4j-core %% Copyright (C) 2013 - 2016 FF4J %% Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -17,22 +14,14 @@ import static org.ff4j.utils.Util.setOf;
  */
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.ff4j.FF4jEntity;
 import org.ff4j.property.Property;
 import org.ff4j.property.PropertyFactory;
-import org.ff4j.security.FF4jGrantees;
-import org.ff4j.security.FF4jPermission;
 import org.ff4j.strategy.FF4jExecutionStrategy;
-import org.ff4j.utils.Util;
 
 /**
  * Represents a feature flag identified by an unique identifier.
@@ -58,18 +47,9 @@ public class Feature extends FF4jEntity < Feature > {
 
     /** Feature could be grouped to enable/disable the whole group. */
     private Optional<String> group = Optional.empty();
-
-    /** if not empty and @see {@link org.ff4j.security.AuthorizationsManager} provided, limit usage to this roles. */
-    private Optional<Set<String>> permissions = Optional.empty();
-
+    
     /** Custom behaviour to define if feature if enable or not e.g. A/B Testing capabilities. */
     private Optional<FlippingStrategy> flippingStrategy = Optional.empty();
-
-    /** Add you own attributes to a feature. */
-    private Optional<Map<String, Property<?>>> customProperties = Optional.empty();
-    
-    /** People allow to perform dedicated operation. */
-    private Optional < Map < FF4jPermission, Set < FF4jGrantees > > > grantees = Optional.empty();
     
     /**
      * Initialize {@link Feature} with id;
@@ -96,7 +76,8 @@ public class Feature extends FF4jEntity < Feature > {
     public Feature(final String uid, final Feature f) {
         super(uid);
         this.enable = f.isEnable();
-
+         f.getAccessControlList();
+        
         // Base Object
         f.getOwner().ifPresent(o -> this.owner = Optional.of(o));
         f.getDescription().ifPresent(d -> this.description = Optional.of(d));
@@ -105,7 +86,6 @@ public class Feature extends FF4jEntity < Feature > {
 
         // Properties Features
         f.getGroup().ifPresent(g -> this.group = Optional.of(g));
-        f.getPermissions().ifPresent(g -> this.permissions = Optional.of(g));
         f.getFlippingStrategy().ifPresent(fs -> this.flippingStrategy = Optional
                 .of(FlippingStrategy.instanciate(uid, fs.getClass().getName(), fs.getInitParams())));
         f.getCustomProperties()
@@ -128,71 +108,6 @@ public class Feature extends FF4jEntity < Feature > {
 
     public Feature setFlippingStrategy(FlippingStrategy flipStrategy) {
         this.flippingStrategy = Optional.ofNullable(flipStrategy);
-        return this;
-    }
-
-    public Feature setPermissions(String... perms) {
-        return setPermissions(setOf(perms));
-    }
-
-    public Feature setPermissions(Set<String> perms) {
-        permissions = Optional.ofNullable(perms);
-        return this;
-    }
-
-    public Feature setCustomProperties(Map<String, Property<?>> custom) {
-        customProperties = Optional.ofNullable(custom);
-        return this;
-    }
-
-    public Feature setCustomProperties(Property<?>... properties) {
-        if (properties == null) return this;
-        return setCustomProperties(Arrays.stream(properties).collect(Collectors.toMap(Property::getUid, Function.identity())));
-    }
-
-    public Feature addCustomProperty(Property<?> property) {
-        return addCustomProperties(property);
-    }
-
-    public Feature addCustomProperties(Property<?>... properties) {
-        if (properties != null) {
-            Map<String, Property<?>> mapOfProperties = Arrays.stream(properties)
-                    .collect(Collectors.toMap(Property::getUid, Function.identity()));
-
-            customProperties.map(Map::size);
-            if (customProperties.isPresent()) {
-                customProperties.get().putAll(mapOfProperties);
-            } else {
-                customProperties = Optional.of(mapOfProperties);
-            }
-        }
-        return this;
-    }
-
-    public Feature addPermission(String permission) {
-        return addPermissions(permission);
-    }
-
-    public Feature removePermission(String permission) {
-        return removePermissions(permission);
-    }
-
-    public Feature removePermissions(String... perms) {
-        if (perms != null && permissions.isPresent()) {
-            permissions.get().removeAll(setOf(perms));
-        }
-        return this;
-    }
-
-    public Feature addPermissions(String... perms) {
-        if (perms != null) {
-            Set<String> setPermission = setOf(perms);
-            if (permissions.isPresent()) {
-                permissions.get().addAll(setPermission);
-            } else {
-                permissions = Optional.of(setPermission);
-            }
-        }
         return this;
     }
 
@@ -225,9 +140,7 @@ public class Feature extends FF4jEntity < Feature > {
         json.append(super.baseJson());
         json.append(attributeAsJson("enable", enable));
         group.ifPresent(g -> attributeAsJson("group", g));
-        permissions.ifPresent(perm -> json.append(",\"permissions\": " + collectionAsJson(perm)));
         flippingStrategy.ifPresent(fs -> json.append(",\"flippingStrategy\":" + FF4jExecutionStrategy.asJson(fs)));
-        customProperties.ifPresent(cp -> json.append(",\"customProperties\":" + customPropertiesAsJson(cp)));
         json.append("}");
         return json.toString();
     }
@@ -253,20 +166,7 @@ public class Feature extends FF4jEntity < Feature > {
     public Optional<String> getGroup() {
         return group;
     }
-
-    /**
-     * Getter accessor for attribute 'permissions'.
-     *
-     * @return current value of 'permissions'
-     */
-    public Optional<Set<String>> getPermissions() {
-        return permissions;
-    }
-
-    public Stream<String> getPermissionsStream() {
-        return permissions.orElse(new HashSet<String>()).stream();
-    }
-
+    
     /**
      * Getter accessor for attribute 'flippingStrategy'.
      *
@@ -275,38 +175,5 @@ public class Feature extends FF4jEntity < Feature > {
     public Optional<FlippingStrategy> getFlippingStrategy() {
         return flippingStrategy;
     }
-
-    /**
-     * Getter accessor for attribute 'customProperties'.
-     *
-     * @return current value of 'customProperties'
-     */
-    public Optional<Map<String, Property<?>>> getCustomProperties() {
-        return customProperties;
-    }
     
-    /**
-     * Getter accessor for attribute 'grantees'.
-     *
-     * @return
-     *       current value of 'grantees'
-     */
-    public Optional <Map<FF4jPermission, Set<FF4jGrantees>>> getGrantees() {
-        return grantees;
-    }
-
-    /**
-     * Accessor to read a custom property from Feature.
-     *
-     * @param propId
-     *            property
-     * @return property value (if exist)
-     */
-    public Optional<Property<?>> getCustomProperty(String propId) {
-        Util.assertNotNull(propId);
-        if (customProperties.isPresent()) {
-            return Optional.ofNullable(customProperties.get().get(propId));
-        }
-        return Optional.empty();
-    }
 }

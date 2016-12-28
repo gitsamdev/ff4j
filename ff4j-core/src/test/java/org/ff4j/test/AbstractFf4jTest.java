@@ -33,7 +33,7 @@ import org.junit.Assert;
 import org.ff4j.FF4j;
 import org.ff4j.FF4jExecutionContext;
 import org.ff4j.feature.FlippingStrategy;
-import org.ff4j.security.AuthorizationsManager;
+import org.ff4j.security.FF4JSecurityManager;
 import org.ff4j.store.FeatureStore;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,7 +46,7 @@ import org.junit.Test;
 public abstract class AbstractFf4jTest implements TestConstantsFF4j {
 
     /** Mock Authorizaton Manager. */
-    protected static AuthorizationsManager mockAuthManager = null;
+    protected static FF4JSecurityManager mockAuthManager = null;
 
     /** Mock Flip Strategy. */
     protected static FlippingStrategy mockFlipStrategy = null;
@@ -61,7 +61,7 @@ public abstract class AbstractFf4jTest implements TestConstantsFF4j {
     @Before
     public void setUp() throws Exception {
         // Create MOCK
-        mockAuthManager = mock(AuthorizationsManager.class);
+        mockAuthManager = mock(FF4JSecurityManager.class);
         when(mockAuthManager.getCurrentUserPermissions()).thenReturn(new HashSet<String>(Arrays.asList(new String[] {"ROLEA"})));
         when(mockAuthManager.listAllPermissions()).thenReturn(new HashSet<String>(Arrays.asList(new String[] {"ROLEA","ROLEB"})));
         when(mockAuthManager.toJson()).thenReturn("{ value : 1 }");

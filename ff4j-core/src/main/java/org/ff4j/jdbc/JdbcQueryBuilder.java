@@ -448,7 +448,7 @@ public class JdbcQueryBuilder {
     // ---------------------------------
  
     private String sqlDeleteAll(SqlTableColumns column) {
-        Util.assertNotNull(column);
+        Util.requireNotNull(column);
         StringBuilder sb =  new StringBuilder().append("DELETE FROM ");
         sb.append(getTableName(column.tableName()));
         return sb.toString();

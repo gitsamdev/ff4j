@@ -40,7 +40,7 @@ import org.ff4j.event.EventBuilder;
 import org.ff4j.event.EventPublisher;
 import org.ff4j.exception.FeatureNotFoundException;
 import org.ff4j.feature.Feature;
-import org.ff4j.inmemory.FeatureUsageTrackingInMemory;
+import org.ff4j.inmemory.FeatureUsageInMemory;
 import org.ff4j.inmemory.FeatureStoreInMemory;
 import org.ff4j.property.Property;
 import org.ff4j.property.PropertyString;
@@ -109,7 +109,7 @@ public class FF4jTest extends AbstractFf4jTest {
         // Given
         FF4j ff4j = new FF4j();
         ff4j.setEventPublisher(new EventPublisher());
-        ff4j.setEventRepository(new FeatureUsageTrackingInMemory());
+        ff4j.setEventRepository(new FeatureUsageInMemory());
         // When
         ff4j.stop();
         
@@ -126,9 +126,9 @@ public class FF4jTest extends AbstractFf4jTest {
         // When
         EventPublisher ep = new EventPublisher();
         new EventPublisher(ep.getRepository(), null);
-        ep.setRepository(new FeatureUsageTrackingInMemory());
+        ep.setRepository(new FeatureUsageInMemory());
         // Then
-        Assert.assertNotNull(ep.getRepository());
+        Assert.requireNotNull(ep.getRepository());
     }
     
     @Test
@@ -338,7 +338,7 @@ public class FF4jTest extends AbstractFf4jTest {
     
     @Test
     public void testInitWithEventPublisher() {
-        Assert.assertNotNull(new FF4j().getEventPublisher());
+        Assert.requireNotNull(new FF4j().getEventPublisher());
     }
     
     @Test

@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 import org.ff4j.FF4j;
 import org.ff4j.feature.Feature;
 import org.ff4j.property.Property;
+import org.ff4j.security.FF4jPermission;
 import org.junit.Assert;
 
 /**
@@ -187,23 +188,6 @@ public class AssertFF4j {
 		return this;
 	}
 
-	/**
-	 * Check that feature exists and have expected role.
-	 * 
-	 * @param featureName
-	 *            target feature Name
-	 * @param roleName
-	 *            target role name
-	 * @return current object
-	 */
-	public final AssertFF4j assertThatFeatureHasRole(String featureName, String roleName) {
-		assertThatFeatureExist(featureName);
-		Feature feature = ff4j.getFeature(featureName);
-		Assert.assertTrue(feature.getPermissions().isPresent());
-		Assert.assertTrue(feature.getPermissions().get().contains(roleName));
-		waitSomeSeconds();
-		return this;
-	}
 
 	/**
 	 * Check that feature exists and does not have expected role.
@@ -214,9 +198,10 @@ public class AssertFF4j {
 	 *            target role name
 	 * @return current object
 	 */
-	public final AssertFF4j assertThatFeatureHasNotRole(String featureName, String roleName) {
+	public final AssertFF4j assertThatFeatureHasNotRole(String featureName, FF4jPermission roleName, String userProfile) {
 		assertThatFeatureExist(featureName);
 		Feature feature = ff4j.getFeature(featureName);
+		feature.getAccessControlList().get(key)
 		if (feature.getPermissions().isPresent()) {
 			Assert.assertFalse(feature.getPermissions().get().contains(roleName));
 		}

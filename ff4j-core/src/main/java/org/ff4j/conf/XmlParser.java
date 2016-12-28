@@ -30,8 +30,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 import java.util.stream.Stream;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -142,9 +140,6 @@ public final class XmlParser {
 
     /** XML Generation constants. */
     private static final String XML_FEATURE = "  <feature uid=\"{0}\" enable=\"{1}\" ";
-
-    /** XML Generation constants. */
-    private static final String XML_AUTH = "      <role name=\"{0}\" />\n";
 
     /** XML Generation constants. */
     private static final String END_FEATURE = "  </feature>\n\n";
@@ -301,12 +296,6 @@ public final class XmlParser {
             f.setFlippingStrategy(parseFlipStrategy((Element) flipStrategies.item(0), f.getUid()));
         }
         
-        // Security
-        NodeList securities = featXmlTag.getElementsByTagName(SECURITY_TAG);
-        if (securities.getLength() > 0) {
-            f.setPermissions(parseListAuthorizations((Element) securities.item(0)));
-        }
-        
         // Properties
         NodeList properties = featXmlTag.getElementsByTagName(PROPERTIES_CUSTOM_TAG);
         if (properties.getLength() > 0) {
@@ -452,23 +441,6 @@ public final class XmlParser {
             desc = nnm.getNamedItem(FEATURE_ATT_DESC).getNodeValue();
         }
         return desc;
-    }
-
-    /**
-     * Parsing autorization tag.
-     * 
-     * @param featXmlTag
-     *            current TAG
-     * @return list of authorizations.
-     */
-    private static Set<String> parseListAuthorizations(Element securityTag) {
-        Set<String> authorizations = new TreeSet<String>();
-        NodeList lisOfAuth = securityTag.getElementsByTagName(SECURITY_ROLE_TAG);
-        for (int k = 0; k < lisOfAuth.getLength(); k++) {
-            Element role = (Element) lisOfAuth.item(k);
-            authorizations.add(role.getAttributes().getNamedItem(SECURITY_ROLE_ATTNAME).getNodeValue());
-        }
-        return authorizations;
     }
 
     /**
@@ -623,13 +595,6 @@ public final class XmlParser {
         sb.append(MessageFormat.format(XML_FEATURE, feature.getUid(), feature.isEnable()));
         feature.getDescription().ifPresent(desc -> sb.append(" description=\"" + desc + "\""));
         sb.append(" >\n");
-        
-        // <security>
-        feature.getPermissions().ifPresent(set -> {
-            sb.append("   <" + SECURITY_TAG + ">\n");
-            set.stream().forEach(auth -> sb.append(MessageFormat.format(XML_AUTH, auth)));
-            sb.append("   </" + SECURITY_TAG + ">\n");
-        });
         
         // <flipstrategy>
         if (feature.getFlippingStrategy().isPresent()) {

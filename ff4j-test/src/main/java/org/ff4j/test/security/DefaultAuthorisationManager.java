@@ -24,14 +24,14 @@ package org.ff4j.test.security;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.ff4j.security.AuthorizationsManager;
+import org.ff4j.security.FF4JSecurityManager;
 
 /**
  * Helper to test {@link DefaultAuthorisationManager} interface.
  *
  * @author Cedrick Lunven (@clunven)</a>
  */
-public class DefaultAuthorisationManager implements AuthorizationsManager {
+public class DefaultAuthorisationManager implements FF4JSecurityManager {
 
     /** Current userName. */
     private String userName;

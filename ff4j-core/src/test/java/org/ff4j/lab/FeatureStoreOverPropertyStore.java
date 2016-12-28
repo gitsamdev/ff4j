@@ -78,13 +78,13 @@ public class FeatureStoreOverPropertyStore extends AbstractFeatureStore {
     }
 
     @Override
-    public void enableGroup(String groupName) {
+    public void toggleOnGroup(String groupName) {
         // TODO Auto-generated method stub
         
     }
 
     @Override
-    public void disableGroup(String groupName) {
+    public void toggleOffGroup(String groupName) {
         // TODO Auto-generated method stub
         
     }
@@ -156,19 +156,25 @@ public class FeatureStoreOverPropertyStore extends AbstractFeatureStore {
     }
 
     @Override
-    public Map<FF4jPermission, Set<Grantee>> getPermissions() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public void grantUser(String userName, FF4jPermission... perm) {
+    protected void createFeature(Feature feature) {
         // TODO Auto-generated method stub
         
     }
 
     @Override
-    public void grantGroup(String groupName, FF4jPermission... perm) {
+    protected void updateFeature(Feature feature) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    protected void deleteFeature(String uid) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    protected void deleteAllFeatures() {
         // TODO Auto-generated method stub
         
     }

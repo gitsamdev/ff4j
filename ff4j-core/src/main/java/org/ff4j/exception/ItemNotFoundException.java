@@ -24,6 +24,9 @@ public class ItemNotFoundException extends RuntimeException {
     /** error message. */
     private static final String ERROR_MESSAGE = "Entity id {%s} does not exist in store where it does.";
     
+    /** entity uid. */
+    private String entityUid;
+    
     /**
      * Parameterized constructor.
      * 
@@ -32,6 +35,7 @@ public class ItemNotFoundException extends RuntimeException {
      **/
     public ItemNotFoundException(String entityId) {
         super(String.format(ERROR_MESSAGE, entityId));
+        this.entityUid = entityId;
     }
 
     /**
@@ -42,6 +46,26 @@ public class ItemNotFoundException extends RuntimeException {
      **/
     public ItemNotFoundException(String entityId, Throwable parentException) {
         super(String.format(ERROR_MESSAGE, entityId), parentException);
+        this.entityUid = entityId;
+    }
+
+    /**
+     * Getter accessor for attribute 'entityUid'.
+     *
+     * @return
+     *       current value of 'entityUid'
+     */
+    public String getEntityUid() {
+        return entityUid;
+    }
+
+    /**
+     * Setter accessor for attribute 'entityUid'.
+     * @param entityUid
+     * 		new value for 'entityUid '
+     */
+    public void setEntityUid(String entityUid) {
+        this.entityUid = entityUid;
     }
 
 }

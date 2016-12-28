@@ -1,4 +1,4 @@
-package org.ff4j.audit;
+package org.ff4j.audit.log;
 
 import java.util.stream.Stream;
 

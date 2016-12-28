@@ -17,7 +17,7 @@ import static org.ff4j.utils.JdbcUtils.closeStatement;
 import static org.ff4j.utils.JdbcUtils.executeUpdate;
 import static org.ff4j.utils.JdbcUtils.isTableExist;
 import static org.ff4j.utils.JdbcUtils.rollback;
-import static org.ff4j.utils.Util.assertHasLength;
+import static org.ff4j.utils.Util.requireHasLength;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -36,7 +36,7 @@ import java.util.stream.Stream;
 import javax.sql.DataSource;
 
 import org.ff4j.audit.AbstractEventRepository;
-import org.ff4j.audit.FeatureUsageTracking;
+import org.ff4j.audit.usage.FeatureUsageService;
 import org.ff4j.chart.TimeSeriesChart;
 import org.ff4j.event.Event;
 import org.ff4j.event.EventQueryDefinition;
@@ -48,7 +48,7 @@ import org.ff4j.utils.MutableHitCount;
 import org.ff4j.utils.Util;
 
 /**
- * Implementation of in memory {@link FeatureUsageTracking} with limited events.
+ * Implementation of in memory {@link FeatureUsageService} with limited events.
  * 
  * @author Cedrick Lunven (@clunven)
  */
@@ -96,7 +96,7 @@ public class EventRepositoryJdbc extends AbstractEventRepository {
     /** {@inheritDoc} */
     @Override
     public void create(Event evt) {
-        Util.assertEvent(evt);
+        Util.validateEvent(evt);
         try (Connection sqlConn = dataSource.getConnection()) {
             JdbcEventAuditMapper auditMapper = new JdbcEventAuditMapper(sqlConn, getQueryBuilder());
             try(PreparedStatement stmt = auditMapper.toStore(evt)) {
@@ -110,7 +110,7 @@ public class EventRepositoryJdbc extends AbstractEventRepository {
     /** {@inheritDoc} */
     @Override
     public Optional < Event > findById(String uuid, Long timestamp) {
-        Util.assertHasLength(uuid);
+        Util.requireHasLength(uuid);
         try (Connection sqlConn = dataSource.getConnection()) {
             try(PreparedStatement ps = sqlConn.prepareStatement(getQueryBuilder().sqlSelectAuditById())) {
                 ps.setString(1, uuid);
@@ -141,7 +141,7 @@ public class EventRepositoryJdbc extends AbstractEventRepository {
     /** {@inheritDoc} */
     @Override
     public boolean exists(String uid) {
-        assertHasLength(uid);
+        requireHasLength(uid);
         Connection          sqlConn = null;
         PreparedStatement   ps = null;
         ResultSet           rs = null;
@@ -187,7 +187,7 @@ public class EventRepositoryJdbc extends AbstractEventRepository {
     /** {@inheritDoc} */
     @Override
     public void purgeAuditTrail(EventQueryDefinition qDef) {
-        Util.assertNotNull(qDef);
+        Util.requireNotNull(qDef);
         Connection          sqlConn = null;
         PreparedStatement   ps = null;
         ResultSet           rs = null;
@@ -209,7 +209,7 @@ public class EventRepositoryJdbc extends AbstractEventRepository {
     /** {@inheritDoc} */
     @Override
     public void purgeFeatureUsage(EventQueryDefinition qDef) {
-        Util.assertNotNull(qDef);
+        Util.requireNotNull(qDef);
         Connection          sqlConn = null;
         PreparedStatement   ps = null;
         ResultSet           rs = null;

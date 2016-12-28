@@ -27,13 +27,13 @@ import static org.mockito.Mockito.doThrow;
 
 import static org.mockito.Mockito.mock;
 
-import org.ff4j.audit.FeatureUsageTracking;
+import org.ff4j.audit.usage.FeatureUsageService;
 import org.ff4j.event.Event;
 import org.ff4j.event.EventBuilder;
 import org.ff4j.event.EventPublisher;
 import org.ff4j.event.EventRejectedExecutionHandler;
 import org.ff4j.event.EventWorker;
-import org.ff4j.inmemory.FeatureUsageTrackingInMemory;
+import org.ff4j.inmemory.FeatureUsageInMemory;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -42,7 +42,7 @@ public class EventWorkerTest {
     @Test
     public void testEventWorker() {
         // Given
-        FeatureUsageTracking er = new FeatureUsageTrackingInMemory();
+        FeatureUsageService er = new FeatureUsageInMemory();
         Event evt = new EventBuilder().source(SOURCE_JAVA).feature("F1").action(ACTION_CHECK_OFF).build();
         EventWorker ew = new EventWorker(evt, er);
         // When
@@ -54,7 +54,7 @@ public class EventWorkerTest {
     @Test
     public void testEventWorkerCall() throws Exception {
         // Given
-        FeatureUsageTracking er = mock(FeatureUsageTracking.class);
+        FeatureUsageService er = mock(FeatureUsageService.class);
         Event evt = new EventBuilder().source(SOURCE_JAVA).feature("F1").action(ACTION_CHECK_OK).build();
         er.create(evt);
         EventWorker ew = new EventWorker(evt, er);
@@ -65,7 +65,7 @@ public class EventWorkerTest {
     @Test
     public void testErrorOnSubmitEventPublisher() {
         // Given
-        FeatureUsageTracking er = mock(FeatureUsageTracking.class);
+        FeatureUsageService er = mock(FeatureUsageService.class);
         Event evt = new EventBuilder().source(SOURCE_JAVA).feature("F1").action(ACTION_CHECK_OFF).build();
         doThrow(new RuntimeException("Erreur")).when(er).create(evt);
         EventPublisher evtPublisher = new EventPublisher(er);

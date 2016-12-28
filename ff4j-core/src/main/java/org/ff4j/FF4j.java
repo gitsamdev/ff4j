@@ -7,26 +7,24 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.Optional;
 
-import org.ff4j.audit.FeatureStoreAuditProxy;
-import org.ff4j.audit.FeatureUsageTracking;
-import org.ff4j.audit.PropertyStoreAuditProxy;
+import org.ff4j.audit.usage.AbstractFeatureUsageService;
+import org.ff4j.audit.usage.FeatureUsageListener;
+import org.ff4j.audit.usage.FeatureUsageService;
 import org.ff4j.cache.CacheManager;
 import org.ff4j.cache.FeatureStoreCacheProxy;
 import org.ff4j.cache.PropertyStoreCacheProxy;
 import org.ff4j.conf.XmlConfig;
 import org.ff4j.conf.XmlParser;
 import org.ff4j.event.Event;
-import org.ff4j.event.EventPublisher;
 import org.ff4j.exception.FeatureNotFoundException;
 import org.ff4j.feature.Feature;
 import org.ff4j.feature.FlippingStrategy;
 import org.ff4j.inmemory.FeatureStoreInMemory;
-import org.ff4j.inmemory.FeatureUsageTrackingInMemory;
+import org.ff4j.inmemory.FeatureUsageInMemory;
 import org.ff4j.inmemory.PropertyStoreInMemory;
-import org.ff4j.observable.AbstractObservableMixin;
-import org.ff4j.observable.FeatureUsageListener;
 import org.ff4j.property.Property;
-import org.ff4j.security.AuthorizationsManager;
+import org.ff4j.security.FF4JSecurityManager;
+import org.ff4j.store.AbstractObservable;
 import org.ff4j.store.FeatureStore;
 import org.ff4j.store.PropertyStore;
 
@@ -36,14 +34,15 @@ import org.ff4j.store.PropertyStore;
  * <ul>It proposes a few underlying elements :
  *  <li>{@link FeatureStore} is used to store status of manipulated features.
  *  <li>{@link PropertyStore} is used to store properties values.
- *  <li>{@link FeatureUsageTracking} is used to store audit information.
- *  <li>{@link AuthorizationsManager} to limit access to features is relevant (permissions).
+ *  <li>{@link FeatureUsageService} is used to store audit information.
+ *  <li>{@link FF4JSecurityManager} to limit access to features is relevant (permissions).
  * </ul>
  *
  * @author Cedrick Lunven (@clunven)
+ *
  * @since 1.0
  */
-public class FF4j extends AbstractObservableMixin < FeatureUsageListener > {
+public class FF4j extends AbstractObservable < FeatureUsageListener > {
     
     /** Intialisation. */
     private final long startTime = System.currentTimeMillis();
@@ -69,24 +68,17 @@ public class FF4j extends AbstractObservableMixin < FeatureUsageListener > {
     /** Source. */
     private String source = Event.Source.JAVA_API.name();
     
-    /** Security policy to limit access through ACL with {@link AuthorizationsManager}. */
-    private AuthorizationsManager authorizationsManager = null;
+    /** Security policy to limit access through ACL with {@link FF4JSecurityManager}. */
+    private FF4JSecurityManager securityManager = null;
     
-    /** Event Publisher (threadpool, executor) to send data into {@link FeatureUsageTracking} */
-    private EventPublisher eventPublisher = null;
-   
-    /** This attribute indicates to stop the event publisher. */
-    private volatile boolean shutdownEventPublisher;
-    
-    /** Post Processing like audit enable. */
-    private boolean initialized = false;
+    /** Define feature usage. */
+    private AbstractFeatureUsageService featureUsage = null;
     
     /**
      * Base constructor to allows instantiation through IoC.
      * Default stores are created and will work in memory.
      */
     public FF4j() {
-        registerListener("DefaultUsageTracking", new FeatureUsageTrackingInMemory());
     }
 
     /**
@@ -95,6 +87,8 @@ public class FF4j extends AbstractObservableMixin < FeatureUsageListener > {
     public FF4j(String xmlFile) {
         this.featureStore  = new FeatureStoreInMemory(xmlFile);
         this.propertyStore = new PropertyStoreInMemory(xmlFile);
+        this.featureUsage  = new FeatureUsageInMemory();
+        registerListener("DefaultUsageTracking", this.featureUsage);
     }
 
     /**
@@ -189,8 +183,10 @@ public class FF4j extends AbstractObservableMixin < FeatureUsageListener > {
             }
         }
         
-        // 
-        this.notify((listener) -> listener.onFeatureExecuted(uid));
+        // Send information that feature will be used
+        if (featureToggled) {
+            this.notify((listener) -> listener.onFeatureExecuted(feature));
+        }
         return featureToggled;
     }
     
@@ -202,11 +198,12 @@ public class FF4j extends AbstractObservableMixin < FeatureUsageListener > {
      * @return if the feature is allowed
      */
     public boolean isAllowed(Feature feature) {
-        return getAuthorizationsManager() == null 
-                || !feature.getPermissions().isPresent() 
-                || feature.getPermissions().get().isEmpty() 
-                || feature.getPermissions().get().stream().anyMatch(
-                        getAuthorizationsManager().getCurrentUserPermissions()::contains);
+        /* Get current connected user
+        FF4jUser connectedUser = new FF4jUser("");
+        if (connectedUser != null) { 
+            return feature.isAllowedToUse(connectedUser);
+        }*/
+        return true;
     }
     
     /**
@@ -420,9 +417,6 @@ public class FF4j extends AbstractObservableMixin < FeatureUsageListener > {
         if (getPropertiesStore() != null) {
             sb.append(objectAsJson("propertiesStore", getPropertiesStore().toString()));
         }
-        if (getAuthorizationsManager() != null) {
-            sb.append(objectAsJson("authorizationsManager", getAuthorizationsManager().toString()));
-        }
         sb.append("}");
         return sb.toString();
     }
@@ -451,44 +445,6 @@ public class FF4j extends AbstractObservableMixin < FeatureUsageListener > {
         this.autoCreateFeatures = autocreate;
     }
 
-    /**
-     * Getter accessor for attribute 'authorizationsManager'.
-     * 
-     * @return current value of 'authorizationsManager'
-     */
-    public AuthorizationsManager getAuthorizationsManager() {
-        return authorizationsManager;
-    }
-
-    /**
-     * Setter accessor for attribute 'authorizationsManager'.
-     * 
-     * @param authorizationsManager
-     *            new value for 'authorizationsManager '
-     */
-    public void setAuthorizationsManager(AuthorizationsManager authorizationsManager) {
-        this.authorizationsManager = authorizationsManager;
-    }
-
-    /**
-     * Setter accessor for attribute 'eventPublisher'.
-     *
-     * @param eventPublisher
-     *            new value for 'eventPublisher '
-     */
-    public void setEventPublisher(EventPublisher eventPublisher) {
-        this.eventPublisher = eventPublisher;
-    }
-    
-    /**
-     * Initialization of background components.
-     */
-    private synchronized void init() {
-        
-        // Event Publisher
-        eventPublisher = new EventPublisher(null);
-        this.shutdownEventPublisher = true;
-    }
     
     /**
      * Create tables/collections/columns in DB (if required).
@@ -502,7 +458,7 @@ public class FF4j extends AbstractObservableMixin < FeatureUsageListener > {
         }
         // AuditTrail
         // Feature Usage
-        // User
+        // SecurityManager
     }
     
     /**
@@ -511,22 +467,7 @@ public class FF4j extends AbstractObservableMixin < FeatureUsageListener > {
      * @return current store
      */
     public FeatureStore getFeatureStore() {
-        if (!initialized) {
-            init();
-        }
         return featureStore;
-    }
-    
-    /**
-     * Getter accessor for attribute 'eventPublisher'.
-     * 
-     * @return current value of 'eventPublisher'
-     */
-    public EventPublisher getEventPublisher() {
-        if (!initialized) { 
-            init();
-        }
-        return eventPublisher;
     }
     
     /**
@@ -536,9 +477,6 @@ public class FF4j extends AbstractObservableMixin < FeatureUsageListener > {
      *       current value of 'pStore'
      */
     public PropertyStore getPropertiesStore() {
-        if (!initialized) {
-            init();
-        }
         return propertyStore;
     }
 
@@ -581,16 +519,6 @@ public class FF4j extends AbstractObservableMixin < FeatureUsageListener > {
     public void setAuthManager(String mnger) { /** empty setter for Spring framework */}
 
     /**
-     * Shuts down the event publisher if we actually started it (As opposed to
-     * having it dependency-injected).
-     */
-    public void stop() {
-        if (this.eventPublisher != null && this.shutdownEventPublisher) {
-            this.eventPublisher.stop();
-        }
-    }
-
-    /**
      * Getter accessor for attribute 'source'.
      *
      * @return
@@ -626,10 +554,7 @@ public class FF4j extends AbstractObservableMixin < FeatureUsageListener > {
     public FeatureStoreCacheProxy getFeatureStoreCacheProxy() {
         FeatureStore fs = getFeatureStore();
         // Pass through audit proxy if exists
-        if (fs instanceof FeatureStoreAuditProxy) {
-            fs = ((FeatureStoreAuditProxy) fs).getTarget();
-        }
-        if (fs instanceof FeatureStoreCacheProxy) {
+       if (fs instanceof FeatureStoreCacheProxy) {
             return (FeatureStoreCacheProxy) fs;
         }
         return null;
@@ -642,10 +567,6 @@ public class FF4j extends AbstractObservableMixin < FeatureUsageListener > {
      */
     public PropertyStoreCacheProxy getPropertyStoreCacheProxy() {
         PropertyStore fs = getPropertiesStore();
-        // Pass through audit proxy if exists
-        if (fs instanceof PropertyStoreAuditProxy) {
-            fs = ((PropertyStoreAuditProxy) fs).getTarget();
-        }
         if (fs instanceof PropertyStoreCacheProxy) {
             return (PropertyStoreCacheProxy) fs;
         }
@@ -661,9 +582,7 @@ public class FF4j extends AbstractObservableMixin < FeatureUsageListener > {
      *      target featureStore
      */
     private FeatureStore getConcreteFeatureStore(FeatureStore fs) {
-        if (fs instanceof FeatureStoreAuditProxy) {
-            return getConcreteFeatureStore(((FeatureStoreAuditProxy) fs).getTarget());
-        } else if (fs instanceof FeatureStoreCacheProxy) {
+         if (fs instanceof FeatureStoreCacheProxy) {
             return getConcreteFeatureStore(((FeatureStoreCacheProxy) fs).getTargetFeatureStore());
         }
         return fs;
@@ -678,12 +597,29 @@ public class FF4j extends AbstractObservableMixin < FeatureUsageListener > {
      *      target propertyStoyre
      */
     private PropertyStore getConcretePropertyStore(PropertyStore ps) {
-        if (ps instanceof PropertyStoreAuditProxy) {
-            return getConcretePropertyStore(((PropertyStoreAuditProxy) ps).getTarget());
-        } else if (ps instanceof PropertyStoreCacheProxy) {
+        if (ps instanceof PropertyStoreCacheProxy) {
             return getConcretePropertyStore(((PropertyStoreCacheProxy) ps).getTargetPropertyStore());
         }
         return ps;
+    }
+
+    /**
+     * Getter accessor for attribute 'securityManager'.
+     *
+     * @return
+     *       current value of 'securityManager'
+     */
+    public FF4JSecurityManager getSecurityManager() {
+        return securityManager;
+    }
+
+    /**
+     * Setter accessor for attribute 'securityManager'.
+     * @param securityManager
+     * 		new value for 'securityManager '
+     */
+    public void setSecurityManager(FF4JSecurityManager securityManager) {
+        this.securityManager = securityManager;
     }
     
 }

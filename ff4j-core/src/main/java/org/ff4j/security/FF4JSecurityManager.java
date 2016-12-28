@@ -1,5 +1,7 @@
 package org.ff4j.security;
 
+import java.util.Map;
+
 /*
  * #%L ff4j-core $Id:$ $HeadURL:$ %% Copyright (C) 2013 Ff4J %% Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License. You may obtain a copy of the License at
@@ -13,12 +15,34 @@ package org.ff4j.security;
 
 import java.util.Set;
 
+import org.hsqldb.rights.Grantee;
+
 /**
  * Allow flipping only if user is allowed to do so.
  * 
  * @author Cedrick Lunven (@clunven)
  */
-public interface AuthorizationsManager {
+public interface FF4JSecurityManager {
+    
+    /**
+     * Get permissions of the store.
+     *
+     * @return
+     *      the store can allow profile to edit features.
+     */
+    Map < FF4jPermission, Set < Grantee> > getPermissions();
+    
+    /**
+     * Grant operation on user.
+     *
+     * @param userName
+     *      target userName
+     * @param perm
+     *      target permission
+     */
+    void grantUser(String userName, FF4jPermission... perm);
+    
+    void grantGroup(String groupName, FF4jPermission... perm);
 
     /**
      * Retrieve logged user name (audit purposes).
