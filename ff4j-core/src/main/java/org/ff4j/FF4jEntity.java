@@ -27,17 +27,16 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.ff4j.property.Property;
-import org.ff4j.security.FF4jEveryOne;
 import org.ff4j.security.FF4jGrantees;
 import org.ff4j.security.FF4jPermission;
 import org.ff4j.security.FF4jUser;
-import org.ff4j.utils.JsonUtils;
 import org.ff4j.utils.Util;
 
 /**
@@ -56,6 +55,9 @@ public abstract class FF4jEntity<T extends FF4jEntity<?>> implements Comparable<
     /** unique identifier. */
     protected String uid;
     
+    /** entity type. */
+    protected Class<?> type = FF4jEntity.class;
+    
     /** Description of the meaning. */
     protected Optional < String > description = Optional.empty();
     
@@ -72,7 +74,7 @@ public abstract class FF4jEntity<T extends FF4jEntity<?>> implements Comparable<
     protected Optional<Map<String, Property<?>>> customProperties = Optional.empty();
     
     /** Permission : by Default everyOne can use the Feature. */
-    protected Map < FF4jPermission, FF4jGrantees > accessControlList = Util.mapOf(FF4jPermission.USE, new FF4jEveryOne());
+    protected Optional<Map < FF4jPermission, FF4jGrantees >> accessControlList = Optional.empty();
     
     /**
      * Json common parts
@@ -82,6 +84,7 @@ public abstract class FF4jEntity<T extends FF4jEntity<?>> implements Comparable<
      */
     public String baseJson() {
         StringBuilder json = new StringBuilder("\"uid\":" + valueAsJson(uid));
+        json.append(attributeAsJson("type", type.getName()));
         description.ifPresent(
                 d -> json.append(attributeAsJson("description", d)));
         owner.ifPresent(
@@ -100,9 +103,17 @@ public abstract class FF4jEntity<T extends FF4jEntity<?>> implements Comparable<
             }
             json.append("]");
         });
-        if (accessControlList != null && !accessControlList.isEmpty()) {
-            json.append(", \"accessControlList\":" + JsonUtils.mapAsJson(accessControlList));
-        }
+        accessControlList.ifPresent(acl -> {
+            json.append(", \"accessControlList\": {");
+            boolean first = true;
+            for (Map.Entry < FF4jPermission, FF4jGrantees > mapEntry : acl.entrySet()) {
+                json.append(first ? "" : ",");
+                json.append("\"" + mapEntry.getKey() + "\":");
+                json.append(valueAsJson(mapEntry.getValue()));
+                first = false;
+            }
+            json.append("}");
+        });
         return json.toString();   
     }
     
@@ -115,6 +126,7 @@ public abstract class FF4jEntity<T extends FF4jEntity<?>> implements Comparable<
         this.uid         = uid;
         creationDate     = Optional.of(LocalDateTime.now());
         lastModifiedDate = creationDate;
+        this.type = getClass();
     }
     
     /** {@inheritDoc} */
@@ -238,7 +250,7 @@ public abstract class FF4jEntity<T extends FF4jEntity<?>> implements Comparable<
      * @return
      *       current value of 'accessControlList'
      */
-    public Map<FF4jPermission, FF4jGrantees> getAccessControlList() {
+    public Optional<Map<FF4jPermission, FF4jGrantees>> getAccessControlList() {
         return accessControlList;
     }
     
@@ -277,7 +289,11 @@ public abstract class FF4jEntity<T extends FF4jEntity<?>> implements Comparable<
      *      if current user has expected permission
      */
     public boolean isGranted(FF4jUser user, FF4jPermission permission) {
-        return getAccessControlList().get(permission).isUserGranted(user);
+        // if not access control list, consider as 'public' and can use
+        if (getAccessControlList().isPresent()) {
+            return getAccessControlList().get().get(permission).isUserGranted(user);
+        }
+        return true;
     }
     
     /**
@@ -301,10 +317,14 @@ public abstract class FF4jEntity<T extends FF4jEntity<?>> implements Comparable<
      *          the users to allow on this permission
      */
     public void grantUsers(FF4jPermission permission, String... users)  {
-        if (null == getAccessControlList().get(permission)) {
-            getAccessControlList().put(permission, new FF4jGrantees());
+        if (!getAccessControlList().isPresent()) {
+            this.accessControlList = Optional.of(new HashMap<>());
         }
-        getAccessControlList().get(permission).getUsers().addAll(Arrays.asList(users));
+        Map<FF4jPermission, FF4jGrantees> mapOfgrantees = getAccessControlList().get();
+        if (null == mapOfgrantees.get(permission)) {
+            mapOfgrantees.put(permission, new FF4jGrantees());
+        }
+        mapOfgrantees.get(permission).getUsers().addAll(Arrays.asList(users));
     }
     
     /**
@@ -316,10 +336,14 @@ public abstract class FF4jEntity<T extends FF4jEntity<?>> implements Comparable<
      *          the groups to allow on this permission
      */
     public void grantGroups(FF4jPermission permission, String... groups)  {
-        if (null == getAccessControlList().get(permission)) {
-            getAccessControlList().put(permission, new FF4jGrantees());
+        if (!getAccessControlList().isPresent()) {
+            this.accessControlList = Optional.of(new HashMap<>());
         }
-        getAccessControlList().get(permission).getGroups().addAll(Arrays.asList(groups));
+        Map<FF4jPermission, FF4jGrantees> mapOfgrantees = getAccessControlList().get();
+        if (null == mapOfgrantees.get(permission)) {
+            mapOfgrantees.put(permission, new FF4jGrantees());
+        }
+        mapOfgrantees.get(permission).getGroups().addAll(Arrays.asList(groups));
     }    
 
     /**

@@ -7,8 +7,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.ff4j.FF4jExecutionContext;
+import org.ff4j.feature.FeatureStore;
 import org.ff4j.feature.FlippingStrategy;
-import org.ff4j.store.FeatureStore;
 
 /*
  * #%L

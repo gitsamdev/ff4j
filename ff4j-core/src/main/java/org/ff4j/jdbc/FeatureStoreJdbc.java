@@ -43,13 +43,13 @@ import java.util.stream.Stream;
 import javax.sql.DataSource;
 
 import org.ff4j.exception.FeatureAccessException;
+import org.ff4j.feature.AbstractFeatureStore;
 import org.ff4j.feature.Feature;
+import org.ff4j.feature.FeatureStore;
 import org.ff4j.jdbc.JdbcConstants.CustomPropertyColumns;
 import org.ff4j.jdbc.JdbcConstants.FeaturesColumns;
 import org.ff4j.jdbc.JdbcConstants.RolesColumns;
 import org.ff4j.property.Property;
-import org.ff4j.store.AbstractFeatureStore;
-import org.ff4j.store.FeatureStore;
 import org.ff4j.utils.JdbcUtils;
 import org.ff4j.utils.Util;
 

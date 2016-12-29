@@ -3,7 +3,7 @@ package org.ff4j.cache;
 import java.util.stream.Stream;
 
 import org.ff4j.feature.Feature;
-import org.ff4j.store.FeatureStore;
+import org.ff4j.feature.FeatureStore;
 
 /**
  * Access to {@link FeatureStore} could generate some overhead and decrease performances. This is the reason why cache is provided

@@ -381,4 +381,5 @@ public class FeatureUsageInMemory extends AbstractFeatureUsageService {
         }
         return null;
     }
+
 }

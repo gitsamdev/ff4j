@@ -18,6 +18,7 @@ import org.ff4j.conf.XmlParser;
 import org.ff4j.event.Event;
 import org.ff4j.exception.FeatureNotFoundException;
 import org.ff4j.feature.Feature;
+import org.ff4j.feature.FeatureStore;
 import org.ff4j.feature.FlippingStrategy;
 import org.ff4j.inmemory.FeatureStoreInMemory;
 import org.ff4j.inmemory.FeatureUsageInMemory;
@@ -25,7 +26,6 @@ import org.ff4j.inmemory.PropertyStoreInMemory;
 import org.ff4j.property.Property;
 import org.ff4j.security.FF4JSecurityManager;
 import org.ff4j.store.AbstractObservable;
-import org.ff4j.store.FeatureStore;
 import org.ff4j.store.PropertyStore;
 
 /**

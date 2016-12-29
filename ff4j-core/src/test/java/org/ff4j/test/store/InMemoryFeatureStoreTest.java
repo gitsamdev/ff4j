@@ -14,8 +14,8 @@ package org.ff4j.test.store;
 import java.util.LinkedHashMap;
 
 import org.ff4j.feature.Feature;
+import org.ff4j.feature.FeatureStore;
 import org.ff4j.inmemory.FeatureStoreInMemory;
-import org.ff4j.store.FeatureStore;
 import org.ff4j.strategy.PonderationStrategy;
 import org.junit.Assert;
 import org.junit.Test;

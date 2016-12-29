@@ -1,7 +1,7 @@
 package org.ff4j.cache;
 
 import org.ff4j.feature.Feature;
-import org.ff4j.store.FeatureStore;
+import org.ff4j.feature.FeatureStore;
 
 
 /**

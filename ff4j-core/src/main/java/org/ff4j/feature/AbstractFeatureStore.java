@@ -1,4 +1,4 @@
-package org.ff4j.store;
+package org.ff4j.feature;
 
 import static org.ff4j.utils.JsonUtils.attributeAsJson;
 import static org.ff4j.utils.JsonUtils.cacheJson;
@@ -40,7 +40,9 @@ import org.ff4j.exception.FeatureNotFoundException;
 import org.ff4j.exception.GroupNotFoundException;
 import org.ff4j.exception.ItemAlreadyExistException;
 import org.ff4j.exception.ItemNotFoundException;
-import org.ff4j.feature.Feature;
+import org.ff4j.store.AbstractFF4jRepository;
+import org.ff4j.store.FF4jRepository;
+import org.ff4j.store.FF4jRepositoryListener;
 import org.ff4j.utils.Util;
 
 /**
@@ -49,7 +51,7 @@ import org.ff4j.utils.Util;
  *
  * @author Cedrick Lunven (@clunven)
  */
-public abstract class AbstractFeatureStore extends AbstractFF4jRepository<Feature> implements FeatureStore {
+public abstract class AbstractFeatureStore extends AbstractFF4jRepository<Feature, FeatureStoreListener > implements FeatureStore {
 
     /** serialVersionUID. */
     private static final long serialVersionUID = -7450698535116107530L;
@@ -288,5 +290,12 @@ public abstract class AbstractFeatureStore extends AbstractFF4jRepository<Featur
      *      target feature
      */
     protected abstract void deleteAllFeatures();
+    
+    /** {@inheritDoc} */
+    @Override
+    public void registerListener(String name, FF4jRepositoryListener<Feature> listener) {
+        // Enforce subclass to reach AbstractObservable.registerListener(..)
+        registerListener(name, (FeatureStoreListener) listener);
+    }
     
 }

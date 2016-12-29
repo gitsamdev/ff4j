@@ -24,8 +24,8 @@ import java.sql.SQLException;
 import javax.sql.DataSource;
 
 import org.ff4j.exception.FeatureAccessException;
+import org.ff4j.feature.FeatureStore;
 import org.ff4j.jdbc.FeatureStoreJdbc;
-import org.ff4j.store.FeatureStore;
 import org.ff4j.test.utils.JdbcTestHelper;
 import org.ff4j.utils.JdbcUtils;
 import org.junit.Assert;

@@ -3,6 +3,8 @@ package org.ff4j.audit.usage;
 import org.ff4j.event.Event;
 import org.ff4j.feature.Feature;
 import org.ff4j.store.AbstractFF4jRepository;
+import org.ff4j.store.FF4jRepositoryEventListener;
+import org.ff4j.store.FF4jRepositoryListener;
 
 /**
  * Allow to track features usage.
@@ -10,7 +12,7 @@ import org.ff4j.store.AbstractFF4jRepository;
  * @author Cedrick LUNVEN  (@clunven)
  */
 public abstract class AbstractFeatureUsageService 
-                extends AbstractFF4jRepository < Event > 
+                extends AbstractFF4jRepository < Event , FF4jRepositoryEventListener> 
                 implements FeatureUsageListener, FeatureUsageService {
 
     /** serialVersionUID. */
@@ -21,5 +23,13 @@ public abstract class AbstractFeatureUsageService
     public void onFeatureExecuted(Feature feature) {
         featureUsageHit(feature);
     }
+    
+    /** {@inheritDoc} */
+    @Override
+    public void registerListener(String name, FF4jRepositoryListener<Event> listener) {
+        // Enforce subclass to reach AbstractObservable.registerListener(..)
+        registerListener(name, (FF4jRepositoryEventListener) listener);
+    }
+    
    
 }

@@ -29,28 +29,4 @@ public class FF4jRepositoryAdapter < BO extends FF4jEntity<?> > implements FF4jR
     @Override
     public void onDeleteAll() {}
 
-    /** {@inheritDoc} */
-    @Override
-    public void onToggleOnFeature(String uid) {}
-
-    /** {@inheritDoc} */
-    @Override
-    public void onToggleOffFeature(String uid) {}
-
-    /** {@inheritDoc} */
-    @Override
-    public void onToggleOnGroup(String groupName) {}
-
-    /** {@inheritDoc} */
-    @Override
-    public void onToggleOffGroup(String groupname) {}
-
-    /** {@inheritDoc} */
-    @Override
-    public void onAddFeatureToGroup(String uid, String groupName) {}
-
-    /** {@inheritDoc} */
-    @Override
-    public void onRemoveFeatureFromGroup(String uid, String groupName) {}
-
 }

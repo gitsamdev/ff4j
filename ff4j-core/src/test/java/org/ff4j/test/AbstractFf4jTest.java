@@ -32,9 +32,9 @@ import org.junit.Assert;
 
 import org.ff4j.FF4j;
 import org.ff4j.FF4jExecutionContext;
+import org.ff4j.feature.FeatureStore;
 import org.ff4j.feature.FlippingStrategy;
 import org.ff4j.security.FF4JSecurityManager;
-import org.ff4j.store.FeatureStore;
 import org.junit.Before;
 import org.junit.Test;
 

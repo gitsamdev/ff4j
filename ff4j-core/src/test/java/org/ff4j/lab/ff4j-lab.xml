@@ -22,31 +22,61 @@
      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	 xsi:schemaLocation="http://www.ff4j.org/schema/ff4j ../../main/resources/ff4j-2.0.xsd">
 	
-	<user-permissions>
-	</user-permissions>
+	<autocreate>true</autocreate>
+		
+	<connections>
+		
+			<connection id="Cassandra-DEV">
+				<technology>Cassandra</technology>
+				<url>sdsd</url>
+				<port>dsds</port>
+				<user>....</user>
+				<password>...</password>
+			</connection>
+			
+	</connections>
+		
+	<security>
+				<permission list="USE, EDIT, TOGGLE">
+					<user>Pierre</user>
+					<user>Paul</user>
+					<user>Jacques<</user>
+					<group>beta</group>
+				</permission>
+				<permission list="ADMIN">
+					<user>Pierre</user>
+				</permission>
+	</security>
+	
+	<!-- Features -->	
+	
+	<featureStore>
+			<targetStorage ref="Cassandra-DEV" />
+			<url>....</url>
+			<port>....</port>
+			<audit>ElasticSearch</audit>
+	</featureStore>
+		
+	<!-- Properties -->
+	<propertyStore>
+	</propertyStore>
+	
 	
 	
 	<features>
+	
 		<feature uid="AwesomeFeature" enable="true" description="some desc" />
 	
-		<feature uid="first" enable="true" description="description" >
+		<feature uid="first" enable="true" description="description" owner="" >
 			
-			<permissions>
-				<permission type="execute">
-					<users>
-						<user>Pierre</user>
-						<user>Paul</user>
-					</users>
-					<groups>
-						<beta></beta>
-					</groups>
-				</permission> 
-				<permission type="update" >
-					<users></users>
-					<groups></groups>
-				</permission> 
-			</permissions>
-			
+			<accessControlList>
+				<permission name="USE">
+					<user>Pierre</user>
+					<user>Paul</user>
+					<user>Jacques<</user>
+					<group>beta</group>
+				</permission>
+			</accessControlList>
 			
 			<custom-properties>
 			  <property name="ppint" 	  type="org.ff4j.property.PropertyInt" value="12"   />

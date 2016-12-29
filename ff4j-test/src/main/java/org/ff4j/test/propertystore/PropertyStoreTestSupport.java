@@ -28,13 +28,13 @@ import org.ff4j.FF4j;
 
 import org.ff4j.exception.PropertyAlreadyExistException;
 import org.ff4j.exception.PropertyNotFoundException;
+import org.ff4j.feature.FeatureStore;
 import org.ff4j.inmemory.FeatureStoreInMemory;
 import org.ff4j.property.Property;
 import org.ff4j.property.PropertyDate;
 import org.ff4j.property.PropertyLogLevel;
 import org.ff4j.property.PropertyLogLevel.LogLevel;
 import org.ff4j.property.PropertyString;
-import org.ff4j.store.FeatureStore;
 import org.ff4j.store.PropertyStore;
 import org.junit.Assert;
 import org.junit.Before;

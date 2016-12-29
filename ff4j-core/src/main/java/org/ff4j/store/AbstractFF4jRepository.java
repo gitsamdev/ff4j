@@ -27,9 +27,10 @@ import org.ff4j.utils.Util;
  * @param <V>
  *      entity manipulated, its unique key is a STRING named 'uid'
  */
-public abstract class AbstractFF4jRepository < V extends FF4jEntity<?>> 
-                    extends AbstractObservable < FF4jRepositoryListener < V > > 
-                    implements FF4jRepository<String, V>, Serializable {
+public abstract class AbstractFF4jRepository < E extends FF4jEntity<?>,
+                    LISTENER extends FF4jRepositoryListener < E >> 
+                    extends AbstractObservable < LISTENER > 
+                    implements FF4jRepository<String, E>, Serializable {
 
     /** Denerated Serial Number . */
     private static final long serialVersionUID = -2865266843791651125L;
@@ -48,14 +49,14 @@ public abstract class AbstractFF4jRepository < V extends FF4jEntity<?>>
     
     /** {@inheritDoc} */
     @Override
-    public void delete(V entity) {
+    public void delete(E entity) {
         Util.requireNotNull(entity);
         this.delete(entity.getUid());
     }
 
     /** {@inheritDoc} */
     @Override
-    public void delete(Iterable<? extends V> entities) {
+    public void delete(Iterable<? extends E> entities) {
         if (null != entities) entities.forEach(this::delete);
     }
 
@@ -69,7 +70,7 @@ public abstract class AbstractFF4jRepository < V extends FF4jEntity<?>>
     
     /** {@inheritDoc} */
     @Override
-    public Stream<V> findAll(Iterable<String> ids) {
+    public Stream<E> findAll(Iterable<String> ids) {
         if (ids == null) return Stream.empty();
         return StreamSupport
                 // Iterable to Stream \_(o^o')_/
@@ -84,7 +85,7 @@ public abstract class AbstractFF4jRepository < V extends FF4jEntity<?>>
     
     /** {@inheritDoc} */
     @Override
-    public V read(String id) {
+    public E read(String id) {
         assertItemExist(id);
         // As the item exists, the get should not raise exception
         return findById(id).get();
@@ -96,7 +97,7 @@ public abstract class AbstractFF4jRepository < V extends FF4jEntity<?>>
      * @param entity
      *      current entity
      */
-    protected void preUpdate(V entity) {
+    protected void preUpdate(E entity) {
         requireNotNull(entity);
         requireHasLength(entity.getUid());
         assertItemExist(entity.getUid());
@@ -106,7 +107,7 @@ public abstract class AbstractFF4jRepository < V extends FF4jEntity<?>>
     
     /** {@inheritDoc} */
     @Override
-    public void save(Collection<V> entities) {
+    public void save(Collection<E> entities) {
         if (entities != null) {
             entities.stream().forEach(this::update);
         }

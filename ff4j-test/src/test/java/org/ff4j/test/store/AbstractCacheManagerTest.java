@@ -22,7 +22,7 @@ package org.ff4j.test.store;
 
 import org.ff4j.cache.FF4jCacheManager;
 import org.ff4j.cache.FF4jCacheManagerssss;
-import org.ff4j.store.FeatureStore;
+import org.ff4j.feature.FeatureStore;
 import org.ff4j.store.PropertyStore;
 import org.ff4j.test.cache.AbstractCacheManagerJUnitTest;
 import org.ff4j.test.propertystore.PropertyStoreTestSupport;

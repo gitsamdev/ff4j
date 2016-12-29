@@ -1,15 +1,11 @@
 package org.ff4j.lab;
 
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Stream;
 
+import org.ff4j.feature.AbstractFeatureStore;
 import org.ff4j.feature.Feature;
-import org.ff4j.security.FF4jPermission;
-import org.ff4j.store.AbstractFeatureStore;
 import org.ff4j.store.PropertyStore;
-import org.hsqldb.rights.Grantee;
 
 /**
  * Leverage on {@link PropertyStore} to handle features. Feature will

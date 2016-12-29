@@ -50,16 +50,4 @@ public interface FF4jRepositoryListener < ENTITY extends FF4jEntity<?> > {
      */
     void onCreateSchema();
     
-    void onToggleOnFeature(String uid);
-    
-    void onToggleOffFeature(String uid);
-    
-    void onToggleOnGroup(String groupName);
-    
-    void onToggleOffGroup(String groupname);
-    
-    void onAddFeatureToGroup(String uid, String groupName);
-    
-    void onRemoveFeatureFromGroup(String uid, String groupName);
-    
 }

@@ -44,7 +44,8 @@ import org.ff4j.utils.Util;
  *
  * @author Cedrick Lunven (@clunven)
  */
-public abstract class AbstractPropertyStore extends AbstractFF4jRepository<Property<?>> implements PropertyStore {
+public abstract class AbstractPropertyStore 
+    extends AbstractFF4jRepository<Property<?>, FF4jRepositoryPropertyListener> implements PropertyStore {
     
     /** serialVersionUID. */
     private static final long serialVersionUID = -5638535944745337074L;
@@ -203,7 +204,6 @@ public abstract class AbstractPropertyStore extends AbstractFF4jRepository<Prope
         assertPropertyExist(entity.getUid());
         delete(entity.getUid());
     }
-    
 
     /** {@inheritDoc} */
     @Override
@@ -213,5 +213,13 @@ public abstract class AbstractPropertyStore extends AbstractFF4jRepository<Prope
         candidates.forEach(id -> targets.add(read(id)));
         return targets.stream();
     }
+    
+    /** {@inheritDoc} */
+    @Override
+    public void registerListener(String name, FF4jRepositoryListener<Property<?>> listener) {
+        // Enforce subclass to reach AbstractObservable.registerListener(..)
+        registerListener(name, (FF4jRepositoryPropertyListener) listener);
+    }
+    
     
 }

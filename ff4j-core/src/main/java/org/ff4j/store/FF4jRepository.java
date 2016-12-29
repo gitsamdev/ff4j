@@ -146,6 +146,24 @@ public interface FF4jRepository < ID extends Serializable, ENTITY extends FF4jEn
      * @return
      *      if the store is empty or not
      */
-    boolean isEmpty(); 
+    boolean isEmpty();
+    
+    /**
+     * Explicitely register a listener on the CRUD operation (Pattern Observable).
+     *
+     * @param name
+     *      listener name
+     * @param listener
+     *      listener
+     */
+    void registerListener(String name, FF4jRepositoryListener<ENTITY> listener);
+    
+    /**
+     * Explicitely unregister a listener by its unique name.
+     *
+     * @param name
+     *      listener name
+     */
+    void unregisterListener(String name);
     
 }

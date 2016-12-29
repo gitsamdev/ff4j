@@ -4,7 +4,6 @@ import java.util.Map;
 
 import org.ff4j.FF4jExecutionContext;
 import org.ff4j.exception.InvalidStrategyTypeException;
-import org.ff4j.store.FeatureStore;
 import org.ff4j.strategy.FF4jExecutionStrategy;
 
 /*

@@ -1,9 +1,9 @@
-package org.ff4j.store;
+package org.ff4j.feature;
 
 import java.util.stream.Stream;
 
 import org.ff4j.exception.GroupNotFoundException;
-import org.ff4j.feature.Feature;
+import org.ff4j.store.FF4jRepository;
 
 /**
  * Repository to persist {@link Feature}(s)

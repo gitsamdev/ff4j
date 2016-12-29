@@ -1,7 +1,7 @@
 package org.ff4j.strategy;
 
 import org.ff4j.FF4jExecutionContext;
-import org.ff4j.store.FeatureStore;
+import org.ff4j.feature.FeatureStore;
 
 /**
  * BLOCK acces for defined list of Clients.

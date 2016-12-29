@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import org.ff4j.feature.Feature;
-import org.ff4j.store.FeatureStore;
+import org.ff4j.feature.FeatureStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

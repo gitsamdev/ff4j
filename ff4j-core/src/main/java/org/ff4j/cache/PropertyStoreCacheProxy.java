@@ -3,8 +3,8 @@ package org.ff4j.cache;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import org.ff4j.feature.FeatureStore;
 import org.ff4j.property.Property;
-import org.ff4j.store.FeatureStore;
 import org.ff4j.store.PropertyStore;
 
 /**

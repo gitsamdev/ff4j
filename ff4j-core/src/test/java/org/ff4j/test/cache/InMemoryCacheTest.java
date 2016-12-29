@@ -1,7 +1,7 @@
 package org.ff4j.test.cache;
 
+import org.ff4j.feature.FeatureStore;
 import org.ff4j.inmemory.FeatureStoreInMemory;
-import org.ff4j.store.FeatureStore;
 import org.ff4j.test.store.CoreFeatureStoreTestSupport;
 
 /**

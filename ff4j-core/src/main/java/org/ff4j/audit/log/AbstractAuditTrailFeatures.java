@@ -4,19 +4,19 @@ import org.ff4j.event.Event;
 import org.ff4j.event.Event.Action;
 import org.ff4j.event.Event.Scope;
 import org.ff4j.event.Event.Source;
+import org.ff4j.feature.FeatureStoreListener;
 import org.ff4j.feature.Feature;
 import org.ff4j.security.FF4JSecurityManager;
-import org.ff4j.store.FF4jRepositoryListener;
 
 /**
  * Proposition of superclass to allow audit trail trackings.
  * 
  * @author Cedrick LUNVEN  (@clunven)
  */
-public abstract class AbstractAuditTrailFeatures implements FF4jRepositoryListener<Feature>, AuditTrail {
+public abstract class AbstractAuditTrailFeatures implements FeatureStoreListener, AuditTrail {
 
     /** Current source from ff4j. */
-    private Source source = Source.UNKNOWN;
+    private Source source = Source.JAVA_API;
     
     /** Current source from ff4j. */
     private FF4JSecurityManager secMng;
@@ -60,7 +60,7 @@ public abstract class AbstractAuditTrailFeatures implements FF4jRepositoryListen
     @Override
     public void onDelete(String uid) {
         log(createEvent(Action.DELETE, Scope.FEATURE).targetUid(uid));
-    }   
+    }
 
     /** {@inheritDoc} */
     @Override

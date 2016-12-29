@@ -27,8 +27,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.ff4j.conf.XmlParser;
+import org.ff4j.feature.AbstractFeatureStore;
 import org.ff4j.feature.Feature;
-import org.ff4j.store.AbstractFeatureStore;
 
 /**
  * Storing states of feature inmemory with initial values. Could be used mostly for testing purpose.
@@ -251,6 +251,6 @@ public class FeatureStoreInMemory extends AbstractFeatureStore {
      */
     public String getFileName() {
         return fileName;
-    }
+    }   
     
 }

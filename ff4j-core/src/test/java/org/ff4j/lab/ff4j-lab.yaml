@@ -1,0 +1,20 @@
+ff4j:
+
+  autocreate  : true
+  
+  connections :
+     - id         : CassandraDev
+       technology : Cassandra
+       url        : http://........
+       port       : 9142
+       user       : admin
+       password   : passwd
+  
+  # Access Control List
+  security:
+     - permissions : 
+        - users  : Pierre, Paul, Jacques
+        - groups : USE, ADMIN
+       
+  
+  

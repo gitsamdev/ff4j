@@ -1,5 +1,7 @@
 package org.ff4j.test.store;
 
+import org.ff4j.feature.FeatureStore;
+
 /*
  * #%L ff4j-core $Id:$ $HeadURL:$ %% Copyright (C) 2013 Ff4J %% Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License. You may obtain a copy of the License at
@@ -12,7 +14,6 @@ package org.ff4j.test.store;
  */
 
 import org.ff4j.inmemory.FeatureStoreInMemory;
-import org.ff4j.store.FeatureStore;
 import org.junit.Test;
 
 /**

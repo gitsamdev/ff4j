@@ -25,8 +25,8 @@ import java.io.Serializable;
 import java.util.Map;
 
 import org.ff4j.FF4jExecutionContext;
+import org.ff4j.feature.FeatureStore;
 import org.ff4j.feature.FlippingStrategy;
-import org.ff4j.store.FeatureStore;
 
 /**
  * This strategy will flip feature as soon as the release date is reached.

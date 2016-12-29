@@ -1,5 +1,7 @@
 package org.ff4j.test.store;
 
+import org.ff4j.feature.FeatureStore;
+
 /*
  * #%L
  * ff4j-core
@@ -23,7 +25,6 @@ package org.ff4j.test.store;
 
 import org.ff4j.jdbc.FeatureStoreJdbc;
 import org.ff4j.jdbc.JdbcQueryBuilder;
-import org.ff4j.store.FeatureStore;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
