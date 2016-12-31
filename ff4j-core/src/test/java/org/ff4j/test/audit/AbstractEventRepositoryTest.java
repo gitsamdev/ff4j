@@ -13,7 +13,7 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import org.ff4j.audit.usage.FeatureUsageService;
+import org.ff4j.audit.usage.FeatureUsageEventStore;
 import org.ff4j.chart.BarChart;
 import org.ff4j.chart.TimeSeriesChart;
 import org.ff4j.event.Event;
@@ -30,7 +30,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Superclass to test {@link FeatureUsageService}.
+ * Superclass to test {@link FeatureUsageEventStore}.
  * 
  * @author Cedrick Lunven (@clunven)
  */
@@ -39,8 +39,8 @@ public abstract class AbstractEventRepositoryTest {
     /** Feature List. */
     protected ArrayList<Feature> features;
 
-    /** Target {@link FeatureUsageService}. */
-    protected FeatureUsageService repo;
+    /** Target {@link FeatureUsageEventStore}. */
+    protected FeatureUsageEventStore repo;
     
     /** Target publisher. */
     protected EventPublisher publisher;
@@ -95,7 +95,7 @@ public abstract class AbstractEventRepositoryTest {
      * @throws Exception
      *             error during building feature store
      */
-    protected abstract FeatureUsageService initRepository();
+    protected abstract FeatureUsageEventStore initRepository();
     
     @Test
     public void testSaveEventUnit() throws InterruptedException {

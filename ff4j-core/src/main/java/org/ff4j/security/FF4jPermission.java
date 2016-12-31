@@ -14,7 +14,7 @@ public enum FF4jPermission {
     CREATE_FEATURE,
     
     // You can edit features
-    UPDATE_FEATURE, 
+    UPDATE_FEATURE,
     
     // You can delete features
     DELETE_FEATURE, 

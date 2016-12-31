@@ -1,6 +1,6 @@
 package org.ff4j.test.audit;
 
-import org.ff4j.audit.usage.FeatureUsageService;
+import org.ff4j.audit.usage.FeatureUsageEventStore;
 
 /*
  * #%L
@@ -31,7 +31,7 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 
 /**
- * Unit testing of JDBC implementation of {@link FeatureUsageService}.
+ * Unit testing of JDBC implementation of {@link FeatureUsageEventStore}.
  *
  * @author Cedrick Lunven (@clunven)
  */
@@ -63,7 +63,7 @@ public class JdbcEventRepositoryTest extends AbstractEventRepositoryTest {
     
     /** {@inheritDoc} */
     @Override
-    protected FeatureUsageService initRepository() {
+    protected FeatureUsageEventStore initRepository() {
         builder = new EmbeddedDatabaseBuilder();
         db = builder.setType(EmbeddedDatabaseType.HSQL).//
                  addScript("classpath:schema-ddl.sql").//

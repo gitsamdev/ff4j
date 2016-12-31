@@ -31,9 +31,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.ff4j.property.AbstractPropertyList;
-import org.ff4j.property.AbstractPropertyMap;
-import org.ff4j.property.AbstractPropertySet;
+import org.ff4j.property.domain.AbstractPropertyList;
+import org.ff4j.property.domain.AbstractPropertyMap;
+import org.ff4j.property.domain.AbstractPropertySet;
 import org.junit.Assert;
 import org.junit.Test;
 

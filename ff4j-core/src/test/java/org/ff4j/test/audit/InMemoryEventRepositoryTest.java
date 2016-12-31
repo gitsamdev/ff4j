@@ -1,6 +1,6 @@
 package org.ff4j.test.audit;
 
-import org.ff4j.audit.usage.FeatureUsageService;
+import org.ff4j.audit.usage.FeatureUsageEventStore;
 
 /*
  * #%L
@@ -34,7 +34,7 @@ public class InMemoryEventRepositoryTest extends AbstractEventRepositoryTest {
     
     /** {@inheritDoc} */
     @Override
-    protected FeatureUsageService initRepository() {
+    protected FeatureUsageEventStore initRepository() {
         return new FeatureUsageInMemory(60);
     }
     

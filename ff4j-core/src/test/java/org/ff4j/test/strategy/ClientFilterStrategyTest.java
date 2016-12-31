@@ -24,9 +24,9 @@ import java.text.ParseException;
 import java.util.HashMap;
 
 import org.ff4j.FF4j;
-import org.ff4j.FF4jExecutionContext;
+import org.ff4j.FF4jContext;
 import org.ff4j.feature.Feature;
-import org.ff4j.feature.FlippingStrategy;
+import org.ff4j.feature.ToggleStrategy;
 import org.ff4j.inmemory.FeatureStoreInMemory;
 import org.ff4j.strategy.BlackListStrategy;
 import org.ff4j.strategy.ClientFilterStrategy;
@@ -59,7 +59,7 @@ public class ClientFilterStrategyTest extends AbstractFf4jTest {
         Assert.assertTrue(f1.isEnable());
 
         // When (add correct client name)
-        FF4jExecutionContext fex = new FF4jExecutionContext();
+        FF4jContext fex = new FF4jContext();
         fex.put(ClientFilterStrategy.CLIENT_HOSTNAME, "pierre");
 
         // Then
@@ -79,7 +79,7 @@ public class ClientFilterStrategyTest extends AbstractFf4jTest {
 
 
         // When (add invalid client name)
-        FF4jExecutionContext fex = new FF4jExecutionContext();
+        FF4jContext fex = new FF4jContext();
         fex.put(ClientFilterStrategy.CLIENT_HOSTNAME, FEATURE_NEW);
 
         // Then
@@ -113,7 +113,7 @@ public class ClientFilterStrategyTest extends AbstractFf4jTest {
         Assert.assertTrue(f1.isEnable());
 
         // When
-        FF4jExecutionContext fex = new FF4jExecutionContext();
+        FF4jContext fex = new FF4jContext();
         fex.put(FEATURE_NEW, FEATURE_NEW);
 
         // Then
@@ -131,7 +131,7 @@ public class ClientFilterStrategyTest extends AbstractFf4jTest {
     
     @Test
     public void testInitialisationProgram() {
-        FlippingStrategy fs = new ClientFilterStrategy("Pierre, Paul, Jacques");
+        ToggleStrategy fs = new ClientFilterStrategy("Pierre, Paul, Jacques");
         fs.init("f1", null);
         fs.init("f1", new HashMap<String, String>());        
         new WhiteListStrategy();
@@ -139,8 +139,8 @@ public class ClientFilterStrategyTest extends AbstractFf4jTest {
         
         // Working
         new BlackListStrategy();
-        FlippingStrategy bl2 = new BlackListStrategy("Pierre");
-        FF4jExecutionContext context = new FF4jExecutionContext();
+        ToggleStrategy bl2 = new BlackListStrategy("Pierre");
+        FF4jContext context = new FF4jContext();
         context.put("clientHostName", "localhost");
         Assert.assertTrue(bl2.evaluate("f1", new FeatureStoreInMemory(), context));
         
@@ -150,10 +150,10 @@ public class ClientFilterStrategyTest extends AbstractFf4jTest {
     
     @Test
     public void testInitialisationProgramServer() {
-        FlippingStrategy fs = new ServerFilterStrategy("serv1,serv2");
+        ToggleStrategy fs = new ServerFilterStrategy("serv1,serv2");
         fs.init("f1", null);
         fs.init("f1", new HashMap<String, String>());
-        FF4jExecutionContext context = new FF4jExecutionContext();
+        FF4jContext context = new FF4jContext();
         fs.evaluate("f1", new FeatureStoreInMemory(), context);
     }
 

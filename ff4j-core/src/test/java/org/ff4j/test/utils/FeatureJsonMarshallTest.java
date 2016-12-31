@@ -26,11 +26,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.ff4j.FF4j;
-import org.ff4j.FF4jExecutionContext;
+import org.ff4j.FF4jContext;
 import org.ff4j.feature.Feature;
 import org.ff4j.feature.FeatureStore;
-import org.ff4j.feature.FlippingStrategy;
-import org.ff4j.strategy.FF4jExecutionStrategy;
+import org.ff4j.feature.ToggleStrategy;
+import org.ff4j.strategy.FF4jStrategy;
 import org.ff4j.test.TestConstantsFF4j;
 import org.ff4j.utils.JdbcUtils;
 import org.ff4j.utils.JsonUtils;
@@ -145,12 +145,12 @@ public class FeatureJsonMarshallTest implements TestConstantsFF4j {
     
     @Test
     public void testJsonUtils() {
-        FlippingStrategy ps = new FlippingStrategy() { 
+        ToggleStrategy ps = new ToggleStrategy() { 
             public void init(String featureName, Map<String, String> initParam)  {}
             public Map<String, String> getInitParams() { return null; }
-            public boolean evaluate(String fn, FeatureStore s, FF4jExecutionContext ex) {  return false; }
+            public boolean evaluate(String fn, FeatureStore s, FF4jContext ex) {  return false; }
         };
-        FF4jExecutionStrategy.asJson(ps);
+        FF4jStrategy.asJson(ps);
     }
     
     /** TDD. */

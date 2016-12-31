@@ -1,7 +1,7 @@
 package org.ff4j.inmemory;
 
-import static org.ff4j.utils.Util.validateEvent;
 import static org.ff4j.utils.Util.requireNotNull;
+import static org.ff4j.utils.Util.validateEvent;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -9,8 +9,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
-import org.ff4j.audit.log.AbstractAuditTrailFeatures;
-import org.ff4j.audit.log.AuditTrailQuery;
+import org.ff4j.audit.AuditTrail;
+import org.ff4j.audit.AuditTrailQuery;
 import org.ff4j.event.Event;
 import org.ff4j.event.EventSeries;
 import org.ff4j.utils.Util;
@@ -20,16 +20,16 @@ import org.ff4j.utils.Util;
  *
  * @author Cedrick LUNVEN  (@clunven)
  */
-public class AuditTrailInMemory extends AbstractAuditTrailFeatures {
+public class AuditTrailInMemory implements AuditTrail{
 
     /** default retention. */
-    private static final int DEFAULT_QUEUE_CAPACITY = 100000;
+    private final int DEFAULT_QUEUE_CAPACITY = 100000;
 
     /** current capacity. */
     private int queueCapacity = DEFAULT_QUEUE_CAPACITY;
     
     /** Event <SCOPE> -> <ID> -> List Event related to user action in console (not featureUsage, not check OFF). */
-    private Map< String , Map < String, EventSeries>> auditTrail = new ConcurrentHashMap<>();
+    private static Map< String , Map < String, EventSeries>> auditTrail = new ConcurrentHashMap<>();
     
     /** {@inheritDoc} */
     @Override
@@ -42,7 +42,7 @@ public class AuditTrailInMemory extends AbstractAuditTrailFeatures {
         // Some event do not point a specific feature (featureStore..) so reuse the scope
         String uid = Util.hasLength(evt.getTargetUid()) ? evt.getTargetUid() : scope;
         if (!auditTrail.get(scope).containsKey(uid)) {
-            auditTrail.get(scope).put(uid, new EventSeries(this.queueCapacity));
+            auditTrail.get(scope).put(uid, new EventSeries(queueCapacity));
         }
         auditTrail.get(scope).get(uid).add(evt);
     }

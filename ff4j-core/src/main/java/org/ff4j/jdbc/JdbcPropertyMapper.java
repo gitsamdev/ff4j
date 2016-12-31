@@ -33,9 +33,9 @@ import org.ff4j.exception.PropertyAccessException;
 import org.ff4j.jdbc.JdbcConstants.PropertyColumns;
 import org.ff4j.mapper.PropertyMapper;
 import org.ff4j.property.Property;
-import org.ff4j.property.PropertyFactory;
-import org.ff4j.property.PropertyString;
-import org.ff4j.strategy.PropertyEvaluationStrategy;
+import org.ff4j.property.DynamicValueStrategy;
+import org.ff4j.property.domain.PropertyFactory;
+import org.ff4j.property.domain.PropertyString;
 import org.ff4j.utils.JsonUtils;
 import org.ff4j.utils.Util;
 
@@ -99,7 +99,7 @@ public class JdbcPropertyMapper extends AbstractJdbcMapper  implements PropertyM
         String strategy  = null;
         String initParam = null;
         if (property.getEvaluationStrategy().isPresent()) {
-            PropertyEvaluationStrategy<?> pes = property.getEvaluationStrategy().get();
+            DynamicValueStrategy<?> pes = property.getEvaluationStrategy().get();
             strategy  = pes.getClass().getCanonicalName();
             initParam = JsonUtils.mapAsJson(pes.getInitParams());
         }
@@ -151,7 +151,7 @@ public class JdbcPropertyMapper extends AbstractJdbcMapper  implements PropertyM
             String strategy = rs.getString(PropertyColumns.STRATEGY.colname());
             if (Util.hasLength(strategy)) {
                 Map < String, String > initParams = JsonUtils.jsonAsMap(rs.getString(PropertyColumns.INITPARAMS.colname()));
-                p.setEvaluationStrategy(PropertyEvaluationStrategy.instanciate(p.getUid(), strategy, initParams));
+                p.setEvaluationStrategy(DynamicValueStrategy.instanciate(p.getUid(), strategy, initParams));
             }
             return p;
         } catch (SQLException sqlEx) {

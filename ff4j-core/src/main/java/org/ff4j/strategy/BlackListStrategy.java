@@ -1,7 +1,6 @@
 package org.ff4j.strategy;
 
-import org.ff4j.FF4jExecutionContext;
-import org.ff4j.feature.FeatureStore;
+import org.ff4j.FF4jContext;
 
 /**
  * BLOCK acces for defined list of Clients.
@@ -31,7 +30,7 @@ public class BlackListStrategy extends ClientFilterStrategy {
     * {@inheritDoc}
     */
     @Override
-    public boolean evaluate(String featureName, FeatureStore store, FF4jExecutionContext executionContext) {
-        return !super.evaluate(featureName, store, executionContext);
+    public boolean isToggled(String featureName, FF4jContext executionContext) {
+        return !super.isToggled(featureName, executionContext);
     }
 }

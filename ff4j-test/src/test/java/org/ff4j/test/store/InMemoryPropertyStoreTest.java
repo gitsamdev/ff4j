@@ -7,9 +7,9 @@ import java.util.HashMap;
 import org.ff4j.FF4j;
 import org.ff4j.inmemory.PropertyStoreInMemory;
 import org.ff4j.property.Property;
-import org.ff4j.property.PropertyDate;
-import org.ff4j.property.PropertyString;
-import org.ff4j.store.PropertyStore;
+import org.ff4j.property.PropertyStore;
+import org.ff4j.property.domain.PropertyDate;
+import org.ff4j.property.domain.PropertyString;
 
 /*
  * #%L

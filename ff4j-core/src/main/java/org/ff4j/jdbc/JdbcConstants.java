@@ -24,6 +24,16 @@ import org.ff4j.utils.Util;
  */
 public class JdbcConstants {
     
+    public static final String COLUMN_UID = "UID";
+    
+    public static final String COLUMN_CREATED = "CREATED";
+    
+    public static final String COLUMN_LASTMODIFIED = "LASTMODIFIED";
+    
+    public static final String COLUMN_OWNER = "OWNER";
+    
+    public static final String COLUMN_DESCRIPTION = "DESCRIPTION";
+    
     /**
      * Representation of the JDBC Table FEATURES.
      */
@@ -69,14 +79,15 @@ public class JdbcConstants {
      */
     public static enum FeaturesColumns implements SqlTableColumns {
         
-        UID("FEAT_UID", SQLTypes.VARCHAR, 100, true),
-        CREATED("CREATED", SQLTypes.DATETIME, 0, true),
-        LASTMODIFIED("LASTMODIFIED", SQLTypes.DATETIME, 0, true),
-        OWNER("OWNER", SQLTypes.VARCHAR,   100, false),
-        DESCRIPTION("DESCRIPTION", SQLTypes.VARCHAR, 255, false),
+        // Columns shared by all entities
+        UID(COLUMN_UID, SQLTypes.VARCHAR, 100, true),
+        CREATED(COLUMN_CREATED, SQLTypes.DATETIME, 0, true),
+        LASTMODIFIED(COLUMN_LASTMODIFIED, SQLTypes.DATETIME, 0, true),
+        OWNER(COLUMN_OWNER, SQLTypes.VARCHAR,   100, false),
+        DESCRIPTION(COLUMN_DESCRIPTION, SQLTypes.VARCHAR, 255, false),
+        
+        // Specialization for the Feature
         ENABLE("ENABLE", SQLTypes.INTEGER, 0, true),
-        STRATEGY("STRATCLASS", SQLTypes.VARCHAR,1000, false),
-        INITPARAMS("STRATPARAM", SQLTypes.VARCHAR, 1000, false),
         GROUPNAME("GROUPNAME", SQLTypes.VARCHAR, 100, false);
         
         /** Column attribute */
@@ -505,6 +516,21 @@ public class JdbcConstants {
             return Optional.empty(); 
         }
     }
+    
+    /**
+     * Representation of the JDBC Table FEATURES.
+     */
+    public static enum StrategysColumns implements SqlTableColumns {
+        
+    }
+    
+    /**
+     * Representation of the JDBC Table FEATURES.
+     */
+    public static enum PermissionsColumns implements SqlTableColumns {
+        
+    }
+    
     
     /**
      * Hide constructor.

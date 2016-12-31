@@ -5,9 +5,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.ff4j.FF4jExecutionContext;
-import org.ff4j.feature.FeatureStore;
-import org.ff4j.feature.FlippingStrategy;
+import org.ff4j.FF4jContext;
+import org.ff4j.feature.ToggleStrategy;
 
 /*
  * #%L
@@ -34,7 +33,7 @@ import org.ff4j.feature.FlippingStrategy;
  * 
  * @author Cedrick Lunven (@clunven)
  */
-public class ClientFilterStrategy extends AbstractExecutionStrategy implements FlippingStrategy {
+public class ClientFilterStrategy extends AbstractExecutionStrategy implements ToggleStrategy {
 
     /** Threshold. */
     public static final String PARAM_CLIENTLIST = "grantedClients";
@@ -82,7 +81,7 @@ public class ClientFilterStrategy extends AbstractExecutionStrategy implements F
     
     /** {@inheritDoc} */
     @Override
-    public boolean evaluate(String featureName, FeatureStore store, FF4jExecutionContext executionContext) {
+    public boolean isToggled(String featureName, FF4jContext executionContext) {
         if (null == executionContext || !executionContext.getString(CLIENT_HOSTNAME).isPresent()) {
             throw new IllegalArgumentException("To work with " + getClass().getCanonicalName() + " you must provide '"
                     + CLIENT_HOSTNAME + "' parameter in execution context");

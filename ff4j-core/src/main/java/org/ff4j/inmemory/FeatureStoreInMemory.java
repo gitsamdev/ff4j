@@ -27,15 +27,15 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.ff4j.conf.XmlParser;
-import org.ff4j.feature.AbstractFeatureStore;
 import org.ff4j.feature.Feature;
+import org.ff4j.feature.FeatureStoreSupport;
 
 /**
  * Storing states of feature inmemory with initial values. Could be used mostly for testing purpose.
  * 
  * @author Cedrick Lunven (@clunven)
  */
-public class FeatureStoreInMemory extends AbstractFeatureStore {
+public class FeatureStoreInMemory extends FeatureStoreSupport {
 
     /** serialVersionUID. */
     private static final long serialVersionUID = -3768339754263659120L;

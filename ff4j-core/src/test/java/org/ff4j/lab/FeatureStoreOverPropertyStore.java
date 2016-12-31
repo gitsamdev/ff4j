@@ -3,9 +3,9 @@ package org.ff4j.lab;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import org.ff4j.feature.AbstractFeatureStore;
+import org.ff4j.feature.FeatureStoreSupport;
+import org.ff4j.property.PropertyStore;
 import org.ff4j.feature.Feature;
-import org.ff4j.store.PropertyStore;
 
 /**
  * Leverage on {@link PropertyStore} to handle features. Feature will
@@ -13,7 +13,7 @@ import org.ff4j.store.PropertyStore;
  *  
  * @author Cedrick LUNVEN (@clunven)
  */
-public class FeatureStoreOverPropertyStore extends AbstractFeatureStore {
+public class FeatureStoreOverPropertyStore extends FeatureStoreSupport {
     
     /** serialVersionUID. */
     private static final long serialVersionUID = -1866729081216457698L;

@@ -56,7 +56,7 @@ public class FF4jGrantees {
     }
     
     /**
-     * Add dedicated group.
+     * Add dedicated user.
      *
      * @param group
      *      target group
@@ -65,6 +65,42 @@ public class FF4jGrantees {
     public FF4jGrantees addUser(String user) {
         users.add(user);
         return this;
+    }
+    
+    /**
+     * Add dedicated group.
+     *
+     * @param group
+     *      target group
+     * @return
+     */
+    public FF4jGrantees addGroup(String group) {
+        groups.add(group);
+        return this;
+    }
+    
+    /**
+     * Group is granted.
+     *
+     * @param user
+     *      current user
+     * @return
+     *      if the user if part of the grantees
+     */
+    public boolean isGroupGranted(String groupName) {
+        return groups.contains(groupName);
+    }
+    
+    /**
+     * User is granted specifically or is member of a specialized group.
+     *
+     * @param user
+     *      current user
+     * @return
+     *      if the user if part of the grantees
+     */
+    public boolean isUserGranted(String userName) {
+        return users.contains(userName);
     }
     
     /**

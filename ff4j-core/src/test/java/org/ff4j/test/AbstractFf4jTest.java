@@ -31,9 +31,9 @@ import java.util.HashSet;
 import org.junit.Assert;
 
 import org.ff4j.FF4j;
-import org.ff4j.FF4jExecutionContext;
+import org.ff4j.FF4jContext;
 import org.ff4j.feature.FeatureStore;
-import org.ff4j.feature.FlippingStrategy;
+import org.ff4j.feature.ToggleStrategy;
 import org.ff4j.security.FF4JSecurityManager;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,7 +49,7 @@ public abstract class AbstractFf4jTest implements TestConstantsFF4j {
     protected static FF4JSecurityManager mockAuthManager = null;
 
     /** Mock Flip Strategy. */
-    protected static FlippingStrategy mockFlipStrategy = null;
+    protected static ToggleStrategy mockFlipStrategy = null;
 
     /** FF4J Instance for testings. */
     protected FF4j ff4j = null;
@@ -67,8 +67,8 @@ public abstract class AbstractFf4jTest implements TestConstantsFF4j {
         when(mockAuthManager.toJson()).thenReturn("{ value : 1 }");
         
         // Create MOCK
-        mockFlipStrategy = mock(FlippingStrategy.class);
-        when(mockFlipStrategy.evaluate(any(String.class), any(FeatureStore.class), any(FF4jExecutionContext.class)))
+        mockFlipStrategy = mock(ToggleStrategy.class);
+        when(mockFlipStrategy.evaluate(any(String.class), any(FeatureStore.class), any(FF4jContext.class)))
                 .thenReturn(true);
         when(mockFlipStrategy.getInitParams()).thenReturn(null);
 

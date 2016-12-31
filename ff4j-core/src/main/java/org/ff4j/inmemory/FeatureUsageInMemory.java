@@ -36,8 +36,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.ff4j.audit.usage.AbstractFeatureUsageService;
-import org.ff4j.audit.usage.FeatureUsageService;
+import org.ff4j.audit.FeatureUsageEventStore;
+import org.ff4j.audit.FeatureUsageEventSupport;
 import org.ff4j.chart.Serie;
 import org.ff4j.chart.TimeSeriesChart;
 import org.ff4j.event.Event;
@@ -47,11 +47,11 @@ import org.ff4j.utils.MutableHitCount;
 import org.ff4j.utils.Util;
 
 /**
- * Implementation of in memory {@link FeatureUsageService} with limited events.
+ * Implementation of in memory {@link FeatureUsageEventStore} with limited events.
  * 
  * @author Cedrick Lunven (@clunven)
  */
-public class FeatureUsageInMemory extends AbstractFeatureUsageService {
+public class FeatureUsageInMemory extends FeatureUsageEventSupport {
    
     /** serialVersionUID. */
     private static final long serialVersionUID = 2667121403242303018L;
@@ -381,5 +381,6 @@ public class FeatureUsageInMemory extends AbstractFeatureUsageService {
         }
         return null;
     }
+
 
 }

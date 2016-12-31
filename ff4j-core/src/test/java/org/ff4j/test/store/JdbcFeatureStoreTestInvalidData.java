@@ -3,7 +3,7 @@ package org.ff4j.test.store;
 import java.util.HashMap;
 
 import org.ff4j.exception.InvalidStrategyTypeException;
-import org.ff4j.feature.FlippingStrategy;
+import org.ff4j.feature.ToggleStrategy;
 import org.ff4j.jdbc.FeatureStoreJdbc;
 import org.junit.After;
 import org.junit.Before;
@@ -45,7 +45,7 @@ public class JdbcFeatureStoreTestInvalidData {
     
     @Test(expected = InvalidStrategyTypeException.class)
     public void testInvalidStrategy() {
-        FlippingStrategy.instanciate("ID", "com.KO", new HashMap<String, String>());
+        ToggleStrategy.of("ID", "com.KO", new HashMap<String, String>());
     }
     
     /** {@inheritDoc} */

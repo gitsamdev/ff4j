@@ -20,7 +20,7 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.ff4j.FF4j;
 import org.ff4j.FlippingExecutionContext;
-import org.ff4j.feature.FlippingStrategy;
+import org.ff4j.feature.ToggleStrategy;
 import org.ff4j.utils.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -98,7 +98,7 @@ public class FeatureAdvisor implements MethodInterceptor {
         String featureId = ff.name();
         if (ff.flippingStrategy() != NullType.class) {
             String fsClassName  = ff.flippingStrategy().getName();
-            FlippingStrategy fs = FlippingStrategy.instanciate(featureId, fsClassName, toMap(ff.flippingInitParams()));
+            ToggleStrategy fs = ToggleStrategy.of(featureId, fsClassName, toMap(ff.flippingInitParams()));
             return getFf4j().checkOveridingStrategy(featureId, fs, context);
         }
         return getFf4j().check(featureId, context);

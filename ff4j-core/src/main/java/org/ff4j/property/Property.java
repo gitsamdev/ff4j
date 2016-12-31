@@ -21,8 +21,20 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 import org.ff4j.FF4jEntity;
-import org.ff4j.FF4jExecutionContext;
-import org.ff4j.strategy.PropertyEvaluationStrategy;
+import org.ff4j.property.domain.PropertyBigDecimal;
+import org.ff4j.property.domain.PropertyBigInteger;
+import org.ff4j.property.domain.PropertyBoolean;
+import org.ff4j.property.domain.PropertyByte;
+import org.ff4j.property.domain.PropertyCalendar;
+import org.ff4j.property.domain.PropertyDate;
+import org.ff4j.property.domain.PropertyDouble;
+import org.ff4j.property.domain.PropertyFloat;
+import org.ff4j.property.domain.PropertyInt;
+import org.ff4j.property.domain.PropertyLogLevel;
+import org.ff4j.property.domain.PropertyLong;
+import org.ff4j.property.domain.PropertyShort;
+import org.ff4j.property.domain.PropertyString;
+import org.ff4j.FF4jContext;
 import org.ff4j.utils.JsonUtils;
 import org.ff4j.utils.Util;
 
@@ -38,9 +50,9 @@ public abstract class Property<T> extends FF4jEntity<Property<T>> implements Sup
     
     /** Mapping of some property. */
     private static Map < String, String > PROPERTY_TYPES;
-
-    /** Canonical name for JSON serialization. */
-    protected String type = getClass().getCanonicalName();
+    
+    /** Type of property. */
+    protected String type;
 
     /** Current Value. */
     protected T value;
@@ -52,7 +64,7 @@ public abstract class Property<T> extends FF4jEntity<Property<T>> implements Sup
     protected Set<T> fixedValues = null;
 
     /** Can compute the property value based on your own implementation. */
-    protected PropertyEvaluationStrategy<T> evaluationStrategy = null;
+    protected DynamicValueStrategy<T> evaluationStrategy = null;
 
     /**
      * Constructor by property name.
@@ -88,6 +100,22 @@ public abstract class Property<T> extends FF4jEntity<Property<T>> implements Sup
     protected Property(String name, T value) {
         this(name);
         this.value = value;
+    }
+    
+    public Property(Property<T> e) {
+        this(e.getUid(), e);
+    }
+        
+    public Property(String uid, Property<T> e) {
+        super(uid, e);
+        this.readOnly = e.isReadOnly();
+        this.type     = e.getType();
+        this.value    = e.getValue();
+        if (e.getFixedValues().isPresent()) {
+            for(T fixedValue : e.getFixedValues().get()) {
+                add2FixedValueFromString(fixedValue.toString());
+            }
+        }
     }
 
     /**
@@ -178,14 +206,14 @@ public abstract class Property<T> extends FF4jEntity<Property<T>> implements Sup
     }
     
     /** {@inheritDoc} */
-    public T get(FF4jExecutionContext ctx) {
+    public T get(FF4jContext ctx) {
         return getValue(ctx);
     }
     
     /** {@inheritDoc} */
     public T getValue() {
         if (evaluationStrategy == null) return value;
-        return evaluationStrategy.evaluate(this, null);
+        return evaluationStrategy.getValue(this, null);
     }
 
     /**
@@ -195,9 +223,9 @@ public abstract class Property<T> extends FF4jEntity<Property<T>> implements Sup
      *            evaluation strategy
      * @return property value
      */
-    public T getValue(FF4jExecutionContext ctx) {
+    public T getValue(FF4jContext ctx) {
         if (evaluationStrategy == null) return value;
-        return evaluationStrategy.evaluate(this, ctx);
+        return evaluationStrategy.getValue(this, ctx);
     }
     
     /**
@@ -293,6 +321,15 @@ public abstract class Property<T> extends FF4jEntity<Property<T>> implements Sup
         jsonExpression.append("}");
         return jsonExpression.toString();
     }
+    
+    public void addFixedValues(Set<String> fixedValues) {
+        Util.requireNotNull(fixedValues);
+        fixedValues.stream().forEach(v -> add2FixedValueFromString(v.trim()));
+        if (!fixedValues.contains(getValue())) {
+            throw new IllegalArgumentException("Cannot create property <" + getUid() + "> invalid value <"
+                        + getValue() + "> expected one of " + getFixedValues());
+        }
+    }
 
     @SuppressWarnings("unchecked")
     public Property<T> setFixedValues(T... perms) {
@@ -325,26 +362,6 @@ public abstract class Property<T> extends FF4jEntity<Property<T>> implements Sup
     }
 
     /**
-     * Getter accessor for attribute 'type'.
-     *
-     * @return current value of 'type'
-     */
-    public String getType() {
-        return type;
-    }
-
-    /**
-     * Setter accessor for attribute 'type'.
-     * 
-     * @param type
-     *            new value for 'type '
-     */
-    public Property<T> setType(String type) {
-        this.type = type;
-        return this;
-    }
-
-    /**
      * Getter accessor for attribute 'readOnly'.
      *
      * @return current value of 'readOnly'
@@ -370,7 +387,7 @@ public abstract class Property<T> extends FF4jEntity<Property<T>> implements Sup
      * @return
      *       current value of 'evaluationStrategy'
      */
-    public Optional < PropertyEvaluationStrategy<T> > getEvaluationStrategy() {
+    public Optional < DynamicValueStrategy<T> > getEvaluationStrategy() {
         return Optional.ofNullable(evaluationStrategy);
     }
 
@@ -379,8 +396,27 @@ public abstract class Property<T> extends FF4jEntity<Property<T>> implements Sup
      * @param evaluationStrategy
      * 		new value for 'evaluationStrategy '
      */
-    public void setEvaluationStrategy(PropertyEvaluationStrategy<T> evaluationStrategy) {
+    public void setEvaluationStrategy(DynamicValueStrategy<T> evaluationStrategy) {
         this.evaluationStrategy = evaluationStrategy;
+    }
+
+    /**
+     * Getter accessor for attribute 'type'.
+     *
+     * @return
+     *       current value of 'type'
+     */
+    public String getType() {
+        return type;
+    }
+
+    /**
+     * Setter accessor for attribute 'type'.
+     * @param type
+     * 		new value for 'type '
+     */
+    public void setType(String type) {
+        this.type = type;
     }
 
 }

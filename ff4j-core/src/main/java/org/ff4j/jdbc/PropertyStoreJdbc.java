@@ -39,8 +39,8 @@ import javax.sql.DataSource;
 
 import org.ff4j.exception.PropertyAccessException;
 import org.ff4j.jdbc.JdbcConstants.PropertyColumns;
+import org.ff4j.property.PropertyStoreSupport;
 import org.ff4j.property.Property;
-import org.ff4j.store.AbstractPropertyStore;
 import org.ff4j.utils.Util;
 
 /**
@@ -48,7 +48,7 @@ import org.ff4j.utils.Util;
  *
  * @author Cedrick Lunven (@clunven)
  */
-public class PropertyStoreJdbc extends AbstractPropertyStore {
+public class PropertyStoreJdbc extends PropertyStoreSupport {
 
     /** serialVersionUID. */
     private static final long serialVersionUID = -1746222910983624609L;

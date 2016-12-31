@@ -27,10 +27,9 @@ import org.ff4j.utils.Util;
  * @param <V>
  *      entity manipulated, its unique key is a STRING named 'uid'
  */
-public abstract class AbstractFF4jRepository < E extends FF4jEntity<?>,
-                    LISTENER extends FF4jRepositoryListener < E >> 
-                    extends AbstractObservable < LISTENER > 
-                    implements FF4jRepository<String, E>, Serializable {
+public abstract class AbstractFF4jRepository < E extends FF4jEntity<?>, LISTENER extends FF4jRepositoryListener < E >> 
+                            extends AbstractObservable < LISTENER > 
+                            implements FF4jRepository<String, E>, Serializable {
 
     /** Denerated Serial Number . */
     private static final long serialVersionUID = -2865266843791651125L;

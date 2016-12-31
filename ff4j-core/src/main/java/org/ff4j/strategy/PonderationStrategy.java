@@ -24,16 +24,15 @@ import java.io.Serializable;
 
 import java.util.Map;
 
-import org.ff4j.FF4jExecutionContext;
-import org.ff4j.feature.FeatureStore;
-import org.ff4j.feature.FlippingStrategy;
+import org.ff4j.FF4jContext;
+import org.ff4j.feature.ToggleStrategy;
 
 /**
  * This strategy will flip feature as soon as the release date is reached.
  * 
  * @author Cedrick Lunven (@clunven)
  */
-public class PonderationStrategy extends AbstractExecutionStrategy implements FlippingStrategy, Serializable {
+public class PonderationStrategy extends AbstractExecutionStrategy implements ToggleStrategy, Serializable {
 
     /** Serial number. */
     private static final long serialVersionUID = -2353911851539414159L;
@@ -75,7 +74,7 @@ public class PonderationStrategy extends AbstractExecutionStrategy implements Fl
 
     /** {@inheritDoc} */
     @Override
-    public boolean evaluate(String featureName, FeatureStore currentStore, FF4jExecutionContext executionContext) {
+    public boolean isToggled(String featureName, FF4jContext executionContext) {
         return Math.random() <= weight;
     }
 

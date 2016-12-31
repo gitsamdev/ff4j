@@ -23,7 +23,7 @@ package org.ff4j.test.strategy;
 import java.text.ParseException;
 
 import org.ff4j.FF4j;
-import org.ff4j.FF4jExecutionContext;
+import org.ff4j.FF4jContext;
 import org.ff4j.feature.Feature;
 import org.ff4j.strategy.ServerFilterStrategy;
 import org.ff4j.test.AbstractFf4jTest;
@@ -48,7 +48,7 @@ public class ServerFilterStrategyTest extends AbstractFf4jTest {
         Assert.assertFalse(ff4j.check(F1));
 
         // When (add correct client name)
-        FF4jExecutionContext fex = new FF4jExecutionContext();
+        FF4jContext fex = new FF4jContext();
         fex.put(ServerFilterStrategy.SERVER_HOSTNAME, "dev01");
 
         // Then
@@ -66,7 +66,7 @@ public class ServerFilterStrategyTest extends AbstractFf4jTest {
         Assert.assertTrue(f1.isEnable());
 
         // When (add invalid client name)
-        FF4jExecutionContext fex = new FF4jExecutionContext();
+        FF4jContext fex = new FF4jContext();
         fex.put(ServerFilterStrategy.SERVER_HOSTNAME, FEATURE_NEW);
 
         // Then

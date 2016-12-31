@@ -31,10 +31,10 @@ import org.ff4j.cache.CacheManagerInMemory;
 import org.ff4j.cache.FeatureStoreCacheProxy;
 import org.ff4j.exception.InvalidStrategyTypeException;
 import org.ff4j.feature.Feature;
-import org.ff4j.feature.FlippingStrategy;
+import org.ff4j.feature.ToggleStrategy;
 import org.ff4j.inmemory.FeatureStoreInMemory;
 import org.ff4j.property.Property;
-import org.ff4j.property.PropertyString;
+import org.ff4j.property.domain.PropertyString;
 import org.ff4j.utils.JdbcUtils;
 import org.ff4j.utils.JsonUtils;
 import org.ff4j.utils.Util;
@@ -64,7 +64,7 @@ public class MappingUtilsTest {
     
     @Test(expected = InvalidStrategyTypeException.class)
     public void testIntanciateInvalidFlippingStrategy() {
-       FlippingStrategy.instanciate("f1", "com.class.invalid", new HashMap<String, String>());
+       ToggleStrategy.of("f1", "com.class.invalid", new HashMap<String, String>());
     }
     
     @Test(expected = IllegalArgumentException.class)

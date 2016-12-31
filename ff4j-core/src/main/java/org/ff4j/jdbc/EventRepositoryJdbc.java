@@ -16,7 +16,6 @@ import static org.ff4j.utils.JdbcUtils.closeResultSet;
 import static org.ff4j.utils.JdbcUtils.closeStatement;
 import static org.ff4j.utils.JdbcUtils.executeUpdate;
 import static org.ff4j.utils.JdbcUtils.isTableExist;
-import static org.ff4j.utils.JdbcUtils.rollback;
 import static org.ff4j.utils.Util.requireHasLength;
 
 import java.sql.Connection;
@@ -36,23 +35,24 @@ import java.util.stream.Stream;
 import javax.sql.DataSource;
 
 import org.ff4j.audit.AbstractEventRepository;
-import org.ff4j.audit.usage.FeatureUsageService;
+import org.ff4j.audit.usage.FeatureUsageEventStore;
 import org.ff4j.chart.TimeSeriesChart;
 import org.ff4j.event.Event;
 import org.ff4j.event.EventQueryDefinition;
 import org.ff4j.event.EventSeries;
 import org.ff4j.exception.AuditAccessException;
 import org.ff4j.exception.FeatureAccessException;
+import org.ff4j.store.AbstractFF4jRepository;
 import org.ff4j.utils.JdbcUtils;
 import org.ff4j.utils.MutableHitCount;
 import org.ff4j.utils.Util;
 
 /**
- * Implementation of in memory {@link FeatureUsageService} with limited events.
+ * Implementation of in memory {@link FeatureUsageEventStore} with limited events.
  * 
  * @author Cedrick Lunven (@clunven)
  */
-public class EventRepositoryJdbc extends AbstractEventRepository {
+public class EventRepositoryJdbc extends AbstractFF4jRepository {
     
     /** serialVersionUID. */
     private static final long serialVersionUID = 8469658392544225615L;

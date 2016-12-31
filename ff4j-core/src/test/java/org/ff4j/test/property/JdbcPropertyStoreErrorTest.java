@@ -27,7 +27,7 @@ import javax.sql.DataSource;
 
 import org.ff4j.exception.PropertyAccessException;
 import org.ff4j.jdbc.PropertyStoreJdbc;
-import org.ff4j.property.PropertyString;
+import org.ff4j.property.domain.PropertyString;
 import org.junit.Test;
 import org.mockito.Mockito;
 

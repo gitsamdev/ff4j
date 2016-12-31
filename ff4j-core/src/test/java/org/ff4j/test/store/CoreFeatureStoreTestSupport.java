@@ -25,9 +25,9 @@ import org.ff4j.exception.FeatureNotFoundException;
 import org.ff4j.exception.GroupNotFoundException;
 import org.ff4j.feature.Feature;
 import org.ff4j.feature.FeatureStore;
-import org.ff4j.feature.FlippingStrategy;
-import org.ff4j.property.PropertyInt;
-import org.ff4j.property.PropertyString;
+import org.ff4j.feature.ToggleStrategy;
+import org.ff4j.property.domain.PropertyInt;
+import org.ff4j.property.domain.PropertyString;
 import org.ff4j.strategy.PonderationStrategy;
 import org.ff4j.test.AssertFF4j;
 import org.ff4j.test.TestConstantsFF4j;
@@ -492,7 +492,7 @@ public abstract class CoreFeatureStoreTestSupport implements TestConstantsFF4j {
     public void testUpdateFeatureCoreData() {
         // Parameters
         String newDescription = "new-description";
-        FlippingStrategy newStrategy = new PonderationStrategy(0.12);
+        ToggleStrategy newStrategy = new PonderationStrategy(0.12);
         // Given
         assertFf4j.assertThatFeatureExist(F1);
         Assert.assertFalse(newDescription.equals(testedStore.read(F1).getDescription()));

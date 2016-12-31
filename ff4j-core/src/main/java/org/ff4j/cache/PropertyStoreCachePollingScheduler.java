@@ -1,7 +1,7 @@
 package org.ff4j.cache;
 
 import org.ff4j.property.Property;
-import org.ff4j.store.PropertyStore;
+import org.ff4j.property.PropertyStore;
 
 
 /**

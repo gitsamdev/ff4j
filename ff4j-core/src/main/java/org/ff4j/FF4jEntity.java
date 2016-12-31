@@ -27,16 +27,15 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.ff4j.property.Property;
-import org.ff4j.security.FF4jGrantees;
-import org.ff4j.security.FF4jPermission;
-import org.ff4j.security.FF4jUser;
+import org.ff4j.property.domain.PropertyFactory;
+import org.ff4j.security.AccessControlList;
+import org.ff4j.security.RestrictedAccessObject;
 import org.ff4j.utils.Util;
 
 /**
@@ -44,7 +43,7 @@ import org.ff4j.utils.Util;
  *
  * @author Cedrick LUNVEN (@clunven)
  */
-public abstract class FF4jEntity<T extends FF4jEntity<?>> implements Comparable<T>, Serializable {
+public abstract class FF4jEntity<T extends FF4jEntity<?>> implements Comparable<T>, Serializable, RestrictedAccessObject {
 
     /** serial number. */
     private static final long serialVersionUID = -6001829116967488353L;
@@ -54,9 +53,6 @@ public abstract class FF4jEntity<T extends FF4jEntity<?>> implements Comparable<
     
     /** unique identifier. */
     protected String uid;
-    
-    /** entity type. */
-    protected Class<?> type = FF4jEntity.class;
     
     /** Description of the meaning. */
     protected Optional < String > description = Optional.empty();
@@ -74,7 +70,7 @@ public abstract class FF4jEntity<T extends FF4jEntity<?>> implements Comparable<
     protected Optional<Map<String, Property<?>>> customProperties = Optional.empty();
     
     /** Permission : by Default everyOne can use the Feature. */
-    protected Optional<Map < FF4jPermission, FF4jGrantees >> accessControlList = Optional.empty();
+    protected Optional< AccessControlList > accessControlList = Optional.empty();
     
     /**
      * Json common parts
@@ -84,7 +80,7 @@ public abstract class FF4jEntity<T extends FF4jEntity<?>> implements Comparable<
      */
     public String baseJson() {
         StringBuilder json = new StringBuilder("\"uid\":" + valueAsJson(uid));
-        json.append(attributeAsJson("type", type.getName()));
+        json.append(attributeAsJson("type", getClass().getName()));
         description.ifPresent(
                 d -> json.append(attributeAsJson("description", d)));
         owner.ifPresent(
@@ -104,15 +100,7 @@ public abstract class FF4jEntity<T extends FF4jEntity<?>> implements Comparable<
             json.append("]");
         });
         accessControlList.ifPresent(acl -> {
-            json.append(", \"accessControlList\": {");
-            boolean first = true;
-            for (Map.Entry < FF4jPermission, FF4jGrantees > mapEntry : acl.entrySet()) {
-                json.append(first ? "" : ",");
-                json.append("\"" + mapEntry.getKey() + "\":");
-                json.append(valueAsJson(mapEntry.getValue()));
-                first = false;
-            }
-            json.append("}");
+            json.append(", \"accessControlList\":" + acl.toJson());
         });
         return json.toString();   
     }
@@ -123,10 +111,23 @@ public abstract class FF4jEntity<T extends FF4jEntity<?>> implements Comparable<
      * @param uid
      */
     protected FF4jEntity(String uid) {
+        Util.requireHasLength(uid);
         this.uid         = uid;
         creationDate     = Optional.of(LocalDateTime.now());
         lastModifiedDate = creationDate;
-        this.type = getClass();
+    }
+    
+    protected FF4jEntity(String uid, FF4jEntity<?> e) {
+        this(uid);
+        Util.requireNotNull(e);
+        e.getOwner().ifPresent(o -> this.owner = Optional.of(o));
+        e.getDescription().ifPresent(d -> this.description = Optional.of(d));
+        e.getCreationDate().ifPresent(c -> this.creationDate = Optional.of(c));
+        e.getLastModifiedDate().ifPresent(c -> this.lastModifiedDate = Optional.of(c));
+        e.getAccessControlList().ifPresent(acl -> this.accessControlList = Optional.of(acl));
+        e.getCustomProperties().ifPresent(
+                cp -> cp.values().stream().forEach(
+                        p -> addCustomProperty(PropertyFactory.createProperty(p))));
     }
     
     /** {@inheritDoc} */
@@ -244,13 +245,8 @@ public abstract class FF4jEntity<T extends FF4jEntity<?>> implements Comparable<
         return uid;
     }
 
-    /**
-     * Getter accessor for attribute 'accessControlList'.
-     *
-     * @return
-     *       current value of 'accessControlList'
-     */
-    public Optional<Map<FF4jPermission, FF4jGrantees>> getAccessControlList() {
+    /** {@inheritDoc} */
+    public Optional <AccessControlList> getAccessControlList() {
         return accessControlList;
     }
     
@@ -279,74 +275,6 @@ public abstract class FF4jEntity<T extends FF4jEntity<?>> implements Comparable<
     }
     
     /**
-     * Check if target user isGranted for a permission.
-     *
-     * @param user
-     *      current user
-     * @param permission
-     *      expected permission
-     * @return
-     *      if current user has expected permission
-     */
-    public boolean isGranted(FF4jUser user, FF4jPermission permission) {
-        // if not access control list, consider as 'public' and can use
-        if (getAccessControlList().isPresent()) {
-            return getAccessControlList().get().get(permission).isUserGranted(user);
-        }
-        return true;
-    }
-    
-    /**
-     * Check if current user can use the entity (ACL).
-     *
-     * @param user
-     *      current user
-     * @return
-     *      is the user can use the entity
-     */
-    public boolean canUse(FF4jUser user) {
-        return isGranted(user, FF4jPermission.USE);
-    }
-    
-    /**
-     * Grant a set of userNames to the permission.
-     *
-     * @param permission
-     *          the right to work with
-     * @param users
-     *          the users to allow on this permission
-     */
-    public void grantUsers(FF4jPermission permission, String... users)  {
-        if (!getAccessControlList().isPresent()) {
-            this.accessControlList = Optional.of(new HashMap<>());
-        }
-        Map<FF4jPermission, FF4jGrantees> mapOfgrantees = getAccessControlList().get();
-        if (null == mapOfgrantees.get(permission)) {
-            mapOfgrantees.put(permission, new FF4jGrantees());
-        }
-        mapOfgrantees.get(permission).getUsers().addAll(Arrays.asList(users));
-    }
-    
-    /**
-     * Grant a set of groupNames to the permission.
-     *
-     * @param permission
-     *          the right to work with
-     * @param groups
-     *          the groups to allow on this permission
-     */
-    public void grantGroups(FF4jPermission permission, String... groups)  {
-        if (!getAccessControlList().isPresent()) {
-            this.accessControlList = Optional.of(new HashMap<>());
-        }
-        Map<FF4jPermission, FF4jGrantees> mapOfgrantees = getAccessControlList().get();
-        if (null == mapOfgrantees.get(permission)) {
-            mapOfgrantees.put(permission, new FF4jGrantees());
-        }
-        mapOfgrantees.get(permission).getGroups().addAll(Arrays.asList(groups));
-    }    
-
-    /**
      * Create new custom property.
      * 
      * @param property
@@ -356,6 +284,6 @@ public abstract class FF4jEntity<T extends FF4jEntity<?>> implements Comparable<
      */
     public T addCustomProperty(Property<?> property) {
         return addCustomProperties(property);
-    }    
+    } 
     
 }

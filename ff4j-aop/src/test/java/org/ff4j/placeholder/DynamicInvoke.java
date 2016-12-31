@@ -1,7 +1,7 @@
 package org.ff4j.placeholder;
 
 import org.ff4j.FF4j;
-import org.ff4j.property.PropertyString;
+import org.ff4j.property.domain.PropertyString;
 import org.ff4j.spring.autowire.FF4JProperty;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;

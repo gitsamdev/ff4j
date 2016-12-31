@@ -6,9 +6,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.ff4j.FF4jExecutionContext;
-import org.ff4j.feature.FeatureStore;
-import org.ff4j.feature.FlippingStrategy;
+import org.ff4j.FF4jContext;
+import org.ff4j.feature.ToggleStrategy;
 
 /*
  * #%L
@@ -35,7 +34,7 @@ import org.ff4j.feature.FlippingStrategy;
  * 
  * @author Cedrick Lunven (@clunven)
  */
-public class ServerFilterStrategy extends AbstractExecutionStrategy implements FlippingStrategy {
+public class ServerFilterStrategy extends AbstractExecutionStrategy implements ToggleStrategy {
 
     /** Threshold. */
     private static final String PARAM_SERVERLIST = "grantedServers";
@@ -85,7 +84,7 @@ public class ServerFilterStrategy extends AbstractExecutionStrategy implements F
 
     /** {@inheritDoc} */
     @Override
-    public boolean evaluate(String featureName, FeatureStore store, FF4jExecutionContext ctx) {
+    public boolean isToggled(String featureName, FF4jContext ctx) {
         if (null != ctx && ctx.getValue(SERVER_HOSTNAME).isPresent()) {
             return setOfTargetServer.contains(ctx.getString(SERVER_HOSTNAME).get());
         }

@@ -2,26 +2,13 @@ package org.ff4j.feature;
 
 import static org.ff4j.utils.JsonUtils.attributeAsJson;
 
-/*
- * #%L ff4j-core %% Copyright (C) 2013 - 2016 FF4J %% Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS"
- * BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language
- * governing permissions and limitations under the License. #L%
- */
-
-import java.time.LocalDateTime;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
+import org.ff4j.FF4jContext;
 import org.ff4j.FF4jEntity;
-import org.ff4j.property.Property;
-import org.ff4j.property.PropertyFactory;
-import org.ff4j.strategy.FF4jExecutionStrategy;
 
 /**
  * Represents a feature flag identified by an unique identifier.
@@ -46,10 +33,10 @@ public class Feature extends FF4jEntity < Feature > {
     private boolean enable = false;
 
     /** Feature could be grouped to enable/disable the whole group. */
-    private Optional<String> group = Optional.empty();
+    private Optional< String> group = Optional.empty();
     
     /** Custom behaviour to define if feature if enable or not e.g. A/B Testing capabilities. */
-    private Optional<FlippingStrategy> flippingStrategy = Optional.empty();
+    private List < ToggleStrategy > toggleStrategies = new ArrayList<>();
     
     /**
      * Initialize {@link Feature} with id;
@@ -58,8 +45,6 @@ public class Feature extends FF4jEntity < Feature > {
      */
     public Feature(final String uid) {
         super(uid);
-        setCreationDate(LocalDateTime.now());
-        setLastModified(getCreationDate().get());
     }
 
     public Feature(final Feature f) {
@@ -74,40 +59,26 @@ public class Feature extends FF4jEntity < Feature > {
      * @param f
      */
     public Feature(final String uid, final Feature f) {
-        super(uid);
+        super(uid, f);
         this.enable = f.isEnable();
-         f.getAccessControlList();
-        
-        // Base Object
-        f.getOwner().ifPresent(o -> this.owner = Optional.of(o));
-        f.getDescription().ifPresent(d -> this.description = Optional.of(d));
-        f.getCreationDate().ifPresent(c -> this.creationDate = Optional.of(c));
-        f.getLastModifiedDate().ifPresent(c -> this.lastModifiedDate = Optional.of(c));
-
-        // Properties Features
+        this.getToggleStrategies().addAll(f.getToggleStrategies());
         f.getGroup().ifPresent(g -> this.group = Optional.of(g));
-        f.getFlippingStrategy().ifPresent(fs -> this.flippingStrategy = Optional
-                .of(FlippingStrategy.instanciate(uid, fs.getClass().getName(), fs.getInitParams())));
-        f.getCustomProperties()
-                .ifPresent(cp -> this.customProperties = Optional.of(cp.entrySet().stream().collect(
-                        // 1st type Witness ever 0_0
-                        Collectors.<Map.Entry<String, Property<?>>, String, Property<?>> toMap(Map.Entry::getKey, entry -> {
-                            Property<?> val = entry.getValue();
-                            Property<?> targetProp = PropertyFactory.createProperty(val.getUid(), val.getType(), val.asString());
-                            val.getDescription().ifPresent(targetProp::setDescription);
-                            val.getFixedValues()
-                                    .ifPresent(v -> v.stream().forEach(t -> targetProp.add2FixedValueFromString(t.toString())));
-                            return targetProp;
-                        }))));
     }
 
+    public boolean isToggled(FF4jContext context) {
+        if (!isEnable()) return false;
+        
+        // Break as soon as one of the strategy return false
+        boolean toggled = true;
+        Iterator<ToggleStrategy> iter = toggleStrategies.iterator();
+        while (toggled && iter.hasNext()) {
+            toggled = iter.next().isToggled(uid, context);
+        }
+        return toggled;
+    }
+    
     public Feature setGroup(String groupName) {
         this.group = Optional.ofNullable(groupName);
-        return this;
-    }
-
-    public Feature setFlippingStrategy(FlippingStrategy flipStrategy) {
-        this.flippingStrategy = Optional.ofNullable(flipStrategy);
         return this;
     }
 
@@ -140,7 +111,15 @@ public class Feature extends FF4jEntity < Feature > {
         json.append(super.baseJson());
         json.append(attributeAsJson("enable", enable));
         group.ifPresent(g -> attributeAsJson("group", g));
-        flippingStrategy.ifPresent(fs -> json.append(",\"flippingStrategy\":" + FF4jExecutionStrategy.asJson(fs)));
+        
+        json.append(",\"toggleStrategies\": [");
+        boolean first = true;
+        for (ToggleStrategy element : getToggleStrategies()) {
+            json.append(first ? "" : ",");
+            json.append(element.toJson());
+            first = false;
+        }
+        json.append("]");
         json.append("}");
         return json.toString();
     }
@@ -166,14 +145,26 @@ public class Feature extends FF4jEntity < Feature > {
     public Optional<String> getGroup() {
         return group;
     }
+
+    /**
+     * Getter accessor for attribute 'toggleStrategies'.
+     *
+     * @return
+     *       current value of 'toggleStrategies'
+     */
+    public List<ToggleStrategy> getToggleStrategies() {
+        return toggleStrategies;
+    }
     
     /**
-     * Getter accessor for attribute 'flippingStrategy'.
+     * Getter accessor for attribute 'toggleStrategies'.
      *
-     * @return current value of 'flippingStrategy'
+     * @return
+     *       current value of 'toggleStrategies'
      */
-    public Optional<FlippingStrategy> getFlippingStrategy() {
-        return flippingStrategy;
+    public Feature addToggleStrategy(ToggleStrategy ts) {
+        getToggleStrategies().add(ts);
+        return this;
     }
     
 }

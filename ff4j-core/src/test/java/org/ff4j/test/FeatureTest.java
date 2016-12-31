@@ -25,11 +25,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.ff4j.FF4jExecutionContext;
+import org.ff4j.FF4jContext;
 import org.ff4j.exception.ItemNotFoundException;
 import org.ff4j.feature.Feature;
 import org.ff4j.property.Property;
-import org.ff4j.property.PropertyString;
+import org.ff4j.property.domain.PropertyString;
 import org.ff4j.strategy.PonderationStrategy;
 import org.ff4j.utils.Util;
 import org.junit.Assert;
@@ -104,7 +104,7 @@ public class FeatureTest {
         parameters.put("c", new Boolean(true));        
         parameters.put("d", new Date());        
         
-        FF4jExecutionContext fec = new FF4jExecutionContext(parameters);
+        FF4jContext fec = new FF4jContext(parameters);
         fec.getDouble("a");
         fec.getInt("b");
         fec.getBoolean("c");
@@ -114,7 +114,7 @@ public class FeatureTest {
     @Test(expected = IllegalArgumentException.class)
     public void testFlipExecContext2() {
         Map < String, Object > parameters = new HashMap<String, Object>();
-        FF4jExecutionContext fec = new FF4jExecutionContext();
+        FF4jContext fec = new FF4jContext();
         parameters.put("b", new Double(1));        
         fec.getInt("b");
     }
@@ -122,7 +122,7 @@ public class FeatureTest {
     @Test(expected = IllegalArgumentException.class)
     public void testFlipExecContext3() {
         Map < String, Object > parameters = new HashMap<String, Object>();
-        FF4jExecutionContext fec = new FF4jExecutionContext();
+        FF4jContext fec = new FF4jContext();
         parameters.put("b", new Integer(1));        
         fec.getDouble("b");
     }
@@ -130,7 +130,7 @@ public class FeatureTest {
     @Test(expected = IllegalArgumentException.class)
     public void testFlipExecContext4() {
         Map < String, Object > parameters = new HashMap<String, Object>();
-        FF4jExecutionContext fec = new FF4jExecutionContext();
+        FF4jContext fec = new FF4jContext();
         parameters.put("b", new Integer(1));        
         fec.getDate("b");
     }
@@ -138,7 +138,7 @@ public class FeatureTest {
     @Test(expected = IllegalArgumentException.class)
     public void testFlipExecContext5() {
         Map < String, Object > parameters = new HashMap<String, Object>();
-        FF4jExecutionContext fec = new FF4jExecutionContext();
+        FF4jContext fec = new FF4jContext();
         parameters.put("b", new Integer(1));        
         fec.getBoolean("b");
         
@@ -147,21 +147,21 @@ public class FeatureTest {
     
     @Test(expected = ItemNotFoundException.class)
     public void testFlipExecContext6() {
-        FF4jExecutionContext fec = new FF4jExecutionContext();
+        FF4jContext fec = new FF4jContext();
         fec.getValue("DONOT", true);
     }
     
     @Test(expected = IllegalArgumentException.class)
     public void testFlipExecContext7() {
         Map < String, Object > parameters = new HashMap<String, Object>();
-        FF4jExecutionContext fec = new FF4jExecutionContext();
+        FF4jContext fec = new FF4jContext();
         parameters.put("b", new Integer(1));        
         fec.getString("b");
     }
     
     @Test
     public void testFlipExecContext8() {        
-        FF4jExecutionContext fec = new FF4jExecutionContext();
+        FF4jContext fec = new FF4jContext();
         fec.put("a", new Boolean(true));
         fec.put("b", new Date());
         fec.put("c", new Date());

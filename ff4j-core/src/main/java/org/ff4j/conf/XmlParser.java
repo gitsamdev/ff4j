@@ -37,9 +37,9 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.ff4j.feature.Feature;
-import org.ff4j.feature.FlippingStrategy;
+import org.ff4j.feature.ToggleStrategy;
 import org.ff4j.property.Property;
-import org.ff4j.property.PropertyString;
+import org.ff4j.property.domain.PropertyString;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -290,11 +290,11 @@ public final class XmlParser {
         // Create Feature with description
         Feature f = new Feature(uid).setEnable(enable).setDescription(parseDescription(nnm));
         
-        // Strategy
+        /* Strategy
         NodeList flipStrategies = featXmlTag.getElementsByTagName(FLIPSTRATEGY_TAG);
         if (flipStrategies.getLength() > 0) {
             f.setFlippingStrategy(parseFlipStrategy((Element) flipStrategies.item(0), f.getUid()));
-        }
+        }*/
         
         // Properties
         NodeList properties = featXmlTag.getElementsByTagName(PROPERTIES_CUSTOM_TAG);
@@ -384,9 +384,10 @@ public final class XmlParser {
      *            current feature uid
      * @return flipstrategy related to current feature.
      */
-    private FlippingStrategy parseFlipStrategy(Element flipStrategyTag, String uid) {
+    @SuppressWarnings("unused")
+    private ToggleStrategy parseFlipStrategy(Element flipStrategyTag, String uid) {
         NamedNodeMap nnm = flipStrategyTag.getAttributes();
-        FlippingStrategy flipStrategy;
+        ToggleStrategy flipStrategy;
         if (nnm.getNamedItem(FLIPSTRATEGY_ATTCLASS) == null) {
             throw new IllegalArgumentException("Error syntax in configuration file : '" + FLIPSTRATEGY_ATTCLASS
                     + "' is required for each flipstrategy (feature=" + uid + ")");
@@ -395,7 +396,7 @@ public final class XmlParser {
         try {
             // Attribute CLASS
             String clazzName = nnm.getNamedItem(FLIPSTRATEGY_ATTCLASS).getNodeValue();
-            flipStrategy = (FlippingStrategy) Class.forName(clazzName).newInstance();
+            flipStrategy = (ToggleStrategy) Class.forName(clazzName).newInstance();
 
             // LIST OF PARAMS
             Map<String, String> parameters = new LinkedHashMap<String, String>();
@@ -596,9 +597,9 @@ public final class XmlParser {
         feature.getDescription().ifPresent(desc -> sb.append(" description=\"" + desc + "\""));
         sb.append(" >\n");
         
-        // <flipstrategy>
+        /* <flipstrategy>
         if (feature.getFlippingStrategy().isPresent()) {
-            FlippingStrategy fs = feature.getFlippingStrategy().get();
+            ToggleStrategy fs = feature.getFlippingStrategy().get();
             sb.append("   <" + FLIPSTRATEGY_TAG + " class=\"" + fs.getClass().getCanonicalName() + "\" >\n");
             for (String p : fs.getInitParams().keySet()) {
                 sb.append("     <" + FLIPSTRATEGY_PARAMTAG + " " + FLIPSTRATEGY_PARAMNAME + "=\"");
@@ -611,7 +612,7 @@ public final class XmlParser {
                 sb.append("\" />\n");
             }
             sb.append("   </" + FLIPSTRATEGY_TAG + ">\n");
-        }
+        }*/
         
         // <custom-properties>
         if (feature.getCustomProperties().isPresent()) {

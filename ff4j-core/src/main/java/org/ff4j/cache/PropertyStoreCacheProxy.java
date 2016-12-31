@@ -5,7 +5,7 @@ import java.util.stream.Stream;
 
 import org.ff4j.feature.FeatureStore;
 import org.ff4j.property.Property;
-import org.ff4j.store.PropertyStore;
+import org.ff4j.property.PropertyStore;
 
 /**
  * Access to {@link FeatureStore} could generate some overhead and decrease performances. This is the reason why cache is provided

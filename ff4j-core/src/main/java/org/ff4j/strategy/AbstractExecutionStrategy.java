@@ -23,14 +23,14 @@ package org.ff4j.strategy;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.ff4j.feature.FlippingStrategy;
+import org.ff4j.feature.ToggleStrategy;
 
 /**
- * Super class for {@link FlippingStrategy} implementation with utilities.
+ * Super class for {@link ToggleStrategy} implementation with utilities.
  * 
  * @author Cedrick Lunven (@clunven)
  */
-public abstract class AbstractExecutionStrategy implements FF4jExecutionStrategy {
+public abstract class AbstractExecutionStrategy implements FF4jStrategy {
 
     /** Initial parameters. */
     protected Map<String, String> initParams = new HashMap<String, String>();
@@ -69,16 +69,6 @@ public abstract class AbstractExecutionStrategy implements FF4jExecutionStrategy
         return toJson();
     }
     
-    /**
-     * Convert {@link FlippingStrategy} as Json.
-     *
-     * @return
-     *      the relative string
-     */
-    public String toJson() {
-        return FF4jExecutionStrategy.asJson(this);
-    }
-
     /**
      * Getter accessor for attribute 'classType'.
      * 

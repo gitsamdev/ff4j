@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.ff4j.FF4jEntity;
+import org.ff4j.audit.AuditTrail;
 
 /**
  * Super Interface to work with features and properties.
@@ -157,6 +158,22 @@ public interface FF4jRepository < ID extends Serializable, ENTITY extends FF4jEn
      *      listener
      */
     void registerListener(String name, FF4jRepositoryListener<ENTITY> listener);
+    
+    /**
+     * Enable auditing to the audit trail.
+     *
+     * @param auditTrail
+     *      audit trail destination
+     */
+    void registerAuditListener(AuditTrail auditTrail);
+    
+    /**
+     * Enable auditing to the audit trail.
+     *
+     * @param auditTrail
+     *      audit trail destination
+     */
+    void unRegisterAuditListener();
     
     /**
      * Explicitely unregister a listener by its unique name.

@@ -32,7 +32,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.ff4j.FF4j;
-import org.ff4j.FF4jExecutionContext;
+import org.ff4j.FF4jContext;
 import org.ff4j.audit.PropertyStoreAuditProxy;
 import org.ff4j.cache.CacheManagerInMemory;
 import org.ff4j.event.Event;
@@ -43,7 +43,7 @@ import org.ff4j.feature.Feature;
 import org.ff4j.inmemory.FeatureUsageInMemory;
 import org.ff4j.inmemory.FeatureStoreInMemory;
 import org.ff4j.property.Property;
-import org.ff4j.property.PropertyString;
+import org.ff4j.property.domain.PropertyString;
 import org.ff4j.strategy.PonderationStrategy;
 import org.ff4j.utils.Util;
 import org.junit.Assert;
@@ -262,7 +262,7 @@ public class FF4jTest extends AbstractFf4jTest {
         Assert.assertTrue(ff4j.check("coco"));
         ff4j.setAuthorizationsManager(mockAuthManager);
         Assert.assertTrue(ff4j.check("coco"));
-        FF4jExecutionContext ex = new FF4jExecutionContext();
+        FF4jContext ex = new FF4jContext();
         ex.put("OK", "OK");
         Assert.assertTrue(ff4j.check("coco", ex));
         Assert.assertTrue(ff4j.checkOveridingStrategy("coco", mockFlipStrategy));

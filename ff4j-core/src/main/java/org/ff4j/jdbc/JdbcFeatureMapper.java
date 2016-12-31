@@ -29,7 +29,7 @@ import java.util.Map;
 
 import org.ff4j.exception.FeatureAccessException;
 import org.ff4j.feature.Feature;
-import org.ff4j.feature.FlippingStrategy;
+import org.ff4j.feature.ToggleStrategy;
 import org.ff4j.jdbc.JdbcConstants.FeaturesColumns;
 import org.ff4j.mapper.FeatureMapper;
 import org.ff4j.utils.JsonUtils;
@@ -76,7 +76,7 @@ public class JdbcFeatureMapper extends AbstractJdbcMapper implements FeatureMapp
             String strategy  = null;
             String initParam = null;
             if (feature.getFlippingStrategy().isPresent()) {
-                FlippingStrategy fs = feature.getFlippingStrategy().get();
+                ToggleStrategy fs = feature.getFlippingStrategy().get();
                 strategy  = fs.getClass().getCanonicalName();
                 initParam = JsonUtils.mapAsJson(fs.getInitParams());
             }
@@ -123,7 +123,7 @@ public class JdbcFeatureMapper extends AbstractJdbcMapper implements FeatureMapp
             String strategy = rs.getString(FeaturesColumns.STRATEGY.colname());
             if (Util.hasLength(strategy)) {
                 Map < String, String > initParams = JsonUtils.jsonAsMap(rs.getString(FeaturesColumns.INITPARAMS.colname()));
-                f.setFlippingStrategy(FlippingStrategy.instanciate(f.getUid(), strategy, initParams));
+                f.setFlippingStrategy(ToggleStrategy.of(f.getUid(), strategy, initParams));
             }
             return f;
         } catch(SQLException sqlEx) {

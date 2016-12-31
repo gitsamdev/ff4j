@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.ff4j.FF4jEntity;
+import org.ff4j.audit.AuditTrail;
 import org.ff4j.store.AbstractObservable;
 import org.ff4j.store.FF4jRepository;
 import org.ff4j.store.FF4jRepositoryListener;
@@ -219,6 +220,14 @@ public class CacheProxy < K extends Serializable, V extends FF4jEntity<?> >
      */
     public FF4jRepository<String, V> getTargetStore() {
         return targetStore;
+    }
+
+    @Override
+    public void registerAuditListener(AuditTrail auditTrail) {
+    }
+
+    @Override
+    public void unRegisterAuditListener() {
     }
 
 }

@@ -30,15 +30,15 @@ import java.util.stream.Stream;
 
 import org.ff4j.conf.XmlParser;
 import org.ff4j.property.Property;
-import org.ff4j.store.AbstractPropertyStore;
-import org.ff4j.store.PropertyStore;
+import org.ff4j.property.PropertyStore;
+import org.ff4j.property.PropertyStoreSupport;
 import org.ff4j.utils.Util;
 /**
  * Implementation of {@link PropertyStore} to keep properties in memory.
  *
  * @author Cedrick Lunven (@clunven)
  */
-public class PropertyStoreInMemory extends AbstractPropertyStore {
+public class PropertyStoreInMemory extends PropertyStoreSupport {
 
     /** serialVersionUID. */
     private static final long serialVersionUID = 5829690784801420235L;

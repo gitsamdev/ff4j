@@ -26,9 +26,9 @@ import java.util.Calendar;
 import java.util.Date;
 
 import org.ff4j.property.Property;
-import org.ff4j.property.PropertyFactory;
-import org.ff4j.property.PropertyLogLevel;
-import org.ff4j.property.PropertyString;
+import org.ff4j.property.domain.PropertyFactory;
+import org.ff4j.property.domain.PropertyLogLevel;
+import org.ff4j.property.domain.PropertyString;
 import org.ff4j.utils.Util;
 import org.junit.Assert;
 import org.junit.Test;

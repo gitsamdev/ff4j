@@ -7,9 +7,10 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.Optional;
 
-import org.ff4j.audit.usage.AbstractFeatureUsageService;
-import org.ff4j.audit.usage.FeatureUsageListener;
-import org.ff4j.audit.usage.FeatureUsageService;
+import org.ff4j.audit.AuditTrail;
+import org.ff4j.audit.FeatureUsageEventListener;
+import org.ff4j.audit.FeatureUsageEventStore;
+import org.ff4j.audit.FeatureUsageEventSupport;
 import org.ff4j.cache.CacheManager;
 import org.ff4j.cache.FeatureStoreCacheProxy;
 import org.ff4j.cache.PropertyStoreCacheProxy;
@@ -19,14 +20,16 @@ import org.ff4j.event.Event;
 import org.ff4j.exception.FeatureNotFoundException;
 import org.ff4j.feature.Feature;
 import org.ff4j.feature.FeatureStore;
-import org.ff4j.feature.FlippingStrategy;
+import org.ff4j.feature.ToggleStrategy;
+import org.ff4j.inmemory.AuditTrailInMemory;
 import org.ff4j.inmemory.FeatureStoreInMemory;
 import org.ff4j.inmemory.FeatureUsageInMemory;
 import org.ff4j.inmemory.PropertyStoreInMemory;
 import org.ff4j.property.Property;
-import org.ff4j.security.FF4JSecurityManager;
+import org.ff4j.property.PropertyStore;
+import org.ff4j.security.AccessControlList;
+import org.ff4j.security.RestrictedAccessObject;
 import org.ff4j.store.AbstractObservable;
-import org.ff4j.store.PropertyStore;
 
 /**
  * Main class and public api to work with framework FF4j.
@@ -34,7 +37,7 @@ import org.ff4j.store.PropertyStore;
  * <ul>It proposes a few underlying elements :
  *  <li>{@link FeatureStore} is used to store status of manipulated features.
  *  <li>{@link PropertyStore} is used to store properties values.
- *  <li>{@link FeatureUsageService} is used to store audit information.
+ *  <li>{@link FeatureUsageEventStore} is used to store audit information.
  *  <li>{@link FF4JSecurityManager} to limit access to features is relevant (permissions).
  * </ul>
  *
@@ -42,7 +45,10 @@ import org.ff4j.store.PropertyStore;
  *
  * @since 1.0
  */
-public class FF4j extends AbstractObservable < FeatureUsageListener > {
+public class FF4j extends AbstractObservable < FeatureUsageEventListener > implements RestrictedAccessObject {
+    
+    /** Listener name. */
+    private static final String FEATUREUSAGE_TRACKING_LISTENERNAME = "FeatureUsageListener";
     
     /** Intialisation. */
     private final long startTime = System.currentTimeMillis();
@@ -50,29 +56,29 @@ public class FF4j extends AbstractObservable < FeatureUsageListener > {
     /** Version of ff4j. */
     private final String version = getClass().getPackage().getImplementationVersion();
     
-    // -- §§ Handle Features §§ ---
-    
     /** Storage to persist feature within {@link FeatureStore}. */
     private FeatureStore featureStore = new FeatureStoreInMemory();
-     
-    /** Flag to ask for automatically create the feature if not found in the store. */
-    private boolean autoCreateFeatures = false;
     
-    // -- §§ Handle Properties §§ ---
+    /** Define feature usage. */
+    private FeatureUsageEventSupport featureUsage = new FeatureUsageInMemory();
     
     /** Storage to persist properties within {@link PropertyStore}. */
     private PropertyStore propertyStore = new PropertyStoreInMemory();
     
-    // -- §§ Configuration §§ ---
+    /** Storage to persist event logs. */ 
+    private AuditTrail auditTrail = new AuditTrailInMemory();
+    
+    /** Flag to ask for automatically create the feature if not found in the store. */
+    private boolean autoCreateFeatures = false;
     
     /** Source. */
     private String source = Event.Source.JAVA_API.name();
+   
+    /** Hold properties related to each users. */
+    private static ThreadLocal < FF4jContext > context = new ThreadLocal<>();
     
-    /** Security policy to limit access through ACL with {@link FF4JSecurityManager}. */
-    private FF4JSecurityManager securityManager = null;
-    
-    /** Define feature usage. */
-    private AbstractFeatureUsageService featureUsage = null;
+    /** Permission : by Default everyOne can use the Feature. */
+    protected Optional< AccessControlList > accessControlList = Optional.empty();
     
     /**
      * Base constructor to allows instantiation through IoC.
@@ -81,14 +87,34 @@ public class FF4j extends AbstractObservable < FeatureUsageListener > {
     public FF4j() {
     }
 
+    public FF4j enableFeatureUsageTracking() {
+        registerListener(FEATUREUSAGE_TRACKING_LISTENERNAME, this.featureUsage);
+        return this;
+    }
+    
+    public FF4j disableFeatureUsageTracking() {
+        unregisterListener(FEATUREUSAGE_TRACKING_LISTENERNAME);
+        return this;
+    }
+    
+    public FF4j enableAuditTrail() {
+        getFeatureStore().registerAuditListener(getAuditTrail());
+        getPropertyStore().registerAuditListener(getAuditTrail());
+        return this;
+    }
+    
+    public FF4j disableAuditTrail() {
+        getFeatureStore().unRegisterAuditListener();
+        getPropertiesStore().unRegisterAuditListener();
+        return this;
+    }
+    
     /**
      * Constructor initializing ff4j with an InMemoryStore
      */
     public FF4j(String xmlFile) {
         this.featureStore  = new FeatureStoreInMemory(xmlFile);
         this.propertyStore = new PropertyStoreInMemory(xmlFile);
-        this.featureUsage  = new FeatureUsageInMemory();
-        registerListener("DefaultUsageTracking", this.featureUsage);
     }
 
     /**
@@ -122,7 +148,7 @@ public class FF4j extends AbstractObservable < FeatureUsageListener > {
      *            current execution context
      * @return current feature status
      */
-    public boolean check(String uid, FF4jExecutionContext executionContext) {
+    public boolean check(String uid, FF4jContext executionContext) {
         return isFeatureToggled(uid, null, executionContext);
     }
 
@@ -135,8 +161,8 @@ public class FF4j extends AbstractObservable < FeatureUsageListener > {
      *            current execution context
      * @return
      */
-    public boolean checkOveridingStrategy(String uid, FlippingStrategy strats) {
-        return isFeatureToggled(uid, strats, FF4jExecutionContextHolder.getContext());
+    public boolean checkOveridingStrategy(String uid, ToggleStrategy strats) {
+        return isFeatureToggled(uid, strats, FF4j.getContext());
     }
 
     /**
@@ -148,7 +174,7 @@ public class FF4j extends AbstractObservable < FeatureUsageListener > {
      *            current execution context
      * @return
      */
-    public boolean checkOveridingStrategy(String uid, FlippingStrategy strats, FF4jExecutionContext executionContext) {
+    public boolean checkOveridingStrategy(String uid, ToggleStrategy strats, FF4jContext executionContext) {
         return isFeatureToggled(uid, strats, executionContext);
     }
 
@@ -163,23 +189,20 @@ public class FF4j extends AbstractObservable < FeatureUsageListener > {
      *      execution context
      * @return
      */
-    protected boolean isFeatureToggled(String uid, FlippingStrategy strats, FF4jExecutionContext executionContext) {
-        
-        // Read from store
+    protected boolean isFeatureToggled(String uid, ToggleStrategy strats, FF4jContext pCtx) {
+        // Read feature from store, must exist
         Feature feature = getFeature(uid);
         
-        // Update current context
-        FF4jExecutionContextHolder.add2Context(executionContext);
-        
-        // First level check (status = ON and permission OK)
-        boolean featureToggled = feature.isEnable() && isAllowed(feature);
-        if (featureToggled) {
-            if (strats != null) {
-                featureToggled = strats.evaluate(uid, getFeatureStore(), 
-                        FF4jExecutionContextHolder.getContext());
-            } else if (feature.getFlippingStrategy().isPresent()) {
-                featureToggled = feature.getFlippingStrategy().get()
-                        .evaluate(uid, getFeatureStore(), executionContext);
+        boolean featureToggled = false;
+        if (feature.isEnable()) {
+            // Pick default context or override
+            FF4jContext context = (pCtx == null) ? FF4j.getContext() : pCtx;
+            
+            if (strats == null) {
+                featureToggled = feature.isToggled(context);
+            } else {
+                // Overriding the toggleStreategy of the feature
+                featureToggled = strats.isToggled(uid, context);
             }
         }
         
@@ -187,6 +210,7 @@ public class FF4j extends AbstractObservable < FeatureUsageListener > {
         if (featureToggled) {
             this.notify((listener) -> listener.onFeatureExecuted(feature));
         }
+        
         return featureToggled;
     }
     
@@ -242,28 +266,6 @@ public class FF4j extends AbstractObservable < FeatureUsageListener > {
              }
         }
         return this;
-    }
-    
-    /**
-     * Enable Feature.
-     * 
-     * @param featureID
-     *            unique feature identifier.
-     */
-    @Deprecated
-    public FF4j enable(String uid) {
-        return toggleOn(uid);
-    }
-    
-    /**
-     * Disable Feature.
-     * 
-     * @param featureID
-     *            unique feature identifier.
-     */
-    @Deprecated
-    public FF4j disable(String uid) {
-        return toggleOff(uid);
     }
     
     /**
@@ -602,24 +604,112 @@ public class FF4j extends AbstractObservable < FeatureUsageListener > {
         }
         return ps;
     }
-
+    
     /**
-     * Getter accessor for attribute 'securityManager'.
-     *
-     * @return
-     *       current value of 'securityManager'
+     * Explicitly clears the context value from the current thread.
      */
-    public FF4JSecurityManager getSecurityManager() {
-        return securityManager;
-    }
-
-    /**
-     * Setter accessor for attribute 'securityManager'.
-     * @param securityManager
-     * 		new value for 'securityManager '
-     */
-    public void setSecurityManager(FF4JSecurityManager securityManager) {
-        this.securityManager = securityManager;
+    public static void clearContext() {
+        context.remove();
     }
     
+    /**
+     * Obtain the current <code>FF4jExecutionContext</code>.
+     *
+     * @return the security context (never <code>null</code>)
+     */
+    public static FF4jContext getContext() {
+        if (null == context.get()) {
+            context.set(new FF4jContext());
+        }
+        return context.get();
+    }
+    
+    /**
+     * Obtain the current <code>FF4jExecutionContext</code>.
+     *
+     * @return the security context (never <code>null</code>)
+     */
+    public static void setContext(FF4jContext pcontext) {
+        context.set(pcontext);
+    }
+    
+    /**
+     * Obtain the current <code>FF4jExecutionContext</code>.
+     *
+     * @return the security context (never <code>null</code>)
+     */
+    public static void add2Context(FF4jContext pcontext) {
+        getContext().getParameters().putAll(pcontext.getParameters());
+    }
+    
+    /** {@inheritDoc} */
+    public Optional <AccessControlList> getAccessControlList() {
+        return accessControlList;
+    }
+
+    /**
+     * Getter accessor for attribute 'featureUsage'.
+     *
+     * @return
+     *       current value of 'featureUsage'
+     */
+    public FeatureUsageEventSupport getFeatureUsage() {
+        return featureUsage;
+    }
+
+    /**
+     * Setter accessor for attribute 'featureUsage'.
+     * @param featureUsage
+     * 		new value for 'featureUsage '
+     */
+    public void setFeatureUsage(FeatureUsageEventSupport featureUsage) {
+        this.featureUsage = featureUsage;
+    }
+
+    /**
+     * Getter accessor for attribute 'propertyStore'.
+     *
+     * @return
+     *       current value of 'propertyStore'
+     */
+    public PropertyStore getPropertyStore() {
+        return propertyStore;
+    }
+
+    /**
+     * Setter accessor for attribute 'propertyStore'.
+     * @param propertyStore
+     * 		new value for 'propertyStore '
+     */
+    public void setPropertyStore(PropertyStore propertyStore) {
+        this.propertyStore = propertyStore;
+    }
+
+    /**
+     * Getter accessor for attribute 'auditTrail'.
+     *
+     * @return
+     *       current value of 'auditTrail'
+     */
+    public AuditTrail getAuditTrail() {
+        return auditTrail;
+    }
+
+    /**
+     * Setter accessor for attribute 'auditTrail'.
+     * @param auditTrail
+     * 		new value for 'auditTrail '
+     */
+    public void setAuditTrail(AuditTrail auditTrail) {
+        this.auditTrail = auditTrail;
+    }
+
+    /**
+     * Setter accessor for attribute 'source'.
+     * @param source
+     * 		new value for 'source '
+     */
+    public void setSource(String source) {
+        this.source = source;
+    }
 }

@@ -43,7 +43,7 @@ import java.util.stream.Stream;
 import javax.sql.DataSource;
 
 import org.ff4j.exception.FeatureAccessException;
-import org.ff4j.feature.AbstractFeatureStore;
+import org.ff4j.feature.FeatureStoreSupport;
 import org.ff4j.feature.Feature;
 import org.ff4j.feature.FeatureStore;
 import org.ff4j.jdbc.JdbcConstants.CustomPropertyColumns;
@@ -58,7 +58,7 @@ import org.ff4j.utils.Util;
  *
  * @author Cedrick Lunven (@clunven)
  */
-public class FeatureStoreJdbc extends AbstractFeatureStore {
+public class FeatureStoreJdbc extends FeatureStoreSupport {
 
 	/** serialVersionUID. */
     private static final long serialVersionUID = 7144391802850457781L;

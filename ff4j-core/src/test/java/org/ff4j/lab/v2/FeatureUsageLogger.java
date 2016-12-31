@@ -1,9 +1,9 @@
 package org.ff4j.lab.v2;
 
-import org.ff4j.audit.usage.FeatureUsageListener;
+import org.ff4j.audit.FeatureUsageEventListener;
 import org.ff4j.feature.Feature;
 
-public class FeatureUsageLogger implements FeatureUsageListener {
+public class FeatureUsageLogger implements FeatureUsageEventListener {
 
     /** {@inheritDoc} */
     @Override

@@ -32,7 +32,7 @@ import org.ff4j.exception.FeatureAccessException;
 import org.ff4j.feature.Feature;
 import org.ff4j.jdbc.FeatureStoreJdbc;
 import org.ff4j.property.Property;
-import org.ff4j.property.PropertyString;
+import org.ff4j.property.domain.PropertyString;
 import org.ff4j.utils.JdbcUtils;
 import org.junit.Test;
 import org.mockito.Mockito;

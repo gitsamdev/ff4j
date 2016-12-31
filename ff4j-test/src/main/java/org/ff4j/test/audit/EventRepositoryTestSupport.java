@@ -34,7 +34,7 @@ import java.util.concurrent.TimeUnit;
  */
 
 import org.ff4j.FF4j;
-import org.ff4j.audit.usage.FeatureUsageService;
+import org.ff4j.audit.usage.FeatureUsageEventStore;
 import org.ff4j.chart.BarChart;
 import org.ff4j.chart.TimeSeriesChart;
 import org.ff4j.event.Event;
@@ -64,8 +64,8 @@ public abstract class EventRepositoryTestSupport {
 	/** Feature List. */
 	protected ArrayList<Feature> features;
 
-	/** Target {@link FeatureUsageService}. */
-	protected FeatureUsageService repo;
+	/** Target {@link FeatureUsageEventStore}. */
+	protected FeatureUsageEventStore repo;
 
 	/** Target publisher. */
 	protected EventPublisher publisher;
@@ -152,7 +152,7 @@ public abstract class EventRepositoryTestSupport {
 	 * @throws Exception
 	 *             error during building feature store
 	 */
-	protected abstract FeatureUsageService initRepository();
+	protected abstract FeatureUsageEventStore initRepository();
 
 	/** TDD. */
 	@Test

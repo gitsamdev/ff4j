@@ -23,7 +23,7 @@ package org.ff4j.test.audit;
 import org.ff4j.FF4j;
 import org.ff4j.audit.PropertyStoreAuditProxy;
 import org.ff4j.inmemory.PropertyStoreInMemory;
-import org.ff4j.store.PropertyStore;
+import org.ff4j.property.PropertyStore;
 import org.ff4j.test.property.AbstractPropertyStoreJunitTest;
 import org.junit.Test;
 
