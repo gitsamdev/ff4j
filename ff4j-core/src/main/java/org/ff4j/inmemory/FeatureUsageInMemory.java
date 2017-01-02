@@ -38,12 +38,12 @@ import java.util.stream.Stream;
 
 import org.ff4j.audit.FeatureUsageEventStore;
 import org.ff4j.audit.FeatureUsageEventSupport;
+import org.ff4j.audit.HitCount;
 import org.ff4j.chart.Serie;
 import org.ff4j.chart.TimeSeriesChart;
 import org.ff4j.event.Event;
 import org.ff4j.event.EventQueryDefinition;
 import org.ff4j.event.EventSeries;
-import org.ff4j.utils.MutableHitCount;
 import org.ff4j.utils.Util;
 
 /**
@@ -162,11 +162,11 @@ public class FeatureUsageInMemory extends FeatureUsageEventSupport {
     
     /** {@inheritDoc} */
     @Override
-    public Map<String, MutableHitCount> getHitCount(EventQueryDefinition query) {
-        Map<String, MutableHitCount> hitRatio = new TreeMap<String, MutableHitCount>();
+    public Map<String, HitCount> getHitCount(EventQueryDefinition query) {
+        Map<String, HitCount> hitRatio = new TreeMap<String, HitCount>();
         for (Event event : search(query)) {
             if (!hitRatio.containsKey(event.getTargetUid())) {
-                hitRatio.put(event.getTargetUid(), new MutableHitCount());
+                hitRatio.put(event.getTargetUid(), new HitCount());
              }
              hitRatio.get(event.getTargetUid()).inc();
         }
@@ -175,11 +175,11 @@ public class FeatureUsageInMemory extends FeatureUsageEventSupport {
     
     /** {@inheritDoc} */
     @Override
-    public Map<String, MutableHitCount> getSourceHitCount(EventQueryDefinition query) {
-        Map<String, MutableHitCount> hitRatio = new TreeMap<String, MutableHitCount>();
+    public Map<String, HitCount> getSourceHitCount(EventQueryDefinition query) {
+        Map<String, HitCount> hitRatio = new TreeMap<String, HitCount>();
         for (Event event : search(query)) {
             if (!hitRatio.containsKey(event.getSource())) {
-                hitRatio.put(event.getSource(), new MutableHitCount());
+                hitRatio.put(event.getSource(), new HitCount());
              }
              hitRatio.get(event.getSource()).inc();
         }
@@ -188,11 +188,11 @@ public class FeatureUsageInMemory extends FeatureUsageEventSupport {
     
     /** {@inheritDoc} */
     @Override
-    public Map<String, MutableHitCount> getHostHitCount(EventQueryDefinition query) {
-        Map<String, MutableHitCount> hitRatio = new TreeMap<String, MutableHitCount>();
+    public Map<String, HitCount> getHostHitCount(EventQueryDefinition query) {
+        Map<String, HitCount> hitRatio = new TreeMap<String, HitCount>();
         for (Event event : search(query)) {
             if (!hitRatio.containsKey(event.getHostName())) {
-                hitRatio.put(event.getHostName(), new MutableHitCount());
+                hitRatio.put(event.getHostName(), new HitCount());
              }
              hitRatio.get(event.getHostName()).inc();
         }
@@ -201,12 +201,12 @@ public class FeatureUsageInMemory extends FeatureUsageEventSupport {
     
     /** {@inheritDoc} */
     @Override
-    public Map<String, MutableHitCount> getUserHitCount(EventQueryDefinition query) {
-        Map<String, MutableHitCount> hitRatio = new TreeMap<String, MutableHitCount>();
+    public Map<String, HitCount> getUserHitCount(EventQueryDefinition query) {
+        Map<String, HitCount> hitRatio = new TreeMap<String, HitCount>();
         for (Event event : search(query)) {
             String user = event.getOwner().orElse("anonymous");
             if (!hitRatio.containsKey(user)) {
-                hitRatio.put(user, new MutableHitCount());
+                hitRatio.put(user, new HitCount());
              }
              hitRatio.get(user).inc();
         }
@@ -257,7 +257,7 @@ public class FeatureUsageInMemory extends FeatureUsageEventSupport {
                                     tsc.createNewSerie(currentFeatureName);
                                 }
                                 // Match FeatureName
-                                Serie < Map<String , MutableHitCount > > serie = tsc.getSeries().get(currentFeatureName);
+                                Serie < Map<String , HitCount > > serie = tsc.getSeries().get(currentFeatureName);
                                 // Match SlotName
                                 String slotName = tsc.getSdf().format(new Date(evt.getTimestamp()));
                                 // Should be always 'true' as the tsc.getsdf().format() will get a slotName.

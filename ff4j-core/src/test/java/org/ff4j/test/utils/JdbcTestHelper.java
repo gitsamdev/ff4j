@@ -27,7 +27,7 @@ import java.sql.Connection;
 import javax.sql.DataSource;
 
 import org.apache.commons.dbcp.BasicDataSource;
-import org.ff4j.utils.JdbcUtils;
+import org.ff4j.jdbc.JdbcUtils;
 
 /**
  * Mutualize some JDBC operation (DataSource initialization for instance)

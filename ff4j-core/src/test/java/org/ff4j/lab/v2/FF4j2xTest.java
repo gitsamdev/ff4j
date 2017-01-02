@@ -23,7 +23,7 @@ public class FF4j2xTest {
         ff4j.getFeatureStore().registerListener("AuditTrailConsole", new FeatureStoreListenerAudit(atl));
         
         Feature fx = new Feature("fx").setGroup("G1").toggleOn();
-        fx.grantUsers(FF4jPermission.USE, "Pierre", "Paul", "Jacques");
+        fx.grantUsers(FF4jPermission.EXECUTE_FEATURE, "Pierre", "Paul", "Jacques");
         
         // expect to fire event to auditTrails
         ff4j.createFeature(fx);

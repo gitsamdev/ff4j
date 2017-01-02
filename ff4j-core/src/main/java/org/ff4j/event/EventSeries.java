@@ -24,7 +24,7 @@ import java.util.Optional;
 
 import java.util.TreeSet;
 
-import org.ff4j.utils.MutableHitCount;
+import org.ff4j.audit.HitCount;
 
 /**
  * Proposal of data structure to store a set of events.
@@ -55,8 +55,8 @@ public class EventSeries extends TreeSet < Event > {
      * @return
      */
     public double getAverageDuration() {
-        MutableHitCount total = new MutableHitCount();
-        MutableHitCount size  = new MutableHitCount();
+        HitCount total = new HitCount();
+        HitCount size  = new HitCount();
         this.stream()
             .map(Event::getDuration)
             .filter(Optional::isPresent)

@@ -17,7 +17,7 @@ import org.ff4j.conf.XmlConfig;
 import org.ff4j.conf.XmlParser;
 import org.ff4j.exception.PropertyAlreadyExistException;
 import org.ff4j.exception.PropertyNotFoundException;
-import org.ff4j.store.AbstractFF4jRepository;
+import org.ff4j.store.FF4jRepositorySupport;
 import org.ff4j.store.FF4jRepositoryListener;
 import org.ff4j.utils.Util;
 
@@ -47,7 +47,7 @@ import org.ff4j.utils.Util;
  * @author Cedrick Lunven (@clunven)
  */
 public abstract class PropertyStoreSupport 
-    extends AbstractFF4jRepository<Property<?>, PropertyStoreListener> implements PropertyStore {
+    extends FF4jRepositorySupport<Property<?>, PropertyStoreListener> implements PropertyStore {
     
     /** serialVersionUID. */
     private static final long serialVersionUID = -5638535944745337074L;

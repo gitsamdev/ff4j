@@ -30,10 +30,10 @@ import javax.sql.DataSource;
 
 import org.ff4j.exception.FeatureAccessException;
 import org.ff4j.feature.Feature;
+import org.ff4j.jdbc.JdbcUtils;
 import org.ff4j.jdbc.store.FeatureStoreJdbc;
 import org.ff4j.property.Property;
 import org.ff4j.property.domain.PropertyString;
-import org.ff4j.utils.JdbcUtils;
 import org.junit.Test;
 import org.mockito.Mockito;
 

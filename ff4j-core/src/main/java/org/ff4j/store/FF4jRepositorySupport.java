@@ -27,8 +27,8 @@ import org.ff4j.utils.Util;
  * @param <V>
  *      entity manipulated, its unique key is a STRING named 'uid'
  */
-public abstract class AbstractFF4jRepository < E extends FF4jEntity<?>, LISTENER extends FF4jRepositoryListener < E >> 
-                            extends AbstractObservable < LISTENER > 
+public abstract class FF4jRepositorySupport < E extends FF4jEntity<?>, LISTENER extends FF4jRepositoryListener < E >> 
+                            extends FF4jRepositoryObserver < LISTENER > 
                             implements FF4jRepository<String, E>, Serializable {
 
     /** Denerated Serial Number . */

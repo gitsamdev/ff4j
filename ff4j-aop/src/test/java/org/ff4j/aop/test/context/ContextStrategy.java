@@ -24,9 +24,9 @@ import org.ff4j.feature.FeatureStore;
  */
 
 
-import org.ff4j.strategy.AbstractExecutionStrategy;
+import org.ff4j.strategy.AbstractStrategy;
 
-public class ContextStrategy extends AbstractExecutionStrategy {
+public class ContextStrategy extends AbstractStrategy {
     @Override
     public boolean evaluate(String featureName, FeatureStore store, FlippingExecutionContext executionContext) {
         return executionContext != null && "french".equals(executionContext.getString("user.settings.language", true));

@@ -29,7 +29,7 @@ import org.ff4j.property.Property;
 import org.ff4j.property.PropertyStore;
 import org.ff4j.security.AccessControlList;
 import org.ff4j.security.RestrictedAccessObject;
-import org.ff4j.store.AbstractObservable;
+import org.ff4j.store.FF4jRepositoryObserver;
 
 /**
  * Main class and public api to work with framework FF4j.
@@ -45,7 +45,7 @@ import org.ff4j.store.AbstractObservable;
  *
  * @since 1.0
  */
-public class FF4j extends AbstractObservable < FeatureUsageEventListener > implements RestrictedAccessObject {
+public class FF4j extends FF4jRepositoryObserver < FeatureUsageEventListener > implements RestrictedAccessObject {
     
     /** Listener name. */
     private static final String FEATUREUSAGE_TRACKING_LISTENERNAME = "FeatureUsageListener";

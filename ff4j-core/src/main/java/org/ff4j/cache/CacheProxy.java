@@ -9,7 +9,7 @@ import java.util.stream.Stream;
 
 import org.ff4j.FF4jEntity;
 import org.ff4j.audit.AuditTrail;
-import org.ff4j.store.AbstractObservable;
+import org.ff4j.store.FF4jRepositoryObserver;
 import org.ff4j.store.FF4jRepository;
 import org.ff4j.store.FF4jRepositoryListener;
 
@@ -25,7 +25,7 @@ import org.ff4j.store.FF4jRepositoryListener;
  *      cache value
  */
 public class CacheProxy < K extends Serializable, V extends FF4jEntity<?> > 
-            extends AbstractObservable < FF4jRepositoryListener < V > >  
+            extends FF4jRepositoryObserver < FF4jRepositoryListener < V > >  
             implements FF4jRepository< String, V > {
     
     /** cache manager. */

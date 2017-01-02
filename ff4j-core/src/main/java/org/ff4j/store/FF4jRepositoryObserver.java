@@ -16,7 +16,7 @@ import java.util.function.Consumer;
  * @param <LISTENER>
  *      target listener type
  */
-public class AbstractObservable < LISTENER > {
+public class FF4jRepositoryObserver < LISTENER > {
     
     /** My list of listener to test. */
     protected Map < String, LISTENER > listeners = new HashMap<>();

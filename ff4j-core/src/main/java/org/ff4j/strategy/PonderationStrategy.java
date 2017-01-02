@@ -32,7 +32,7 @@ import org.ff4j.feature.ToggleStrategy;
  * 
  * @author Cedrick Lunven (@clunven)
  */
-public class PonderationStrategy extends AbstractExecutionStrategy implements ToggleStrategy, Serializable {
+public class PonderationStrategy extends AbstractStrategy implements ToggleStrategy, Serializable {
 
     /** Serial number. */
     private static final long serialVersionUID = -2353911851539414159L;

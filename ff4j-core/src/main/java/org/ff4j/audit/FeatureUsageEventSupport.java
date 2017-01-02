@@ -2,7 +2,7 @@ package org.ff4j.audit;
 
 import org.ff4j.event.Event;
 import org.ff4j.feature.Feature;
-import org.ff4j.store.AbstractFF4jRepository;
+import org.ff4j.store.FF4jRepositorySupport;
 import org.ff4j.store.FF4jRepositoryEventListener;
 import org.ff4j.store.FF4jRepositoryListener;
 
@@ -12,7 +12,7 @@ import org.ff4j.store.FF4jRepositoryListener;
  * @author Cedrick LUNVEN  (@clunven)
  */
 public abstract class FeatureUsageEventSupport 
-                extends AbstractFF4jRepository < Event , FF4jRepositoryEventListener> 
+                extends FF4jRepositorySupport < Event , FF4jRepositoryEventListener> 
                 implements FeatureUsageEventListener, FeatureUsageEventStore {
 
     /** serialVersionUID. */

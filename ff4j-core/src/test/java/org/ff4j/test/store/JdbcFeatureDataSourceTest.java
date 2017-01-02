@@ -1,8 +1,8 @@
 package org.ff4j.test.store;
 
-import static org.ff4j.utils.JdbcUtils.closeConnection;
-import static org.ff4j.utils.JdbcUtils.closeResultSet;
-import static org.ff4j.utils.JdbcUtils.closeStatement;
+import static org.ff4j.jdbc.JdbcUtils.closeConnection;
+import static org.ff4j.jdbc.JdbcUtils.closeResultSet;
+import static org.ff4j.jdbc.JdbcUtils.closeStatement;
 import static org.mockito.Mockito.doThrow;
 
 import java.sql.Connection;
@@ -25,9 +25,9 @@ import javax.sql.DataSource;
 
 import org.ff4j.exception.FeatureAccessException;
 import org.ff4j.feature.FeatureStore;
+import org.ff4j.jdbc.JdbcUtils;
 import org.ff4j.jdbc.store.FeatureStoreJdbc;
 import org.ff4j.test.utils.JdbcTestHelper;
-import org.ff4j.utils.JdbcUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

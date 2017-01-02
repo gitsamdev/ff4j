@@ -34,6 +34,7 @@ import java.util.concurrent.TimeUnit;
  */
 
 import org.ff4j.FF4j;
+import org.ff4j.audit.HitCount;
 import org.ff4j.audit.usage.FeatureUsageEventStore;
 import org.ff4j.chart.BarChart;
 import org.ff4j.chart.TimeSeriesChart;
@@ -45,7 +46,6 @@ import org.ff4j.event.EventSeries;
 import org.ff4j.feature.Feature;
 import org.ff4j.inmemory.FeatureStoreInMemory;
 import org.ff4j.inmemory.PropertyStoreInMemory;
-import org.ff4j.utils.MutableHitCount;
 import org.ff4j.utils.Util;
 import org.junit.Assert;
 import org.junit.Before;
@@ -230,7 +230,7 @@ public abstract class EventRepositoryTestSupport {
 		// Then
 		EventQueryDefinition testQuery = new EventQueryDefinition(start, System.currentTimeMillis());
 		// Assert Pie Chart (2 sectors with 8 and 8)
-		Map<String, MutableHitCount> mapOfHit = repo.getFeatureUsageHitCount(testQuery);
+		Map<String, HitCount> mapOfHit = repo.getFeatureUsageHitCount(testQuery);
 		Assert.assertEquals(2, mapOfHit.size());
 		Assert.assertTrue(mapOfHit.containsKey("f1"));
 		Assert.assertTrue(mapOfHit.containsKey("f2"));
@@ -290,7 +290,7 @@ public abstract class EventRepositoryTestSupport {
 
 		// Then
 		EventQueryDefinition testQuery = new EventQueryDefinition(start - 20, System.currentTimeMillis());
-		Map<String, MutableHitCount> mapOfHit = repo.getSourceHitCount(testQuery);
+		Map<String, HitCount> mapOfHit = repo.getSourceHitCount(testQuery);
 		Assert.assertEquals(3, mapOfHit.size());
 		Assert.assertTrue(mapOfHit.containsKey(SOURCE_JAVA));
 		Assert.assertTrue(mapOfHit.containsKey(SOURCE_WEB));
@@ -317,7 +317,7 @@ public abstract class EventRepositoryTestSupport {
 
 		// Then
 		EventQueryDefinition testQuery = new EventQueryDefinition(start - 20, System.currentTimeMillis());
-		Map<String, MutableHitCount> mapOfHit = repo.getUserHitCount(testQuery);
+		Map<String, HitCount> mapOfHit = repo.getUserHitCount(testQuery);
 		Assert.assertEquals(2, mapOfHit.size());
 		Assert.assertTrue(mapOfHit.containsKey("JOHN"));
 		Assert.assertTrue(mapOfHit.containsKey("BOB"));
@@ -337,7 +337,7 @@ public abstract class EventRepositoryTestSupport {
 
 		// Then
 		EventQueryDefinition testQuery = new EventQueryDefinition(start, System.currentTimeMillis());
-		Map<String, MutableHitCount> mapOfHit = repo.getHostHitCount(testQuery);
+		Map<String, HitCount> mapOfHit = repo.getHostHitCount(testQuery);
 		Assert.assertEquals(1, mapOfHit.size());
 		Assert.assertEquals(1, mapOfHit.values().size());
 	}

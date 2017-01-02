@@ -1,4 +1,4 @@
-package org.ff4j.utils;
+package org.ff4j.audit;
 
 /*
  * #%L
@@ -28,14 +28,14 @@ package org.ff4j.utils;
  * 
  * @author Cedrick Lunven (@clunven)
  */
-public final class MutableHitCount {
+public final class HitCount {
 
     int value = 0;
     
     /**
      * Default constructor
      */
-    public MutableHitCount() {
+    public HitCount() {
     }
     
     /**
@@ -44,7 +44,7 @@ public final class MutableHitCount {
      * @param startValue
      *      start value to count
      */
-    public MutableHitCount(int startValue) {
+    public HitCount(int startValue) {
        this.value = startValue;
     }
 

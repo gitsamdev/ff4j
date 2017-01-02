@@ -30,7 +30,7 @@ import org.ff4j.feature.ToggleStrategy;
  * 
  * @author Cedrick Lunven (@clunven)
  */
-public abstract class AbstractExecutionStrategy implements FF4jStrategy {
+public abstract class AbstractStrategy implements FF4jStrategy {
 
     /** Initial parameters. */
     protected Map<String, String> initParams = new HashMap<String, String>();

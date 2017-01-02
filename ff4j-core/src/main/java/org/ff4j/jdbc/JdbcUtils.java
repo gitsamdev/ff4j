@@ -1,4 +1,4 @@
-package org.ff4j.utils;
+package org.ff4j.jdbc;
 
 /*
  * #%L
@@ -31,6 +31,7 @@ import java.sql.Statement;
 import javax.sql.DataSource;
 
 import org.ff4j.exception.FeatureAccessException;
+import org.ff4j.utils.Util;
 
 /**
  * Group utilities methods to work with low-level JDBC.

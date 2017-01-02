@@ -34,7 +34,7 @@ import org.ff4j.feature.ToggleStrategy;
  * 
  * @author Cedrick Lunven (@clunven)
  */
-public class ServerFilterStrategy extends AbstractExecutionStrategy implements ToggleStrategy {
+public class ServerFilterStrategy extends AbstractStrategy implements ToggleStrategy {
 
     /** Threshold. */
     private static final String PARAM_SERVERLIST = "grantedServers";

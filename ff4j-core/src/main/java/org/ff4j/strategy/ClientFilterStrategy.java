@@ -33,7 +33,7 @@ import org.ff4j.feature.ToggleStrategy;
  * 
  * @author Cedrick Lunven (@clunven)
  */
-public class ClientFilterStrategy extends AbstractExecutionStrategy implements ToggleStrategy {
+public class ClientFilterStrategy extends AbstractStrategy implements ToggleStrategy {
 
     /** Threshold. */
     public static final String PARAM_CLIENTLIST = "grantedClients";

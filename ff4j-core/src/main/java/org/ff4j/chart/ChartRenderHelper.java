@@ -11,8 +11,8 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.ff4j.audit.FeatureUsageEventStore;
+import org.ff4j.audit.HitCount;
 import org.ff4j.event.EventQueryDefinition;
-import org.ff4j.utils.MutableHitCount;
 
 /**
  * Create graphs and charts base on data into UsageService.
@@ -81,7 +81,7 @@ public class ChartRenderHelper {
      * @return
      *      pie chart
      */
-    private PieChart renderPieChart(String title, Map < String, MutableHitCount > hitRatio, List < String > colors) {
+    private PieChart renderPieChart(String title, Map < String, HitCount > hitRatio, List < String > colors) {
         // Create Pie Chart
         PieChart pieChart = new PieChart(title);
         // Color each bar with a color
@@ -102,7 +102,7 @@ public class ChartRenderHelper {
      * @return
      *      pie chart
      */
-    private BarChart renderBarChart(String title, Map < String, MutableHitCount > hitRatio, List < String > colors) {
+    private BarChart renderBarChart(String title, Map < String, HitCount > hitRatio, List < String > colors) {
         BarChart barChart = new BarChart(title);
         int idxColor = 0;
         for (String key : hitRatio.keySet()) {
@@ -127,19 +127,19 @@ public class ChartRenderHelper {
         return " FROM <b>" + getUsageService().getKeyDate(q.getFrom()) + "</b> TO <b>" + getUsageService().getKeyDate(q.getTo()) + "</b>";
     }
     
-    protected BarChart renderBarChartRainbow(String title, Map < String, MutableHitCount > hitRatio) {
+    protected BarChart renderBarChartRainbow(String title, Map < String, HitCount > hitRatio) {
         return renderBarChart(title, hitRatio, generateHSVGradient(COLOR_RAINBOW_START, COLOR_RAINBOW_END, hitRatio.size()));
     }
     
-    protected BarChart renderBarChartGradient(String title, Map < String, MutableHitCount > hitRatio, String colorFrom, String colorTo) {
+    protected BarChart renderBarChartGradient(String title, Map < String, HitCount > hitRatio, String colorFrom, String colorTo) {
         return renderBarChart(title, hitRatio, generateRGBGradient(colorFrom, colorTo, hitRatio.size()));
     }
     
-    protected PieChart renderPieChartGradient(String title, Map < String, MutableHitCount > hitRatio, String fromColor, String toColor) {
+    protected PieChart renderPieChartGradient(String title, Map < String, HitCount > hitRatio, String fromColor, String toColor) {
        return renderPieChart(title, hitRatio, generateRGBGradient(fromColor, toColor, hitRatio.size()));
     }
     
-    protected PieChart renderPieChartRainBow(String title, Map < String, MutableHitCount > hitRatio) {
+    protected PieChart renderPieChartRainBow(String title, Map < String, HitCount > hitRatio) {
         return renderPieChart(title, hitRatio, generateHSVGradient(COLOR_RAINBOW_START, COLOR_RAINBOW_END, hitRatio.size()));
     }
     
@@ -277,7 +277,7 @@ public class ChartRenderHelper {
         TimeSeriesChart tsc = getUsageService().getFeatureUsageHistory(query, tu);
         List < String > colors = generateHSVGradient("ee1100", "442299", tsc.getSeries().size());
         int idxColor = 0;
-        for (Map.Entry<String, Serie<Map<String, MutableHitCount>>> serie : tsc.getSeries().entrySet()) {
+        for (Map.Entry<String, Serie<Map<String, HitCount>>> serie : tsc.getSeries().entrySet()) {
             serie.getValue().setColor(colors.get(idxColor));
             idxColor++;
         }

@@ -36,7 +36,6 @@ import org.ff4j.event.EventQueryDefinition;
 import org.ff4j.event.EventSeries;
 import org.ff4j.feature.Feature;
 import org.ff4j.store.FF4jRepository;
-import org.ff4j.utils.MutableHitCount;
 
 /**
  * Persistence store for {@link Event} messages.
@@ -75,7 +74,7 @@ public interface FeatureUsageEventStore extends FF4jRepository < String, Event >
      *          end time
      * @return
      */
-    Map < String, MutableHitCount > getHitCount(EventQueryDefinition query);
+    Map < String, HitCount > getHitCount(EventQueryDefinition query);
     
     /**
      * Count hit for each host.
@@ -86,7 +85,7 @@ public interface FeatureUsageEventStore extends FF4jRepository < String, Event >
      *      end time
      * return the hitcount
      */
-    Map < String, MutableHitCount > getHostHitCount(EventQueryDefinition query);
+    Map < String, HitCount > getHostHitCount(EventQueryDefinition query);
     
     /**
      * Count hit for each host.
@@ -97,7 +96,7 @@ public interface FeatureUsageEventStore extends FF4jRepository < String, Event >
      *      end time
      * return the hitcount
      */
-    Map < String, MutableHitCount > getUserHitCount(EventQueryDefinition query);
+    Map < String, HitCount > getUserHitCount(EventQueryDefinition query);
     
     /**
      * Count hit for each source (api...).
@@ -108,7 +107,7 @@ public interface FeatureUsageEventStore extends FF4jRepository < String, Event >
      *      end time
      * return the hitcount
      */
-    Map < String, MutableHitCount > getSourceHitCount(EventQueryDefinition query);
+    Map < String, HitCount > getSourceHitCount(EventQueryDefinition query);
     
     /**
      * All Data will be generated in the structure and overriden in the chart.
@@ -129,8 +128,8 @@ public interface FeatureUsageEventStore extends FF4jRepository < String, Event >
      */
     default int getTotalHitCount(EventQueryDefinition query) {
         Objects.requireNonNull(query);
-        MutableHitCount total = new MutableHitCount();
-        getHitCount(query).values().stream().map(MutableHitCount::get).forEach(total::incBy);
+        HitCount total = new HitCount();
+        getHitCount(query).values().stream().map(HitCount::get).forEach(total::incBy);
         return total.get();
     }
     

@@ -29,6 +29,7 @@ import java.util.concurrent.TimeUnit;
  */
 
 import org.ff4j.FF4j;
+import org.ff4j.audit.HitCount;
 import org.ff4j.chart.BarChart;
 import org.ff4j.chart.PieChart;
 import org.ff4j.chart.Serie;
@@ -39,7 +40,6 @@ import org.ff4j.event.EventConstants;
 import org.ff4j.event.EventQueryDefinition;
 import org.ff4j.event.EventSeries;
 import org.ff4j.test.DefinedPermissionSecurityManager;
-import org.ff4j.utils.MutableHitCount;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -54,7 +54,7 @@ public class AuditBeanTest {
     
     @Test
     public void testMutableHitCount() {
-        MutableHitCount mhc = new MutableHitCount(10);
+        HitCount mhc = new HitCount(10);
         mhc.incBy(10);
         Assert.assertEquals("20", mhc.toString());
     }
@@ -169,7 +169,7 @@ public class AuditBeanTest {
         TimeSeriesChart tsc1 = new TimeSeriesChart();
         tsc1.setSdf(new SimpleDateFormat("yyyy"));
         tsc1.setTimeSlots(new ArrayList<String>());
-        tsc1.setSeries(new HashMap<String, Serie<Map<String,MutableHitCount>>>());
+        tsc1.setSeries(new HashMap<String, Serie<Map<String,HitCount>>>());
         Assert.assertNotNull(tsc1);
     }
     

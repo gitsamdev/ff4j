@@ -1,19 +1,8 @@
 package org.ff4j.jdbc.store;
 
-/*
- * #%L ff4j-core %% Copyright (C) 2013 - 2015 Ff4J %% Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS"
- * BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language
- * governing permissions and limitations under the License. #L%
- */
-
-import static org.ff4j.utils.JdbcUtils.closeConnection;
-import static org.ff4j.utils.JdbcUtils.closeResultSet;
-import static org.ff4j.utils.JdbcUtils.closeStatement;
+import static org.ff4j.jdbc.JdbcUtils.closeConnection;
+import static org.ff4j.jdbc.JdbcUtils.closeResultSet;
+import static org.ff4j.jdbc.JdbcUtils.closeStatement;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -29,10 +18,10 @@ import javax.sql.DataSource;
 import org.ff4j.audit.AuditTrail;
 import org.ff4j.audit.AuditTrailQuery;
 import org.ff4j.audit.FeatureUsageEventStore;
+import org.ff4j.audit.HitCount;
 import org.ff4j.event.Event;
 import org.ff4j.exception.FeatureAccessException;
 import org.ff4j.jdbc.JdbcQueryBuilder;
-import org.ff4j.utils.MutableHitCount;
 
 /**
  * Implementation of in memory {@link FeatureUsageEventStore} with limited events.
@@ -238,11 +227,11 @@ public class AuditTrailJdbc implements AuditTrail {
     }
     
     /** {@inheritDoc} */
-    public  Map<String, MutableHitCount> computeHitCount(String sqlQuery, String columnName, long from, long to) {
+    public  Map<String, HitCount> computeHitCount(String sqlQuery, String columnName, long from, long to) {
         Connection          sqlConn = null;
         PreparedStatement   ps = null;
         ResultSet           rs = null;
-        Map<String, MutableHitCount>  hitCount = new HashMap<String, MutableHitCount>();
+        Map<String, HitCount>  hitCount = new HashMap<String, HitCount>();
         try {
             // Returns features
             sqlConn = dataSource.getConnection();
@@ -251,7 +240,7 @@ public class AuditTrailJdbc implements AuditTrail {
             ps.setTimestamp(2, new Timestamp(to));
             rs = ps.executeQuery();
             while (rs.next()) {
-                hitCount.put(rs.getString(columnName), new MutableHitCount(rs.getInt("NB")));
+                hitCount.put(rs.getString(columnName), new HitCount(rs.getInt("NB")));
             } 
         } catch (SQLException sqlEX) {
             throw new FeatureAccessException(CANNOT_BUILD_PIE_CHART_FROM_REPOSITORY, sqlEX);

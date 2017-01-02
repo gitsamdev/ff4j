@@ -8,9 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import org.ff4j.audit.HitCount;
 import org.ff4j.event.Event;
 import org.ff4j.utils.JsonUtils;
-import org.ff4j.utils.MutableHitCount;
 
 /*
  * #%L
@@ -49,8 +49,8 @@ public class TimeSeriesChart extends AbstractChart {
     private List < String > timeSlots = new ArrayList<String>();
     
     /** SerieID -> Serie (label/color/value) value=<slotID, nombre de point> */
-    private Map < String, Serie < Map < String, MutableHitCount >>> series = 
-            new HashMap<String, Serie<Map<String,MutableHitCount>>>();
+    private Map < String, Serie < Map < String, HitCount >>> series = 
+            new HashMap<String, Serie<Map<String,HitCount>>>();
     
     /**
      * Default constuctor
@@ -124,9 +124,9 @@ public class TimeSeriesChart extends AbstractChart {
             createNewSerie(evt.getTargetUid());
         }
         String targetSlot = sdf.format(new Date(evt.getTimestamp()));
-        Serie < Map <String, MutableHitCount > > targetSerie = series.get(evt.getTargetUid());
+        Serie < Map <String, HitCount > > targetSerie = series.get(evt.getTargetUid());
         if (targetSerie != null) {
-            MutableHitCount mhc = targetSerie.getValue().get(targetSlot);
+            HitCount mhc = targetSerie.getValue().get(targetSlot);
             if (mhc != null) {
                 mhc.inc();
             }
@@ -142,12 +142,12 @@ public class TimeSeriesChart extends AbstractChart {
      */
     public void createNewSerie(String idSerie) {
         // Init new Serie
-        Serie< Map < String, MutableHitCount >> newSerie = new Serie<Map<String,MutableHitCount>>(idSerie);
+        Serie< Map < String, HitCount >> newSerie = new Serie<Map<String,HitCount>>(idSerie);
       
         // Populate slots
-        Map < String, MutableHitCount > val = new HashMap<String, MutableHitCount>();
+        Map < String, HitCount > val = new HashMap<String, HitCount>();
         for (String slot : timeSlots) {
-            val.put(slot, new MutableHitCount());
+            val.put(slot, new HitCount());
         }
         newSerie.setValue(val);
         series.put(idSerie, newSerie);
@@ -167,7 +167,7 @@ public class TimeSeriesChart extends AbstractChart {
         StringBuilder sbColors = new StringBuilder("[");
         StringBuilder sbValues = new StringBuilder("[");
         boolean first = true;
-        for (Serie< Map < String, MutableHitCount >> serie : series.values()) {
+        for (Serie< Map < String, HitCount >> serie : series.values()) {
             // Name
             sbNames.append(first ? "" : ",");
             sbNames.append(JsonUtils.valueAsJson(serie.getLabel()));
@@ -234,7 +234,7 @@ public class TimeSeriesChart extends AbstractChart {
      * @return
      *       current value of 'series'
      */
-    public Map<String, Serie<Map<String, MutableHitCount>>> getSeries() {
+    public Map<String, Serie<Map<String, HitCount>>> getSeries() {
         return series;
     }
 
@@ -243,7 +243,7 @@ public class TimeSeriesChart extends AbstractChart {
      * @param series
      * 		new value for 'series '
      */
-    public void setSeries(Map<String, Serie<Map<String, MutableHitCount>>> series) {
+    public void setSeries(Map<String, Serie<Map<String, HitCount>>> series) {
         this.series = series;
     }
     
