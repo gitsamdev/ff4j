@@ -7,33 +7,35 @@ package org.ff4j.security;
  */
 public enum FF4jPermission {
     
-    // You can use this feature
-    USE,
+    // (ff4j) Can edit all features independently of any ACL on the entities
+    ADMIN_FEATURES,
     
-    // You can create your features
-    CREATE_FEATURE,
-    
-    // You can edit features
-    UPDATE_FEATURE,
-    
-    // You can delete features
-    DELETE_FEATURE, 
-    
-    // You can only connect and toggle
-    TOGGLE_FEATURE,
-    
-    // You can create a property
-    CREATE_PROPERTY,
-    
-    // You can edit properties
-    UPDATE_PROPERTY,
-    
-    // You can delete properties
-    DELETE_PROPERTY,
-    
-    // You can change the privileges
-    EDIT_PERMISSIONS,
+    // (ff4j) Can edit all features independently of any ACL on the entities
+    ADMIN_PROPERTIES,
     
     // Can access and search audit
-    VIEW_AUDIT;
+    VIEW_AUDITTRAIL,
+
+    // Can access and search audit
+    VIEW_FEATUREUSAGE,
+    
+    // --------------- FEATURE -----------------------------------------------
+    
+    // (feature) Can edit feature (CREATE, DELETE, UPDATE, TOGGLE)
+    ADMIN_FEATURE,
+    
+    // (feature) You cannot edit feature but toggleOn/Off. (Business Users)
+    TOGGLE_FEATURE,
+    
+    // (feature) You can use this feature if has correct roles
+    EXECUTE_FEATURE,
+
+    // --------------- PROPERTY -----------------------------------------------
+    
+    // (property) Can edit feature (CREATE, DELETE, UPDATE, TOGGLE)
+    ADMIN_PROPERTY,
+    
+    // You can edit properties
+    READ_PROPERTY,
+    
 }

@@ -26,7 +26,7 @@ import static org.ff4j.utils.JdbcUtils.isTableExist;
 import javax.sql.DataSource;
 
 import org.ff4j.jdbc.JdbcQueryBuilder;
-import org.ff4j.jdbc.PropertyStoreJdbc;
+import org.ff4j.jdbc.store.PropertyStoreJdbc;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

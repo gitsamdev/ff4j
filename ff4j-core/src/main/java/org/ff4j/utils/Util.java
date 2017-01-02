@@ -3,10 +3,6 @@ package org.ff4j.utils;
 import java.lang.reflect.Constructor;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
 
 /*
  * #%L
@@ -65,15 +61,6 @@ public class Util {
     public static < T extends FF4jEntity<?> > Optional<T> find(Stream <T> stream, String uid) {
         if (stream == null || uid == null) return Optional.empty();
         return stream.filter(t -> uid.equals(t.getUid())).findFirst();
-    }
-    
-    public static LocalDateTime asLocalDateTime(java.sql.Timestamp sqlTimeStamp) {
-        return LocalDateTime.ofInstant(Instant.ofEpochMilli(sqlTimeStamp.getTime()), ZoneId.systemDefault());
-    }
-    
-    public static java.sql.Timestamp asSqlTimeStamp(LocalDateTime jdk8Date) {
-        ZoneOffset zof = ZoneId.systemDefault().getRules().getOffset(jdk8Date);
-        return new java.sql.Timestamp(jdk8Date.toEpochSecond(zof));
     }
     
     /**
@@ -343,10 +330,7 @@ public class Util {
         } catch (UnknownHostException e) {
             throw new IllegalArgumentException("Cannot find the target host by itself", e);
         }
-    }
-
-
-   
+    }   
     
     /**
      * Serialize collection elements with a delimiter.

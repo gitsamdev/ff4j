@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 import org.ff4j.exception.InvalidStrategyTypeException;
 import org.ff4j.feature.ToggleStrategy;
-import org.ff4j.jdbc.FeatureStoreJdbc;
+import org.ff4j.jdbc.store.FeatureStoreJdbc;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

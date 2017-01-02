@@ -1,4 +1,4 @@
-package org.ff4j.jdbc;
+package org.ff4j.jdbc.mapper;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -31,11 +31,13 @@ import java.util.Map;
 import org.ff4j.exception.FeatureAccessException;
 import org.ff4j.exception.PropertyAccessException;
 import org.ff4j.jdbc.JdbcConstants.PropertyColumns;
+import org.ff4j.jdbc.JdbcQueryBuilder;
 import org.ff4j.mapper.PropertyMapper;
-import org.ff4j.property.Property;
 import org.ff4j.property.DynamicValueStrategy;
+import org.ff4j.property.Property;
 import org.ff4j.property.domain.PropertyFactory;
 import org.ff4j.property.domain.PropertyString;
+import org.ff4j.strategy.FF4jStrategy;
 import org.ff4j.utils.JsonUtils;
 import org.ff4j.utils.Util;
 
@@ -79,18 +81,7 @@ public class JdbcPropertyMapper extends AbstractJdbcMapper  implements PropertyM
      */
     private void populatePrepareStatement(Property<?> property, PreparedStatement ps)
     throws SQLException {
-        // PROPERTY_ID
-        ps.setString(1, property.getUid());
-        // ReadOnly
-        ps.setInt(2, property.isReadOnly() ? 1 : 0);
-        // Creation Date
-        ps.setTimestamp(3, Util.asSqlTimeStamp(property.getCreationDate().get()));
-        // Last Modified Date
-        ps.setTimestamp(4, Util.asSqlTimeStamp(property.getLastModifiedDate().get()));
-        // Owner
-        ps.setString(5, property.getOwner().orElse(null));
-        // Description
-        ps.setString(6, property.getDescription().orElse(null));
+        populateEntity(ps, property);
         // Clazz
         ps.setString(7, property.getType());
         // Value
@@ -127,37 +118,43 @@ public class JdbcPropertyMapper extends AbstractJdbcMapper  implements PropertyM
 
     /** {@inheritDoc} */
     @Override
+    @SuppressWarnings({"rawtypes","unchecked"})
     public Property<?> fromStore(ResultSet rs) {
         try {
             Property<?> p = PropertyFactory.createProperty(
                     rs.getString(PropertyColumns.UID.colname()),  
-                    rs.getString(PropertyColumns.CLAZZ.colname()), 
+                    rs.getString(PropertyColumns.CLASSNAME.colname()), 
                     rs.getString(PropertyColumns.VALUE.colname()));
             
-            p.setDescription(rs.getString(PropertyColumns.DESCRIPTION.colname()));
-            p.setOwner(rs.getString(PropertyColumns.OWNER.colname()));
-            p.setReadOnly(rs.getInt(PropertyColumns.READONLY.colname()) == 1);
-            p.setCreationDate(Util.asLocalDateTime(
-                    rs.getTimestamp(PropertyColumns.CREATED.colname())));
-            p.setLastModified(Util.asLocalDateTime(
-                    rs.getTimestamp(PropertyColumns.LASTMODIFIED.colname())));
+            // Common properties for entities (description, owner...)
+            mapEntity(rs, p);
             
+            // Special elements
+            p.setReadOnly(rs.getInt(PropertyColumns.READONLY.colname()) == 1);
             String fixedValues  = rs.getString(PropertyColumns.FIXEDVALUES.colname());
             if (Util.hasLength(fixedValues)) {
                 Arrays.stream(fixedValues.split(",")).forEach(v-> p.add2FixedValueFromString(v.trim()) );
             }
             
-            // FlippingStrategy
-            String strategy = rs.getString(PropertyColumns.STRATEGY.colname());
+            // Eval Strategy
+            String strategy = rs.getString(PropertyColumns.STRATCLASS.colname());
             if (Util.hasLength(strategy)) {
                 Map < String, String > initParams = JsonUtils.jsonAsMap(rs.getString(PropertyColumns.INITPARAMS.colname()));
-                p.setEvaluationStrategy(DynamicValueStrategy.instanciate(p.getUid(), strategy, initParams));
+                FF4jStrategy ff4jStrategy = FF4jStrategy.of(p.getUid(), strategy, initParams);
+                if (ff4jStrategy instanceof DynamicValueStrategy) {
+                    p.setEvaluationStrategy((DynamicValueStrategy) ff4jStrategy);
+                } else {
+                    throw new IllegalArgumentException("Property '" + p.getUid() 
+                            + "' has invalid strategy in (" + PropertyColumns.CLASSNAME.colname()
+                            + ") with " + ff4jStrategy 
+                            + "' as does not extend " + DynamicValueStrategy.class.getName());
+                }
             }
+            
             return p;
         } catch (SQLException sqlEx) {
             throw new PropertyAccessException("Cannot map Resultset into property", sqlEx);
         }
-        
     }
     
 }

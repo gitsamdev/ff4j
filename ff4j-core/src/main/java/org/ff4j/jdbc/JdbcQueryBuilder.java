@@ -4,14 +4,21 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import org.ff4j.jdbc.JdbcConstants.AuditColumns;
-import org.ff4j.jdbc.JdbcConstants.CustomPropertyColumns;
+import org.ff4j.jdbc.JdbcConstants.AuditTrailColumns;
+import org.ff4j.jdbc.JdbcConstants.FeaturePropertyColumns;
+import org.ff4j.jdbc.JdbcConstants.FeatureStrategyColumns;
+import org.ff4j.jdbc.JdbcConstants.FeaturePermissionsColumns;
 import org.ff4j.jdbc.JdbcConstants.FeaturesColumns;
-import org.ff4j.jdbc.JdbcConstants.MetricsColumns;
+import org.ff4j.jdbc.JdbcConstants.GlobalPermissionsColumns;
+import org.ff4j.jdbc.JdbcConstants.FeatureUsageColumns;
 import org.ff4j.jdbc.JdbcConstants.PropertyColumns;
-import org.ff4j.jdbc.JdbcConstants.RolesColumns;
+import org.ff4j.jdbc.JdbcConstants.PropertyPermissionsColumns;
+import org.ff4j.jdbc.JdbcConstants.PropertyPropertyColumns;
 import org.ff4j.jdbc.JdbcConstants.SQLTypes;
 import org.ff4j.jdbc.JdbcConstants.SqlTableColumns;
+import org.ff4j.jdbc.JdbcConstants.UserColumns;
+import org.ff4j.jdbc.JdbcConstants.UserGroupColumns;
+import org.ff4j.jdbc.JdbcConstants.UserMemberOfColumns;
 import org.ff4j.utils.Util;
 
 /**
@@ -78,8 +85,8 @@ public class JdbcQueryBuilder {
      * @return
      *     Table name for audit
      */
-    public String getTableNameAudit() {
-        return getTableName(AuditColumns.UID.tableName());
+    public String getTableNameAuditTrail() {
+        return getTableName(AuditTrailColumns.UID.tableName());
     }
     
     /**
@@ -88,8 +95,8 @@ public class JdbcQueryBuilder {
      * @return
      *     Table name for audit
      */
-    public String getTableNameMetrics() {
-        return getTableName(MetricsColumns.UID.tableName());
+    public String getTableNameFeatureUsage() {
+        return getTableName(FeatureUsageColumns.UID.tableName());
     }
     
     /**
@@ -98,8 +105,28 @@ public class JdbcQueryBuilder {
      * @return
      *     Table name for roles
      */
-    public String getTableNameRoles() {
-        return getTableName(RolesColumns.FEATURE_UID.tableName());
+    public String getTableNameFeaturePermissions() {
+        return getTableName(FeaturePermissionsColumns.RIGHTS.tableName());
+    }
+    
+    /**
+     * Table name for roles.
+     *
+     * @return
+     *     Table name for roles
+     */
+    public String getTableNamePropertyPermissions() {
+        return getTableName(PropertyPermissionsColumns.RIGHTS.tableName());
+    }
+    
+    /**
+     * Table name for roles.
+     *
+     * @return
+     *     Table name for roles
+     */
+    public String getTableNamePermissions() {
+        return getTableName(GlobalPermissionsColumns.RIGHTS.tableName());
     }
 
     /**
@@ -108,8 +135,12 @@ public class JdbcQueryBuilder {
      * @return
      *     Table name for custom properties.
      */
-    public String getTableNameCustomProperties() {
-        return getTableName(CustomPropertyColumns.UID.tableName());
+    public String getTableNameFeatureProperties() {
+        return getTableName(FeaturePropertyColumns.UID.tableName());
+    }
+    
+    public String sqlSelectFeatureAccessControlList() {
+        return null;
     }
     
     /**
@@ -120,6 +151,13 @@ public class JdbcQueryBuilder {
      */
     public String getTableNameProperties() {
         return getTableName(PropertyColumns.UID.tableName());
+    }
+    
+    private String sqlDropTable(String tableName) {
+        StringBuilder sb = new StringBuilder("DROP TABLE ");
+        sb.append(getTableName(tableName));
+        sb.append(";\n");
+        return sb.toString();
     }
     
     /**
@@ -170,13 +208,33 @@ public class JdbcQueryBuilder {
     }
     
     /** Create table role. */
-    public String sqlCreateTableRole() {
-        return sqlCreateTable(RolesColumns.values());
+    public String sqlCreateTablePermission() {
+        return sqlCreateTable(GlobalPermissionsColumns.values());
+    }
+    
+    /** Create table role. */
+    public String sqlCreateTableFeaturePermission() {
+        return sqlCreateTable(FeaturePermissionsColumns.values());
+    }
+    
+    /** Create table role. */
+    public String sqlCreateTablePropertyPermission() {
+        return sqlCreateTable(PropertyPermissionsColumns.values());
     }
     
     /** Create table custom properties. */
-    public String sqlCreateTableCustomProperties() {
-        return sqlCreateTable(CustomPropertyColumns.values());
+    public String sqlCreateTableFeatureProperties() {
+        return sqlCreateTable(FeaturePropertyColumns.values());
+    }
+    
+    /** Create table custom properties. */
+    public String sqlCreateTablePropertyProperties() {
+        return sqlCreateTable(PropertyPropertyColumns.values());
+    }
+    
+    /** Create table custom properties. */
+    public String sqlCreateTableFeatureStrategy() {
+        return sqlCreateTable(FeatureStrategyColumns.values());
     }
     
     /** Create table custom properties. */
@@ -185,32 +243,90 @@ public class JdbcQueryBuilder {
     }
     
     /** Create table audit. */
-    public String sqlCreateTableAudit() {
-        return sqlCreateTable(AuditColumns.values());
+    public String sqlCreateTableAuditTrail() {
+        return sqlCreateTable(AuditTrailColumns.values());
     }
     
     /** Create table metrics. */
-    public String sqlCreateTableMetrics() {
-        return sqlCreateTable(MetricsColumns.values());
+    public String sqlCreateTableFeatureUsage() {
+        return sqlCreateTable(FeatureUsageColumns.values());
+    }
+    
+    /** Create table metrics. */
+    public String sqlCreateTableUsers() {
+        return sqlCreateTable(UserColumns.values());
+    }
+    
+    /** Create table metrics. */
+    public String sqlCreateTableUserGroups() {
+        return sqlCreateTable(UserGroupColumns.values());
+    }
+    
+    /** Create table metrics. */
+    public String sqlCreateTableUserMemberOf() {
+        return sqlCreateTable(UserMemberOfColumns.values());
     }
     
     /** All SQL Script. */
     public String sqlCreateSchema() {
         return new StringBuilder()
+                
                 .append(sqlCreateTableFeature())
                 .append("\n")
-                .append(sqlCreateTableRole())
+                .append(sqlCreateTableFeatureProperties())
                 .append("\n")
-                .append(sqlCreateTableCustomProperties())
+                .append(sqlCreateTableFeaturePermission())
                 .append("\n")
+                .append(sqlCreateTableFeatureStrategy())
+                .append("\n")
+                
                 .append(sqlCreateTableProperties())
                 .append("\n")
-                .append(sqlCreateTableAudit())
+                .append(sqlCreateTablePropertyProperties())
                 .append("\n")
-                .append(sqlCreateTableMetrics())
+                .append(sqlCreateTablePropertyPermission())
                 .append("\n")
+                
+                .append(sqlCreateTableAuditTrail())
+                .append("\n")
+                .append(sqlCreateTableFeatureUsage())
+                .append("\n")
+                .append(sqlCreateTablePermission())
+                .append("\n")
+                
+                .append(sqlCreateTableUsers())
+                .append("\n")
+                .append(sqlCreateTableUserGroups())
+                .append("\n")
+                .append(sqlCreateTableUserMemberOf())
+                .append("\n")
+                
                 .toString();
     }
+    
+    /** All SQL Script. */
+    public String sqlDropSchema() {
+        return new StringBuilder()
+                // Security tables
+                .append(sqlDropTable(UserMemberOfColumns.REF_USER.tableName()))
+                .append(sqlDropTable(UserGroupColumns.NAME.tableName()))
+                .append(sqlDropTable(UserColumns.UID.tableName()))
+                .append(sqlDropTable(GlobalPermissionsColumns.RIGHTS.tableName()))
+                // Features Tables
+                .append(sqlDropTable(FeatureStrategyColumns.FEATURE.tableName()))
+                .append(sqlDropTable(FeaturePropertyColumns.FEATURE.tableName()))
+                .append(sqlDropTable(FeaturePermissionsColumns.RIGHTS.tableName()))
+                .append(sqlDropTable(FeaturesColumns.UID.tableName()))
+                // Properties Tables (single strategy included in Property table)
+                .append(sqlDropTable(PropertyPropertyColumns.PROPERTY.tableName()))
+                .append(sqlDropTable(PropertyPermissionsColumns.PROPERTY.tableName()))
+                .append(sqlDropTable(PropertyColumns.UID.tableName()))
+                // Audit Tables
+                .append(sqlDropTable(FeatureUsageColumns.UID.tableName()))
+                .append(sqlDropTable(AuditTrailColumns.UID.tableName()))
+                .toString();
+    }
+                
 
     // ---------------------------------
     // ---------   CREATE    -----------
@@ -244,16 +360,12 @@ public class JdbcQueryBuilder {
         return sqlInsert(FeaturesColumns.values());
     }
     
-    public String sqlInsertRoles() {
-        return sqlInsert(RolesColumns.values());
-    }
-    
-    public String sqlInsertAudit() {
-        return sqlInsert(AuditColumns.values());
+    public String sqlInsertAuditTrail() {
+        return sqlInsert(AuditTrailColumns.values());
     }
     
     public String sqlInsertMetrics() {
-        return sqlInsert(MetricsColumns.values());
+        return sqlInsert(FeatureUsageColumns.values());
     }
     
     public String sqlInsertProperty() {
@@ -261,7 +373,7 @@ public class JdbcQueryBuilder {
     }
     
     public String sqlInsertCustomProperties() {
-        return sqlInsert(CustomPropertyColumns.values());
+        return sqlInsert(FeaturePropertyColumns.values());
     }
     
     // ---------------------------------
@@ -310,7 +422,7 @@ public class JdbcQueryBuilder {
     
     /** Get all features. */
     public String sqlSelectAllCustomProperties() {
-        return sqlSelect(false, CustomPropertyColumns.values());
+        return sqlSelect(false, FeaturePropertyColumns.values());
     }
     
     /** Get all features. */
@@ -329,25 +441,34 @@ public class JdbcQueryBuilder {
     }
     
     /** Roles for a feature. */
-    public String sqlSelectRolesOfFeature() {
-        return sqlSelectWhere(true, RolesColumns.FEATURE_UID, RolesColumns.ROLE);
+    public String sqlSelectPermissionOfFeature() {
+        return sqlSelectWhere(true, FeaturePermissionsColumns.FEATURE, FeaturePermissionsColumns.values());
+    }
+    
+    /** Roles for a feature. */
+    public String sqlSelectPermissionOfProperty() {
+        return sqlSelectWhere(true, PropertyPermissionsColumns.PROPERTY, PropertyPermissionsColumns.values());
     }
     
     /** Get all groups. */
-    public String sqlSelectAllRoles() {
-        return sqlSelect(false, RolesColumns.values());
+    public String sqlSelectglobalPermissions() {
+        return sqlSelect(false, GlobalPermissionsColumns.values());
     }
     
     /** Roles for a feature. */
     public String sqlSelectCustomPropertiesOfFeature() {
-        return sqlSelectWhere(false, CustomPropertyColumns.FEATURE_UID, CustomPropertyColumns.values());
+        return sqlSelectWhere(false, FeaturePropertyColumns.UID, FeaturePropertyColumns.values());
+    }
+    
+    public String sqlStrategyOfFeature() {
+        return sqlSelectWhere(false, FeatureStrategyColumns.FEATURE, FeatureStrategyColumns.values());
     }
     
     /** Roles for a feature. */
     public String sqlSelectCustomPropertyOfFeature() {
-        return sqlSelect(false, CustomPropertyColumns.values()) + 
-               sqlWhere(CustomPropertyColumns.UID) + " AND " +
-               CustomPropertyColumns.FEATURE_UID + " = ?";
+        return sqlSelect(false, FeaturePropertyColumns.values()) + 
+               sqlWhere(FeaturePropertyColumns.UID) + " AND " +
+               FeaturePropertyColumns.UID + " = ?";
     }
     
     // ----- Properties -----
@@ -374,7 +495,7 @@ public class JdbcQueryBuilder {
     
     /** Get an event by its id. */
     public String sqlSelectAuditById() {
-        return sqlSelectWhere(false, AuditColumns.UID, AuditColumns.values());
+        return sqlSelectWhere(false, AuditTrailColumns.UID, AuditTrailColumns.values());
     }
     
     /** Count element of a table. */
@@ -466,28 +587,20 @@ public class JdbcQueryBuilder {
         return sqlDeleteAll(FeaturesColumns.UID);
     }
     
-    public String sqlDeleteRoleOfFeature() {
-        return sqlDeleteWhere(RolesColumns.FEATURE_UID, RolesColumns.ROLE);
-    }
-    
     public String sqlDeleteAllRolesOfFeature() {
-        return sqlDeleteWhere(RolesColumns.FEATURE_UID);
-    }
-    
-    public String sqlDeleteAllRoles() {
-        return sqlDeleteAll(RolesColumns.FEATURE_UID);
+        return sqlDeleteWhere(FeaturePermissionsColumns.FEATURE);
     }
     
     public String sqlDeleteAllCustomPropertiesOfFeature() {
-        return sqlDeleteWhere(CustomPropertyColumns.FEATURE_UID);
+        return sqlDeleteWhere(FeaturePropertyColumns.UID);
     }
     
     public String sqlDeletePropertyOfFeature() {
-        return sqlDeleteWhere(CustomPropertyColumns.UID, CustomPropertyColumns.FEATURE_UID);
+        return sqlDeleteWhere(FeaturePropertyColumns.UID, FeaturePropertyColumns.UID);
     }
     
     public String sqlDeleteAllCustomProperties() {
-        return sqlDeleteAll(CustomPropertyColumns.FEATURE_UID);
+        return sqlDeleteAll(FeaturePropertyColumns.UID);
     }
     
     public String sqlDeleteProperty() {
@@ -499,173 +612,6 @@ public class JdbcQueryBuilder {
     }
     
     public String sqlDeleteAuditEvent() {
-        return sqlDeleteWhere(AuditColumns.UID);
+        return sqlDeleteWhere(AuditTrailColumns.UID);
     }
-	
-    /* ------- AUDIT -------------
-	
-	public String sqlStartCreateEvent() {
-	    StringBuilder sb = new StringBuilder("INSERT INTO " + getTableNameAudit());
-	    sb.append("(" + COL_EVENT_UID + "," + COL_EVENT_TIME   + "," + COL_EVENT_TYPE);
-	    sb.append("," + COL_EVENT_NAME + "," + COL_EVENT_ACTION + "," + COL_EVENT_HOSTNAME);
-	    sb.append("," + COL_EVENT_SOURCE + "," + COL_EVENT_DURATION);
-	    return sb.toString();
-	}
-	
-	public String sqlFindAllEvents() {
-        return "SELECT * FROM " + getTableNameAudit();
-    }
-	
-	public String sqlExistEvent() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("SELECT COUNT(" + COL_EVENT_UID + ") FROM ");
-        sb.append(getTableNameAudit());
-        sb.append(" WHERE " + COL_EVENT_UID + " = ?");
-        return sb.toString();
-    }
-    
-   
-	
-	public String getEventByUuidQuery() {
-	     StringBuilder sb = new StringBuilder();
-	     sb.append("SELECT * FROM ");
-	     sb.append(getTableNameAudit());
-	     sb.append(" WHERE " + COL_EVENT_UID + " LIKE ?");
-	     return sb.toString();
-	}
-	
-	public String getPurgeFeatureUsageQuery(EventQueryDefinition eqd) {
-	    StringBuilder sb = new StringBuilder();
-        sb.append("DELETE FROM ");
-        sb.append(getTableNameAudit());
-        sb.append(buildWhereClause(eqd, true, false));
-        return sb.toString();
-	}
-	
-	public String getSelectFeatureUsageQuery(EventQueryDefinition eqd) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("SELECT * FROM ");
-        sb.append(getTableNameAudit());
-        sb.append(buildWhereClause(eqd, true, false));
-        return sb.toString();
-    }
-	
-    public String getPurgeAuditTrailQuery(EventQueryDefinition eqd) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("DELETE FROM ");
-        sb.append(getTableNameAudit());
-        sb.append(buildWhereClause(eqd, false, true));
-        return sb.toString();
-    }
-	
-	public String getSelectAuditTrailQuery(EventQueryDefinition eqd) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("SELECT * FROM ");
-        sb.append(getTableNameAudit());
-        sb.append(buildWhereClause(eqd, false, true));
-        return sb.toString();
-    }
-	
-	public String getHitCount(String columName) {
-	    StringBuilder sb = new StringBuilder();
-        sb.append("SELECT count(" + COL_EVENT_UID + ") as NB, " + columName + " FROM ");
-        sb.append(getTableNameAudit());
-        sb.append(" WHERE (" + COL_EVENT_TYPE   + " LIKE '" + EventConstants.TARGET_FEATURE  + "') ");
-        sb.append(" AND   (" + COL_EVENT_ACTION + " LIKE '" + EventConstants.ACTION_CHECK_OK + "') ");
-        sb.append(" AND   (" + COL_EVENT_TIME + "> ?) ");
-        sb.append(" AND   (" + COL_EVENT_TIME + "< ?)");
-        sb.append(" GROUP BY " + columName);
-        return sb.toString();
-	}
-	
-	public String getFeaturesHitCount() {
-	    return getHitCount(COL_EVENT_NAME);
-    }
-	
-	public String getHostHitCount() {
-	    return getHitCount(COL_EVENT_HOSTNAME);
-    }
-	
-	public String getUserHitCount() {
-	    return getHitCount(COL_OWNER);
-    }
-	
-	public String getSourceHitCount() {
-        return getHitCount(COL_EVENT_SOURCE);
-    }
-	
-	// -------
-   
-    public String getFeatureDistributionAudit() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("SELECT count(" + COL_EVENT_UID + ") as NB, " + COL_EVENT_ACTION + " FROM ");
-        sb.append(getTableNameAudit());
-        sb.append(" WHERE (" + COL_EVENT_TYPE + " LIKE '" + EventConstants.TARGET_FEATURE  + "') ");
-        sb.append(" AND   (" + COL_EVENT_NAME + " LIKE ?) ");
-        sb.append(" AND   (" + COL_EVENT_TIME + "> ?) ");
-        sb.append(" AND   (" + COL_EVENT_TIME + "< ?)");
-        sb.append(" GROUP BY " + COL_EVENT_ACTION);
-        return sb.toString();
-    }
-    
-	private String buildClauseIn(Collection < String> elements) {
-	    boolean first = true;
-	    StringBuilder sb = new StringBuilder("(");
-	    for (String el : elements) {
-	        if (!first) {
-	            sb.append(",");
-	        }
-	        sb.append("'");
-	        sb.append(el);
-	        sb.append("'");
-            first = false;
-        }
-	    sb.append(")");
-	    return sb.toString();
-	}
-	
-    public String buildWhereClause(EventQueryDefinition qDef, boolean filterForCheck, boolean filterAuditTrail) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(" WHERE (" + COL_EVENT_TIME + "> ?) ");
-        sb.append(" AND   (" + COL_EVENT_TIME + "< ?) ");
-        // If a dedicated filter is there use it
-        if (qDef.getActionFilters().isEmpty()) {
-            if (filterForCheck) {
-                qDef.getActionFilters().add(ACTION_CHECK_OK);
-            }
-            if (filterAuditTrail) {
-                qDef.getActionFilters().add(ACTION_CONNECT);
-                qDef.getActionFilters().add(ACTION_DISCONNECT);
-                qDef.getActionFilters().add(ACTION_TOGGLE_ON);
-                qDef.getActionFilters().add(ACTION_TOGGLE_OFF);
-                qDef.getActionFilters().add(ACTION_CREATE);
-                qDef.getActionFilters().add(ACTION_DELETE);
-                qDef.getActionFilters().add(ACTION_UPDATE);
-                qDef.getActionFilters().add(ACTION_CLEAR);
-            }
-        }
-        if (qDef.getActionFilters() != null && !qDef.getActionFilters().isEmpty()) {
-            sb.append(" AND (" + COL_EVENT_ACTION + " IN ");
-            sb.append(buildClauseIn(qDef.getActionFilters()));
-            sb.append(")");
-        }
-        if (qDef.getHostFilters() != null && !qDef.getHostFilters().isEmpty()) {
-            sb.append(" AND (" + COL_EVENT_HOSTNAME + " IN ");
-            sb.append(buildClauseIn(qDef.getHostFilters()));
-            sb.append(")");
-            
-        }
-        if (qDef.getNamesFilter() != null && !qDef.getNamesFilter().isEmpty()) {
-            sb.append(" AND (" + COL_EVENT_NAME + " IN ");
-            sb.append(buildClauseIn(qDef.getNamesFilter()));
-            sb.append(")");
-        }
-        if (qDef.getSourceFilters() != null && !qDef.getSourceFilters().isEmpty()) {
-            sb.append(" AND (" + COL_EVENT_SOURCE + " IN ");
-            sb.append(buildClauseIn(qDef.getSourceFilters()));
-            sb.append(")");
-        }
-        return sb.toString();
-    }*/
-	
 }

@@ -31,8 +31,8 @@ import java.util.Map;
 import javax.sql.DataSource;
 
 import org.ff4j.feature.Feature;
-import org.ff4j.jdbc.FeatureStoreJdbc;
 import org.ff4j.jdbc.JdbcQueryBuilder;
+import org.ff4j.jdbc.store.FeatureStoreJdbc;
 import org.ff4j.property.Property;
 import org.ff4j.property.domain.PropertyString;
 import org.ff4j.strategy.PonderationStrategy;

@@ -1,4 +1,4 @@
-package org.ff4j.jdbc;
+package org.ff4j.jdbc.store;
 
 /*
  * #%L
@@ -38,7 +38,9 @@ import java.util.stream.Stream;
 import javax.sql.DataSource;
 
 import org.ff4j.exception.PropertyAccessException;
+import org.ff4j.jdbc.JdbcQueryBuilder;
 import org.ff4j.jdbc.JdbcConstants.PropertyColumns;
+import org.ff4j.jdbc.mapper.JdbcPropertyMapper;
 import org.ff4j.property.PropertyStoreSupport;
 import org.ff4j.property.Property;
 import org.ff4j.utils.Util;

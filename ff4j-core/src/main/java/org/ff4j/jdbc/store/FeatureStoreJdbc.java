@@ -1,6 +1,8 @@
-package org.ff4j.jdbc;
+package org.ff4j.jdbc.store;
 
 import static org.ff4j.utils.JdbcUtils.buildStatement;
+
+import static org.ff4j.utils.Util.requireNotNull;
 
 /*
  * #%L
@@ -26,7 +28,6 @@ import static org.ff4j.utils.JdbcUtils.closeConnection;
 import static org.ff4j.utils.JdbcUtils.executeUpdate;
 import static org.ff4j.utils.JdbcUtils.isTableExist;
 import static org.ff4j.utils.Util.requireHasLength;
-import static org.ff4j.utils.Util.assertNotNull;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -43,12 +44,14 @@ import java.util.stream.Stream;
 import javax.sql.DataSource;
 
 import org.ff4j.exception.FeatureAccessException;
-import org.ff4j.feature.FeatureStoreSupport;
 import org.ff4j.feature.Feature;
 import org.ff4j.feature.FeatureStore;
-import org.ff4j.jdbc.JdbcConstants.CustomPropertyColumns;
+import org.ff4j.feature.FeatureStoreSupport;
+import org.ff4j.jdbc.JdbcQueryBuilder;
+import org.ff4j.jdbc.JdbcConstants.FeaturePropertyColumns;
 import org.ff4j.jdbc.JdbcConstants.FeaturesColumns;
-import org.ff4j.jdbc.JdbcConstants.RolesColumns;
+import org.ff4j.jdbc.mapper.JdbcFeatureMapper;
+import org.ff4j.jdbc.mapper.JdbcPropertyMapper;
 import org.ff4j.property.Property;
 import org.ff4j.utils.JdbcUtils;
 import org.ff4j.utils.Util;
@@ -109,12 +112,10 @@ public class FeatureStoreJdbc extends FeatureStoreSupport {
         if (!isTableExist(ds, qb.getTableNameFeatures())) {
             executeUpdate(ds, qb.sqlCreateTableFeature());
         }
-        if (!isTableExist(ds, qb.getTableNameCustomProperties())) {
-            executeUpdate(ds, qb.sqlCreateTableCustomProperties());
-        }
-        if (!isTableExist(ds, qb.getTableNameRoles())) {
-            executeUpdate(ds, qb.sqlCreateTableRole());
-        }
+        executeUpdate(ds, qb.sqlCreateTableFeatureProperties());
+        executeUpdate(ds, qb.sqlCreateTableFeaturePermission());
+        executeUpdate(ds, qb.sqlCreateTableFeatureStrategy());
+        executeUpdate(ds, qb.sqlCreateTablePermission());
     }
 
     /** {@inheritDoc} */
@@ -219,15 +220,23 @@ public class FeatureStoreJdbc extends FeatureStoreSupport {
                     }
                 }
             }
-            // Get Roles related to features
-            try(PreparedStatement ps2 = sqlConn.prepareStatement(getQueryBuilder().sqlSelectRolesOfFeature())) {
+            
+            
+            // Get strategies related to features
+            try(PreparedStatement ps2 = sqlConn.prepareStatement(getQueryBuilder().sqlStrategyOfFeature())) {
+                
+            }
+            
+            /* Get AccessControlList related to features
+            try(PreparedStatement ps2 = sqlConn.prepareStatement(getQueryBuilder().sqlSelectFeatureAccessControlList())) {
                 ps2.setString(1, uid);
                 try (ResultSet rs2 = ps2.executeQuery()) {
                     while (rs2.next()) {
                         f.addPermissions(rs2.getString(RolesColumns.ROLE.colname()));
                     }   
                 }
-            }
+            }*/
+            
             // Get Custom properties related to features
             try(PreparedStatement ps3 = sqlConn.prepareStatement(getQueryBuilder().sqlSelectCustomPropertiesOfFeature())) {
                 ps3.setString(1, uid);
@@ -258,7 +267,7 @@ public class FeatureStoreJdbc extends FeatureStoreSupport {
             try (PreparedStatement ps1 = mapper.toStore(feature)) {
                 ps1.executeUpdate();
             }
-            // Create roles
+            /* Create roles
             if (feature.getPermissions().isPresent()) {
                 // Do not use Lambda/Streams for exceptions
                 for(String role : feature.getPermissions().get()) {
@@ -269,7 +278,7 @@ public class FeatureStoreJdbc extends FeatureStoreSupport {
                         ps2.executeUpdate();  
                     }
                 }
-            }
+            }*/
             // Create customproperties
             if (feature.getCustomProperties().isPresent()) {
                 JdbcPropertyMapper pmapper = new JdbcPropertyMapper(sqlConn, getQueryBuilder());
@@ -304,14 +313,14 @@ public class FeatureStoreJdbc extends FeatureStoreSupport {
                     ps1.executeUpdate();
                 }
             }
-            // Delete Roles
+            /* Delete Roles
             if (fp.getPermissions().isPresent()) {
                 try (PreparedStatement ps1 = 
                         sqlConn.prepareStatement(getQueryBuilder().sqlDeleteAllRolesOfFeature())) {
                     ps1.setString(1, fp.getUid());
                     ps1.executeUpdate();
                 }
-            }
+            }*/
             // Delete Feature
             try (PreparedStatement ps1 = sqlConn.prepareStatement(getQueryBuilder().sqlDeleteFeature())) {
                 ps1.setString(1, fp.getUid());
@@ -323,22 +332,6 @@ public class FeatureStoreJdbc extends FeatureStoreSupport {
         } catch (SQLException sqlEX) {
             throw new FeatureAccessException(CANNOT_UPDATE_FEATURES_DATABASE_SQL_ERROR, sqlEX);
         }
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void grantRoleOnFeature(String uid, String roleName) {
-    	assertFeatureExist(uid);
-        requireHasLength(roleName);
-        update(getQueryBuilder().sqlInsertRoles(), uid, roleName);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void removeRoleFromFeature(String uid, String roleName) {
-    	assertFeatureExist(uid);
-        requireHasLength(roleName);
-        update(getQueryBuilder().sqlDeleteRoleOfFeature(), uid, roleName);
     }
 
     /** {@inheritDoc} */
@@ -357,7 +350,7 @@ public class FeatureStoreJdbc extends FeatureStoreSupport {
                     }
                 }
             }
-            // Get Roles related to features
+            /* Get Roles related to features
             try(PreparedStatement ps2 = sqlConn.prepareStatement(getQueryBuilder().sqlSelectAllRoles())) {
                 try (ResultSet rs2 = ps2.executeQuery()) {
                     while (rs2.next()) {
@@ -365,13 +358,13 @@ public class FeatureStoreJdbc extends FeatureStoreSupport {
                             .addPermission(rs2.getString(RolesColumns.ROLE.colname()));
                     }   
                 }
-            }
+            }*/
             // Get Custom properties related to features
             JdbcPropertyMapper pmapper = new JdbcPropertyMapper(sqlConn, getQueryBuilder());
             try(PreparedStatement ps3 = sqlConn.prepareStatement(getQueryBuilder().sqlSelectAllCustomProperties())) {
                 try (ResultSet rs3 = ps3.executeQuery()) {
                     while (rs3.next()) {
-                        mapFP.get(rs3.getString(CustomPropertyColumns.FEATURE_UID.colname()))
+                        mapFP.get(rs3.getString(FeaturePropertyColumns.UID.colname()))
                              .addCustomProperty(pmapper.fromStore(rs3));
                     }   
                 }
@@ -409,9 +402,6 @@ public class FeatureStoreJdbc extends FeatureStoreSupport {
         try (Connection sqlConn = getDataSource().getConnection()) {
             try(PreparedStatement ps1 = sqlConn.prepareStatement(getQueryBuilder().sqlDeleteAllCustomProperties())) {
                 ps1.executeUpdate();
-            }
-            try(PreparedStatement ps2 = sqlConn.prepareStatement(getQueryBuilder().sqlDeleteAllRoles())) {
-                ps2.executeUpdate();
             }
             try(PreparedStatement ps3 = sqlConn.prepareStatement(getQueryBuilder().sqlDeleteAllFeatures())) {
                 ps3.executeUpdate();
@@ -484,7 +474,7 @@ public class FeatureStoreJdbc extends FeatureStoreSupport {
                     }
                 }
             }
-    	    // Get Roles related to features
+    	    /* Get Roles related to features
             try(PreparedStatement ps2 = sqlConn.prepareStatement(getQueryBuilder().sqlSelectAllRoles())) {
                 try (ResultSet rs2 = ps2.executeQuery()) {
                     while (rs2.next()) {
@@ -494,13 +484,13 @@ public class FeatureStoreJdbc extends FeatureStoreSupport {
                         }
                     }   
                 }
-            }
+            }*/
             // Get Custom properties related to features
             JdbcPropertyMapper pmapper = new JdbcPropertyMapper(sqlConn, getQueryBuilder());
             try(PreparedStatement ps3 = sqlConn.prepareStatement(getQueryBuilder().sqlSelectAllCustomProperties())) {
                 try (ResultSet rs3 = ps3.executeQuery()) {
                     while (rs3.next()) {
-                        String featureId = rs3.getString(CustomPropertyColumns.FEATURE_UID.colname());
+                        String featureId = rs3.getString(FeaturePropertyColumns.UID.colname());
                         if (mapFP.containsKey(featureId)) {
                             mapFP.get(featureId).addCustomProperty(pmapper.fromStore(rs3));
                         }
@@ -584,6 +574,30 @@ public class FeatureStoreJdbc extends FeatureStoreSupport {
 	public void setQueryBuilder(JdbcQueryBuilder queryBuilder) {
 		this.queryBuilder = queryBuilder;
 	}
+
+    @Override
+    protected void createFeature(Feature feature) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    protected void updateFeature(Feature feature) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    protected void deleteFeature(String uid) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    protected void deleteAllFeatures() {
+        // TODO Auto-generated method stub
+        
+    }
 
     
 

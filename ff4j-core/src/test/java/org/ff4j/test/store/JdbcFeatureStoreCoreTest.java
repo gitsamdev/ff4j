@@ -3,7 +3,7 @@ package org.ff4j.test.store;
 import org.ff4j.exception.FeatureNotFoundException;
 import org.ff4j.exception.GroupNotFoundException;
 import org.ff4j.feature.FeatureStore;
-import org.ff4j.jdbc.FeatureStoreJdbc;
+import org.ff4j.jdbc.store.FeatureStoreJdbc;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

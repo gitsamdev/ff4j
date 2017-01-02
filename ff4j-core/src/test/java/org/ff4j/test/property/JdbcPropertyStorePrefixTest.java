@@ -22,7 +22,7 @@ package org.ff4j.test.property;
 
 
 import org.ff4j.jdbc.JdbcQueryBuilder;
-import org.ff4j.jdbc.PropertyStoreJdbc;
+import org.ff4j.jdbc.store.PropertyStoreJdbc;
 import org.ff4j.property.PropertyStore;
 import org.junit.After;
 import org.junit.Before;

@@ -1,4 +1,4 @@
-package org.ff4j.jdbc;
+package org.ff4j.jdbc.store;
 
 /*
  * #%L ff4j-core %% Copyright (C) 2013 - 2015 Ff4J %% Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -14,49 +14,33 @@ package org.ff4j.jdbc;
 import static org.ff4j.utils.JdbcUtils.closeConnection;
 import static org.ff4j.utils.JdbcUtils.closeResultSet;
 import static org.ff4j.utils.JdbcUtils.closeStatement;
-import static org.ff4j.utils.JdbcUtils.executeUpdate;
-import static org.ff4j.utils.JdbcUtils.isTableExist;
-import static org.ff4j.utils.Util.requireHasLength;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import javax.sql.DataSource;
 
-import org.ff4j.audit.AbstractEventRepository;
-import org.ff4j.audit.usage.FeatureUsageEventStore;
-import org.ff4j.chart.TimeSeriesChart;
+import org.ff4j.audit.AuditTrail;
+import org.ff4j.audit.AuditTrailQuery;
+import org.ff4j.audit.FeatureUsageEventStore;
 import org.ff4j.event.Event;
-import org.ff4j.event.EventQueryDefinition;
-import org.ff4j.event.EventSeries;
-import org.ff4j.exception.AuditAccessException;
 import org.ff4j.exception.FeatureAccessException;
-import org.ff4j.store.AbstractFF4jRepository;
-import org.ff4j.utils.JdbcUtils;
+import org.ff4j.jdbc.JdbcQueryBuilder;
 import org.ff4j.utils.MutableHitCount;
-import org.ff4j.utils.Util;
 
 /**
  * Implementation of in memory {@link FeatureUsageEventStore} with limited events.
  * 
  * @author Cedrick Lunven (@clunven)
  */
-public class EventRepositoryJdbc extends AbstractFF4jRepository {
+public class AuditTrailJdbc implements AuditTrail {
     
-    /** serialVersionUID. */
-    private static final long serialVersionUID = 8469658392544225615L;
-
     /** Error message 1. */
     public static final String CANNOT_READ_AUDITTABLE =  "Cannot read audit table from DB";
 
@@ -75,11 +59,11 @@ public class EventRepositoryJdbc extends AbstractFF4jRepository {
      * @param jdbcDS
      *            native jdbc datasource
      */
-    public EventRepositoryJdbc(DataSource jdbcDS) {
+    public AuditTrailJdbc(DataSource jdbcDS) {
         this.dataSource = jdbcDS;
     }
     
-    /** {@inheritDoc} */
+    /** {@inheritDoc} *
     @Override
     public void createSchema() {
         DataSource       ds = getDataSource();
@@ -93,12 +77,12 @@ public class EventRepositoryJdbc extends AbstractFF4jRepository {
         }
     }
     
-    /** {@inheritDoc} */
+    /** {@inheritDoc} *
     @Override
     public void create(Event evt) {
         Util.validateEvent(evt);
         try (Connection sqlConn = dataSource.getConnection()) {
-            JdbcEventAuditMapper auditMapper = new JdbcEventAuditMapper(sqlConn, getQueryBuilder());
+            JdbcEventAuditTrailMapper auditMapper = new JdbcEventAuditTrailMapper(sqlConn, getQueryBuilder());
             try(PreparedStatement stmt = auditMapper.toStore(evt)) {
                 stmt.executeUpdate();
             }
@@ -107,14 +91,14 @@ public class EventRepositoryJdbc extends AbstractFF4jRepository {
         }
     }
     
-    /** {@inheritDoc} */
+    /** {@inheritDoc} *
     @Override
     public Optional < Event > findById(String uuid, Long timestamp) {
         Util.requireHasLength(uuid);
         try (Connection sqlConn = dataSource.getConnection()) {
             try(PreparedStatement ps = sqlConn.prepareStatement(getQueryBuilder().sqlSelectAuditById())) {
                 ps.setString(1, uuid);
-                JdbcEventAuditMapper auditMapper = new JdbcEventAuditMapper(sqlConn, getQueryBuilder());
+                JdbcEventAuditTrailMapper auditMapper = new JdbcEventAuditTrailMapper(sqlConn, getQueryBuilder());
                 try(ResultSet rs = ps.executeQuery()) {
                     return rs.next() ? Optional.of(auditMapper.fromStore(rs)) : Optional.empty();
                 }
@@ -124,7 +108,7 @@ public class EventRepositoryJdbc extends AbstractFF4jRepository {
         }
     }
 
-    /** {@inheritDoc} */
+    /** {@inheritDoc} *
     @Override
     public void delete(String entityId) {
         assertItemExist(entityId);
@@ -138,7 +122,7 @@ public class EventRepositoryJdbc extends AbstractFF4jRepository {
         }
     }
     
-    /** {@inheritDoc} */
+    /** {@inheritDoc} *
     @Override
     public boolean exists(String uid) {
         requireHasLength(uid);
@@ -160,7 +144,7 @@ public class EventRepositoryJdbc extends AbstractFF4jRepository {
         }
     }
 
-    /** {@inheritDoc} */
+    /** {@inheritDoc} *
     @Override
     public Stream<Event> findAll() {
         Connection          sqlConn = null;
@@ -172,7 +156,7 @@ public class EventRepositoryJdbc extends AbstractFF4jRepository {
             rs = ps.executeQuery();
             List<Event> events = new ArrayList<>();
             while (rs.next()) {
-                events.add(new JdbcEventAuditMapper(sqlConn, getQueryBuilder()).fromStore(rs));
+                events.add(new JdbcEventAuditTrailMapper(sqlConn, getQueryBuilder()).fromStore(rs));
             }
             return events.stream();
         } catch (SQLException sqlEX) {
@@ -184,7 +168,7 @@ public class EventRepositoryJdbc extends AbstractFF4jRepository {
         }
     }
     
-    /** {@inheritDoc} */
+    /** {@inheritDoc} *
     @Override
     public void purgeAuditTrail(EventQueryDefinition qDef) {
         Util.requireNotNull(qDef);
@@ -206,7 +190,7 @@ public class EventRepositoryJdbc extends AbstractFF4jRepository {
         }
     }
     
-    /** {@inheritDoc} */
+    /** {@inheritDoc} *
     @Override
     public void purgeFeatureUsage(EventQueryDefinition qDef) {
         Util.requireNotNull(qDef);
@@ -228,7 +212,7 @@ public class EventRepositoryJdbc extends AbstractFF4jRepository {
         }
     }
     
-    /** {@inheritDoc} */
+    /** {@inheritDoc} *
     private EventSeries searchEvents(String sqlQuery, long from, long to) {
         Connection          sqlConn = null;
         PreparedStatement   ps = null;
@@ -241,7 +225,7 @@ public class EventRepositoryJdbc extends AbstractFF4jRepository {
             ps.setTimestamp(2, new Timestamp(to));
             rs = ps.executeQuery();
             while (rs.next()) {
-                es.add(new JdbcEventAuditMapper(sqlConn, getQueryBuilder()).fromStore(rs));
+                es.add(new JdbcEventAuditTrailMapper(sqlConn, getQueryBuilder()).fromStore(rs));
             }
         } catch (SQLException sqlEX) {
             throw new IllegalStateException("CANNOT_READ_AUDITTABLE", sqlEX);
@@ -254,7 +238,7 @@ public class EventRepositoryJdbc extends AbstractFF4jRepository {
     }
     
     /** {@inheritDoc} */
-    private  Map<String, MutableHitCount> computeHitCount(String sqlQuery, String columnName, long from, long to) {
+    public  Map<String, MutableHitCount> computeHitCount(String sqlQuery, String columnName, long from, long to) {
         Connection          sqlConn = null;
         PreparedStatement   ps = null;
         ResultSet           rs = null;
@@ -279,43 +263,43 @@ public class EventRepositoryJdbc extends AbstractFF4jRepository {
         return hitCount;
     }
     
-    /** {@inheritDoc} */
+    /** {@inheritDoc} *
     @Override
     public EventSeries getAuditTrail(EventQueryDefinition qDef) {
         return searchEvents(getQueryBuilder().getSelectAuditTrailQuery(qDef), qDef.getFrom(), qDef.getTo());
     }
 
-    /** {@inheritDoc} */
+    /** {@inheritDoc} *
     @Override
     public EventSeries searchFeatureUsageEvents(EventQueryDefinition qDef) {
         return searchEvents(getQueryBuilder().getSelectFeatureUsageQuery(qDef), qDef.getFrom(), qDef.getTo());
     }
         
-    /** {@inheritDoc} */
+    /** {@inheritDoc} *
     @Override
     public Map<String, MutableHitCount> getFeatureUsageHitCount(EventQueryDefinition query) {
         return computeHitCount(getQueryBuilder().getFeaturesHitCount(), COL_EVENT_NAME, query.getFrom(), query.getTo());
     }
     
-    /** {@inheritDoc} */
+    /** {@inheritDoc} *
     @Override
     public Map<String, MutableHitCount> getHostHitCount(EventQueryDefinition query) {
         return computeHitCount(getQueryBuilder().getHostHitCount(), COL_EVENT_HOSTNAME, query.getFrom(), query.getTo());
     }
 
-    /** {@inheritDoc} */
+    /** {@inheritDoc} *
     @Override
     public Map<String, MutableHitCount> getUserHitCount(EventQueryDefinition query) {
         return computeHitCount(getQueryBuilder().getUserHitCount(), COL_OWNER, query.getFrom(), query.getTo());
     }
 
-    /** {@inheritDoc} */
+    /** {@inheritDoc} *
     @Override
     public Map<String, MutableHitCount> getSourceHitCount(EventQueryDefinition query) {
         return computeHitCount(getQueryBuilder().getSourceHitCount(), COL_EVENT_SOURCE, query.getFrom(), query.getTo());
     }
 
-    /** {@inheritDoc} */
+    /** {@inheritDoc} *
     @Override
     public TimeSeriesChart getFeatureUsageHistory(EventQueryDefinition query, TimeUnit units) {
         // Create the interval depending on units
@@ -364,5 +348,23 @@ public class EventRepositoryJdbc extends AbstractFF4jRepository {
 	public void setQueryBuilder(JdbcQueryBuilder queryBuilder) {
 		this.queryBuilder = queryBuilder;
 	}
+
+    @Override
+    public void log(Event evt) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public Stream<Event> search(AuditTrailQuery query) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void purge(AuditTrailQuery query) {
+        // TODO Auto-generated method stub
+        
+    }
 
 }

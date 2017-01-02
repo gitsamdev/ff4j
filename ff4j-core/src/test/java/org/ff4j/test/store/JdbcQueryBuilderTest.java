@@ -7,9 +7,13 @@ public class JdbcQueryBuilderTest {
 
     @Test
     public void testCreateSchemaDDL() {
-        //System.out.println(new JdbcQueryBuilder().sqlCreateSchema());
+        JdbcQueryBuilder jdbcQB = new JdbcQueryBuilder();
         
-        System.out.println(new JdbcQueryBuilder().sqlInsertCustomProperties());
+        //System.out.println(jdbcQB.sqlDropSchema());
+        System.out.println(jdbcQB.sqlCreateSchema());
+        
+        
+        //System.out.println(new JdbcQueryBuilder().sqlStrategyOfFeature());
         
         
     }

@@ -8,8 +8,8 @@ public interface RestrictedAccessObject {
     
     Optional < AccessControlList > getAccessControlList();
     
-    default boolean canUse(FF4jUser user) {
-        return isUserGranted(user, FF4jPermission.USE);
+    default boolean canExecuteFeature(FF4jUser user) {
+        return isUserGranted(user, FF4jPermission.EXECUTE_FEATURE);
     }
     
     default void grantUser(String userName, FF4jPermission... perm) {
