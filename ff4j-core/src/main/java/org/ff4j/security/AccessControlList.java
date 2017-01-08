@@ -3,7 +3,6 @@ package org.ff4j.security;
 import static org.ff4j.utils.JsonUtils.valueAsJson;
 
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -29,24 +28,52 @@ public class AccessControlList implements Serializable {
         return toJson();
     }
     
+    /**
+     * If the permissions map is empty;
+     *
+     * @return
+     *      if the permission is empty.
+     */
+    public boolean isEmpty() {
+        return permissions.isEmpty();
+    }
+    
     void grantUser(String userName, FF4jPermission... perms) {
-        Util.assertNotNull(userName);
+        Util.requireHasLength(userName);
+        Util.requireNotNull(perms);
         Stream.of(perms).forEach(perm -> {
             if (!permissions.containsKey(perm)) {
                 permissions.put(perm, new FF4jGrantees());
             }
-            permissions.get(perm).addUser(userName);
+            permissions.get(perm).grantUser(userName);
         });
     }
     
-    void grantGroup(String groupName, FF4jPermission... perms) {
-        Util.assertNotNull(groupName);
+    void revokeUser(String userName, FF4jPermission... perms) {
+        Util.requireHasLength(userName);
+        Util.requireNotNull(perms);
+        Stream.of(perms).filter(permissions::containsKey)
+                        .map(permissions::get)
+                        .forEach(grantee -> grantee.revokeUser(userName));
+    }
+    
+    void grantRole(String roleName, FF4jPermission... perms) {
+        Util.requireHasLength(roleName);
+        Util.requireNotNull(perms);
         Stream.of(perms).forEach(perm -> {
             if (!permissions.containsKey(perm)) {
                 permissions.put(perm, new FF4jGrantees());
             }
-            permissions.get(perm).addGroup(groupName);
+            permissions.get(perm).grantRole(roleName);
         });
+    }
+    
+    void revokeRole(String roleName, FF4jPermission... perms) {
+        Util.requireHasLength(roleName);
+        Util.requireNotNull(perms);
+        Stream.of(perms).filter(permissions::containsKey)
+                        .map(permissions::get)
+                        .forEach(grantee -> grantee.revokeRole(roleName));
     }
     
     /**
@@ -58,11 +85,9 @@ public class AccessControlList implements Serializable {
      *      list of users
      */
     public void grantUsers(FF4jPermission permission, String... users)  {
-        Util.assertNotNull(permission);
-        if (permissions.containsKey(permission)) {
-            permissions.put(permission, new FF4jGrantees());
-        }
-        permissions.get(permission).getUsers().addAll(Arrays.asList(users));
+        Util.requireNotNull(permission);
+        Util.requireNotNull((Object[]) users);
+        Stream.of(users).forEach(user -> grantUser(user, permission));
     }
     
     /**
@@ -70,15 +95,13 @@ public class AccessControlList implements Serializable {
      *
      * @param permission
      *          the right to work with
-     * @param groups
+     * @param roles
      *          the groups to allow on this permission
      */
-    public void grantGroups(FF4jPermission permission, String... groups)  {
-        Util.assertNotNull(permission);
-        if (permissions.containsKey(permission)) {
-            permissions.put(permission, new FF4jGrantees());
-        }
-        permissions.get(permission).getGroups().addAll(Arrays.asList(groups));
+    public void grantRoles(FF4jPermission permission, String... roles)  {
+        Util.requireNotNull(permission);
+        Util.requireNotNull((Object[]) roles);
+        Stream.of(roles).forEach(user -> grantRole(user, permission));
     } 
     
     /**
@@ -88,8 +111,10 @@ public class AccessControlList implements Serializable {
      * @param permission
      * @return
      */
-    public boolean isGroupGranted(String groupName, FF4jPermission permission) {
-        return permissions.containsKey(permission) ? permissions.get(permission).isGroupGranted(groupName) : false;
+    public boolean isRoleGranted(String roleName, FF4jPermission permission) {
+        Util.requireHasLength(roleName);
+        Util.requireNotNull(permission);
+        return permissions.containsKey(permission) ? permissions.get(permission).isRoleGranted(roleName) : false;
     }
     
     /**
@@ -100,6 +125,8 @@ public class AccessControlList implements Serializable {
      * @return
      */
     public boolean isUserGranted(String userName, FF4jPermission permission) {
+        Util.requireHasLength(userName);
+        Util.requireNotNull(permission);
         return permissions.containsKey(permission) ? permissions.get(permission).isUserGranted(userName) : false;
     }
     
@@ -114,6 +141,8 @@ public class AccessControlList implements Serializable {
      *      if user is granted
      */
     public boolean isUserGranted(FF4jUser user, FF4jPermission permission) {
+        Util.requireNotNull(user);
+        Util.requireNotNull(permission);
         return permissions.containsKey(permission) ? permissions.get(permission).isUserGranted(user) : false;
     }
     

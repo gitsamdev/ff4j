@@ -93,7 +93,6 @@ public class FeatureStoreJdbc extends FeatureStoreSupport {
         executeUpdate(ds, qb.sqlCreateTableFeatureProperties());
         executeUpdate(ds, qb.sqlCreateTableFeaturePermission());
         executeUpdate(ds, qb.sqlCreateTableFeatureStrategy());
-        executeUpdate(ds, qb.sqlCreateTablePermission());
     }
 
     /** {@inheritDoc} */
@@ -487,13 +486,11 @@ public class FeatureStoreJdbc extends FeatureStoreSupport {
         requireNotNull(entity);
         requireHasLength(entity.getUid());
         assertItemExist(entity.getUid());
-        
         entity.setLastModified(LocalDateTime.now());
         entity.setCreationDate(entity.getCreationDate().orElse(entity.getLastModifiedDate().get()));
         delete(entity);
         assertFeatureNotExist(entity.getUid());
         create(entity);
-        
     }
     
     /**

@@ -17,6 +17,9 @@ import org.ff4j.cache.PropertyStoreCacheProxy;
 import org.ff4j.conf.XmlConfig;
 import org.ff4j.conf.XmlParser;
 import org.ff4j.event.Event;
+import org.ff4j.event.Event.Action;
+import org.ff4j.event.Event.Scope;
+import org.ff4j.event.EventConstants;
 import org.ff4j.exception.FeatureNotFoundException;
 import org.ff4j.feature.Feature;
 import org.ff4j.feature.FeatureStore;
@@ -25,10 +28,13 @@ import org.ff4j.inmemory.AuditTrailInMemory;
 import org.ff4j.inmemory.FeatureStoreInMemory;
 import org.ff4j.inmemory.FeatureUsageInMemory;
 import org.ff4j.inmemory.PropertyStoreInMemory;
+import org.ff4j.inmemory.SecurityStoreInMemory;
 import org.ff4j.property.Property;
 import org.ff4j.property.PropertyStore;
 import org.ff4j.security.AccessControlList;
 import org.ff4j.security.RestrictedAccessObject;
+import org.ff4j.security.AccessControlListStore;
+import org.ff4j.security.UserManager;
 import org.ff4j.store.FF4jRepositoryObserver;
 
 /**
@@ -50,6 +56,9 @@ public class FF4j extends FF4jRepositoryObserver < FeatureUsageEventListener > i
     /** Listener name. */
     private static final String FEATUREUSAGE_TRACKING_LISTENERNAME = "FeatureUsageListener";
     
+    /** Id in the DB to retrieve the permission set on the this class. */
+    private static final String PERMISSION_TARGET_UID = "FF4jMain";
+    
     /** Intialisation. */
     private final long startTime = System.currentTimeMillis();
 
@@ -68,6 +77,12 @@ public class FF4j extends FF4jRepositoryObserver < FeatureUsageEventListener > i
     /** Storage to persist event logs. */ 
     private AuditTrail auditTrail = new AuditTrailInMemory();
     
+    /** Storage to persist permissions for ff4j, web console, stores. */
+    private AccessControlListStore securityStore = new SecurityStoreInMemory();
+    
+    /** Storage to persist users, 99% of time will be outside. */
+    private UserManager userStore;
+    
     /** Flag to ask for automatically create the feature if not found in the store. */
     private boolean autoCreateFeatures = false;
     
@@ -78,7 +93,7 @@ public class FF4j extends FF4jRepositoryObserver < FeatureUsageEventListener > i
     private static ThreadLocal < FF4jContext > context = new ThreadLocal<>();
     
     /** Permission : by Default everyOne can use the Feature. */
-    protected Optional< AccessControlList > accessControlList = Optional.empty();
+    protected AccessControlList accessControlList = new AccessControlList();
     
     /**
      * Base constructor to allows instantiation through IoC.
@@ -202,7 +217,7 @@ public class FF4j extends FF4jRepositoryObserver < FeatureUsageEventListener > i
                 featureToggled = feature.isToggled(context);
             } else {
                 // Overriding the toggleStreategy of the feature
-                featureToggled = strats.isToggled(uid, context);
+                featureToggled = strats.isToggled(feature, context);
             }
         }
         
@@ -459,6 +474,9 @@ public class FF4j extends FF4jRepositoryObserver < FeatureUsageEventListener > i
             getPropertiesStore().createSchema();
         }
         // AuditTrail
+        if (null != getAuditTrail()) {
+            getAuditTrail().createSchema();
+        }
         // Feature Usage
         // SecurityManager
     }
@@ -643,10 +661,24 @@ public class FF4j extends FF4jRepositoryObserver < FeatureUsageEventListener > i
     }
     
     /** {@inheritDoc} */
-    public Optional <AccessControlList> getAccessControlList() {
+    @Override
+    public AccessControlList getAccessControlList() {
+        if (this.accessControlList.isEmpty()) {
+            this.accessControlList = securityStore.getAccessControlList(PERMISSION_TARGET_UID);
+        }
         return accessControlList;
     }
-
+    
+    /**
+     * Update the AccessControlList in DB
+     */
+    public void saveAccessControlList() {
+       this.securityStore.saveAccessControlList(getAccessControlList(), PERMISSION_TARGET_UID);
+       getAuditTrail().log(new Event().source(source)
+               .action(Action.UPDATE_ACL).scope(Scope.FF4J)
+               .put(EventConstants.KEY_ACL, getAccessControlList().toJson()));
+    }
+    
     /**
      * Getter accessor for attribute 'featureUsage'.
      *
@@ -712,4 +744,5 @@ public class FF4j extends FF4jRepositoryObserver < FeatureUsageEventListener > i
     public void setSource(String source) {
         this.source = source;
     }
+    
 }

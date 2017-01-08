@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ff4j>
+	
+	<!-- ********************* -->
+	<!--     UserStore         -->
+	<!-- ********************* -->
+	<users>
+		<user username="Pierre"  password="Pierre"  roles="ALPHA,BETA,DOUZE" />
+		<user username="Paul"    password="Paul"    roles="ALPHA" />
+		<user username="Jacques" password="Jacques" roles="ALPHA" />
+	</users>	
+	
+	<!-- ********************* -->
+	<!--   Glocal ACL          -->
+	<!-- ********************* -->
+	<acl>
+	 <permission id="LOGIN-CONSOLE" roles="ADMIN,SUPERUSER"/>
+	 <permission id="FEATURE_ADMINS" users="Pierre,Paul,Jacques" roles="ALPHA,BETA,GAMMA" />
+	 <permission id="PROPERTY_ADMINS" users="Jacques" roles="ALPHA,BETA,GAMMA" />
+	</acl>
+
+	<!-- ********************* -->
+	<!--     Features          -->
+	<!-- ********************* -->
+	<features>
+		
+		<feature uid="AwesomeFeature" enable="true" description="some desc" />
+		
+		<feature uid="first" enable="true" description="description" >
+		   <acl>
+		   	<permission id="TOGGLE" users="Jacques"/>
+		   </acl>
+		   <properties>
+			<property name="ppListInt" value="12,13,14" />
+			<property name="myLogLevel" value="DEBUG" type="org.ff4j.property.domain.PropertyLogLevel" />
+			<property name="digitValue" value="1" type="org.ff4j.property.domain.PropertyInt" fixedValues="0,1,2,3" />
+		  </properties>
+		</feature>
+		
+		<feature uid="second" enable="false" description="description" group="GRP0"/>
+		
+		<feature uid="forth" enable="true" description="description" groupName="GRP1">
+			<toggle-strategy class="org.ff4j.security.RbacStrategy">
+				<param name="roles" value="ADMINISTRATOR,BETA-TESTER"/>
+			</toggle-strategy>
+			<toggle-strategy class="org.ff4j.strategy.PonderationStrategy">
+				<param name="weight" value="0.5"/>
+			</toggle-strategy>
+		</feature>
+		
+	</features>
+	
+	<!-- ********************* -->
+	<!--     Properties        -->
+	<!-- ********************* -->
+	<properties>
+	 <property name="a" value="AMER" fixedValues="AMER,EAST" />
+	 <property name="b" value="12"   />
+	 <property name="c" value="12.5" />
+	 <property name="d" value="true" />
+	 <property name="e" value="hello" />
+	 <property name="f" value="12,13,14" />
+	 <property name="g" value="DEBUG" type="org.ff4j.property.domain.PropertyLogLevel" />
+	</properties>
+	
+	
+</ff4j>

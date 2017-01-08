@@ -27,9 +27,6 @@ public enum FF4jPermission {
     // (feature) You cannot edit feature but toggleOn/Off. (Business Users)
     TOGGLE_FEATURE,
     
-    // (feature) You can use this feature if has correct roles
-    EXECUTE_FEATURE,
-
     // --------------- PROPERTY -----------------------------------------------
     
     // (property) Can edit feature (CREATE, DELETE, UPDATE, TOGGLE)

@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.ff4j.FF4jContext;
+import org.ff4j.feature.Feature;
 import org.ff4j.feature.ToggleStrategy;
 
 /*
@@ -84,7 +85,7 @@ public class ServerFilterStrategy extends AbstractStrategy implements ToggleStra
 
     /** {@inheritDoc} */
     @Override
-    public boolean isToggled(String featureName, FF4jContext ctx) {
+    public boolean isToggled(Feature feature, FF4jContext ctx) {
         if (null != ctx && ctx.getValue(SERVER_HOSTNAME).isPresent()) {
             return setOfTargetServer.contains(ctx.getString(SERVER_HOSTNAME).get());
         }

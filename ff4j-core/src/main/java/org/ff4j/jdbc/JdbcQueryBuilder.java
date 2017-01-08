@@ -5,20 +5,20 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.ff4j.jdbc.JdbcConstants.AuditTrailColumns;
+import org.ff4j.jdbc.JdbcConstants.FeaturePermissionsColumns;
 import org.ff4j.jdbc.JdbcConstants.FeaturePropertyColumns;
 import org.ff4j.jdbc.JdbcConstants.FeatureStrategyColumns;
-import org.ff4j.jdbc.JdbcConstants.FeaturePermissionsColumns;
+import org.ff4j.jdbc.JdbcConstants.FeatureUsageColumns;
 import org.ff4j.jdbc.JdbcConstants.FeaturesColumns;
 import org.ff4j.jdbc.JdbcConstants.GlobalPermissionsColumns;
-import org.ff4j.jdbc.JdbcConstants.FeatureUsageColumns;
 import org.ff4j.jdbc.JdbcConstants.PropertyColumns;
 import org.ff4j.jdbc.JdbcConstants.PropertyPermissionsColumns;
 import org.ff4j.jdbc.JdbcConstants.PropertyPropertyColumns;
 import org.ff4j.jdbc.JdbcConstants.SQLTypes;
 import org.ff4j.jdbc.JdbcConstants.SqlTableColumns;
 import org.ff4j.jdbc.JdbcConstants.UserColumns;
-import org.ff4j.jdbc.JdbcConstants.UserGroupColumns;
-import org.ff4j.jdbc.JdbcConstants.UserMemberOfColumns;
+import org.ff4j.jdbc.JdbcConstants.UserRoleAssociationColumns;
+import org.ff4j.jdbc.JdbcConstants.UserRolesColumns;
 import org.ff4j.utils.Util;
 
 /**
@@ -258,13 +258,13 @@ public class JdbcQueryBuilder {
     }
     
     /** Create table metrics. */
-    public String sqlCreateTableUserGroups() {
-        return sqlCreateTable(UserGroupColumns.values());
+    public String sqlCreateTableUserRoles() {
+        return sqlCreateTable(UserRolesColumns.values());
     }
     
     /** Create table metrics. */
-    public String sqlCreateTableUserMemberOf() {
-        return sqlCreateTable(UserMemberOfColumns.values());
+    public String sqlCreateTableUserRoleAssociations() {
+        return sqlCreateTable(UserRoleAssociationColumns.values());
     }
     
     /** All SQL Script. */
@@ -296,9 +296,9 @@ public class JdbcQueryBuilder {
                 
                 .append(sqlCreateTableUsers())
                 .append("\n")
-                .append(sqlCreateTableUserGroups())
+                .append(sqlCreateTableUserRoles())
                 .append("\n")
-                .append(sqlCreateTableUserMemberOf())
+                .append(sqlCreateTableUserRoleAssociations())
                 .append("\n")
                 
                 .toString();
@@ -308,8 +308,8 @@ public class JdbcQueryBuilder {
     public String sqlDropSchema() {
         return new StringBuilder()
                 // Security tables
-                .append(sqlDropTable(UserMemberOfColumns.REF_USER.tableName()))
-                .append(sqlDropTable(UserGroupColumns.NAME.tableName()))
+                .append(sqlDropTable(UserRoleAssociationColumns.REF_USER.tableName()))
+                .append(sqlDropTable(UserRolesColumns.NAME.tableName()))
                 .append(sqlDropTable(UserColumns.UID.tableName()))
                 .append(sqlDropTable(GlobalPermissionsColumns.RIGHTS.tableName()))
                 // Features Tables

@@ -39,6 +39,9 @@ public class EventConstants {
     public static final String ATTRIBUTE_USER     = "user";
     public static final String ATTRIBUTE_KEYS     = "customKeys";
 
+    /** CUSTOM KEY. */
+    public static final String KEY_ACL = "accessControlList";
+
 	/** total hit count. */
 	public static final String TITLE_PIE_HITCOUNT = "Total Hit Counts";
 

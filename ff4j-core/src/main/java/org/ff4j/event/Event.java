@@ -72,13 +72,15 @@ public class Event extends FF4jEntity<Event> implements Serializable, Comparable
     private Optional < Map < String, String > > customKeys = Optional.empty();
     
     public enum Action {
-        UNKNOWN, ADD, REMOVE, CONNECT, DISCONNECT, TOGGLE_ON, TOGGLE_OFF, 
-        CREATE, DELETE, UPDATE, CLEAR, CREATE_SCHEMA,
-        HIT, ADD_TO_GROUP, REMOVE_FROM_GROUP;
+        UNKNOWN, ADD, REMOVE, CONNECT, DISCONNECT, 
+        TOGGLE_ON, TOGGLE_OFF, CREATE, DELETE, UPDATE, 
+        CLEAR, CREATE_SCHEMA, HIT, ADD_TO_GROUP, 
+        REMOVE_FROM_GROUP, UPDATE_ACL;
     }
     
     public enum Scope {
-        UNKNOWN, FEATURE, FEATURE_GROUP, PROPERTY, FEATURESTORE, PROPERTYSTORE, USER;
+        FF4J, FEATURE, FEATURE_GROUP, PROPERTY, 
+        FEATURESTORE, PROPERTYSTORE, USER, UNKNOWN;
     }
     
     public enum Source {

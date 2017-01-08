@@ -25,6 +25,7 @@ import java.io.Serializable;
 import java.util.Map;
 
 import org.ff4j.FF4jContext;
+import org.ff4j.feature.Feature;
 import org.ff4j.feature.ToggleStrategy;
 
 /**
@@ -74,7 +75,7 @@ public class PonderationStrategy extends AbstractStrategy implements ToggleStrat
 
     /** {@inheritDoc} */
     @Override
-    public boolean isToggled(String featureName, FF4jContext executionContext) {
+    public boolean isToggled(Feature feature, FF4jContext executionContext) {
         return Math.random() <= weight;
     }
 

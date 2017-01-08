@@ -11,6 +11,17 @@ import org.ff4j.event.Event;
  */
 public interface AuditTrail {
     
+    /**
+     * Create tables related to Audit Trail.
+     */
+    void createSchema();
+    
+    /**
+     * Insert new event in the DB.
+     *
+     * @param evt
+     *      current event
+     */
     void log(Event evt);
     
     /**

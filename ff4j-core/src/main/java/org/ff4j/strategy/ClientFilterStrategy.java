@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.ff4j.FF4jContext;
+import org.ff4j.feature.Feature;
 import org.ff4j.feature.ToggleStrategy;
 
 /*
@@ -81,7 +82,7 @@ public class ClientFilterStrategy extends AbstractStrategy implements ToggleStra
     
     /** {@inheritDoc} */
     @Override
-    public boolean isToggled(String featureName, FF4jContext executionContext) {
+    public boolean isToggled(Feature feature, FF4jContext executionContext) {
         if (null == executionContext || !executionContext.getString(CLIENT_HOSTNAME).isPresent()) {
             throw new IllegalArgumentException("To work with " + getClass().getCanonicalName() + " you must provide '"
                     + CLIENT_HOSTNAME + "' parameter in execution context");

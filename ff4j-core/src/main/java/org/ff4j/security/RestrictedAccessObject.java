@@ -1,54 +1,51 @@
 package org.ff4j.security;
 
-import java.util.Optional;
-
 import org.ff4j.utils.Util;
 
+/**
+ * Entities protected by permissions should implement this interface.
+ *
+ * @author Cedrick LUNVEN  (@clunven)
+ */
 public interface RestrictedAccessObject {
     
-    Optional < AccessControlList > getAccessControlList();
-    
-    default boolean canExecuteFeature(FF4jUser user) {
-        return isUserGranted(user, FF4jPermission.EXECUTE_FEATURE);
-    }
+    /** Get Access to control List of this object. */
+    AccessControlList getAccessControlList();
     
     default void grantUser(String userName, FF4jPermission... perm) {
-        getAccessControlList().ifPresent(acl -> acl.grantUser(userName, perm));
+        AccessControlList acl = getAccessControlList();
+        Util.requireNotNull(acl);
+        acl.grantUser(userName, perm);
     }
     
     default void grantUsers(FF4jPermission perm, String... users) {
-        getAccessControlList().ifPresent(acl -> acl.grantUsers(perm, users));
+        AccessControlList acl = getAccessControlList();
+        Util.requireNotNull(acl);
+        acl.grantUsers(perm, users);
     }
     
-    default void grantGroups(FF4jPermission perm, String... groups) {
-        getAccessControlList().ifPresent(acl -> acl.grantGroups(perm, groups));
+    default void grantRoles(FF4jPermission perm, String... roles) {
+        AccessControlList acl = getAccessControlList();
+        Util.requireNotNull(acl);
+        acl.grantRoles(perm, roles);
     }
    
     default boolean isUserGranted(String userName, FF4jPermission perm) {
-        Util.assertNotNull(userName);
-        Optional <AccessControlList> acl = getAccessControlList();
-        if (acl.isPresent()) {
-            return acl.get().isUserGranted(userName, perm);
-        }
-        return true;
+        AccessControlList acl = getAccessControlList();
+        Util.requireNotNull(acl);
+        return acl.isUserGranted(userName, perm);
     }
     
     default boolean isUserGranted(FF4jUser user, FF4jPermission perm) {
-        Util.assertNotNull(user);
-        Optional <AccessControlList> acl = getAccessControlList();
-        if (acl.isPresent()) {
-            return acl.get().isUserGranted(user, perm);
-        }
-        return true;
+        AccessControlList acl = getAccessControlList();
+        Util.requireNotNull(acl);
+        return acl.isUserGranted(user, perm);
     }
     
-    default boolean isGroupGranted(String groupName, FF4jPermission perm) {
-        Util.assertNotNull(groupName);
-        Optional <AccessControlList> acl = getAccessControlList();
-        if (acl.isPresent()) {
-            return acl.get().isGroupGranted(groupName, perm);
-        }
-        return true;
+    default boolean isRoleGranted(String roleName, FF4jPermission perm) {
+        AccessControlList acl = getAccessControlList();
+        Util.requireNotNull(acl);
+        return acl.isRoleGranted(roleName, perm);
     }
-
+    
 }

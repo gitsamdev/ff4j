@@ -65,14 +65,19 @@ public class Feature extends FF4jEntity < Feature > {
         f.getGroup().ifPresent(g -> this.group = Optional.of(g));
     }
 
+    /**
+     * 
+     * @param context
+     *      context ff4j
+     * @return
+     */
     public boolean isToggled(FF4jContext context) {
         if (!isEnable()) return false;
-        
         // Break as soon as one of the strategy return false
         boolean toggled = true;
         Iterator<ToggleStrategy> iter = toggleStrategies.iterator();
         while (toggled && iter.hasNext()) {
-            toggled = iter.next().isToggled(uid, context);
+            toggled = iter.next().isToggled(this, context);
         }
         return toggled;
     }

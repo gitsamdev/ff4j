@@ -17,7 +17,7 @@ public class FF4jGrantees {
     private Set < String > users = new HashSet<>();
 
     /** Roles Names. */
-    private Set < String > groups = new HashSet<>();
+    private Set < String > roles = new HashSet<>();
     
     /**
      * Default constructor
@@ -35,7 +35,7 @@ public class FF4jGrantees {
      */
     public FF4jGrantees(Set <String> users, Set < String > groups) {
         this.users  = users;
-        this.groups = groups;
+        this.roles = groups;
     }
     
     /** {@inheritDoc} */
@@ -49,8 +49,8 @@ public class FF4jGrantees {
         StringBuilder sb = new StringBuilder("{");
         sb.append("\"users\":");
         sb.append(JsonUtils.collectionAsJson(users));
-        sb.append(",\"groups\":");
-        sb.append(JsonUtils.collectionAsJson(groups));
+        sb.append(",\"roles\":");
+        sb.append(JsonUtils.collectionAsJson(roles));
         sb.append("}");
         return sb.toString();
     }
@@ -62,8 +62,20 @@ public class FF4jGrantees {
      *      target group
      * @return
      */
-    public FF4jGrantees addUser(String user) {
+    public FF4jGrantees grantUser(String user) {
         users.add(user);
+        return this;
+    }
+    
+    /**
+     * Add dedicated user.
+     *
+     * @param group
+     *      target group
+     * @return
+     */
+    public FF4jGrantees revokeUser(String user) {
+        users.remove(user);
         return this;
     }
     
@@ -74,8 +86,20 @@ public class FF4jGrantees {
      *      target group
      * @return
      */
-    public FF4jGrantees addGroup(String group) {
-        groups.add(group);
+    public FF4jGrantees grantRole(String group) {
+        roles.add(group);
+        return this;
+    }
+    
+    /**
+     * Remove dedicated group.
+     *
+     * @param group
+     *      target group
+     * @return
+     */
+    public FF4jGrantees revokeRole(String group) {
+        roles.remove(group);
         return this;
     }
     
@@ -87,8 +111,8 @@ public class FF4jGrantees {
      * @return
      *      if the user if part of the grantees
      */
-    public boolean isGroupGranted(String groupName) {
-        return groups.contains(groupName);
+    public boolean isRoleGranted(String groupName) {
+        return roles.contains(groupName);
     }
     
     /**
@@ -113,8 +137,8 @@ public class FF4jGrantees {
      */
     public boolean isUserGranted(FF4jUser user) {
         return users.contains(user.getUid()) ? true :
-            !groups.stream()
-                    .filter(user.getGroups()::contains)
+            !roles.stream()
+                    .filter(user.getRoles()::contains)
                     .collect(Collectors.toList())
                     .isEmpty();
     }
@@ -139,22 +163,22 @@ public class FF4jGrantees {
     }
 
     /**
-     * Getter accessor for attribute 'groups'.
+     * Getter accessor for attribute 'roles'.
      *
      * @return
-     *       current value of 'groups'
+     *       current value of 'roles'
      */
-    public Set<String> getGroups() {
-        return groups;
+    public Set<String> getRoles() {
+        return roles;
     }
 
     /**
-     * Setter accessor for attribute 'groups'.
-     * @param groups
-     * 		new value for 'groups '
+     * Setter accessor for attribute 'roles'.
+     * @param roles
+     * 		new value for 'roles '
      */
-    public void setGroups(Set<String> groups) {
-        this.groups = groups;
+    public void setRoles(Set<String> roles) {
+        this.roles = roles;
     }
     
 }

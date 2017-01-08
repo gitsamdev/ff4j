@@ -668,6 +668,8 @@ public class JdbcConstants {
      */
     public static enum GlobalPermissionsColumns  implements SqlTableColumns {
         
+        TARGET("TARGET", SQLTypes.VARCHAR, 100, true),
+        
         RIGHTS("RIGHTS", SQLTypes.VARCHAR, 100, true),
         
         GRANTEE("GRANTEE", SQLTypes.VARCHAR, 100, true),
@@ -721,7 +723,7 @@ public class JdbcConstants {
         
         /** {@inheritDoc} */
         public List < SqlTableColumns > primaryKey() { 
-            return Util.listOf(RIGHTS, GRANTEE); 
+            return Util.listOf(RIGHTS, GRANTEE, TARGET); 
         }
         
         /** {@inheritDoc} */
@@ -815,6 +817,7 @@ public class JdbcConstants {
         OWNER(COLUMN_OWNER, SQLTypes.VARCHAR,   100, false),
         DESCRIPTION(COLUMN_DESCRIPTION, SQLTypes.VARCHAR, 255, false),
         
+        PASSWORD("PASSWORD", SQLTypes.VARCHAR, 255, true),
         LASTNAME("LASTNAME", SQLTypes.VARCHAR, 100, false),
         FIRSTNAME("FIRSTNAME", SQLTypes.VARCHAR, 100, false);
         
@@ -878,7 +881,7 @@ public class JdbcConstants {
     /**
      * Representation of the JDBC Table ROLE.
      */
-    public static enum UserGroupColumns  implements SqlTableColumns {
+    public static enum UserRolesColumns  implements SqlTableColumns {
         
         // Columns shared by all entities
         NAME("NAME", SQLTypes.VARCHAR, 100, true),
@@ -907,7 +910,7 @@ public class JdbcConstants {
          *      column size
          * @param pnullabz
          */
-        private UserGroupColumns(String pname, SQLTypes ptype, int psize, boolean pnullable) {
+        private UserRolesColumns(String pname, SQLTypes ptype, int psize, boolean pnullable) {
             name = pname;
             type = ptype;
             size = psize;
@@ -927,7 +930,7 @@ public class JdbcConstants {
         public boolean nullable()  { return !required; }
         
         /** {@inheritDoc} */
-        public String tableName() { return "USER_GROUP"; }
+        public String tableName() { return "USER_ROLE"; }
         
         /** {@inheritDoc} */
         public List < SqlTableColumns > primaryKey() { 
@@ -943,7 +946,7 @@ public class JdbcConstants {
     /**
      * Representation of the JDBC Table ROLE.
      */
-    public static enum UserMemberOfColumns  implements SqlTableColumns {
+    public static enum UserRoleAssociationColumns  implements SqlTableColumns {
         
         // Columns shared by all entities
         REF_USER("REF_USER", SQLTypes.VARCHAR, 100, true),
@@ -972,7 +975,7 @@ public class JdbcConstants {
          *      column size
          * @param pnullabz
          */
-        private UserMemberOfColumns(String pname, SQLTypes ptype, int psize, boolean pnullable) {
+        private UserRoleAssociationColumns(String pname, SQLTypes ptype, int psize, boolean pnullable) {
             name = pname;
             type = ptype;
             size = psize;
@@ -992,7 +995,7 @@ public class JdbcConstants {
         public boolean nullable()  { return !required; }
         
         /** {@inheritDoc} */
-        public String tableName() { return "USER_MEMBERSOF"; }
+        public String tableName() { return "USER_ROLE_A"; }
         
         /** {@inheritDoc} */
         public List < SqlTableColumns > primaryKey() { 
@@ -1003,7 +1006,7 @@ public class JdbcConstants {
         public Optional <Map < SqlTableColumns, SqlTableColumns >> foreignKey() {
             Map < SqlTableColumns, SqlTableColumns > foreignKeysMap = new HashMap<>();
             foreignKeysMap.put(REF_USER, UserColumns.UID);
-            foreignKeysMap.put(REF_GROUP, UserGroupColumns.NAME);
+            foreignKeysMap.put(REF_GROUP, UserRolesColumns.NAME);
             return Optional.of(foreignKeysMap);
         }
     }

@@ -3,6 +3,8 @@ package org.ff4j.jdbc.store;
 import static org.ff4j.jdbc.JdbcUtils.closeConnection;
 import static org.ff4j.jdbc.JdbcUtils.closeResultSet;
 import static org.ff4j.jdbc.JdbcUtils.closeStatement;
+import static org.ff4j.jdbc.JdbcUtils.executeUpdate;
+import static org.ff4j.jdbc.JdbcUtils.isTableExist;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -52,19 +54,38 @@ public class AuditTrailJdbc implements AuditTrail {
         this.dataSource = jdbcDS;
     }
     
-    /** {@inheritDoc} *
+    /** {@inheritDoc} */
     @Override
     public void createSchema() {
         DataSource       ds = getDataSource();
         JdbcQueryBuilder qb = getQueryBuilder();
-        // Split AuditTrail information & Feature usage
-        if (!isTableExist(ds, qb.getTableNameAudit())) {
-            executeUpdate(ds, qb.sqlCreateTableAudit());
-        }
-        if (!isTableExist(ds, qb.getTableNameMetrics())) {
-            executeUpdate(ds, qb.sqlCreateTableMetrics());
+        if (!isTableExist(ds, qb.getTableNameAuditTrail())) {
+            executeUpdate(ds, qb.sqlCreateTableAuditTrail());
         }
     }
+    
+    @Override
+    public void log(Event evt) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public Stream<Event> search(AuditTrailQuery query) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void purge(AuditTrailQuery query) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    
+    
+    /** {@inheritDoc} *
+    
     
     /** {@inheritDoc} *
     @Override
@@ -338,22 +359,6 @@ public class AuditTrailJdbc implements AuditTrail {
 		this.queryBuilder = queryBuilder;
 	}
 
-    @Override
-    public void log(Event evt) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public Stream<Event> search(AuditTrailQuery query) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public void purge(AuditTrailQuery query) {
-        // TODO Auto-generated method stub
-        
-    }
+    
 
 }

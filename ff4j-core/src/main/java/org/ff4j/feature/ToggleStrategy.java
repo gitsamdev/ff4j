@@ -42,7 +42,7 @@ public interface ToggleStrategy extends FF4jStrategy {
      *            custom params to make decision
      * @return if flipping should be performed
      */
-    boolean isToggled(String featureName, FF4jContext executionContext);
+    boolean isToggled(Feature feature, FF4jContext executionContext);
     
     /**
      * Instanciate flipping strategy from its class name.

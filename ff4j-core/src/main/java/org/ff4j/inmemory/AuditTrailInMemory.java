@@ -20,7 +20,7 @@ import org.ff4j.utils.Util;
  *
  * @author Cedrick LUNVEN  (@clunven)
  */
-public class AuditTrailInMemory implements AuditTrail{
+public class AuditTrailInMemory implements AuditTrail {
 
     /** default retention. */
     private final int DEFAULT_QUEUE_CAPACITY = 100000;
@@ -30,6 +30,10 @@ public class AuditTrailInMemory implements AuditTrail{
     
     /** Event <SCOPE> -> <ID> -> List Event related to user action in console (not featureUsage, not check OFF). */
     private static Map< String , Map < String, EventSeries>> auditTrail = new ConcurrentHashMap<>();
+    
+    /** {@inheritDoc} */
+    @Override
+    public void createSchema() {}
     
     /** {@inheritDoc} */
     @Override
@@ -96,6 +100,6 @@ public class AuditTrailInMemory implements AuditTrail{
                       // Remove from the Event Series
                       .remove(evt);
         });
-    }
+    }    
     
 }

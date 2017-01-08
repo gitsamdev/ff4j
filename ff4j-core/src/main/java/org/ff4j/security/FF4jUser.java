@@ -25,7 +25,7 @@ public class FF4jUser extends FF4jEntity < FF4jUser > {
     private Set < FF4jPermission > permissions = new HashSet<>();
     
     /** User groups. */
-    private Set < String > groups = new HashSet<>();
+    private Set < String > roles = new HashSet<>();
     
     /**
      * Create a user by its userName.
@@ -74,25 +74,6 @@ public class FF4jUser extends FF4jEntity < FF4jUser > {
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
-    
-    /**
-     * Getter accessor for attribute 'groups'.
-     *
-     * @return
-     *       current value of 'groups'
-     */
-    public Set<String> getGroups() {
-        return groups;
-    }
-
-    /**
-     * Setter accessor for attribute 'groups'.
-     * @param groups
-     * 		new value for 'groups '
-     */
-    public void setGroups(Set<String> groups) {
-        this.groups = groups;
-    }
 
     /**
      * Getter accessor for attribute 'permissions'.
@@ -111,6 +92,25 @@ public class FF4jUser extends FF4jEntity < FF4jUser > {
      */
     public void setPermissions(Set<FF4jPermission> permissions) {
         this.permissions = permissions;
+    }
+
+    /**
+     * Getter accessor for attribute 'roles'.
+     *
+     * @return
+     *       current value of 'roles'
+     */
+    public Set<String> getRoles() {
+        return roles;
+    }
+
+    /**
+     * Setter accessor for attribute 'roles'.
+     * @param roles
+     * 		new value for 'roles '
+     */
+    public void setRoles(Set<String> roles) {
+        this.roles = roles;
     }
     
 }

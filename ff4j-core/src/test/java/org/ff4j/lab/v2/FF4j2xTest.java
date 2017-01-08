@@ -11,25 +11,34 @@ public class FF4j2xTest {
     
     @Test
     public void testInMemory() throws InterruptedException {
+        
         // Given
         FF4j ff4j = new FF4j("ff4j.xml");
-        ff4j.enableAuditTrail();
+        
+        // Feature Usage
         ff4j.enableFeatureUsageTracking();
+        ff4j.registerListener("FeatureUsageConsole", 
+                new FeatureUsageLogger());
         
-        AuditTrailLogger atl = new AuditTrailLogger();
+        // Audit for Features
+        ff4j.enableAuditTrail();
+        ff4j.getFeatureStore().registerListener("AuditTrailConsole", 
+                new FeatureStoreListenerAudit(new AuditTrailLogger()));
         
-        // Register Listener to log operation on the featureStore
-        ff4j.registerListener("FeatureUsageConsole", new FeatureUsageLogger());
-        ff4j.getFeatureStore().registerListener("AuditTrailConsole", new FeatureStoreListenerAudit(atl));
+        // Security
+        ff4j.grantUsers(FF4jPermission.ADMIN_FEATURES, "Pierre");
+        ff4j.saveAccessControlList();
         
+        // Feature
         Feature fx = new Feature("fx").setGroup("G1").toggleOn();
-        fx.grantUsers(FF4jPermission.EXECUTE_FEATURE, "Pierre", "Paul", "Jacques");
-        
-        // expect to fire event to auditTrails
+        fx.grantUsers(FF4jPermission.TOGGLE_FEATURE, "Pierre", "Paul", "Jacques");
         ff4j.createFeature(fx);
         
         // expect to fire event to feature usage
         Assert.assertTrue(ff4j.check("fx"));
+        
+        // Update Feature
+        // ff4j.getFeature("fx").getAccessControlList().get().
         
         // Async
         Thread.sleep(2000);

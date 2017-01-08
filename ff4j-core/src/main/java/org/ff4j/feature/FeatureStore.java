@@ -90,5 +90,4 @@ public interface FeatureStore extends FF4jRepository < String, Feature > {
      * @return set of group in the store
      */
     Stream < String > readAllGroups();
-    
 }

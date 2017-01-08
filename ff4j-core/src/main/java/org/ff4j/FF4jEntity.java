@@ -54,6 +54,9 @@ public abstract class FF4jEntity<T extends FF4jEntity<?>> implements Comparable<
     /** unique identifier. */
     protected String uid;
     
+    /** Permission : by Default everyOne can use the Feature. */
+    protected AccessControlList accessControlList = new AccessControlList();
+    
     /** Description of the meaning. */
     protected Optional < String > description = Optional.empty();
     
@@ -68,9 +71,6 @@ public abstract class FF4jEntity<T extends FF4jEntity<?>> implements Comparable<
 
     /** Add you own attributes to a feature. */
     protected Optional<Map<String, Property<?>>> customProperties = Optional.empty();
-    
-    /** Permission : by Default everyOne can use the Feature. */
-    protected Optional< AccessControlList > accessControlList = Optional.empty();
     
     /**
      * Json common parts
@@ -99,9 +99,7 @@ public abstract class FF4jEntity<T extends FF4jEntity<?>> implements Comparable<
             }
             json.append("]");
         });
-        accessControlList.ifPresent(acl -> {
-            json.append(", \"accessControlList\":" + acl.toJson());
-        });
+        json.append(", \"accessControlList\":" + getAccessControlList().toJson());
         return json.toString();   
     }
     
@@ -120,11 +118,11 @@ public abstract class FF4jEntity<T extends FF4jEntity<?>> implements Comparable<
     protected FF4jEntity(String uid, FF4jEntity<?> e) {
         this(uid);
         Util.requireNotNull(e);
+        this.accessControlList = e.getAccessControlList();
         e.getOwner().ifPresent(o -> this.owner = Optional.of(o));
         e.getDescription().ifPresent(d -> this.description = Optional.of(d));
         e.getCreationDate().ifPresent(c -> this.creationDate = Optional.of(c));
         e.getLastModifiedDate().ifPresent(c -> this.lastModifiedDate = Optional.of(c));
-        e.getAccessControlList().ifPresent(acl -> this.accessControlList = Optional.of(acl));
         e.getCustomProperties().ifPresent(
                 cp -> cp.values().stream().forEach(
                         p -> addCustomProperty(PropertyFactory.createProperty(p))));
@@ -244,11 +242,6 @@ public abstract class FF4jEntity<T extends FF4jEntity<?>> implements Comparable<
     public String getUid() {
         return uid;
     }
-
-    /** {@inheritDoc} */
-    public Optional <AccessControlList> getAccessControlList() {
-        return accessControlList;
-    }
     
     /**
      * Getter accessor for attribute 'customProperties'.
@@ -284,6 +277,26 @@ public abstract class FF4jEntity<T extends FF4jEntity<?>> implements Comparable<
      */
     public T addCustomProperty(Property<?> property) {
         return addCustomProperties(property);
+    }
+
+    /**
+     * Getter accessor for attribute 'accessControlList'.
+     *
+     * @return
+     *       current value of 'accessControlList'
+     */
+    @Override
+    public AccessControlList getAccessControlList() {
+        return accessControlList;
+    }
+
+    /**
+     * Setter accessor for attribute 'accessControlList'.
+     * @param accessControlList
+     * 		new value for 'accessControlList '
+     */
+    public void setAccessControlList(AccessControlList accessControlList) {
+        this.accessControlList = accessControlList;
     } 
     
 }
