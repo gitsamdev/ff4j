@@ -29,6 +29,7 @@ import org.ff4j.inmemory.FeatureStoreInMemory;
 import org.ff4j.inmemory.FeatureUsageInMemory;
 import org.ff4j.inmemory.PropertyStoreInMemory;
 import org.ff4j.inmemory.SecurityStoreInMemory;
+import org.ff4j.inmemory.UserStoreInMemory;
 import org.ff4j.property.Property;
 import org.ff4j.property.PropertyStore;
 import org.ff4j.security.AccessControlList;
@@ -67,21 +68,21 @@ public class FF4j extends FF4jRepositoryObserver < FeatureUsageEventListener > i
     
     /** Storage to persist feature within {@link FeatureStore}. */
     private FeatureStore featureStore = new FeatureStoreInMemory();
-    
-    /** Define feature usage. */
-    private FeatureUsageEventSupport featureUsage = new FeatureUsageInMemory();
-    
+   
     /** Storage to persist properties within {@link PropertyStore}. */
     private PropertyStore propertyStore = new PropertyStoreInMemory();
     
     /** Storage to persist event logs. */ 
     private AuditTrail auditTrail = new AuditTrailInMemory();
     
+    /** Define feature usage. */
+    private FeatureUsageEventSupport featureUsage = new FeatureUsageInMemory();
+    
+    /** ReadOnly but can be extended to have full control on user (and dedicated screen in console). */
+    private UserManager userManager = new UserStoreInMemory();
+    
     /** Storage to persist permissions for ff4j, web console, stores. */
     private AccessControlListStore securityStore = new SecurityStoreInMemory();
-    
-    /** Storage to persist users, 99% of time will be outside. */
-    private UserManager userStore;
     
     /** Flag to ask for automatically create the feature if not found in the store. */
     private boolean autoCreateFeatures = false;
@@ -743,6 +744,44 @@ public class FF4j extends FF4jRepositoryObserver < FeatureUsageEventListener > i
      */
     public void setSource(String source) {
         this.source = source;
+    }
+
+    /**
+     * Getter accessor for attribute 'userManager'.
+     *
+     * @return
+     *       current value of 'userManager'
+     */
+    public UserManager getUserManager() {
+        return userManager;
+    }
+
+    /**
+     * Setter accessor for attribute 'userManager'.
+     * @param userManager
+     * 		new value for 'userManager '
+     */
+    public void setUserManager(UserManager userManager) {
+        this.userManager = userManager;
+    }
+
+    /**
+     * Getter accessor for attribute 'securityStore'.
+     *
+     * @return
+     *       current value of 'securityStore'
+     */
+    public AccessControlListStore getSecurityStore() {
+        return securityStore;
+    }
+
+    /**
+     * Setter accessor for attribute 'securityStore'.
+     * @param securityStore
+     * 		new value for 'securityStore '
+     */
+    public void setSecurityStore(AccessControlListStore securityStore) {
+        this.securityStore = securityStore;
     }
     
 }

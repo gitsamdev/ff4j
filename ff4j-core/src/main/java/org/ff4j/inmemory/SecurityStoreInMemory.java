@@ -1,5 +1,6 @@
 package org.ff4j.inmemory;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,16 +13,17 @@ import org.ff4j.utils.Util;
  *
  * @author Cedrick LUNVEN  (@clunven)
  */
-public class SecurityStoreInMemory implements AccessControlListStore {
+public class SecurityStoreInMemory implements AccessControlListStore, Serializable {
+    
+    /** serialVersionUID. */
+    private static final long serialVersionUID = -323450837207168425L;
     
     /** Holder for different {@link AccessControlList}. */
     private Map < String , AccessControlList > mapOfAcl = new HashMap<>();
     
     /** {@inheritDoc} */
     @Override
-    public void createSchema() {
-        // Nothing to do easy
-    }
+    public void createSchema() {}
 
     /** {@inheritDoc} */
     @Override
@@ -37,6 +39,7 @@ public class SecurityStoreInMemory implements AccessControlListStore {
     /** {@inheritDoc} */
     @Override
     public void saveAccessControlList(AccessControlList acl, String targetUid) {
+        mapOfAcl.put(targetUid, acl);
     }
 
 }
