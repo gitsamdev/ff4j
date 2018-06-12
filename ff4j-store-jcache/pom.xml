@@ -14,7 +14,7 @@
 	<parent>
 		<groupId>org.ff4j</groupId>
 		<artifactId>ff4j-parent</artifactId>
-		<version>1.6.3-SNAPSHOT</version>
+		<version>1.7.2-SNAPSHOT</version>
 	</parent>
 
 	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -44,7 +44,6 @@
 		<dependency>
 			<groupId>javax.cache</groupId>
 			<artifactId>cache-api</artifactId>
-			<scope>provided</scope>
 		</dependency>
 		
 		<!-- JSR Default implementation (Tests Purposes) -->	
@@ -68,14 +67,6 @@
 			<groupId>com.hazelcast</groupId>
 			<artifactId>hazelcast</artifactId>
 			<scope>test</scope>
-		</dependency>
-		
-		<!-- Apache Ignite -->
-		<dependency>
-	    <groupId>org.apache.ignite</groupId>
-	    <artifactId>ignite-core</artifactId>
-		    <version>${ignite.version}</version>
-		    <scope>test</scope>
 		</dependency>
 		
 		<!-- Tests -->

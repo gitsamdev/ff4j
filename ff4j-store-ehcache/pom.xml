@@ -14,7 +14,7 @@
 	<parent>
 		<groupId>org.ff4j</groupId>
 		<artifactId>ff4j-parent</artifactId>
-		<version>1.6.3-SNAPSHOT</version>
+		<version>1.7.2-SNAPSHOT</version>
 	</parent>
 
 	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -124,7 +124,7 @@
 		    </executions>
 			</plugin>
 			
-			<plugin>
+			<!--<plugin>
 				<groupId>org.terracotta.maven.plugins</groupId>
 				<artifactId>tc-maven-plugin</artifactId>
 				<version>2.1.0</version>
@@ -133,6 +133,12 @@
 						<groupId>org.terracotta</groupId>
 						<artifactId>terracotta</artifactId>
 						<version>4.3.0.0.26</version>
+						<exclusions>
+							<exclusion>
+								<groupId>org.terracotta</groupId>
+								<artifactId>search</artifactId>
+							</exclusion>
+						</exclusions>
 					</dependency>
 				</dependencies>
 				
@@ -153,7 +159,7 @@
 						</goals>
 					</execution>
 				</executions>
-			</plugin>
+			</plugin>-->
 			
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

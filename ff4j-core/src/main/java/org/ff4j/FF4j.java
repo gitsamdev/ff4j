@@ -127,8 +127,7 @@ public class FF4j {
      * or the wraps exception thrown by an invoked method or constructor
      */
     private boolean alterBeanThrowInvocationTargetException = true;
-    
-    
+        
     /**
      * Default constructor to allows instantiation through IoC. The created store is an empty {@link InMemoryFeatureStore}.
      */
@@ -725,8 +724,10 @@ public class FF4j {
         this.currentExecutionContext.set(context);
         
         // Event Publisher
-        eventPublisher = new EventPublisher(eventRepository);
-        this.shutdownEventPublisher = true;
+        if (eventPublisher == null) {
+            eventPublisher = new EventPublisher(eventRepository);
+            this.shutdownEventPublisher = true;
+        }
         
         // Audit is enabled, proxified stores for auditing
         if (isEnableAudit()) {

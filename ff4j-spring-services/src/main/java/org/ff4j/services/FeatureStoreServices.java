@@ -41,6 +41,7 @@ import java.util.*;
  */
 @Service
 public class FeatureStoreServices {
+    
     @Autowired
     private FF4j ff4j;
 
@@ -87,18 +88,19 @@ public class FeatureStoreServices {
     }
 
     public CacheApiBean getFeaturesFromCache() {
-        if (ff4j.getFeatureStore() instanceof FF4jCacheProxy) {
-            return new CacheApiBean(ff4j.getFeatureStore());
-        } else {
+        FF4jCacheProxy cacheProxy = ff4j.getCacheProxy();
+        if (cacheProxy == null) {
             throw new FeatureStoreNotCached();
         }
+        return new CacheApiBean(ff4j.getFeatureStore());
     }
 
     public void clearCachedFeatureStore() {
-        if (ff4j.getFeatureStore() instanceof FF4jCacheProxy) {
-            ((FF4jCacheProxy) ff4j.getFeatureStore()).getCacheManager().clearFeatures();
-        } else {
+        // Fixing #218 : If audit is enabled, cannot clear cache.
+        FF4jCacheProxy cacheProxy = ff4j.getCacheProxy();
+        if (cacheProxy == null) {
             throw new FeatureStoreNotCached();
         }
+        cacheProxy.getCacheManager().clearFeatures();
     }
 }

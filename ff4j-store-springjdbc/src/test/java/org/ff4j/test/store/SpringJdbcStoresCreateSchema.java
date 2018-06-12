@@ -1,10 +1,15 @@
 package org.ff4j.test.store;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
+import javax.sql.DataSource;
+
 /*
  * #%L
  * ff4j-store-springjdbc
  * %%
- * Copyright (C) 2013 - 2016 FF4J
+ * Copyright (C) 2013 - 2017 FF4J
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +25,11 @@ package org.ff4j.test.store;
  * #L%
  */
 
-import org.ff4j.store.FeatureStoreSpringJdbc;
+
+import org.ff4j.springjdbc.store.FeatureStoreSpringJdbc;
+import org.ff4j.springjdbc.store.PropertyStoreSpringJdbc;
 import org.ff4j.store.JdbcQueryBuilder;
-import org.ff4j.store.PropertyStoreSpringJdbc;
+import org.ff4j.utils.JdbcUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -52,10 +59,15 @@ public class SpringJdbcStoresCreateSchema {
         initStore();
     }
     
-    /** {@inheritDoc} */
-    public void initStore() {
+    /** {@inheritDoc} 
+     * @throws SQLException */
+    public void initStore() throws SQLException {
         builder = new EmbeddedDatabaseBuilder();
         db = builder.setType(EmbeddedDatabaseType.HSQL).build();
+        PreparedStatement prepareStatement = db.getConnection().prepareStatement("CREATE SCHEMA FF4J");
+        prepareStatement.executeUpdate();
+        prepareStatement = db.getConnection().prepareStatement("CREATE SCHEMA FF4J_2");
+        prepareStatement.executeUpdate();
         testedStore = new FeatureStoreSpringJdbc();
         testedStore.setDataSource(db);
         testedStore.getJdbcTemplate();
@@ -75,18 +87,32 @@ public class SpringJdbcStoresCreateSchema {
     public void testCreateSchema() {
         JdbcQueryBuilder qb = testedStore.getQueryBuilder();
         // Given
-        Assert.assertFalse(testedStore.isTableExist(qb.getTableNameFeatures()));
-        Assert.assertFalse(testedStore.isTableExist(qb.getTableNameRoles()));
-        Assert.assertFalse(testedStore.isTableExist(qb.getTableNameCustomProperties()));
+        Assert.assertFalse(JdbcUtils.isTableExist(
+                testedStore.getJdbcTemplate().getDataSource(), qb.getTableNameFeatures()));
+        Assert.assertFalse(JdbcUtils.isTableExist(
+                testedStore.getJdbcTemplate().getDataSource(), qb.getTableNameRoles()));
+        Assert.assertFalse(JdbcUtils.isTableExist(
+                testedStore.getJdbcTemplate().getDataSource(), qb.getTableNameCustomProperties()));
         // When
         testedStore.createSchema();
         propertyStore.createSchema();
         // then
-        Assert.assertTrue(testedStore.isTableExist(qb.getTableNameFeatures()));
-        Assert.assertTrue(testedStore.isTableExist(qb.getTableNameRoles()));
-        Assert.assertTrue(testedStore.isTableExist(qb.getTableNameCustomProperties()));
-        Assert.assertTrue(testedStore.isTableExist(qb.getTableNameProperties()));
+        Assert.assertTrue(JdbcUtils.isTableExist(
+                testedStore.getJdbcTemplate().getDataSource(), qb.getTableNameFeatures()));
+        Assert.assertTrue(JdbcUtils.isTableExist(
+                testedStore.getJdbcTemplate().getDataSource(), qb.getTableNameRoles()));
+        Assert.assertTrue(JdbcUtils.isTableExist(
+                testedStore.getJdbcTemplate().getDataSource(), qb.getTableNameCustomProperties()));
     }
     
+    @Test
+    public void testCreateTablesWithDataBaseSchema() {
+		JdbcQueryBuilder queryBuilder = testedStore.getQueryBuilder();
+		queryBuilder.setDbSchema("FF4J");
+        testedStore.createSchema();
+        DataSource dataSource = testedStore.getJdbcTemplate().getDataSource();
+		Assert.assertTrue(JdbcUtils.isTableExist(dataSource, queryBuilder.getTableNameFeatures(), "FF4J"));
+		Assert.assertFalse(JdbcUtils.isTableExist(dataSource, queryBuilder.getTableNameFeatures(), "FF4J_2"));
+    }
 
 }

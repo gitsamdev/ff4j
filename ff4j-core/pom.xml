@@ -14,13 +14,15 @@
 	<parent>
 		<groupId>org.ff4j</groupId>
 		<artifactId>ff4j-parent</artifactId>
-		<version>1.6.3-SNAPSHOT</version>
+		<version>1.7.2-SNAPSHOT</version>
 	</parent>
 
 	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 	<!-- ~      DEPENDENCIES        ~ -->
 	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 	<dependencies>
+	
+	
 		
 		<!-- Support for tests -->
 		<dependency>
@@ -64,5 +66,5 @@
 	<properties>
 	 	<license.licenseResolver>${project.baseUri}/../src/license</license.licenseResolver>
 	</properties>
-	
+
 </project>

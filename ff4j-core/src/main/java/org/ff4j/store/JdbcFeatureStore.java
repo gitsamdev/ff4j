@@ -111,13 +111,14 @@ public class JdbcFeatureStore extends AbstractFeatureStore {
     public void createSchema() {
         DataSource       ds = getDataSource();
         JdbcQueryBuilder qb = getQueryBuilder();
-        if (!isTableExist(ds, qb.getTableNameFeatures())) {
+        String dbSchema = queryBuilder.getDbSchema();
+		if (!isTableExist(ds, qb.getTableNameFeatures(), dbSchema)) {
             executeUpdate(ds, qb.sqlCreateTableFeatures());
         }
-        if (!isTableExist(ds, qb.getTableNameCustomProperties())) {
+        if (!isTableExist(ds, qb.getTableNameCustomProperties(), dbSchema)) {
             executeUpdate(ds, qb.sqlCreateTableCustomProperties());
         }
-        if (!isTableExist(ds, qb.getTableNameRoles())) {
+        if (!isTableExist(ds, qb.getTableNameRoles(), dbSchema)) {
             executeUpdate(ds, qb.sqlCreateTableRoles());
         }
     }
@@ -234,7 +235,7 @@ public class JdbcFeatureStore extends AbstractFeatureStore {
             String strategyColumn = null;
             String expressionColumn = null;
             if (fp.getFlippingStrategy() != null) {
-                strategyColumn   = fp.getFlippingStrategy().getClass().getCanonicalName();
+                strategyColumn   = fp.getFlippingStrategy().getClass().getName();
                 expressionColumn = MappingUtil.fromMap(fp.getFlippingStrategy().getInitParams());
             }
             ps.setString(4, strategyColumn);
@@ -445,14 +446,14 @@ public class JdbcFeatureStore extends AbstractFeatureStore {
         try {
             sqlConn = dataSource.getConnection();
             Feature fpExist = read(fp.getUid());
-            String enable = "0";
+            int enable = 0;
             if (fp.isEnable()) {
-                enable = "1";
+                enable = 1;
             }
             String fStrategy = null;
             String fExpression = null;
             if (fp.getFlippingStrategy() != null) {
-                fStrategy = fp.getFlippingStrategy().getClass().getCanonicalName();
+                fStrategy = fp.getFlippingStrategy().getClass().getName();
                 fExpression = MappingUtil.fromMap(fp.getFlippingStrategy().getInitParams());
             }
             update(getQueryBuilder().updateFeature(),
@@ -480,16 +481,21 @@ public class JdbcFeatureStore extends AbstractFeatureStore {
             ps = sqlConn.prepareStatement(getQueryBuilder().deleteAllFeatureCustomProperties());
             ps.setString(1, fpExist.getUid());
             ps.executeUpdate();
+            closeStatement(ps);
+            ps = null;
 
-            // CREATE PROPERTIES
-            createCustomProperties(fp.getUid(), fp.getCustomProperties().values());
-           
-            } catch (SQLException sqlEX) {
-                throw new FeatureAccessException(CANNOT_CHECK_FEATURE_EXISTENCE_ERROR_RELATED_TO_DATABASE, sqlEX);
-            } finally {
+            // CREATE CUSTOM PROPERTIES
+            for (Property<?> property : fp.getCustomProperties().values()) {
+                ps = createCustomProperty(sqlConn, fp.getUid(), property);
                 closeStatement(ps);
-                closeConnection(sqlConn);
+                ps = null;
             }
+        } catch (SQLException sqlEX) {
+            throw new FeatureAccessException(CANNOT_CHECK_FEATURE_EXISTENCE_ERROR_RELATED_TO_DATABASE, sqlEX);
+        } finally {
+            closeStatement(ps);
+            closeConnection(sqlConn);
+        }
     }
 
     /** {@inheritDoc} */
@@ -558,6 +564,7 @@ public class JdbcFeatureStore extends AbstractFeatureStore {
             sqlConn.commit();
 
         } catch (SQLException sqlEX) {
+            rollback(sqlConn);
             throw new FeatureAccessException(CANNOT_CHECK_FEATURE_EXISTENCE_ERROR_RELATED_TO_DATABASE, sqlEX);
         } finally {
             closeStatement(ps);
@@ -725,13 +732,16 @@ public class JdbcFeatureStore extends AbstractFeatureStore {
      * @param params
      *            sql query params
      */
-    public void update(String query, String... params) {
+    public void update(String query, Object... params) {
         Connection sqlConnection = null;
         PreparedStatement ps = null;
         try {
             sqlConnection = dataSource.getConnection();
             ps = buildStatement(sqlConnection, query, params);
             ps.executeUpdate();
+            if (!sqlConnection.getAutoCommit()) {
+		sqlConnection.commit();
+	    }
         } catch (SQLException sqlEX) {
             throw new FeatureAccessException(CANNOT_UPDATE_FEATURES_DATABASE_SQL_ERROR, sqlEX);
         } finally {

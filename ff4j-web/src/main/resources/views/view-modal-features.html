@@ -131,6 +131,21 @@
                     $('#modalEdit #stratlist').show();
                     $('#modalEdit #initParams').val('grantedServers=s1,s2,s3')">ServerFilter</a></li>
               <li class="divider"></li>
+                <b><span>Strategies used</span></b>
+                <li th:each="stragy : ${listOfStrategyUsed}" >
+                    <span th:if="${stragy} != null">
+	                    <span th:each="initParam : ${stragy.initParams}">
+                         <a href="#" th:onclick="'
+                        $(\'#modalEdit #strategy\').val(\'' + ${stragy.type} + '\');
+                        $(\'#modalEdit #stratlist\').show();
+                        $(\'#modalEdit #initParams\').val(\'' + ${initParam} + '\'); '"
+                         >
+                             <b><span th:text="${stragy.class.simpleName}">---</span></b>
+                        </a>
+                        </span>
+                    </span>
+                </li>
+                <li class="divider"></li>
               <li><a href="#" onclick="javascript:
                     $('#modalEdit #strategy').val('');
                     $('#modalEdit #stratlist').hide();
@@ -140,7 +155,16 @@
         </div>
          <div id="stratlist" class="controls hide" style="font-style:normal">
           <input type="text" name="initParams" id="initParams" style="margin-top:8px;width:345px;height:18px;font-style:normal" />
+        </div>
+        <div class="controls"  id="initParamsDiv">
+        <table class="table table-bordered table-condensed" style="margin-top:8px;width:345px">
+         <tbody id="initParamsDivTable">
+         </tbody>
+        </table>
       </div>
+      
+        
+        
       </div>
 
     <!-- Permissions --> 
@@ -170,8 +194,7 @@
          </tbody>
         </table>
       </div>
-     </div><!-- Control group -->
-     
+     </div><!-- Control group -->     
      
     <!-- Properties --> 
     <div class="control-group" style="margin-left:0px;float:left;margin-left:-45px">   

@@ -51,13 +51,29 @@ public class JdbcUtils {
      *      if the table exist or not
      */
     public static boolean isTableExist(DataSource ds, String tableName) {
+        return isTableExist(ds, tableName, null);
+    }
+    
+    
+    /**
+     * Check if target Table exist.
+     *
+     * @param ds the ds
+     * @param tableName      table to create
+     * @param schemaPattern the schema
+     * @return      if the table exist or not
+     */
+    public static boolean isTableExist(DataSource ds, String tableName, String schemaPattern) {
         Util.assertHasLength(tableName);
         Connection          sqlConn = null;
         ResultSet           rs = null;
         try {
             sqlConn = ds.getConnection();
             DatabaseMetaData dbmd = sqlConn.getMetaData();
-            rs = dbmd.getTables(null, null, tableName, new String[] {"TABLE"});
+            if (dbmd.storesLowerCaseIdentifiers()) {
+                tableName = tableName.toLowerCase();
+            }
+            rs = dbmd.getTables(null, schemaPattern, tableName, new String[] {"TABLE"});
             return rs.next();
         } catch (SQLException sqlEX) {
             throw new FeatureAccessException("Cannot check table existence", sqlEX);
@@ -103,7 +119,7 @@ public class JdbcUtils {
      * @throws SQLException
      *             sql error when working with statement
      */
-    public static PreparedStatement buildStatement(Connection sqlConn, String query, String... params)
+    public static PreparedStatement buildStatement(Connection sqlConn, String query, Object... params)
     throws SQLException {
         PreparedStatement ps = sqlConn.prepareStatement(query);
         if (params != null && params.length > 0) {

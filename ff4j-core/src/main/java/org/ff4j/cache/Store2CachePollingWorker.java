@@ -1,5 +1,8 @@
 package org.ff4j.cache;
 
+import java.io.Serializable;
+import java.util.Map;
+
 /*
  * #%L
  * ff4j-core
@@ -19,8 +22,6 @@ package org.ff4j.cache;
  * limitations under the License.
  * #L%
  */
-
-import java.io.Serializable;
 
 import org.ff4j.core.Feature;
 import org.ff4j.core.FeatureStore;
@@ -65,17 +66,33 @@ public class Store2CachePollingWorker implements Runnable, Serializable {
     /** {@inheritDoc} */
     @Override
     public void run() {
-        if (sourceFeatureStore != null) {
-            cacheManager.clearFeatures();
-            for (Feature f : sourceFeatureStore.readAll().values()) {
-                cacheManager.putFeature(f);
+        try {
+            
+            if (sourceFeatureStore != null) {
+                // Access the store, if failed an error is raised and cache is not cleared.
+                Map < String, Feature > mapOfFeatures = sourceFeatureStore.readAll();
+                // Clear cache
+                cacheManager.clearFeatures();
+                // Fill Cache
+                for (Feature f : mapOfFeatures.values()) {
+                    cacheManager.putFeature(f);
+                }
             }
-        }
-        if (sourcePropertyStore != null) {
-            cacheManager.clearProperties();
-            for (Property<?> p : sourcePropertyStore.readAllProperties().values()) {
-                cacheManager.putProperty(p);
+            
+            if (sourcePropertyStore != null) {
+                // Access the store, if failed an error is raised and cache is not cleared.
+                Map < String, Property<?> > mapOfProperties = sourcePropertyStore.readAllProperties();
+                // Clear cache
+                cacheManager.clearProperties();
+                // Fill Cache
+                for (Property<?> p : mapOfProperties.values()) {
+                    cacheManager.putProperty(p);
+                }
             }
+            
+        } catch (Exception ex) {
+            // Work in background (worker) failed 'silently'
+            ex.printStackTrace();
         }
     }
 

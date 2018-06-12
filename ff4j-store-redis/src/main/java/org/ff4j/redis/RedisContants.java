@@ -26,27 +26,32 @@ package org.ff4j.redis;
  * @author Cedrick Lunven (@clunven)
  */
 public class RedisContants {
-    
+
+    /** Mapping set for the feature. */
+    public static final String KEY_FEATURE_MAP = "FF4J_FEATURE_MAP";
+
     /** prefix of keys. */
     public static final String KEY_FEATURE = "FF4J_FEATURE_";
-    
+
+    /** Mapping set for properties. */
+    public static final String KEY_PROPERTY_MAP = "FF4J_PROPERTY_MAP";
+
     /** prefix of keys. */
     public static final String KEY_PROPERTY = "FF4J_PROPERTY_";
-    
+
     /** prefix of keys. */
     public static final String KEY_EVENT = "FF4J_EVENT_";
-    
+
     /** prefix of keys. */
-    public static final String KEY_EVENT_AUDIT = "AUDITRAIL_";
-    
+    public static final String KEY_EVENT_AUDIT = "AUDITRAIL";
+
     /** default ttl. */
     public static int DEFAULT_TTL = 900000000;
-    
+
     /**
      * Hide contructor for constants.
      */
     private RedisContants() {
     }
-    
 
 }

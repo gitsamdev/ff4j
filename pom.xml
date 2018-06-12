@@ -7,7 +7,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.ff4j</groupId>
     <artifactId>ff4j-parent</artifactId>
-    <version>1.6.3-SNAPSHOT</version>
+    <version>1.7.2-SNAPSHOT</version>
 
     <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
     <!-- ~ MAIN INFO ~ -->
@@ -56,7 +56,7 @@
     </organization>
 
     <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-    <!-- ~ PROPERTIES ~ -->
+    <!-- ~ PROPERTIES               ~ -->
     <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
     <properties>
 
@@ -138,15 +138,17 @@
         <easymock.version>3.1</easymock.version>
         <swagger.version>2.2.2</swagger.version>
         <meanbean.version>2.0.3</meanbean.version>
+
+        <apache.ignite.version>2.1.0</apache.ignite.version>
     </properties>
 
     <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-    <!-- ~ CHILD MODULES ~ -->
+    <!-- ~ CHILD MODULES            ~ -->
     <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
     <modules>
+
         <module>ff4j-core</module>
         <module>ff4j-aop</module>
-        <module>ff4j-archaius</module>
         <module>ff4j-test</module>
         <module>ff4j-cli</module>
         <module>ff4j-jmx</module>
@@ -160,18 +162,24 @@
         <module>ff4j-security-spring</module>
         <module>ff4j-strategy-drools</module>
 
-        <!-- nosql -->
-        <module>ff4j-store-springjdbc</module>
-
+        <!-- Stores -->
+        <module>ff4j-store-archaius</module>
         <module>ff4j-store-cassandra</module>
+        <module>ff4j-store-commonsconfig</module>
+        <module>ff4j-store-consul</module>
         <module>ff4j-store-ehcache</module>
         <module>ff4j-store-elastic</module>
+        <module>ff4j-store-hazelcast</module>
+        <module>ff4j-store-hbase</module>
+        <module>ff4j-store-ignite</module>
         <module>ff4j-store-jcache</module>
         <module>ff4j-store-mongodb</module>
         <module>ff4j-store-mongodb-v3</module>
         <module>ff4j-store-neo4j</module>
         <module>ff4j-store-redis</module>
-        
+        <module>ff4j-store-springjdbc</module>
+        <module>ff4j-store-couchbase</module>
+
         <!-- spring-boot-starter -->
         <module>ff4j-spring-services</module>
         <module>ff4j-spring-boot-web-api</module>
@@ -191,21 +199,6 @@
                 <version>${spring-boot.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-autoconfigure</artifactId>
-                <version>${spring-boot.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-configuration-processor</artifactId>
-                <version>${spring-boot.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-web</artifactId>
-                <version>${spring-boot.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
@@ -246,13 +239,13 @@
                 <artifactId>gson</artifactId>
                 <version>${gson.version}</version>
             </dependency>
-<dependency>
-    <groupId>org.danilopianini</groupId>
-    <artifactId>gson-extras</artifactId>
-    <version>0.1.0</version>
-</dependency>
-            
-            
+            <dependency>
+                <groupId>org.danilopianini</groupId>
+                <artifactId>gson-extras</artifactId>
+                <version>0.1.0</version>
+            </dependency>
+
+
             <dependency>
                 <groupId>org.assertj</groupId>
                 <artifactId>assertj-core</artifactId>
@@ -602,6 +595,11 @@
                 <version>${version.httpclient}</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.apache.ignite</groupId>
+                <artifactId>ignite-core</artifactId>
+                <version>${apache.ignite.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -779,14 +777,14 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-dependency-plugin</artifactId>
                     <version>${version.maven.plugin.dependency}</version>
-					<!--
-					<executions>
-					<execution>
-						<goals>
-							<goal>sources</goal>
-						</goals>
-					</execution>
-					</executions>-->
+                    <!--
+                    <executions>
+                    <execution>
+                        <goals>
+                            <goal>sources</goal>
+                        </goals>
+                    </execution>
+                    </executions>-->
                 </plugin>
 
                 <!-- Javadoc -->

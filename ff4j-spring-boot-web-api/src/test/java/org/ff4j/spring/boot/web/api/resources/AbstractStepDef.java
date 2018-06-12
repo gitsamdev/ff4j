@@ -32,7 +32,7 @@ import org.ff4j.store.InMemoryFeatureStore;
 import org.json.JSONException;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.SpringApplicationContextLoader;
+import org.springframework.boot.test.context.SpringBootContextLoader;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.ContextConfiguration;
@@ -53,7 +53,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author <a href="mailto:paul58914080@gmail.com">Paul Williams</a>
  */
-@ContextConfiguration(classes = Application.class, loader = SpringApplicationContextLoader.class)
+@ContextConfiguration(classes = Application.class, loader = SpringBootContextLoader.class)
 @WebAppConfiguration
 public abstract class AbstractStepDef {
     protected MockMvc mockMvc;
@@ -68,9 +68,11 @@ public abstract class AbstractStepDef {
 
     protected void clearFeatureStore() {
         ff4j.setFeatureStore(new InMemoryFeatureStore());
+        ff4j.setPropertiesStore(new InMemoryPropertyStore());
     }
 
     protected void clearPropertyStore() {
+        ff4j.setFeatureStore(new InMemoryFeatureStore());
         ff4j.setPropertiesStore(new InMemoryPropertyStore());
     }
 

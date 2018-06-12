@@ -1,6 +1,7 @@
 package org.ff4j.audit.repository;
 
 
+import static org.ff4j.audit.EventConstants.ACTION_CHECK_OK;
 import static org.ff4j.store.JdbcStoreConstants.*;
 
 /*
@@ -19,6 +20,7 @@ import static org.ff4j.utils.JdbcUtils.closeResultSet;
 import static org.ff4j.utils.JdbcUtils.closeStatement;
 import static org.ff4j.utils.JdbcUtils.executeUpdate;
 import static org.ff4j.utils.JdbcUtils.isTableExist;
+import static org.ff4j.utils.JdbcUtils.rollback;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -87,6 +89,7 @@ public class JdbcEventRepository extends AbstractEventRepository {
     }
     
     /** {@inheritDoc} */
+    // FIXME Stop dynamic query !
     @Override
     public boolean saveEvent(Event evt) {
         Util.assertEvent(evt);
@@ -144,10 +147,10 @@ public class JdbcEventRepository extends AbstractEventRepository {
             
             // Commit TX
             sqlConn.commit();
-            
+
         } catch(Exception exc) {
+            rollback(sqlConn);
             throw new AuditAccessException("Cannot insert event into DB (" + exc.getClass() + ") "+ exc.getCause(), exc);
-            
         } finally {
            closeStatement(stmt);
            closeConnection(sqlConn);
@@ -206,6 +209,9 @@ public class JdbcEventRepository extends AbstractEventRepository {
     @Override
     public void purgeFeatureUsage(EventQueryDefinition qDef) {
         Util.assertNotNull(qDef);
+        // Enforce remove "checks"
+        qDef.getActionFilters().add(ACTION_CHECK_OK);
+        
         Connection          sqlConn = null;
         PreparedStatement   ps = null;
         ResultSet           rs = null;

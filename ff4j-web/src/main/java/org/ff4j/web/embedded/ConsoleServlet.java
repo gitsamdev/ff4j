@@ -258,14 +258,14 @@ public class ConsoleServlet extends HttpServlet {
     throws IOException {
         String message = null;
         if (OP_DISABLE.equalsIgnoreCase(operation)) {
-            getFf4j().disable(uid);
+            getFf4j().getFeatureStore().disable(uid);
             res.setContentType(CONTENT_TYPE_HTML);
             res.getWriter().println(renderMessageBox(msg(uid, "DISABLED"), "info"));
             LOGGER.info(uid + " has been disabled");
         } 
         
         if (OP_ENABLE.equalsIgnoreCase(operation)) {
-            getFf4j().enable(uid);
+            getFf4j().getFeatureStore().enable(uid);
             res.setContentType(CONTENT_TYPE_HTML);
             res.getWriter().println(renderMessageBox(msg(uid, "ENABLED"), "info"));
             LOGGER.info("Feature '" + uid + "' has been successfully enabled");
@@ -366,6 +366,9 @@ public class ConsoleServlet extends HttpServlet {
             message = e.getMessage();
             LOGGER.error("An error occured ", e);
         }
+        // Update FF4J in Session (distributed)
+        getServletContext().setAttribute(FF4J_SESSIONATTRIBUTE_NAME, ff4j);
+        
         renderPage(ff4j, req, res, message, messagetype);
     }
 

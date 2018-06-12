@@ -4,7 +4,7 @@ package org.ff4j.test.store;
  * #%L
  * ff4j-store-springjdbc
  * %%
- * Copyright (C) 2013 - 2016 FF4J
+ * Copyright (C) 2013 - 2017 FF4J
  * %%
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,8 @@ package org.ff4j.test.store;
  */
 
 
-import org.ff4j.store.FeatureStoreSpringJdbc;
-import org.ff4j.store.PropertyStoreSpringJdbc;
+import org.ff4j.springjdbc.store.FeatureStoreSpringJdbc;
+import org.ff4j.springjdbc.store.PropertyStoreSpringJdbc;
 import org.junit.Test;
 
 public class TestSpringJdbcErrors {

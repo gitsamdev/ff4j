@@ -49,7 +49,7 @@ public abstract class Property < T > implements Serializable {
     protected String description = null;
     
     /** Canonical name for JSON serialization. */
-    protected String type = getClass().getCanonicalName();
+    protected String type = getClass().getName();
     
     /** Current Value. */
     protected T value;
@@ -111,7 +111,8 @@ public abstract class Property < T > implements Serializable {
      *      current name
      * @param value
      *      current value
-     */    
+     */
+    @SafeVarargs
     protected Property(String name, T value, T... fixed) {
         this(name, value, new HashSet<T>(Arrays.asList(fixed)));
     }
